@@ -383,22 +383,52 @@ function buildFalloffDataset(item, ammoId, color) {
   if (!ammo || !ammo.falloff || ammo.falloff.length === 0) return null;
 
   const baseDmg = stats.damage ?? 0;
-  const data = ammo.falloff.map(([range, mult]) => ({
-    x: range,
-    y: Math.round(baseDmg * mult),
-  }));
+  const keypoints = ammo.falloff;
+  const maxRange = keypoints[keypoints.length - 1][0];
+
+  // 키포인트 거리값 Set (O(1) 조회용)
+  const keypointRanges = new Set(keypoints.map(([r]) => r));
+
+  // 1m 단위로 보간 데이터 생성 (그래프 표시 범위 200m까지만)
+  const dataMax = Math.min(maxRange, 200);
+  const data = [];
+  for (let r = 0; r <= dataMax; r++) {
+    const dmg = Math.round(baseDmg * interpolateFalloff(keypoints, r));
+    data.push({ x: r, y: dmg });
+  }
+
   return {
     label: `${item.name} · ${ammo.label}`,
     data,
     borderColor: color,
     backgroundColor: color + "22",
     borderWidth: 2,
-    tension: 0,            // 직선
+    tension: 0,
     stepped: false,
-    pointRadius: 3,
-    pointBackgroundColor: color,
     fill: false,
+    // 점을 키포인트에만 보이게: 키포인트면 3px, 아니면 0
+    pointRadius: (ctx) => keypointRanges.has(ctx.parsed?.x) ? 3 : 0,
+    // 마우스 hover 시에도 키포인트만 강조
+    pointHoverRadius: (ctx) => keypointRanges.has(ctx.parsed?.x) ? 5 : 3,
+    pointBackgroundColor: color,
+    pointBorderColor: color,
+    pointHitRadius: 10,
   };
+}
+
+// 키포인트 배열에서 임의의 거리 r에 해당하는 배율을 선형 보간
+function interpolateFalloff(keypoints, r) {
+  if (r <= keypoints[0][0]) return keypoints[0][1];
+  if (r >= keypoints[keypoints.length - 1][0]) return keypoints[keypoints.length - 1][1];
+  for (let i = 0; i < keypoints.length - 1; i++) {
+    const [r1, m1] = keypoints[i];
+    const [r2, m2] = keypoints[i + 1];
+    if (r >= r1 && r <= r2) {
+      const t = (r - r1) / (r2 - r1);
+      return m1 + (m2 - m1) * t;
+    }
+  }
+  return keypoints[keypoints.length - 1][1];
 }
 
 function drawWeaponChart(item, ammoId) {
@@ -422,12 +452,27 @@ function chartOptions(xLabel, yLabel) {
   return {
     responsive: true,
     maintainAspectRatio: false,
+    // 마우스가 정확히 점 위에 있지 않아도 가장 가까운 x값으로 호버 발생
+    interaction: {
+      mode: "index",
+      intersect: false,
+      axis: "x",
+    },
     plugins: {
       legend: { labels: { color: "#aba894" } },
-      tooltip: { mode: "index", intersect: false },
+      tooltip: {
+        mode: "index",
+        intersect: false,
+        callbacks: {
+          // 툴팁 제목을 "거리: 80m" 형태로
+          title: (items) => items.length ? `거리: ${items[0].parsed.x}m` : "",
+          label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y}`,
+        },
+      },
     },
     scales: {
-      x: { type: "linear", title: { display: true, text: xLabel, color: "#aba894" },
+      x: { type: "linear", min: 0, max: 200,
+           title: { display: true, text: xLabel, color: "#aba894" },
            ticks: { color: "#aba894" }, grid: { color: "rgba(77, 86, 64, 0.3)" } },
       y: { beginAtZero: true, title: { display: true, text: yLabel, color: "#aba894" },
            ticks: { color: "#aba894" }, grid: { color: "rgba(77, 86, 64, 0.3)" } },

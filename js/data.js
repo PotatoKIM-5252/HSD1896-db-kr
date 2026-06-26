@@ -246,6 +246,104 @@ const AMMO_TYPES = {
     },
     specialEffects: ["Reduced Sound"],
   },
+
+  // ── 더미 데이터: Medium 탄종 ──────────────────────────────────────────
+  medium: {
+    label: "Medium",
+    category: "medium",
+    isBase: true,
+    image: "",
+    icon: "🟫",
+    description: "[더미] Medium 기본탄. 30m까지 평탄 유지.",
+    cost: 0,
+    falloff: [
+      [0,   1.00],
+      [30,  1.00],
+      [100, 0.65],
+      [200, 0.45],
+      [350, 0.30],
+    ],
+    statOverrides: {},
+  },
+
+  medium_fmj: {
+    label: "FMJ Ammo (Medium)",
+    category: "medium",
+    effect: "full_metal",
+    image: "images/ammo/fmj.png",
+    icon: "🟤",
+    description: "[더미] 중형 FMJ. 데미지 유지 거리 +40m.",
+    cost: 75,
+    falloff: [
+      [0,   1.00],
+      [70,  1.00],
+      [140, 0.65],
+      [240, 0.45],
+      [350, 0.30],
+    ],
+    statOverrides: {
+      muzzleVelocity: 360,
+    },
+  },
+
+  // ── 더미 데이터: Long 탄종 ────────────────────────────────────────────
+  long: {
+    label: "Long",
+    category: "long",
+    isBase: true,
+    image: "",
+    icon: "🟫",
+    description: "[더미] Long 기본탄. 60m까지 평탄 유지.",
+    cost: 0,
+    falloff: [
+      [0,   1.00],
+      [60,  1.00],
+      [150, 0.85],
+      [300, 0.60],
+      [500, 0.40],
+    ],
+    statOverrides: {},
+  },
+
+  long_spitzer: {
+    label: "Spitzer Ammo",
+    category: "long",
+    effect: "high_velocity",
+    image: "images/ammo/high_velocity.png",
+    icon: "🟠",
+    description: "[더미] Spitzer. 기본 데미지 감소, 장거리 유지력 향상.",
+    cost: 70,
+    falloff: [
+      [0,   1.00],
+      [80,  1.00],
+      [180, 0.85],
+      [350, 0.65],
+      [500, 0.45],
+    ],
+    statOverrides: {
+      damage: 130,        // 기본 149 → 130
+      muzzleVelocity: 900,
+      verticalRecoil: 12,
+    },
+  },
+
+  // ── 더미 데이터: Shotgun 탄종 ─────────────────────────────────────────
+  shotgun: {
+    label: "Buckshot",
+    category: "shotgun",
+    isBase: true,
+    image: "",
+    icon: "🟫",
+    description: "[더미] 산탄. 짧은 사거리 내 강한 데미지.",
+    cost: 0,
+    falloff: [
+      [0,   1.00],
+      [10,  1.00],
+      [25,  0.50],
+      [45,  0.15],
+    ],
+    statOverrides: {},
+  },
 };
 
 // -------------------------------------------------------------------------
@@ -303,6 +401,99 @@ const ITEMS = [
     },
 
     description: "",
+  },
+
+  // ── 더미 데이터: 중형탄 라이플 (1칸) ──────────────────────────────────
+  {
+    id: "weapon_dummy_pistol",
+    category: "weapon",
+    name: "[더미] Medium Pistol",
+    image: "",
+    slotSize: 1,
+    ammoCategory: "medium",
+    ammoEffects: ["full_metal"],
+    ammoTypes: ["medium", "medium_fmj"],
+    defaultAmmo: "medium",
+    price: 45,
+    updateAdded: "더미 데이터",
+    chamber: { loaded: "6", extra: 24 },
+    stats: {
+      damage: 91,
+      dropRange: 80,
+      rateOfFire: 35,
+      cycleTime: 0.6,
+      spread: 22,
+      sway: 95,
+      verticalRecoil: 8,
+      reloadSpeed: 7.2,
+      muzzleVelocity: 320,
+      meleeLight: 22,
+      meleeHeavy: 44,
+      staminaConsumption: 20,
+    },
+    description: "테스트용 더미. 중형탄 권총.",
+  },
+
+  // ── 더미 데이터: 롱탄 저격소총 (3칸) ──────────────────────────────────
+  {
+    id: "weapon_dummy_sniper",
+    category: "weapon",
+    name: "[더미] Long Rifle",
+    image: "",
+    slotSize: 3,
+    ammoCategory: "long",
+    ammoEffects: ["high_velocity"],
+    ammoTypes: ["long", "long_spitzer"],
+    defaultAmmo: "long",
+    price: 530,
+    updateAdded: "더미 데이터",
+    chamber: { loaded: "5", extra: 15 },
+    stats: {
+      damage: 149,
+      dropRange: 250,
+      rateOfFire: 15,
+      cycleTime: 2.4,
+      spread: 8,
+      sway: 35,
+      verticalRecoil: 18,
+      reloadSpeed: 14.5,
+      muzzleVelocity: 700,
+      meleeLight: 30,
+      meleeHeavy: 60,
+      staminaConsumption: 30,
+    },
+    description: "테스트용 더미. 롱탄 볼트액션 라이플.",
+  },
+
+  // ── 더미 데이터: 샷건 (2칸) ───────────────────────────────────────────
+  {
+    id: "weapon_dummy_shotgun",
+    category: "weapon",
+    name: "[더미] Shotgun",
+    image: "",
+    slotSize: 2,
+    ammoCategory: "shotgun",
+    ammoEffects: [],
+    ammoTypes: ["shotgun"],
+    defaultAmmo: "shotgun",
+    price: 110,
+    updateAdded: "더미 데이터",
+    chamber: { loaded: "2", extra: 16 },
+    stats: {
+      damage: 220,
+      dropRange: 30,
+      rateOfFire: 18,
+      cycleTime: 0.8,
+      spread: 65,
+      sway: 70,
+      verticalRecoil: 15,
+      reloadSpeed: 4.5,
+      muzzleVelocity: 410,
+      meleeLight: 28,
+      meleeHeavy: 56,
+      staminaConsumption: 25,
+    },
+    description: "테스트용 더미. 더블배럴 샷건.",
   },
 
   // ── 도구 / 소모품 / 특성은 차후 채울 예정 ─────────────────────────────
