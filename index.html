@@ -2,64 +2,82 @@
 <html lang="ko">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hunt: Showdown Database</title>
 
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Hunt Showdown Database</title>
+
+<link rel="stylesheet" href="style.css">
+
 </head>
 
 <body>
 
-    <header>
-        <h1>Hunt: Showdown Database</h1>
-        <p>Unofficial Database</p>
-    </header>
+<header>
 
-    <section>
+<h1>Hunt Showdown Database</h1>
 
-        <input
-            id="searchInput"
-            type="text"
-            placeholder="DB 검색">
+<div id="searchArea">
 
-        <button id="searchButton">검색</button>
+<input
+type="text"
+id="searchInput"
+placeholder="무기 이름, 별칭, 영문명, 메타데이터 검색">
 
-    </section>
+<button id="searchButton">
+검색
+</button>
 
-    <hr>
+</div>
 
-    <nav>
+</header>
 
-        <button data-category="weapons">Weapons</button>
+<nav id="mainMenu">
 
-        <button data-category="tools">Tools</button>
+<button data-category="weapons">Weapons</button>
 
-        <button data-category="consumables">Consumables</button>
+<button data-category="tools">Tools</button>
 
-        <button data-category="traits">Traits</button>
+<button data-category="consumables">Consumables</button>
 
-    </nav>
+<button data-category="traits">Traits</button>
 
-    <hr>
+</nav>
 
-    <section>
+<div id="container">
 
-        <h2 id="categoryTitle">카테고리를 선택하세요.</h2>
+<aside id="filterPanel">
 
-        <div id="filters"></div>
+<h2>Filter</h2>
 
-    </section>
+<div id="filters">
 
-    <hr>
+카테고리를 선택하세요.
 
-    <section id="results">
+</div>
 
-        데이터가 여기에 표시됩니다.
+</aside>
 
-    </section>
+<main>
 
-    <script src="script.js"></script>
+<section id="listPanel">
+
+</section>
+
+<section id="detailPanel">
+
+<h2>선택된 데이터</h2>
+
+<p>좌측에서 선택하세요.</p>
+
+</section>
+
+</main>
+
+</div>
+
+<script src="script.js"></script>
 
 </body>
 
