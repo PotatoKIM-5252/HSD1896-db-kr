@@ -1,105 +1,101 @@
-let currentCategory = "";
+let currentCategory = null;
 
-function selectCategory(category){
+const categoryTitle = document.getElementById("categoryTitle");
+const filters = document.getElementById("filters");
+const results = document.getElementById("results");
+
+document.querySelectorAll("nav button").forEach(button => {
+
+    button.addEventListener("click", () => {
+
+        selectCategory(button.dataset.category);
+
+    });
+
+});
+
+document.getElementById("searchButton").addEventListener("click", search);
+
+function selectCategory(category) {
 
     currentCategory = category;
 
-    const filter = document.getElementById("filterContainer");
+    switch (category) {
 
-    switch(category){
+        case "weapons":
 
-        case "Weapons":
+            categoryTitle.textContent = "Weapons";
 
-            filter.innerHTML = `
-
-                <h4>Weapons Filter</h4>
-
-                <p>이름</p>
-
+            filters.innerHTML = `
+                <p>무기 이름</p>
                 <p>탄약 종류</p>
-
                 <p>슬롯</p>
-
                 <p>가격</p>
-
                 <p>데미지</p>
-
                 <p>탄속</p>
-
                 <p>유효 사거리</p>
-
-                <p>연사속도</p>
-
-                <p>장전시간</p>
-
             `;
 
             break;
 
-        case "Tools":
+        case "tools":
 
-            filter.innerHTML = `
+            categoryTitle.textContent = "Tools";
 
-                <h4>Tools Filter</h4>
-
+            filters.innerHTML = `
                 <p>이름</p>
-
                 <p>가격</p>
-
             `;
 
             break;
 
-        case "Consumables":
+        case "consumables":
 
-            filter.innerHTML = `
+            categoryTitle.textContent = "Consumables";
 
-                <h4>Consumables Filter</h4>
-
+            filters.innerHTML = `
                 <p>이름</p>
-
                 <p>가격</p>
-
             `;
 
             break;
 
-        case "Traits":
+        case "traits":
 
-            filter.innerHTML = `
+            categoryTitle.textContent = "Traits";
 
-                <h4>Traits Filter</h4>
-
+            filters.innerHTML = `
                 <p>이름</p>
-
                 <p>포인트</p>
-
             `;
 
             break;
 
     }
 
-    document.getElementById("result").innerHTML =
-
-        `<h2>${category}</h2>
-         <p>데이터 준비 중...</p>`;
+    results.innerHTML = `
+        <h3>${categoryTitle.textContent}</h3>
+        <p>데이터 준비 중...</p>
+    `;
 
 }
 
-function searchData(){
+function search() {
 
-    const keyword = document.getElementById("searchInput").value;
+    const keyword = document.getElementById("searchInput").value.trim();
 
-    document.getElementById("result").innerHTML =
+    if (keyword === "") {
 
-    `
-    <h2>검색</h2>
+        alert("검색어를 입력하세요.");
 
-    <p>검색어 : ${keyword}</p>
+        return;
 
-    <p>(아직 데이터 연결 전)</p>
+    }
 
+    results.innerHTML = `
+        <h3>검색</h3>
+        <p>검색어 : <strong>${keyword}</strong></p>
+        <p>아직 데이터가 연결되지 않았습니다.</p>
     `;
 
 }
