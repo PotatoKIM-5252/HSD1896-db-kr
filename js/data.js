@@ -1,49 +1,23 @@
 /* =========================================================================
    data.js
    -------------------------------------------------------------------------
-   이 파일이 "유일하게 손대야 하는" 설정 파일입니다.
+   ▣ 손대야 할 곳은 이 파일뿐입니다.
 
-   - 새 카테고리(예: 방어구)를 추가하고 싶으면 → 아래 CATEGORIES 객체에
-     한 항목만 추가하면 됩니다. index.html이나 app.js는 건드릴 필요 없습니다.
-     (검색 필터 버튼, 로드아웃 슬롯이 자동으로 생깁니다)
+   ▣ 구조
+     1) CATEGORIES        : 카테고리(무기/도구/소모품/특성)와 로드아웃 슬롯 정의
+     2) WEAPON_FILTERS    : 무기 필터(칸수/탄종/탄약효과) 옵션
+     3) AMMO_TYPES        : 탄약 객체 — 거리 곡선과 무기 스탯 보정값을 보관
+     4) ITEMS             : 실제 아이템(무기/도구/소모품/특성) 데이터
 
-   - 실제 아이템(무기/도구/소모품/특성)을 추가하고 싶으면 → 아래 ITEMS
-     배열에 한 항목만 추가하면 됩니다.
-
-   ⚠️ 주의: ITEMS 안의 데이터는 전부 "예시(placeholder)"입니다.
-   실제 헌트 쇼다운 스탯/효과는 패치마다 바뀌기 때문에, 확인되지 않은 값을
-   임의로 채워넣지 않았습니다. 이름에 [예시] 표시와 meta에 "TODO"가 있는
-   값들은 실제 데이터로 교체해주세요.
+   ▣ 그래프 계산 방식
+     - 무기 객체에는 "기본 데미지(damage)" 와 "사용 가능한 탄약 id 목록(ammoTypes)" 만 적습니다.
+     - 거리별 그래프는 탄약 객체의 falloff([거리, 배율]) 키포인트를 직선으로 이어 그립니다.
+     - 탄약마다 무기 스탯을 덮어쓰는 statOverrides 를 적을 수 있어서, 탄약을 바꾸면
+       데미지/탄속/반동/사거리/탄창 같은 값이 자동으로 갱신됩니다.
    ========================================================================= */
 
 // -------------------------------------------------------------------------
-// 1. TAGS — 분석(analysis) 탭에서 쓰는 "플레이스타일" 태그 정의
-//    아이템마다 이 태그키를 가중치(1~3)로 매겨두면, 로드아웃에 들어간
-//    아이템들의 태그를 합산해서 강점/약점을 자동으로 계산합니다.
-// -------------------------------------------------------------------------
-const TAGS = {
-  close_range:  { label: "근접전",        desc: "가까운 거리 교전에서의 강함" },
-  long_range:   { label: "장거리 교전",   desc: "먼 거리 교전에서의 강함" },
-  mobility:     { label: "기동성",        desc: "이동 속도, 로테이션, 빠른 재포지셔닝" },
-  stealth:      { label: "은신/탐지회피", desc: "발소리, 시야, 들키지 않고 움직이는 능력" },
-  detection:    { label: "탐지/정보",     desc: "상대 위치를 파악하는 능력" },
-  sustain:      { label: "회복/지속력",   desc: "체력 회복, 장기전에서의 생존력" },
-  burst_damage: { label: "순간 화력",     desc: "한 번에 큰 피해를 주는 능력" },
-  utility:      { label: "유틸리티",      desc: "교전 외적인 상황 대응 능력(문/소리/시야 등)" },
-  area_control: { label: "광역 제어",     desc: "공간/구역을 장악하거나 봉쇄하는 능력" },
-};
-
-// -------------------------------------------------------------------------
-// 2. CATEGORIES — DB의 카테고리(무기/도구/소모품/특성 등)와
-//    로드아웃 빌더에서 그 카테고리가 어떤 슬롯으로 쓰이는지 정의
-//
-//    loadoutSlots 안의 slotDef:
-//      - slotKey : 내부에서 쓰는 식별자 (영문, 고유해야 함)
-//      - label   : 화면에 보일 이름
-//      - max     : 슬롯 개수
-//                  - 숫자(1, 2, 4 등): 그 개수만큼 "고정 슬롯"이 생김
-//                    (예: 주무기 1개, 도구 2개)
-//                  - null: 개수 제한 없는 "목록형" (예: 특성처럼 여러 개 추가 가능)
+// 1. CATEGORIES
 // -------------------------------------------------------------------------
 const CATEGORIES = {
   weapon: {
@@ -57,118 +31,321 @@ const CATEGORIES = {
   tool: {
     label: "도구",
     icon: "🧰",
-    loadoutSlots: [
-      { slotKey: "tool", label: "도구", max: 2 },
-    ],
+    loadoutSlots: [{ slotKey: "tool", label: "도구", max: 2 }],
   },
   consumable: {
     label: "소모품",
     icon: "🧪",
-    loadoutSlots: [
-      { slotKey: "consumable", label: "소모품", max: 4 },
-    ],
+    loadoutSlots: [{ slotKey: "consumable", label: "소모품", max: 4 }],
   },
   trait: {
     label: "특성",
     icon: "⭐",
-    loadoutSlots: [
-      { slotKey: "trait", label: "특성", max: null },
-    ],
+    loadoutSlots: [{ slotKey: "trait", label: "특성", max: null }],
   },
-
-  // ── 카테고리를 새로 추가하고 싶을 때는 이렇게 통째로 하나만 추가하면 됩니다 ──
-  // armor: {
-  //   label: "방어구",
-  //   icon: "🛡️",
-  //   loadoutSlots: [
-  //     { slotKey: "armor", label: "방어구", max: 1 },
-  //   ],
-  // },
 };
 
 // -------------------------------------------------------------------------
-// 3. ITEMS — 실제 DB에 들어가는 아이템 목록 (지금은 전부 예시 데이터)
+// 2. WEAPON_FILTERS
+// -------------------------------------------------------------------------
+const WEAPON_FILTERS = {
+  slotSize: {
+    label: "무기 칸수",
+    options: [
+      { value: 1, label: "1칸" },
+      { value: 2, label: "2칸" },
+      { value: 3, label: "3칸" },
+      { value: 4, label: "4칸" },
+      { value: 5, label: "5칸" },
+    ],
+  },
+  ammoCategory: {
+    label: "탄종",
+    options: [
+      { value: "compact", label: "소형탄" },
+      { value: "medium",  label: "중형탄" },
+      { value: "long",    label: "롱탄" },
+      { value: "shotgun", label: "샷건탄" },
+      { value: "special", label: "특수탄" },
+    ],
+  },
+  ammoEffect: {
+    label: "탄약 효과",
+    options: [
+      { value: "explosive",     label: "폭발탄" },
+      { value: "bleed",         label: "출혈탄" },
+      { value: "incendiary",    label: "소이탄" },
+      { value: "poison",        label: "중독탄" },
+      { value: "full_metal",    label: "전피갑탄(FMJ)" },
+      { value: "subsonic",      label: "아음속탄" },
+      { value: "high_velocity", label: "고속탄" },
+    ],
+  },
+};
+
+// -------------------------------------------------------------------------
+// 3. AMMO_TYPES — 탄약 객체
 //
-//    아이템 공통 스키마:
-//    {
-//      id: "고유 id (영문/숫자, 절대 중복되면 안 됨)",
-//      category: CATEGORIES 의 key 중 하나 ("weapon" | "tool" | "consumable" | "trait" | ...),
-//      name: "화면에 보일 이름",
-//      description: "설명 텍스트",
-//      tags: { 태그키: 가중치(1~3), ... },   // 분석(analysis)에 사용
-//      meta: { ...카테고리별 부가 정보 (실제 스탯 등, 자유 형식) }
-//    }
+//   스키마:
+//   "ammo_id": {
+//     label: "화면에 표시할 이름",
+//     category: "compact" | "medium" | "long" | "shotgun" | "special",
+//     effect: 효과(있을 때만, WEAPON_FILTERS.ammoEffect.options 의 value)
+//     icon: "🟫" 같은 이모지 (이미지 경로로 바꿔도 됨)
+//     description: "탄약 설명"
+//     cost: 50,
+//
+//     // 거리별 데미지 곡선 — [거리(m), 배율(0~1)] 키포인트.
+//     // 직선으로 이어지므로 꺾이는 지점만 적으면 됩니다.
+//     falloff: [
+//       [0,   1.00],   // 0m 에서 100% 데미지
+//       [20,  1.00],   // 20m까지 평탄 유지 (effective range)
+//       [80,  0.65],   // 80m에서 65%로 꺾임
+//       [200, 0.40],
+//       [300, 0.25],   // 최대 사거리에서의 최소값
+//     ],
+//
+//     // 이 탄약을 사용할 때 무기 스탯을 덮어쓰는 값들 (이미지에서 "X → Y" 로 표기되던 부분)
+//     statOverrides: {
+//       damage: 104,            // 기본 데미지가 바뀌면 여기에
+//       muzzleVelocity: 330,    // 탄속이 바뀌면 여기에
+//       verticalRecoil: 8,
+//       dropRange: 125,
+//       ammoExtra: 15,          // 예비탄 수가 바뀌면 여기에
+//     },
+//
+//     // 화면에 보여줄 추가 효과 텍스트(태그 형태)
+//     specialEffects: ["Ignites Hunters in one shot up to 20m", "Causes Medium Burning"]
+//   }
+// -------------------------------------------------------------------------
+const AMMO_TYPES = {
+
+  // ── Compact 탄종 ──────────────────────────────────────────────────────
+  compact: {
+    label: "Compact",
+    category: "compact",
+    icon: "🟫",
+    description: "Compact - Damage dropoff starts at 20m. Low penetration damage.",
+    cost: 0,
+    // ⚠️ 추정 곡선 (공식 그래프 이미지 기반 근사값) — 정확한 값 받으면 교체 예정
+    falloff: [
+      [0,   1.00],
+      [20,  1.00],
+      [80,  0.65],
+      [200, 0.40],
+      [300, 0.25],
+    ],
+    statOverrides: {},
+  },
+
+  compact_fmj: {
+    label: "FMJ Ammo",
+    category: "compact",
+    effect: "full_metal",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    cost: 50,
+    // FMJ는 falloff 시작점이 30m로 밀림 (이미지: "Damage dropoff begins at 30m")
+    falloff: [
+      [0,   1.00],
+      [30,  1.00],
+      [100, 0.65],
+      [220, 0.40],
+      [300, 0.25],
+    ],
+    statOverrides: {
+      dropRange: 125,
+      verticalRecoil: 8,
+      muzzleVelocity: 330,
+    },
+    specialEffects: ["Damage dropoff begins at 30m"],
+  },
+
+  compact_high_velocity: {
+    label: "High Velocity Ammo",
+    category: "compact",
+    effect: "high_velocity",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    cost: 60,
+    // 데미지/사거리는 비슷, 탄속만 빨라짐 → falloff는 기본탄과 동일하게 유지
+    falloff: [
+      [0,   1.00],
+      [20,  1.00],
+      [80,  0.65],
+      [200, 0.40],
+      [300, 0.25],
+    ],
+    statOverrides: {
+      damage: 104,            // 기본 110 → 104
+      dropRange: 160,         // 기본 140 → 160
+      verticalRecoil: 8,      // 기본 5 → 8
+      muzzleVelocity: 500,    // 기본 400 → 500
+      ammoExtra: 15,          // 예비탄 21 → 15
+    },
+  },
+
+  compact_incendiary: {
+    label: "Incendiary Ammo",
+    category: "compact",
+    effect: "incendiary",
+    icon: "🔥",
+    description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
+    cost: 40,
+    // 데미지 자체는 기본탄과 유사, 상태이상 효과가 핵심
+    falloff: [
+      [0,   1.00],
+      [20,  1.00],
+      [80,  0.65],
+      [200, 0.40],
+      [300, 0.25],
+    ],
+    statOverrides: {},
+    specialEffects: ["Ignites Hunters in one shot up to 20m", "Causes Medium Burning"],
+  },
+
+  compact_poison: {
+    label: "Poison Ammo",
+    category: "compact",
+    effect: "poison",
+    icon: "🟢",
+    description: "중독탄 - 명중 시 독 효과. 관통 불가.",
+    cost: 50,
+    falloff: [
+      [0,   1.00],
+      [20,  1.00],
+      [80,  0.65],
+      [200, 0.40],
+      [300, 0.25],
+    ],
+    statOverrides: {},
+    specialEffects: ["Causes Medium Poison"],
+  },
+
+  compact_subsonic: {
+    label: "Subsonic Ammo",
+    category: "compact",
+    effect: "subsonic",
+    icon: "🔇",
+    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 사거리/탄속 감소.",
+    cost: 5,
+    // 사거리 감소 → falloff 시작점이 더 빨라짐
+    falloff: [
+      [0,   1.00],
+      [15,  1.00],
+      [60,  0.60],
+      [150, 0.35],
+      [250, 0.20],
+    ],
+    statOverrides: {
+      dropRange: 110,         // 기본 140 → 110
+      muzzleVelocity: 263,    // 기본 400 → 263
+      ammoExtra: 34,          // 예비탄 21 → 34
+    },
+    specialEffects: ["Reduced Sound"],
+  },
+};
+
+// -------------------------------------------------------------------------
+// 4. ITEMS
 // -------------------------------------------------------------------------
 const ITEMS = [
-  // ---------------- 무기 (예시) ----------------
+
+  // ── 무기 ─────────────────────────────────────────────────────────────
   {
-    id: "weapon_example_long",
+    id: "weapon_frontier_73c",
     category: "weapon",
-    name: "[예시] 장거리형 라이플",
-    description: "예시 데이터입니다. 실제 무기명/스탯으로 교체해주세요.",
-    tags: { long_range: 3, burst_damage: 2 },
-    meta: { ammoType: "TODO", slotSize: "long", damageFalloff: "TODO", fireRate: "TODO" },
-  },
-  {
-    id: "weapon_example_close",
-    category: "weapon",
-    name: "[예시] 근접형 샷건",
-    description: "예시 데이터입니다. 실제 무기명/스탯으로 교체해주세요.",
-    tags: { close_range: 3, burst_damage: 3, mobility: 1 },
-    meta: { ammoType: "TODO", slotSize: "medium", damageFalloff: "TODO", fireRate: "TODO" },
+    name: "Frontier 73C",
+    image: "",   // 이미지 파일 올리면 "images/weapons/frontier_73c.png" 처럼 경로
+
+    // 검색 필터용
+    slotSize: 3,
+    ammoCategory: "compact",
+    ammoEffects: ["full_metal", "high_velocity", "incendiary", "poison", "subsonic"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "compact",
+      "compact_fmj",
+      "compact_high_velocity",
+      "compact_incendiary",
+      "compact_poison",
+      "compact_subsonic",
+    ],
+    defaultAmmo: "compact",
+
+    // 기본 정보
+    price: 41,
+    updateAdded: "Update Early Access 0.1",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "7+1",
+      extra: 21,
+    },
+
+    // 기본 스탯 (탄약이 바뀌면 statOverrides 로 일부가 덮어쓰여짐)
+    stats: {
+      damage: 110,
+      dropRange: 140,
+      rateOfFire: 29,
+      cycleTime: 1.2,
+      spread: 17.5,
+      sway: 77,
+      verticalRecoil: 5,
+      reloadSpeed: 10.1,
+      muzzleVelocity: 400,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
   },
 
-  // ---------------- 도구 (예시) ----------------
-  {
-    id: "tool_example_detection",
-    category: "tool",
-    name: "[예시] 탐지용 도구",
-    description: "예시 데이터입니다. 실제 도구명/효과로 교체해주세요.",
-    tags: { detection: 3, utility: 1 },
-    meta: { consumeOnUse: false },
-  },
-  {
-    id: "tool_example_mobility",
-    category: "tool",
-    name: "[예시] 기동용 도구",
-    description: "예시 데이터입니다. 실제 도구명/효과로 교체해주세요.",
-    tags: { mobility: 3 },
-    meta: { consumeOnUse: true },
-  },
-
-  // ---------------- 소모품 (예시) ----------------
-  {
-    id: "consumable_example_heal",
-    category: "consumable",
-    name: "[예시] 회복용 소모품",
-    description: "예시 데이터입니다. 실제 소모품명/효과로 교체해주세요.",
-    tags: { sustain: 3 },
-    meta: { stackable: true, maxStack: 3 },
-  },
-  {
-    id: "consumable_example_area",
-    category: "consumable",
-    name: "[예시] 광역형 소모품",
-    description: "예시 데이터입니다. 실제 소모품명/효과로 교체해주세요.",
-    tags: { area_control: 3, burst_damage: 1 },
-    meta: { stackable: true, maxStack: 2 },
-  },
-
-  // ---------------- 특성 (예시) ----------------
-  {
-    id: "trait_example_stealth",
-    category: "trait",
-    name: "[예시] 은신 특성",
-    description: "예시 데이터입니다. 실제 특성명/효과로 교체해주세요.",
-    tags: { stealth: 3 },
-    meta: { cost: "TODO" },
-  },
-  {
-    id: "trait_example_sustain",
-    category: "trait",
-    name: "[예시] 생존 특성",
-    description: "예시 데이터입니다. 실제 특성명/효과로 교체해주세요.",
-    tags: { sustain: 2, mobility: 1 },
-    meta: { cost: "TODO" },
-  },
+  // ── 도구 / 소모품 / 특성은 차후 채울 예정 ─────────────────────────────
 ];
+
+/* =========================================================================
+   ── 빠른 참조: 무기 객체 스키마 ──
+
+   {
+     id: "weapon_고유아이디",
+     category: "weapon",
+     name: "표시 이름",
+     image: "images/weapons/파일명.png" (없으면 "")
+
+     // 필터용
+     slotSize: 1~5,
+     ammoCategory: "compact" | "medium" | "long" | "shotgun" | "special",
+     ammoEffects: ["full_metal", "high_velocity", ...],
+
+     // 사용 가능한 탄약 (AMMO_TYPES의 id 배열)
+     ammoTypes: ["compact", "compact_fmj", ...],
+     defaultAmmo: "compact",
+
+     // 무기 상점 정보
+     price: 41,
+     updateAdded: "Update Early Access 0.1",
+
+     // 탄창
+     chamber: { loaded: "7+1", extra: 21 },
+
+     // 14개 스탯 (이미지 표기 기준)
+     stats: {
+       damage:             // Damage
+       dropRange:          // Drop Range
+       rateOfFire:         // Rate of Fire
+       cycleTime:          // Cycle Time
+       spread:             // Spread
+       sway:               // Sway
+       verticalRecoil:     // Vertical Recoil
+       reloadSpeed:        // Reload Speed
+       muzzleVelocity:     // Muzzle Velocity
+       meleeLight:         // Melee Damage
+       meleeHeavy:         // Heavy Melee Damage
+       staminaConsumption: // Stamina Consumption
+       // 필요하면 추가 필드도 자유롭게
+     },
+   }
+========================================================================= */

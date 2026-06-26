@@ -1,57 +1,45 @@
 /* =========================================================================
-   app.js
-   -------------------------------------------------------------------------
-   이 파일은 보통 손댈 필요가 없습니다. 카테고리나 아이템을 추가/수정하는
-   작업은 전부 data.js 에서 합니다.
-
-   이 파일이 하는 일:
-   1) data.js 의 CATEGORIES 를 읽어서 검색 필터 버튼 / 로드아웃 슬롯을
-      자동으로 화면에 만들어줍니다.
-   2) DB 검색 탭: 검색, 카테고리 필터, 태그 필터를 처리합니다.
-   3) 로드아웃 빌더 탭: 슬롯 클릭 → 아이템 선택 모달 → 슬롯에 저장을 처리합니다.
-   4) 분석 탭: 로드아웃에 들어간 아이템들의 태그 가중치를 합산합니다.
+   app.js — 탄약 선택 + 스탯/그래프 자동 갱신
    ========================================================================= */
 
 const state = {
   activeTab: "search",
   filterCategory: "all",
   searchQuery: "",
-  activeTags: new Set(),
 
-  // CATEGORIES 설정을 바탕으로 initLoadoutState() 에서 자동으로 채워집니다.
-  // 예: { "weapon__primary": [null], "weapon__secondary": [null],
-  //       "tool__tool": [null, null], "trait__trait": [] }
-  loadout: {},
-
-  modal: {
-    onSelect: null,
-    categoryFilter: null,
+  weaponFilters: {
+    slotSize: new Set(),
+    ammoCategory: new Set(),
+    ammoEffect: new Set(),
   },
+
+  loadout: {},
+  modal: { onSelect: null, categoryFilter: null },
+
+  // 무기 상세 패널에서 현재 선택된 탄약 (무기 id 단위로 기억)
+  selectedAmmo: {},        // { "weapon_frontier_73c": "compact_fmj", ... }
+
+  // 비교 목록: { weaponId, ammoId } 쌍의 배열
+  compareEntries: [],
+
+  charts: { detail: null, compare: null },
 };
 
-// 카테고리키 + 슬롯키를 합쳐서 loadout 객체의 고유 키를 만듭니다.
-function loadoutKey(categoryKey, slotKey) {
-  return `${categoryKey}__${slotKey}`;
-}
+function loadoutKey(c, s) { return `${c}__${s}`; }
 
-// -------------------------------------------------------------------------
-// 초기화
 // -------------------------------------------------------------------------
 function init() {
   initLoadoutState();
 
-  // 상단 탭 네비게이션
   document.querySelectorAll(".nav-btn").forEach((btn) => {
     btn.addEventListener("click", () => switchTab(btn.dataset.tab));
   });
 
-  // 검색창
   document.getElementById("search-input").addEventListener("input", (e) => {
     state.searchQuery = e.target.value.trim().toLowerCase();
     renderItemGrid();
   });
 
-  // 모달 닫기
   document.getElementById("modal-close-btn").addEventListener("click", closeModal);
   document.getElementById("modal-overlay").addEventListener("click", (e) => {
     if (e.target.id === "modal-overlay") closeModal();
@@ -62,52 +50,44 @@ function init() {
 
   document.getElementById("clear-loadout-btn").addEventListener("click", clearLoadout);
   document.getElementById("goto-analysis-btn").addEventListener("click", () => switchTab("analysis"));
+  document.getElementById("clear-compare-btn").addEventListener("click", () => {
+    state.compareEntries = [];
+    renderAnalysis();
+  });
 
   renderCategoryFilters();
-  renderTagFilters();
+  renderWeaponFilters();
   renderItemGrid();
   renderLoadoutBoard();
 }
 
-// CATEGORIES 설정을 바탕으로 로드아웃 상태(state.loadout)의 뼈대를 만듭니다.
 function initLoadoutState() {
   state.loadout = {};
   Object.entries(CATEGORIES).forEach(([catKey, catDef]) => {
     catDef.loadoutSlots.forEach((slotDef) => {
       const key = loadoutKey(catKey, slotDef.slotKey);
-      // max가 숫자면 그 길이만큼 null로 채운 "고정 슬롯" 배열
-      // max가 null이면 빈 배열로 시작하는 "목록형"
       state.loadout[key] = slotDef.max === null ? [] : new Array(slotDef.max).fill(null);
     });
   });
 }
 
-// -------------------------------------------------------------------------
-// 탭 전환
-// -------------------------------------------------------------------------
 function switchTab(tabName) {
   state.activeTab = tabName;
-
   document.querySelectorAll(".tab-panel").forEach((panel) => {
     panel.hidden = panel.id !== `tab-${tabName}`;
   });
   document.querySelectorAll(".nav-btn").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.tab === tabName);
   });
-
   if (tabName === "analysis") renderAnalysis();
 }
 
 // -------------------------------------------------------------------------
-// DB 검색 탭
+// 필터 UI
 // -------------------------------------------------------------------------
-
-// CATEGORIES 설정을 읽어서 "전체" + 카테고리별 필터 버튼을 자동 생성합니다.
-// 카테고리를 추가/삭제해도 이 함수는 그대로 두면 됩니다 (data.js만 고치면 됨).
 function renderCategoryFilters() {
   const wrap = document.getElementById("category-filters");
   wrap.innerHTML = "";
-
   wrap.appendChild(createCategoryFilterButton("all", "전체"));
   Object.entries(CATEGORIES).forEach(([key, def]) => {
     wrap.appendChild(createCategoryFilterButton(key, `${def.icon} ${def.label}`));
@@ -124,48 +104,68 @@ function createCategoryFilterButton(categoryKey, labelText) {
     state.filterCategory = categoryKey;
     document.querySelectorAll(".cat-filter-btn").forEach((b) => b.classList.remove("active"));
     btn.classList.add("active");
+    updateWeaponFilterVisibility();
     renderItemGrid();
   });
   return btn;
 }
 
-// TAGS 설정을 읽어서 태그 필터 칩을 자동 생성합니다.
-function renderTagFilters() {
-  const wrap = document.getElementById("tag-filters");
+function renderWeaponFilters() {
+  const wrap = document.getElementById("weapon-filters");
   wrap.innerHTML = "";
-  Object.entries(TAGS).forEach(([key, def]) => {
-    const chip = document.createElement("button");
-    chip.type = "button";
-    chip.className = "tag-chip";
-    chip.dataset.tag = key;
-    chip.title = def.desc;
-    chip.textContent = def.label;
-    chip.addEventListener("click", () => {
-      if (state.activeTags.has(key)) {
-        state.activeTags.delete(key);
-        chip.classList.remove("active");
-      } else {
-        state.activeTags.add(key);
-        chip.classList.add("active");
-      }
-      renderItemGrid();
+  Object.entries(WEAPON_FILTERS).forEach(([filterKey, def]) => {
+    const group = document.createElement("div");
+    group.className = "weapon-filter-group";
+    const label = document.createElement("span");
+    label.className = "weapon-filter-label";
+    label.textContent = def.label;
+    group.appendChild(label);
+    const chips = document.createElement("div");
+    chips.className = "weapon-filter-chips";
+    def.options.forEach((opt) => {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "filter-chip";
+      chip.textContent = opt.label;
+      chip.addEventListener("click", () => {
+        const set = state.weaponFilters[filterKey];
+        if (set.has(opt.value)) { set.delete(opt.value); chip.classList.remove("active"); }
+        else { set.add(opt.value); chip.classList.add("active"); }
+        renderItemGrid();
+      });
+      chips.appendChild(chip);
     });
-    wrap.appendChild(chip);
+    group.appendChild(chips);
+    wrap.appendChild(group);
   });
+  updateWeaponFilterVisibility();
 }
 
+function updateWeaponFilterVisibility() {
+  const show = state.filterCategory === "weapon" || state.filterCategory === "all";
+  document.getElementById("weapon-filters").hidden = !show;
+}
+
+// -------------------------------------------------------------------------
+// 결과 그리드
+// -------------------------------------------------------------------------
 function getFilteredItems(extra = {}) {
   const category = extra.category !== undefined ? extra.category : state.filterCategory;
   const query = extra.query !== undefined ? extra.query : state.searchQuery;
-  const tags = extra.tags !== undefined ? extra.tags : state.activeTags;
+  const useWeaponFilters = extra.useWeaponFilters !== false;
 
   return ITEMS.filter((item) => {
     if (category && category !== "all" && item.category !== category) return false;
     if (query && !item.name.toLowerCase().includes(query)) return false;
-    if (tags && tags.size > 0) {
-      const itemTagKeys = Object.keys(item.tags || {});
-      const hasAll = [...tags].every((t) => itemTagKeys.includes(t));
-      if (!hasAll) return false;
+    if (useWeaponFilters && item.category === "weapon") {
+      const f = state.weaponFilters;
+      if (f.slotSize.size > 0 && !f.slotSize.has(item.slotSize)) return false;
+      if (f.ammoCategory.size > 0 && !f.ammoCategory.has(item.ammoCategory)) return false;
+      if (f.ammoEffect.size > 0) {
+        const effects = item.ammoEffects || [];
+        const ok = [...f.ammoEffect].some((e) => effects.includes(e));
+        if (!ok) return false;
+      }
     }
     return true;
   });
@@ -175,64 +175,266 @@ function renderItemGrid() {
   const grid = document.getElementById("item-grid");
   const items = getFilteredItems();
   grid.innerHTML = "";
-
   if (items.length === 0) {
-    grid.innerHTML = `<p class="empty-msg">조건에 맞는 아이템이 없습니다.</p>`;
+    grid.innerHTML = `<p class="empty-msg">아이템이 없습니다. data.js의 ITEMS 배열에 데이터를 추가해주세요.</p>`;
     return;
   }
-
   items.forEach((item) => grid.appendChild(createItemCard(item)));
 }
 
 function createItemCard(item) {
   const card = document.createElement("div");
   card.className = "item-card";
-  card.dataset.id = item.id;
-
   const cat = CATEGORIES[item.category];
+  const imgHTML = item.image
+    ? `<img src="${item.image}" alt="${item.name}" class="item-card-img" onerror="this.style.display='none'">`
+    : `<div class="item-card-icon">${cat ? cat.icon : ""}</div>`;
+  let preview = "";
+  if (item.category === "weapon" && item.stats) {
+    preview = `
+      <div class="item-card-preview">
+        <span>피해 ${item.stats.damage ?? "-"}</span>
+        <span>${item.slotSize ?? "?"}칸</span>
+      </div>`;
+  }
   card.innerHTML = `
-    <div class="item-card-icon">${cat ? cat.icon : ""}</div>
+    ${imgHTML}
     <div class="item-card-name">${item.name}</div>
     <div class="item-card-category">${cat ? cat.label : item.category}</div>
-  `;
+    ${preview}`;
   card.addEventListener("click", () => renderItemDetail(item));
   return card;
 }
 
+// -------------------------------------------------------------------------
+// 아이템 상세 — 무기일 때는 탄약 선택 UI 포함
+// -------------------------------------------------------------------------
 function renderItemDetail(item) {
   const panel = document.getElementById("item-detail-panel");
   panel.hidden = false;
+  if (state.charts.detail) { state.charts.detail.destroy(); state.charts.detail = null; }
 
-  const tagList = Object.entries(item.tags || {})
-    .map(([key, weight]) => `<li>${TAGS[key] ? TAGS[key].label : key} (가중치 ${weight})</li>`)
-    .join("");
+  if (item.category === "weapon") {
+    // 현재 선택된 탄약 (없으면 기본탄)
+    const selectedAmmoId = state.selectedAmmo[item.id] || item.defaultAmmo || (item.ammoTypes && item.ammoTypes[0]);
+    panel.innerHTML = renderWeaponDetailHTML(item, selectedAmmoId);
+    bindDetailClose(panel);
+    bindAmmoTabs(item);
+    bindCompareButton(item, selectedAmmoId);
+    drawWeaponChart(item, selectedAmmoId);
+  } else {
+    panel.innerHTML = renderGenericDetailHTML(item);
+    bindDetailClose(panel);
+  }
+}
 
-  const metaList = Object.entries(item.meta || {})
-    .map(([key, val]) => `<li><span>${key}</span>: ${val}</li>`)
-    .join("");
-
-  panel.innerHTML = `
-    <button id="detail-close-btn" type="button">✕</button>
-    <h2>${item.name}</h2>
-    <p class="detail-category">${CATEGORIES[item.category]?.label ?? item.category}</p>
-    <p class="detail-desc">${item.description ?? ""}</p>
-    <h4>관련 태그</h4>
-    <ul class="detail-tags">${tagList || "<li>없음</li>"}</ul>
-    <h4>세부 정보</h4>
-    <ul class="detail-meta">${metaList || "<li>없음</li>"}</ul>
-  `;
-  document.getElementById("detail-close-btn").addEventListener("click", () => {
+function bindDetailClose(panel) {
+  panel.querySelector("#detail-close-btn")?.addEventListener("click", () => {
     panel.hidden = true;
+    if (state.charts.detail) { state.charts.detail.destroy(); state.charts.detail = null; }
   });
 }
 
+function bindAmmoTabs(item) {
+  document.querySelectorAll(".ammo-tab").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.selectedAmmo[item.id] = btn.dataset.ammoId;
+      renderItemDetail(item); // 다시 그림
+    });
+  });
+}
+
+function bindCompareButton(item, ammoId) {
+  document.querySelector("#detail-add-compare-btn")?.addEventListener("click", () => {
+    const exists = state.compareEntries.some((e) => e.weaponId === item.id && e.ammoId === ammoId);
+    if (exists) {
+      state.compareEntries = state.compareEntries.filter((e) => !(e.weaponId === item.id && e.ammoId === ammoId));
+    } else {
+      state.compareEntries.push({ weaponId: item.id, ammoId });
+    }
+    renderItemDetail(item);
+  });
+}
+
+// 무기 + 탄약을 합쳐서 "실제 적용되는" 스탯/탄창 계산
+function resolveWeaponWithAmmo(item, ammoId) {
+  const ammo = AMMO_TYPES[ammoId];
+  if (!ammo) return { stats: item.stats, chamber: item.chamber, ammo: null };
+  const overrides = ammo.statOverrides || {};
+  const stats = { ...item.stats, ...overrides };
+  const chamber = { ...(item.chamber || {}) };
+  if (overrides.ammoExtra != null) chamber.extra = overrides.ammoExtra;
+  return { stats, chamber, ammo };
+}
+
+function renderWeaponDetailHTML(item, selectedAmmoId) {
+  const { stats, chamber, ammo } = resolveWeaponWithAmmo(item, selectedAmmoId);
+  const baseStats = item.stats;
+  const inCompare = state.compareEntries.some((e) => e.weaponId === item.id && e.ammoId === selectedAmmoId);
+
+  // 탄약 탭들
+  const ammoTabs = (item.ammoTypes || []).map((aid) => {
+    const a = AMMO_TYPES[aid];
+    if (!a) return "";
+    const active = aid === selectedAmmoId ? "active" : "";
+    return `
+      <button class="ammo-tab ${active}" data-ammo-id="${aid}" type="button" title="${a.description ?? ""}">
+        <span class="ammo-tab-icon">${a.icon ?? "•"}</span>
+        <span class="ammo-tab-label">${a.label}</span>
+        ${a.cost ? `<span class="ammo-tab-cost">$${a.cost}</span>` : ""}
+      </button>`;
+  }).join("");
+
+  // 탄약 효과 텍스트
+  const effectsHTML = (ammo?.specialEffects || []).map((e) => `<li>${e}</li>`).join("");
+
+  return `
+    <button id="detail-close-btn" type="button">✕</button>
+    <h2>${item.name}</h2>
+
+    <div class="detail-meta-row">
+      ${item.price != null ? `<span>가격 <b>$${item.price}</b></span>` : ""}
+      <span>칸수 <b>${item.slotSize ?? "?"}</b></span>
+      ${item.updateAdded ? `<span class="detail-update">${item.updateAdded}</span>` : ""}
+    </div>
+
+    ${item.image ? `<img src="${item.image}" alt="${item.name}" class="detail-img" onerror="this.style.display='none'">` : ""}
+
+    <h4>Chamber</h4>
+    <div class="detail-chamber">
+      <div><span>Ammo Type</span><b>${ammo?.label ?? "-"}</b></div>
+      <div><span>Loaded</span><b>${chamber.loaded ?? "-"}</b></div>
+      <div><span>Extra</span><b>${overrideMark(chamber.extra, item.chamber?.extra)}</b></div>
+    </div>
+
+    <h4>Ammo Types</h4>
+    <div class="ammo-tabs">${ammoTabs}</div>
+
+    ${ammo?.description ? `<p class="detail-desc">${ammo.description}</p>` : ""}
+    ${effectsHTML ? `<ul class="ammo-effects">${effectsHTML}</ul>` : ""}
+
+    <h4>거리별 데미지</h4>
+    <div class="detail-chart-wrap"><canvas id="detail-chart"></canvas></div>
+
+    <h4>Stats</h4>
+    <div class="detail-stats">
+      ${statRow("Damage",              stats.damage,             baseStats.damage)}
+      ${statRow("Drop Range",          stats.dropRange,          baseStats.dropRange)}
+      ${statRow("Rate of Fire",        stats.rateOfFire,         baseStats.rateOfFire)}
+      ${statRow("Cycle Time",          stats.cycleTime,          baseStats.cycleTime)}
+      ${statRow("Spread",              stats.spread,             baseStats.spread)}
+      ${statRow("Sway",                stats.sway,               baseStats.sway)}
+      ${statRow("Vertical Recoil",     stats.verticalRecoil,     baseStats.verticalRecoil)}
+      ${statRow("Reload Speed",        stats.reloadSpeed,        baseStats.reloadSpeed)}
+      ${statRow("Muzzle Velocity",     stats.muzzleVelocity,     baseStats.muzzleVelocity)}
+      ${statRow("Melee Damage",        stats.meleeLight,         baseStats.meleeLight)}
+      ${statRow("Heavy Melee Damage",  stats.meleeHeavy,         baseStats.meleeHeavy)}
+      ${statRow("Stamina Consumption", stats.staminaConsumption, baseStats.staminaConsumption)}
+    </div>
+
+    <button id="detail-add-compare-btn" type="button" class="compare-btn ${inCompare ? "added" : ""}">
+      ${inCompare ? "✓ 비교 목록에 추가됨 (클릭하여 제거)" : "+ 비교 목록에 추가"}
+    </button>
+  `;
+}
+
+// 탄약이 기본값에서 바뀐 스탯은 화살표 표기
+function statRow(label, value, baseValue) {
+  if (value == null) return "";
+  const changed = baseValue != null && value !== baseValue;
+  const arrow = changed ? `<span class="stat-base">${baseValue} →</span> ` : "";
+  return `<div class="stat-row ${changed ? "stat-changed" : ""}"><span>${label}</span><b>${arrow}${value}</b></div>`;
+}
+
+function overrideMark(val, baseVal) {
+  if (val == null) return "-";
+  if (baseVal != null && val !== baseVal) {
+    return `<span class="stat-base">${baseVal} →</span> ${val}`;
+  }
+  return val;
+}
+
+function renderGenericDetailHTML(item) {
+  const cat = CATEGORIES[item.category];
+  const metaList = Object.entries(item.meta || {})
+    .map(([key, val]) => `<li><span>${key}</span>: ${val}</li>`).join("");
+  return `
+    <button id="detail-close-btn" type="button">✕</button>
+    <h2>${item.name}</h2>
+    <p class="detail-category">${cat?.label ?? item.category}</p>
+    ${item.image ? `<img src="${item.image}" alt="${item.name}" class="detail-img" onerror="this.style.display='none'">` : ""}
+    ${item.description ? `<p class="detail-desc">${item.description}</p>` : ""}
+    <h4>세부 정보</h4>
+    <ul class="detail-meta">${metaList || "<li>없음</li>"}</ul>
+  `;
+}
+
 // -------------------------------------------------------------------------
-// 모달 (로드아웃 슬롯용 아이템 선택기)
+// Chart.js
+// -------------------------------------------------------------------------
+function buildFalloffDataset(item, ammoId, color) {
+  const { stats, ammo } = resolveWeaponWithAmmo(item, ammoId);
+  if (!ammo || !ammo.falloff || ammo.falloff.length === 0) return null;
+
+  const baseDmg = stats.damage ?? 0;
+  const data = ammo.falloff.map(([range, mult]) => ({
+    x: range,
+    y: Math.round(baseDmg * mult),
+  }));
+  return {
+    label: `${item.name} · ${ammo.label}`,
+    data,
+    borderColor: color,
+    backgroundColor: color + "22",
+    borderWidth: 2,
+    tension: 0,            // 직선
+    stepped: false,
+    pointRadius: 3,
+    pointBackgroundColor: color,
+    fill: false,
+  };
+}
+
+function drawWeaponChart(item, ammoId) {
+  const canvas = document.getElementById("detail-chart");
+  if (!canvas) return;
+  const ds = buildFalloffDataset(item, ammoId, "#f0a445");
+  if (!ds) {
+    canvas.outerHTML = `<p class="empty-msg">거리별 데이터 없음</p>`;
+    return;
+  }
+  ds.fill = true;
+  ds.backgroundColor = "rgba(240, 164, 69, 0.15)";
+  state.charts.detail = new Chart(canvas.getContext("2d"), {
+    type: "line",
+    data: { datasets: [ds] },
+    options: chartOptions("거리 (m)", "데미지"),
+  });
+}
+
+function chartOptions(xLabel, yLabel) {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { labels: { color: "#aba894" } },
+      tooltip: { mode: "index", intersect: false },
+    },
+    scales: {
+      x: { type: "linear", title: { display: true, text: xLabel, color: "#aba894" },
+           ticks: { color: "#aba894" }, grid: { color: "rgba(77, 86, 64, 0.3)" } },
+      y: { beginAtZero: true, title: { display: true, text: yLabel, color: "#aba894" },
+           ticks: { color: "#aba894" }, grid: { color: "rgba(77, 86, 64, 0.3)" } },
+    },
+  };
+}
+
+// -------------------------------------------------------------------------
+// 모달
 // -------------------------------------------------------------------------
 function openModal(categoryFilter, onSelect) {
   state.modal.categoryFilter = categoryFilter;
   state.modal.onSelect = onSelect;
-
   document.getElementById("modal-overlay").hidden = false;
   document.getElementById("modal-title").textContent =
     `${CATEGORIES[categoryFilter]?.label ?? categoryFilter} 선택`;
@@ -249,85 +451,58 @@ function closeModal() {
 function renderModalList(query) {
   const list = document.getElementById("modal-item-list");
   list.innerHTML = "";
-
   const items = getFilteredItems({
-    category: state.modal.categoryFilter,
-    query,
-    tags: new Set(),
+    category: state.modal.categoryFilter, query, useWeaponFilters: false,
   });
-
   if (items.length === 0) {
     list.innerHTML = `<p class="empty-msg">선택할 수 있는 아이템이 없습니다.</p>`;
     return;
   }
-
   items.forEach((item) => {
     const row = document.createElement("div");
     row.className = "modal-item-row";
     row.innerHTML = `<span>${item.name}</span>`;
-    row.addEventListener("click", () => {
-      if (state.modal.onSelect) state.modal.onSelect(item);
-    });
+    row.addEventListener("click", () => { if (state.modal.onSelect) state.modal.onSelect(item); });
     list.appendChild(row);
   });
 }
 
 // -------------------------------------------------------------------------
-// 로드아웃 빌더 탭
-// CATEGORIES 설정을 읽어서 그룹/슬롯을 전부 자동으로 그립니다.
-// 카테고리를 추가/삭제해도 이 함수들은 그대로 두면 됩니다 (data.js만 고치면 됨).
+// 로드아웃
 // -------------------------------------------------------------------------
 function renderLoadoutBoard() {
   const board = document.getElementById("loadout-board");
   board.innerHTML = "";
-
   Object.entries(CATEGORIES).forEach(([catKey, catDef]) => {
     const groupEl = document.createElement("div");
     groupEl.className = "loadout-group";
-    groupEl.dataset.group = catKey;
-
     const heading = document.createElement("h2");
     heading.textContent = `${catDef.icon} ${catDef.label}`;
     groupEl.appendChild(heading);
-
     catDef.loadoutSlots.forEach((slotDef) => {
       const key = loadoutKey(catKey, slotDef.slotKey);
-
-      if (slotDef.max === null) {
-        groupEl.appendChild(renderDynamicSlotGroup(catKey, slotDef, key));
-      } else {
-        for (let i = 0; i < slotDef.max; i++) {
-          groupEl.appendChild(renderFixedSlot(catKey, slotDef, key, i));
-        }
-      }
+      if (slotDef.max === null) groupEl.appendChild(renderDynamicSlotGroup(catKey, slotDef, key));
+      else for (let i = 0; i < slotDef.max; i++) groupEl.appendChild(renderFixedSlot(catKey, slotDef, key, i));
     });
-
     board.appendChild(groupEl);
   });
 }
 
-// max가 숫자인 경우: "비어있음 / 채워짐" 형태의 고정 슬롯 하나를 그립니다.
 function renderFixedSlot(catKey, slotDef, key, index) {
   const slotEl = document.createElement("div");
   slotEl.className = "slot";
-  slotEl.dataset.loadoutKey = key;
-  slotEl.dataset.slotIndex = String(index);
-
   const labelEl = document.createElement("span");
   labelEl.className = "slot-label";
   labelEl.textContent = slotDef.max > 1 ? `${slotDef.label} ${index + 1}` : slotDef.label;
   slotEl.appendChild(labelEl);
-
   const contentEl = document.createElement("div");
   contentEl.className = "slot-content";
-
   const item = state.loadout[key][index];
   if (item) {
     slotEl.classList.add("filled");
     const nameSpan = document.createElement("span");
     nameSpan.textContent = item.name;
     contentEl.appendChild(nameSpan);
-
     const clearBtn = document.createElement("button");
     clearBtn.type = "button";
     clearBtn.className = "slot-clear-btn";
@@ -342,7 +517,6 @@ function renderFixedSlot(catKey, slotDef, key, index) {
     contentEl.textContent = "비어있음";
   }
   slotEl.appendChild(contentEl);
-
   slotEl.addEventListener("click", (e) => {
     if (e.target.closest(".slot-clear-btn")) return;
     openModal(catKey, (selectedItem) => {
@@ -351,166 +525,101 @@ function renderFixedSlot(catKey, slotDef, key, index) {
       closeModal();
     });
   });
-
   return slotEl;
 }
 
-// max가 null인 경우: 목록 + "추가" 버튼을 그립니다. (특성처럼 개수 제한 없는 슬롯)
 function renderDynamicSlotGroup(catKey, slotDef, key) {
   const wrap = document.createElement("div");
   wrap.className = "loadout-dynamic-group";
-
   const listEl = document.createElement("div");
   listEl.className = "dynamic-list-items";
-
   const ids = state.loadout[key];
-  if (ids.length === 0) {
-    listEl.innerHTML = `<p class="empty-msg">추가된 ${slotDef.label}이 없습니다.</p>`;
-  } else {
-    ids.forEach((itemId) => {
-      const item = ITEMS.find((i) => i.id === itemId);
-      if (!item) return;
-
-      const row = document.createElement("div");
-      row.className = "trait-row";
-
-      const nameSpan = document.createElement("span");
-      nameSpan.textContent = item.name;
-      row.appendChild(nameSpan);
-
-      const removeBtn = document.createElement("button");
-      removeBtn.type = "button";
-      removeBtn.className = "slot-clear-btn";
-      removeBtn.textContent = "✕";
-      removeBtn.addEventListener("click", () => {
-        state.loadout[key] = state.loadout[key].filter((id) => id !== itemId);
-        renderLoadoutBoard();
-      });
-      row.appendChild(removeBtn);
-
-      listEl.appendChild(row);
+  if (ids.length === 0) listEl.innerHTML = `<p class="empty-msg">추가된 ${slotDef.label}이 없습니다.</p>`;
+  else ids.forEach((itemId) => {
+    const item = ITEMS.find((i) => i.id === itemId);
+    if (!item) return;
+    const row = document.createElement("div");
+    row.className = "trait-row";
+    row.innerHTML = `<span>${item.name}</span>`;
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "slot-clear-btn";
+    removeBtn.textContent = "✕";
+    removeBtn.addEventListener("click", () => {
+      state.loadout[key] = state.loadout[key].filter((id) => id !== itemId);
+      renderLoadoutBoard();
     });
-  }
+    row.appendChild(removeBtn);
+    listEl.appendChild(row);
+  });
   wrap.appendChild(listEl);
-
   const addBtn = document.createElement("button");
   addBtn.type = "button";
   addBtn.className = "add-item-btn";
   addBtn.textContent = `+ ${slotDef.label} 추가`;
   addBtn.addEventListener("click", () => {
     openModal(catKey, (selectedItem) => {
-      if (!state.loadout[key].includes(selectedItem.id)) {
-        state.loadout[key].push(selectedItem.id);
-      }
+      if (!state.loadout[key].includes(selectedItem.id)) state.loadout[key].push(selectedItem.id);
       renderLoadoutBoard();
       closeModal();
     });
   });
   wrap.appendChild(addBtn);
-
   return wrap;
 }
 
-function clearLoadout() {
-  initLoadoutState();
-  renderLoadoutBoard();
-}
+function clearLoadout() { initLoadoutState(); renderLoadoutBoard(); }
 
 // -------------------------------------------------------------------------
-// 분석 탭
+// 분석 탭 — 무기+탄약 조합 비교
 // -------------------------------------------------------------------------
-
-// 현재 로드아웃에 들어있는 모든 아이템을 하나의 배열로 모읍니다.
-// (고정 슬롯에는 아이템 객체가, 목록형 슬롯에는 id 문자열이 들어있다는 차이를
-//  여기서 한 번에 처리합니다)
-function collectLoadoutItems() {
-  const items = [];
-  Object.values(state.loadout).forEach((value) => {
-    value.forEach((entry) => {
-      if (!entry) return;
-      if (typeof entry === "string") {
-        const item = ITEMS.find((i) => i.id === entry);
-        if (item) items.push(item);
-      } else {
-        items.push(entry);
-      }
-    });
-  });
-  return items;
-}
-
-function analyzeLoadout() {
-  const items = collectLoadoutItems();
-  const totals = {};
-  Object.keys(TAGS).forEach((k) => (totals[k] = 0));
-
-  items.forEach((item) => {
-    Object.entries(item.tags || {}).forEach(([key, weight]) => {
-      if (totals[key] !== undefined) totals[key] += weight;
-    });
-  });
-
-  return { items, totals };
-}
+const COMPARE_COLORS = ["#f0a445", "#5c8a63", "#c25b4d", "#7ba0c4", "#b48ec4", "#d4c25e", "#c4865c"];
 
 function renderAnalysis() {
-  const summaryEl = document.getElementById("analysis-summary");
-  const resultEl = document.getElementById("analysis-result");
+  const listEl = document.getElementById("compare-weapon-list");
+  const chartWrap = document.getElementById("compare-chart-wrap");
+  if (state.charts.compare) { state.charts.compare.destroy(); state.charts.compare = null; }
 
-  const { items, totals } = analyzeLoadout();
-
-  if (items.length === 0) {
-    summaryEl.innerHTML = `<p class="empty-msg">로드아웃 빌더 탭에서 아이템을 먼저 추가해주세요.</p>`;
-    resultEl.innerHTML = "";
+  if (state.compareEntries.length === 0) {
+    listEl.innerHTML = `<p class="empty-msg">비교할 항목이 없습니다. DB 검색 → 무기 클릭 → 탄약 선택 → "비교 목록에 추가"를 눌러주세요.</p>`;
+    chartWrap.innerHTML = "";
     return;
   }
 
-  summaryEl.innerHTML = `
-    <h2>현재 로드아웃</h2>
-    <ul>${items.map((i) => `<li>${CATEGORIES[i.category]?.icon ?? ""} ${i.name}</li>`).join("")}</ul>
-  `;
+  listEl.innerHTML = "";
+  state.compareEntries.forEach((entry, idx) => {
+    const item = ITEMS.find((i) => i.id === entry.weaponId);
+    const ammo = AMMO_TYPES[entry.ammoId];
+    if (!item || !ammo) return;
+    const color = COMPARE_COLORS[idx % COMPARE_COLORS.length];
+    const chip = document.createElement("div");
+    chip.className = "compare-chip";
+    chip.style.borderColor = color;
+    chip.innerHTML = `
+      <span class="compare-swatch" style="background:${color}"></span>
+      <span>${item.name} · ${ammo.label}</span>
+      <button class="slot-clear-btn" type="button">✕</button>
+    `;
+    chip.querySelector(".slot-clear-btn").addEventListener("click", () => {
+      state.compareEntries.splice(idx, 1);
+      renderAnalysis();
+    });
+    listEl.appendChild(chip);
+  });
 
-  const maxVal = Math.max(1, ...Object.values(totals));
-  const sorted = Object.entries(totals).sort((a, b) => b[1] - a[1]);
+  chartWrap.innerHTML = `<canvas id="compare-chart"></canvas>`;
+  const canvas = document.getElementById("compare-chart");
+  const datasets = state.compareEntries.map((entry, idx) => {
+    const item = ITEMS.find((i) => i.id === entry.weaponId);
+    if (!item) return null;
+    return buildFalloffDataset(item, entry.ammoId, COMPARE_COLORS[idx % COMPARE_COLORS.length]);
+  }).filter(Boolean);
 
-  const strongest = sorted.filter(([, v]) => v > 0).slice(0, 2);
-  const weakest = sorted.filter(([, v]) => v === 0);
-
-  const bars = sorted
-    .map(([key, val]) => {
-      const pct = Math.round((val / maxVal) * 100);
-      return `
-        <div class="tag-bar-row">
-          <span class="tag-bar-label" title="${TAGS[key].desc}">${TAGS[key].label}</span>
-          <div class="tag-bar-track">
-            <div class="tag-bar-fill" style="width:${pct}%"></div>
-          </div>
-          <span class="tag-bar-value">${val}</span>
-        </div>
-      `;
-    })
-    .join("");
-
-  const strongText = strongest.length
-    ? strongest.map(([k]) => TAGS[k].label).join(", ")
-    : "뚜렷한 강점이 아직 없습니다.";
-
-  const weakText = weakest.length
-    ? weakest.map(([k]) => TAGS[k].label).join(", ")
-    : "약점으로 보이는 영역이 없습니다.";
-
-  resultEl.innerHTML = `
-    <h2>플레이스타일 분석</h2>
-    <div class="tag-bars">${bars}</div>
-    <div class="analysis-text">
-      <p><strong>강점:</strong> ${strongText}</p>
-      <p><strong>약점(가중치 0):</strong> ${weakText}</p>
-      <p class="analysis-note">
-        ※ 이 분석은 각 아이템에 등록된 태그 가중치를 단순 합산한 결과입니다.
-        실제 데이터가 채워지면 더 정교한 계산식으로 바꿀 수 있습니다.
-      </p>
-    </div>
-  `;
+  state.charts.compare = new Chart(canvas.getContext("2d"), {
+    type: "line",
+    data: { datasets },
+    options: chartOptions("거리 (m)", "데미지"),
+  });
 }
 
 // -------------------------------------------------------------------------
