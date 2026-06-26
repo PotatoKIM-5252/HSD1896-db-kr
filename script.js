@@ -3,130 +3,143 @@ let currentCategory = "";
 const listPanel = document.getElementById("listPanel");
 const detailPanel = document.getElementById("detailPanel");
 const filters = document.getElementById("filters");
+const categoryTitle = document.getElementById("categoryTitle");
 
-document.querySelectorAll("#mainMenu button").forEach(button=>{
+document.querySelectorAll("#mainMenu button").forEach(button => {
 
-    button.addEventListener("click",()=>{
+    button.addEventListener("click", () => {
 
-        currentCategory = button.dataset.category;
-
-        createFilter(currentCategory);
-
-        loadCategory(currentCategory);
+        selectCategory(button.dataset.category);
 
     });
 
 });
 
-function createFilter(category){
+function selectCategory(category){
 
     switch(category){
 
         case "weapons":
 
-            filters.innerHTML=`
+            categoryTitle.textContent = "Weapons";
 
-<h3>Weapon Filter</h3>
+            filters.innerHTML = `
 
-<label>탄약</label>
+            <div class="filterGroup">
 
-<select>
+                <h3>Slot</h3>
 
-<option>전체</option>
+                <button>1</button>
+                <button>2</button>
+                <button>3</button>
+                <button>4</button>
+                <button>5</button>
 
-<option>Compact</option>
+            </div>
 
-<option>Medium</option>
+            <div class="filterGroup">
 
-<option>Long</option>
+                <h3>Ammo</h3>
 
-<option>Shotgun</option>
+                <button>Compact</button>
+                <button>Medium</button>
+                <button>Long</button>
+                <button>Shotgun</button>
+                <button>Special</button>
 
-<option>Special</option>
+            </div>
 
-</select>
+            <div class="filterGroup">
 
-<label>슬롯</label>
+                <h3>Special Ammo</h3>
 
-<select>
+                <button>Dumdum</button>
+                <button>FMJ</button>
+                <button>HV</button>
+                <button>Incendiary</button>
+                <button>Poison</button>
+                <button>Spitzer</button>
+                <button>Explosive</button>
+                <button>Slug</button>
+                <button>Penny Shot</button>
+                <button>Dragon Breath</button>
+                <button>Flechette</button>
 
-<option>전체</option>
+            </div>
 
-<option>1 Slot</option>
+            `;
 
-<option>2 Slot</option>
-
-<option>3 Slot</option>
-
-</select>
-
-<label>가격</label>
-
-<input type="number" placeholder="Min">
-
-<input type="number" placeholder="Max">
-
-<label>탄속</label>
-
-<input type="number" placeholder="Min">
-
-<input type="number" placeholder="Max">
-
-<label>데미지</label>
-
-<input type="number" placeholder="Min">
-
-<input type="number" placeholder="Max">
-
-`;
-
-        break;
+            break;
 
         case "tools":
 
-            filters.innerHTML="<h3>Tools Filter</h3>";
+            categoryTitle.textContent = "Tools";
 
-        break;
+            filters.innerHTML = `
+
+            <div class="filterGroup">
+
+                <h3>Tool Type</h3>
+
+                <button>Healing</button>
+                <button>Melee</button>
+                <button>Trap</button>
+                <button>Utility</button>
+
+            </div>
+
+            `;
+
+            break;
 
         case "consumables":
 
-            filters.innerHTML="<h3>Consumables Filter</h3>";
+            categoryTitle.textContent = "Consumables";
 
-        break;
+            filters.innerHTML = `
+
+            <div class="filterGroup">
+
+                <h3>Consumable Type</h3>
+
+                <button>Health</button>
+                <button>Explosive</button>
+                <button>Fire</button>
+                <button>Poison</button>
+                <button>Utility</button>
+
+            </div>
+
+            `;
+
+            break;
 
         case "traits":
 
-            filters.innerHTML="<h3>Traits Filter</h3>";
+            categoryTitle.textContent = "Traits";
 
-        break;
+            filters.innerHTML = `
+
+            <div class="filterGroup">
+
+                <h3>Trait Type</h3>
+
+                <button>Offense</button>
+                <button>Defense</button>
+                <button>Movement</button>
+                <button>Healing</button>
+                <button>Utility</button>
+
+            </div>
+
+            `;
+
+            break;
 
     }
 
-}
-
-function loadCategory(category){
-
-    listPanel.innerHTML="";
-
-    detailPanel.innerHTML=`
-<h2>${category}</h2>
-<p>데이터 준비중...</p>
-`;
-
-}
-
-document.getElementById("searchButton").addEventListener("click",search);
-
-function search(){
-
-    const keyword=document.getElementById("searchInput").value;
-
-    detailPanel.innerHTML=`
-
-<h2>검색</h2>
-
-<p>${keyword}</p>
-
-`;
+    document.getElementById("listPanel").innerHTML =
+    `<h3>${categoryTitle.textContent}</h3>
+    <p>데이터 준비중...</p>`;
 
 }
