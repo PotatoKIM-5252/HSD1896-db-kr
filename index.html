@@ -1,51 +1,72 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hunt: Showdown Database</title>
+
+    <title>Hunt Showdown Database</title>
 
     <link rel="stylesheet" href="style.css">
+
 </head>
 
 <body>
 
 <header>
 
-    <h1>HUNT: SHOWDOWN</h1>
-    <p>Community Database</p>
+    <h1>Hunt Showdown Database</h1>
 
 </header>
 
-<nav>
+<section id="search">
 
-    <button onclick="showMessage('Weapons')">Weapons</button>
-    <button onclick="showMessage('Traits')">Traits</button>
-    <button onclick="showMessage('Ammo')">Ammo</button>
-    <button onclick="showMessage('Tools')">Tools</button>
-    <button onclick="showMessage('Consumables')">Consumables</button>
-    <button onclick="showMessage('Loadouts')">Loadouts</button>
+    <input
+        type="text"
+        id="searchInput"
+        placeholder="이름, 별칭, 영어 이름 검색">
 
-</nav>
-
-<section class="hero">
-
-    <h2>Welcome Hunter</h2>
-
-    <p>
-        Search every weapon, trait, tool, and build
-        in Hunt: Showdown.
-    </p>
+    <button onclick="searchData()">검색</button>
 
 </section>
 
-<section id="output">
+<nav>
 
-    Select a category.
+    <button onclick="selectCategory('Weapons')">Weapons</button>
+
+    <button onclick="selectCategory('Tools')">Tools</button>
+
+    <button onclick="selectCategory('Consumables')">Consumables</button>
+
+    <button onclick="selectCategory('Traits')">Traits</button>
+
+</nav>
+
+<hr>
+
+<section id="filters">
+
+    <h3>필터</h3>
+
+    <div id="filterContainer">
+
+        카테고리를 선택하세요.
+
+    </div>
+
+</section>
+
+<hr>
+
+<section id="result">
+
+    데이터를 불러오면 여기에 표시됩니다.
 
 </section>
 
 <script src="script.js"></script>
 
 </body>
+
 </html>
