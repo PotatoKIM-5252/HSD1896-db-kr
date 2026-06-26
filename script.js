@@ -1,145 +1,137 @@
 let currentCategory = "";
 
-const listPanel = document.getElementById("listPanel");
-const detailPanel = document.getElementById("detailPanel");
-const filters = document.getElementById("filters");
-const categoryTitle = document.getElementById("categoryTitle");
-
-document.querySelectorAll("#mainMenu button").forEach(button => {
-
-    button.addEventListener("click", () => {
-
-        selectCategory(button.dataset.category);
-
-    });
-
-});
-
 function selectCategory(category){
+
+    currentCategory = category;
+
+    const filterArea = document.getElementById("filterArea");
+    const listArea = document.getElementById("listArea");
 
     switch(category){
 
         case "weapons":
 
-            categoryTitle.textContent = "Weapons";
+            filterArea.innerHTML = `
 
-            filters.innerHTML = `
+<h2>Weapons Filter</h2>
 
-            <div class="filterGroup">
+<b>Slot</b><br>
 
-                <h3>Slot</h3>
+<button>1 Slot</button>
+<button>2 Slot</button>
+<button>3 Slot</button>
+<button>4 Slot</button>
+<button>5 Slot</button>
 
-                <button>1</button>
-                <button>2</button>
-                <button>3</button>
-                <button>4</button>
-                <button>5</button>
+<br><br>
 
-            </div>
+<b>Ammo</b><br>
 
-            <div class="filterGroup">
+<button>Compact</button>
+<button>Medium</button>
+<button>Long</button>
+<button>Shotgun</button>
+<button>Special</button>
 
-                <h3>Ammo</h3>
+<br><br>
 
-                <button>Compact</button>
-                <button>Medium</button>
-                <button>Long</button>
-                <button>Shotgun</button>
-                <button>Special</button>
+<b>Special Ammo</b><br>
 
-            </div>
+<button>Dumdum</button>
+<button>FMJ</button>
+<button>High Velocity</button>
+<button>Incendiary</button>
+<button>Poison</button>
+<button>Spitzer</button>
+<button>Explosive</button>
+<button>Slug</button>
+<button>Penny Shot</button>
+<button>Dragon Breath</button>
+<button>Flechette</button>
 
-            <div class="filterGroup">
+`;
 
-                <h3>Special Ammo</h3>
+            listArea.innerHTML = `
+<h2>Weapons</h2>
 
-                <button>Dumdum</button>
-                <button>FMJ</button>
-                <button>HV</button>
-                <button>Incendiary</button>
-                <button>Poison</button>
-                <button>Spitzer</button>
-                <button>Explosive</button>
-                <button>Slug</button>
-                <button>Penny Shot</button>
-                <button>Dragon Breath</button>
-                <button>Flechette</button>
+<p>무기 목록이 여기에 표시됩니다.</p>
+`;
 
-            </div>
-
-            `;
-
-            break;
+        break;
 
         case "tools":
 
-            categoryTitle.textContent = "Tools";
+            filterArea.innerHTML = `
 
-            filters.innerHTML = `
+<h2>Tools Filter</h2>
 
-            <div class="filterGroup">
+<button>Healing</button>
+<button>Melee</button>
+<button>Trap</button>
+<button>Utility</button>
 
-                <h3>Tool Type</h3>
+`;
 
-                <button>Healing</button>
-                <button>Melee</button>
-                <button>Trap</button>
-                <button>Utility</button>
+            listArea.innerHTML = `
+<h2>Tools</h2>
 
-            </div>
+<p>도구 목록</p>
+`;
 
-            `;
-
-            break;
+        break;
 
         case "consumables":
 
-            categoryTitle.textContent = "Consumables";
+            filterArea.innerHTML = `
 
-            filters.innerHTML = `
+<h2>Consumables Filter</h2>
 
-            <div class="filterGroup">
+<button>Healing</button>
+<button>Fire</button>
+<button>Explosive</button>
+<button>Poison</button>
+<button>Utility</button>
 
-                <h3>Consumable Type</h3>
+`;
 
-                <button>Health</button>
-                <button>Explosive</button>
-                <button>Fire</button>
-                <button>Poison</button>
-                <button>Utility</button>
+            listArea.innerHTML = `
+<h2>Consumables</h2>
 
-            </div>
+<p>소모품 목록</p>
+`;
 
-            `;
-
-            break;
+        break;
 
         case "traits":
 
-            categoryTitle.textContent = "Traits";
+            filterArea.innerHTML = `
 
-            filters.innerHTML = `
+<h2>Traits Filter</h2>
 
-            <div class="filterGroup">
+<button>Offense</button>
+<button>Defense</button>
+<button>Movement</button>
+<button>Healing</button>
+<button>Utility</button>
 
-                <h3>Trait Type</h3>
+`;
 
-                <button>Offense</button>
-                <button>Defense</button>
-                <button>Movement</button>
-                <button>Healing</button>
-                <button>Utility</button>
+            listArea.innerHTML = `
+<h2>Traits</h2>
 
-            </div>
+<p>특성 목록</p>
+`;
 
-            `;
-
-            break;
+        break;
 
     }
 
-    document.getElementById("listPanel").innerHTML =
-    `<h3>${categoryTitle.textContent}</h3>
-    <p>데이터 준비중...</p>`;
-
 }
+
+document.getElementById("searchButton").addEventListener("click", function(){
+
+    const keyword = document.getElementById("searchInput").value;
+
+    alert("검색 : " + keyword);
+
+});
