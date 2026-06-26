@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hunt: Showdown DB</title>
+<link rel="stylesheet" href="css/style.css">
+<!-- ⚠️ css/style.css 는 아직 없습니다. 디자인은 데이터 다 채운 뒤 별도로 작업할 예정입니다. -->
+</head>
+<body>
+
+  <header id="app-header">
+    <h1>Hunt: Showdown DB</h1>
+    <nav id="main-nav">
+      <button class="nav-btn" data-tab="search" type="button">DB 검색</button>
+      <button class="nav-btn" data-tab="loadout" type="button">로드아웃 빌더</button>
+      <button class="nav-btn" data-tab="analysis" type="button">분석</button>
+    </nav>
+  </header>
+
+  <main id="app-main">
+
+    <!-- ===================== 1. DB 검색 탭 ===================== -->
+    <section id="tab-search" class="tab-panel">
+
+      <div id="search-controls">
+        <input type="text" id="search-input" placeholder="이름으로 검색...">
+
+        <!-- "전체" + 카테고리별 필터 버튼이 data.js의 CATEGORIES 설정을 읽어서
+             js/app.js 의 renderCategoryFilters() 가 자동으로 채워줍니다.
+             카테고리를 추가/삭제해도 이 div는 그대로 두면 됩니다. -->
+        <div id="category-filters"></div>
+
+        <!-- 태그 필터 칩들도 data.js의 TAGS 설정을 읽어서 자동으로 채워집니다. -->
+        <div id="tag-filters"></div>
+      </div>
+
+      <div id="search-body">
+        <div id="item-grid">
+          <!-- 검색 결과 카드들이 JS로 여기에 렌더링됩니다 -->
+        </div>
+
+        <aside id="item-detail-panel" hidden>
+          <!-- 아이템 클릭 시 상세 정보가 JS로 여기에 렌더링됩니다 -->
+        </aside>
+      </div>
+    </section>
+
+    <!-- ===================== 2. 로드아웃 빌더 탭 ===================== -->
+    <section id="tab-loadout" class="tab-panel" hidden>
+
+      <!-- 카테고리별 슬롯 그룹 전체가 data.js의 CATEGORIES 설정을 읽어서
+           js/app.js 의 renderLoadoutBoard() 가 자동으로 채워줍니다.
+           카테고리를 추가/삭제해도 이 div는 그대로 두면 됩니다. -->
+      <div id="loadout-board"></div>
+
+      <div id="loadout-actions">
+        <button id="clear-loadout-btn" type="button">로드아웃 초기화</button>
+        <button id="goto-analysis-btn" type="button">이 로드아웃으로 분석하기</button>
+      </div>
+    </section>
+
+    <!-- ===================== 3. 분석 탭 ===================== -->
+    <section id="tab-analysis" class="tab-panel" hidden>
+      <div id="analysis-summary">
+        <!-- 현재 로드아웃 구성 요약이 JS로 여기에 렌더링됩니다 -->
+      </div>
+      <div id="analysis-result">
+        <!-- 태그별 강점/약점 바 차트 + 설명이 JS로 여기에 렌더링됩니다 -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===================== 아이템 선택 모달 ===================== -->
+  <div id="modal-overlay" hidden>
+    <div id="modal-box">
+      <header id="modal-header">
+        <h3 id="modal-title">아이템 선택</h3>
+        <button id="modal-close-btn" type="button">닫기</button>
+      </header>
+      <input type="text" id="modal-search-input" placeholder="이름으로 검색...">
+      <div id="modal-item-list">
+        <!-- 선택 가능한 아이템 목록이 JS로 여기에 렌더링됩니다 -->
+      </div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
