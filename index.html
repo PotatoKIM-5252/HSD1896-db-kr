@@ -2,70 +2,64 @@
 <html lang="ko">
 
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Hunt Showdown Database</title>
+    <title>Hunt: Showdown Database</title>
 
     <link rel="stylesheet" href="style.css">
-
 </head>
 
 <body>
 
-<header>
+    <header>
+        <h1>Hunt: Showdown Database</h1>
+        <p>Unofficial Database</p>
+    </header>
 
-    <h1>Hunt Showdown Database</h1>
+    <section>
 
-</header>
+        <input
+            id="searchInput"
+            type="text"
+            placeholder="무기 이름, 별칭, 영어 이름 검색">
 
-<section id="search">
+        <button id="searchButton">검색</button>
 
-    <input
-        type="text"
-        id="searchInput"
-        placeholder="이름, 별칭, 영어 이름 검색">
+    </section>
 
-    <button onclick="searchData()">검색</button>
+    <hr>
 
-</section>
+    <nav>
 
-<nav>
+        <button data-category="weapons">Weapons</button>
 
-    <button onclick="selectCategory('Weapons')">Weapons</button>
+        <button data-category="tools">Tools</button>
 
-    <button onclick="selectCategory('Tools')">Tools</button>
+        <button data-category="consumables">Consumables</button>
 
-    <button onclick="selectCategory('Consumables')">Consumables</button>
+        <button data-category="traits">Traits</button>
 
-    <button onclick="selectCategory('Traits')">Traits</button>
+    </nav>
 
-</nav>
+    <hr>
 
-<hr>
+    <section>
 
-<section id="filters">
+        <h2 id="categoryTitle">카테고리를 선택하세요.</h2>
 
-    <h3>필터</h3>
+        <div id="filters"></div>
 
-    <div id="filterContainer">
+    </section>
 
-        카테고리를 선택하세요.
+    <hr>
 
-    </div>
+    <section id="results">
 
-</section>
+        데이터가 여기에 표시됩니다.
 
-<hr>
+    </section>
 
-<section id="result">
-
-    데이터를 불러오면 여기에 표시됩니다.
-
-</section>
-
-<script src="script.js"></script>
+    <script src="script.js"></script>
 
 </body>
 
