@@ -189,19 +189,24 @@ function createItemCard(item) {
   const imgHTML = item.image
     ? `<img src="${item.image}" alt="${item.name}" class="item-card-img" onerror="this.style.display='none'">`
     : `<div class="item-card-icon">${cat ? cat.icon : ""}</div>`;
-  let preview = "";
-  if (item.category === "weapon" && item.stats) {
-    preview = `
-      <div class="item-card-preview">
-        <span>피해 ${item.stats.damage ?? "-"}</span>
-        <span>${item.slotSize ?? "?"}칸</span>
+
+  // 무기 카드: 이름 + 이미지 + 칸수 + 가격만 표시
+  if (item.category === "weapon") {
+    card.innerHTML = `
+      ${imgHTML}
+      <div class="item-card-name">${item.name}</div>
+      <div class="item-card-meta">
+        <span class="item-card-slots">${"▪".repeat(item.slotSize || 0)}</span>
+        ${item.price != null ? `<span class="item-card-price">$${item.price}</span>` : ""}
       </div>`;
+  } else {
+    // 그 외(도구/소모품/특성): 이름 + 카테고리만
+    card.innerHTML = `
+      ${imgHTML}
+      <div class="item-card-name">${item.name}</div>
+      <div class="item-card-category">${cat ? cat.label : item.category}</div>`;
   }
-  card.innerHTML = `
-    ${imgHTML}
-    <div class="item-card-name">${item.name}</div>
-    <div class="item-card-category">${cat ? cat.label : item.category}</div>
-    ${preview}`;
+
   card.addEventListener("click", () => renderItemDetail(item));
   return card;
 }
@@ -272,16 +277,17 @@ function renderWeaponDetailHTML(item, selectedAmmoId) {
   const baseStats = item.stats;
   const inCompare = state.compareEntries.some((e) => e.weaponId === item.id && e.ammoId === selectedAmmoId);
 
-  // 탄약 탭들
+  // 탄약 탭들 (이미지/아이콘만, 이름은 hover 툴팁으로)
   const ammoTabs = (item.ammoTypes || []).map((aid) => {
     const a = AMMO_TYPES[aid];
     if (!a) return "";
     const active = aid === selectedAmmoId ? "active" : "";
+    const visual = a.image
+      ? `<img src="${a.image}" alt="${a.label}" class="ammo-tab-img" onerror="this.outerHTML='<span class=ammo-tab-icon>${a.icon ?? "•"}</span>'">`
+      : `<span class="ammo-tab-icon">${a.icon ?? "•"}</span>`;
     return `
-      <button class="ammo-tab ${active}" data-ammo-id="${aid}" type="button" title="${a.description ?? ""}">
-        <span class="ammo-tab-icon">${a.icon ?? "•"}</span>
-        <span class="ammo-tab-label">${a.label}</span>
-        ${a.cost ? `<span class="ammo-tab-cost">$${a.cost}</span>` : ""}
+      <button class="ammo-tab ${active}" data-ammo-id="${aid}" type="button" title="${a.label}${a.cost ? ` ($${a.cost})` : ""}">
+        ${visual}
       </button>`;
   }).join("");
 

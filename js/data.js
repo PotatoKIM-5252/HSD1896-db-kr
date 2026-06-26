@@ -124,10 +124,11 @@ const AMMO_TYPES = {
   compact: {
     label: "Compact",
     category: "compact",
+    isBase: true,                // 기본탄 (특수탄이 아님)
+    image: "",                   // 이미지 파일 (없으면 icon으로 fallback)
     icon: "🟫",
     description: "Compact - Damage dropoff starts at 20m. Low penetration damage.",
     cost: 0,
-    // ⚠️ 추정 곡선 (공식 그래프 이미지 기반 근사값) — 정확한 값 받으면 교체 예정
     falloff: [
       [0,   1.00],
       [20,  1.00],
@@ -142,10 +143,10 @@ const AMMO_TYPES = {
     label: "FMJ Ammo",
     category: "compact",
     effect: "full_metal",
+    image: "images/ammo/fmj.png",
     icon: "🟤",
     description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
     cost: 50,
-    // FMJ는 falloff 시작점이 30m로 밀림 (이미지: "Damage dropoff begins at 30m")
     falloff: [
       [0,   1.00],
       [30,  1.00],
@@ -165,10 +166,10 @@ const AMMO_TYPES = {
     label: "High Velocity Ammo",
     category: "compact",
     effect: "high_velocity",
+    image: "images/ammo/high_velocity.png",
     icon: "🟠",
     description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
     cost: 60,
-    // 데미지/사거리는 비슷, 탄속만 빨라짐 → falloff는 기본탄과 동일하게 유지
     falloff: [
       [0,   1.00],
       [20,  1.00],
@@ -177,11 +178,11 @@ const AMMO_TYPES = {
       [300, 0.25],
     ],
     statOverrides: {
-      damage: 104,            // 기본 110 → 104
-      dropRange: 160,         // 기본 140 → 160
-      verticalRecoil: 8,      // 기본 5 → 8
-      muzzleVelocity: 500,    // 기본 400 → 500
-      ammoExtra: 15,          // 예비탄 21 → 15
+      damage: 104,
+      dropRange: 160,
+      verticalRecoil: 8,
+      muzzleVelocity: 500,
+      ammoExtra: 15,
     },
   },
 
@@ -189,10 +190,10 @@ const AMMO_TYPES = {
     label: "Incendiary Ammo",
     category: "compact",
     effect: "incendiary",
+    image: "images/ammo/incendiary.png",
     icon: "🔥",
     description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
     cost: 40,
-    // 데미지 자체는 기본탄과 유사, 상태이상 효과가 핵심
     falloff: [
       [0,   1.00],
       [20,  1.00],
@@ -208,6 +209,7 @@ const AMMO_TYPES = {
     label: "Poison Ammo",
     category: "compact",
     effect: "poison",
+    image: "images/ammo/poison.png",
     icon: "🟢",
     description: "중독탄 - 명중 시 독 효과. 관통 불가.",
     cost: 50,
@@ -226,10 +228,10 @@ const AMMO_TYPES = {
     label: "Subsonic Ammo",
     category: "compact",
     effect: "subsonic",
+    image: "images/ammo/subsonic.png",
     icon: "🔇",
     description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 사거리/탄속 감소.",
     cost: 5,
-    // 사거리 감소 → falloff 시작점이 더 빨라짐
     falloff: [
       [0,   1.00],
       [15,  1.00],
@@ -238,9 +240,9 @@ const AMMO_TYPES = {
       [250, 0.20],
     ],
     statOverrides: {
-      dropRange: 110,         // 기본 140 → 110
-      muzzleVelocity: 263,    // 기본 400 → 263
-      ammoExtra: 34,          // 예비탄 21 → 34
+      dropRange: 110,
+      muzzleVelocity: 263,
+      ammoExtra: 34,
     },
     specialEffects: ["Reduced Sound"],
   },
@@ -256,7 +258,7 @@ const ITEMS = [
     id: "weapon_frontier_73c",
     category: "weapon",
     name: "Frontier 73C",
-    image: "",   // 이미지 파일 올리면 "images/weapons/frontier_73c.png" 처럼 경로
+    image: "images/weapons/frontier_73c.png",
 
     // 검색 필터용
     slotSize: 3,
