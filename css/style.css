@@ -229,10 +229,11 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 .item-card-img {
   width: 100%;
-  height: 64px;
+  height: 80px;
   object-fit: contain;
   background: var(--bg-input);
   border-radius: 4px;
+  padding: 4px;
 }
 
 .item-card-icon { font-size: 24px; line-height: 1; }
@@ -250,15 +251,26 @@ button { font-family: var(--font-body); cursor: pointer; }
   letter-spacing: 0.06em;
 }
 
-.item-card-preview {
+.item-card-meta {
   display: flex;
-  gap: 10px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-secondary);
+  align-items: center;
+  justify-content: space-between;
   margin-top: 4px;
   padding-top: 8px;
   border-top: 1px solid var(--border);
+}
+
+.item-card-slots {
+  font-family: var(--font-mono);
+  color: var(--accent-strong);
+  letter-spacing: 2px;
+  font-size: 12px;
+}
+
+.item-card-price {
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  font-size: 12px;
 }
 
 /* 상세 패널 */
@@ -447,39 +459,38 @@ button { font-family: var(--font-body); cursor: pointer; }
 .ammo-tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
 }
 
 .ammo-tab {
+  width: 52px;
+  height: 52px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
   background: var(--bg-card);
   border: 1px solid var(--border);
-  color: var(--text-secondary);
-  font-size: 12px;
-  padding: 7px 11px;
+  padding: 6px;
   border-radius: var(--radius);
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
 }
 
 .ammo-tab:hover {
   border-color: var(--border-strong);
-  color: var(--text-primary);
+  transform: translateY(-1px);
 }
 
 .ammo-tab.active {
   background: rgba(214, 138, 50, 0.15);
   border-color: var(--accent);
-  color: var(--accent-strong);
 }
 
-.ammo-tab-icon { font-size: 14px; }
-.ammo-tab-label { font-weight: 500; }
-.ammo-tab-cost {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-muted);
+.ammo-tab-icon { font-size: 22px; line-height: 1; }
+
+.ammo-tab-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }
 
 .ammo-effects {
