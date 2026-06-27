@@ -259,6 +259,137 @@ function bindCompareButton(item, ammoId) {
     }
     renderItemDetail(item);
   });
+
+  document.querySelector("#detail-show-bodyparts-btn")?.addEventListener("click", () => {
+    openBodyPartView(item, ammoId);
+  });
+}
+
+// -------------------------------------------------------------------------
+// 자세히 보기 - 부위별 데미지 화면
+// -------------------------------------------------------------------------
+function openBodyPartView(item, ammoId) {
+  const { stats, ammo } = resolveWeaponWithAmmo(item, ammoId);
+  const baseDmg = stats.damage ?? 0;
+
+  const overlay = document.getElementById("bodypart-overlay");
+  const content = document.getElementById("bodypart-content");
+
+  // 부위별 데미지 계산 (10m 기준 — 게임 내 표기 거리와 동일)
+  const refRange = 10;
+  const distMult = ammo?.falloff ? interpolateFalloff(ammo.falloff, refRange) : 1;
+  const dmgAt10m = baseDmg * distMult;
+
+  // 각 부위별 데미지 — 머리는 specialLabel 우선
+  const partInfo = {};
+  Object.entries(BODY_PART_MULTIPLIERS).forEach(([key, def]) => {
+    if (def.specialLabel) {
+      partInfo[key] = { isSpecial: true, label: def.specialLabel };
+    } else if (def.multiplier == null) {
+      partInfo[key] = { isSpecial: false, dmg: null };
+    } else {
+      partInfo[key] = { isSpecial: false, dmg: Math.round(dmgAt10m * def.multiplier) };
+    }
+  });
+
+  content.innerHTML = `
+    <button id="bodypart-close-btn" type="button">✕</button>
+    <h2>${item.name} <span class="bodypart-ammo">${ammo?.label ?? ""}</span></h2>
+    <p class="bodypart-subtitle">10m 거리 기준 부위별 데미지 (헌터 HP ${HUNTER_HP})</p>
+
+    <div class="bodypart-layout">
+      <div class="bodypart-figure">
+        ${renderBodyFigureSVG(partInfo)}
+      </div>
+      <div class="bodypart-table">
+        <h4>부위별 BTK</h4>
+        <table>
+          <thead>
+            <tr><th>부위</th><th>데미지</th><th>BTK</th></tr>
+          </thead>
+          <tbody>
+            ${Object.entries(BODY_PART_MULTIPLIERS).map(([key, def]) => {
+              const info = partInfo[key];
+              if (info.isSpecial) {
+                return `<tr>
+                  <td>${def.label}</td>
+                  <td class="special">${info.label}</td>
+                  <td class="ohk">1발 (OHK)</td>
+                </tr>`;
+              }
+              if (info.dmg == null) {
+                return `<tr><td>${def.label}</td><td class="muted">배율 없음</td><td>-</td></tr>`;
+              }
+              const btk = Math.ceil(HUNTER_HP / info.dmg);
+              const ohk = info.dmg >= HUNTER_HP;
+              return `<tr>
+                <td>${def.label}</td>
+                <td>${info.dmg}</td>
+                <td class="${ohk ? "ohk" : ""}">${btk}발${ohk ? " (OHK)" : ""}</td>
+              </tr>`;
+            }).join("")}
+          </tbody>
+        </table>
+        <p class="bodypart-note">
+          ※ 머리는 부위 명중 시 무조건 즉사 처리됩니다.
+        </p>
+      </div>
+    </div>
+  `;
+
+  overlay.hidden = false;
+
+  document.getElementById("bodypart-close-btn").addEventListener("click", closeBodyPartView);
+  overlay.addEventListener("click", (e) => {
+    if (e.target.id === "bodypart-overlay") closeBodyPartView();
+  });
+}
+
+function closeBodyPartView() {
+  document.getElementById("bodypart-overlay").hidden = true;
+}
+
+// 사람 실루엣 SVG에 부위별 데미지 숫자 배치
+function renderBodyFigureSVG(partInfo) {
+  const display = (key) => {
+    const info = partInfo[key];
+    if (!info) return "?";
+    if (info.isSpecial) return info.label;
+    return info.dmg == null ? "?" : info.dmg;
+  };
+
+  return `
+    <svg viewBox="0 0 280 540" xmlns="http://www.w3.org/2000/svg" class="body-svg">
+      <!-- 머리 -->
+      <ellipse cx="140" cy="55" rx="38" ry="44" class="body-part" data-part="head"/>
+      <text x="140" y="62" class="body-num body-num-special">${display("head")}</text>
+
+      <!-- 목 -->
+      <rect x="125" y="95" width="30" height="20" class="body-part"/>
+
+      <!-- 상체 (어깨 ~ 가슴) -->
+      <path d="M 80 115 Q 75 130 80 195 L 200 195 Q 205 130 200 115 L 175 110 L 105 110 Z" class="body-part" data-part="upper_torso"/>
+      <text x="140" y="160" class="body-num">${display("upper_torso")}</text>
+
+      <!-- 몸통 (배 ~ 골반) -->
+      <path d="M 84 195 L 196 195 L 192 280 L 88 280 Z" class="body-part" data-part="torso"/>
+      <text x="140" y="245" class="body-num">${display("torso")}</text>
+
+      <!-- 왼팔 -->
+      <path d="M 75 120 Q 50 130 45 200 L 40 285 L 65 290 L 75 210 Z" class="body-part" data-part="arm"/>
+      <text x="55" y="215" class="body-num">${display("arm")}</text>
+
+      <!-- 오른팔 (대칭, 라벨 생략) -->
+      <path d="M 205 120 Q 230 130 235 200 L 240 285 L 215 290 L 205 210 Z" class="body-part" data-part="arm"/>
+
+      <!-- 왼다리 -->
+      <path d="M 88 280 L 96 410 L 112 510 L 138 510 L 138 280 Z" class="body-part" data-part="leg"/>
+      <text x="115" y="400" class="body-num">${display("leg")}</text>
+
+      <!-- 오른다리 (대칭) -->
+      <path d="M 192 280 L 184 410 L 168 510 L 142 510 L 142 280 Z" class="body-part" data-part="leg"/>
+    </svg>
+  `;
 }
 
 // 무기 + 탄약을 합쳐서 "실제 적용되는" 스탯/탄창 계산
@@ -340,6 +471,9 @@ function renderWeaponDetailHTML(item, selectedAmmoId) {
 
     <button id="detail-add-compare-btn" type="button" class="compare-btn ${inCompare ? "added" : ""}">
       ${inCompare ? "✓ 비교 목록에 추가됨 (클릭하여 제거)" : "+ 비교 목록에 추가"}
+    </button>
+    <button id="detail-show-bodyparts-btn" type="button" class="bodyparts-btn">
+      🎯 부위별 데미지 자세히 보기
     </button>
   `;
 }
@@ -441,30 +575,32 @@ function drawWeaponChart(item, ammoId) {
   }
   ds.fill = true;
   ds.backgroundColor = "rgba(240, 164, 69, 0.15)";
+
+  // 이 무기가 1발 킬(OHK)이 가능한가? — 최대 데미지가 150 이상이면 표시
+  const maxDmg = Math.max(...ds.data.map((d) => d.y));
+  const canOHK = maxDmg >= HUNTER_HP;
+
   state.charts.detail = new Chart(canvas.getContext("2d"), {
     type: "line",
     data: { datasets: [ds] },
-    options: chartOptions("거리 (m)", "데미지"),
+    options: chartOptions("거리 (m)", "데미지", { showOHK: canOHK }),
+    plugins: [btkLinesPlugin],
   });
 }
 
-function chartOptions(xLabel, yLabel) {
+function chartOptions(xLabel, yLabel, opts = {}) {
   return {
     responsive: true,
     maintainAspectRatio: false,
-    // 마우스가 정확히 점 위에 있지 않아도 가장 가까운 x값으로 호버 발생
-    interaction: {
-      mode: "index",
-      intersect: false,
-      axis: "x",
-    },
+    // 플러그인이 쓸 커스텀 옵션 (showOHK 등)
+    btkLines: { showOHK: opts.showOHK === true },
+    interaction: { mode: "index", intersect: false, axis: "x" },
     plugins: {
       legend: { labels: { color: "#aba894" } },
       tooltip: {
         mode: "index",
         intersect: false,
         callbacks: {
-          // 툴팁 제목을 "거리: 80m" 형태로
           title: (items) => items.length ? `거리: ${items[0].parsed.x}m` : "",
           label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y}`,
         },
@@ -478,6 +614,52 @@ function chartOptions(xLabel, yLabel) {
            ticks: { color: "#aba894" }, grid: { color: "rgba(77, 86, 64, 0.3)" } },
     },
   };
+}
+
+// BTK 가이드 라인 플러그인:
+//   - 75 HP 가로선 (2발 처치 가능 기준선) — 항상 표시
+//   - 150 HP 가로선 (1발 OHK 기준선) — 데미지가 150 이상인 무기가 있을 때만 표시
+const btkLinesPlugin = {
+  id: "btkLines",
+  afterDatasetsDraw(chart) {
+    const opts = chart.options.btkLines || {};
+    const { ctx, chartArea, scales } = chart;
+    if (!chartArea || !scales.y) return;
+
+    ctx.save();
+    ctx.lineWidth = 1;
+    ctx.setLineDash([5, 4]);
+    ctx.font = "11px Inter, sans-serif";
+    ctx.textBaseline = "middle";
+
+    // 2BTK 기준선: y = 75 (150HP / 2)
+    drawGuideLine(ctx, scales, chartArea, 75, "rgba(123, 160, 196, 0.7)", "2BTK · 75");
+
+    // 1BTK(OHK) 기준선: y = 150 — OHK 가능한 무기일 때만
+    if (opts.showOHK) {
+      drawGuideLine(ctx, scales, chartArea, 150, "rgba(194, 91, 77, 0.8)", "OHK · 150");
+    }
+
+    ctx.restore();
+  },
+};
+
+function drawGuideLine(ctx, scales, chartArea, yValue, color, label) {
+  // y값이 차트 표시 범위를 벗어나면 그리지 않음
+  if (yValue > scales.y.max || yValue < scales.y.min) return;
+
+  const yPixel = scales.y.getPixelForValue(yValue);
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+
+  ctx.beginPath();
+  ctx.moveTo(chartArea.left, yPixel);
+  ctx.lineTo(chartArea.right, yPixel);
+  ctx.stroke();
+
+  // 라벨 (우측에 표기)
+  ctx.textAlign = "right";
+  ctx.fillText(label, chartArea.right - 6, yPixel - 8);
 }
 
 // -------------------------------------------------------------------------
@@ -666,10 +848,14 @@ function renderAnalysis() {
     return buildFalloffDataset(item, entry.ammoId, COMPARE_COLORS[idx % COMPARE_COLORS.length]);
   }).filter(Boolean);
 
+  // 비교 중 무기들 중 하나라도 데미지가 150 이상이면 OHK 라인 표시
+  const anyOHK = datasets.some((ds) => ds.data.some((d) => d.y >= HUNTER_HP));
+
   state.charts.compare = new Chart(canvas.getContext("2d"), {
     type: "line",
     data: { datasets },
-    options: chartOptions("거리 (m)", "데미지"),
+    options: chartOptions("거리 (m)", "데미지", { showOHK: anyOHK }),
+    plugins: [btkLinesPlugin],
   });
 }
 
