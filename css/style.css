@@ -418,6 +418,151 @@ button { font-family: var(--font-body); cursor: pointer; }
   color: var(--success);
 }
 
+/* ===================== 자세히 보기 버튼 + 부위별 화면 ===================== */
+
+.bodyparts-btn {
+  margin-top: 8px;
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px;
+  border-radius: var(--radius);
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.bodyparts-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent-strong);
+  background: rgba(214, 138, 50, 0.08);
+}
+
+#bodypart-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 12, 7, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 60;
+  overflow-y: auto;
+}
+
+#bodypart-overlay[hidden] { display: none; }
+
+#bodypart-content {
+  position: relative;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 760px;
+  padding: 28px 32px;
+}
+
+#bodypart-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text-secondary);
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: var(--radius);
+}
+
+#bodypart-close-btn:hover { color: var(--text-primary); border-color: var(--text-secondary); }
+
+#bodypart-content h2 { font-size: 20px; padding-right: 60px; }
+
+.bodypart-ammo {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--accent-strong);
+  font-weight: 400;
+  margin-left: 8px;
+}
+
+.bodypart-subtitle { font-size: 13px; color: var(--text-muted); margin: 6px 0 20px; }
+
+.bodypart-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.bodypart-figure {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.body-svg { width: 100%; height: auto; display: block; }
+
+.body-part {
+  fill: var(--bg-card);
+  stroke: var(--border-strong);
+  stroke-width: 1.5;
+}
+
+.body-num {
+  text-anchor: middle;
+  fill: var(--accent-strong);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 500;
+  pointer-events: none;
+}
+
+.body-num-special {
+  fill: var(--danger-strong);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.bodypart-table h4 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.bodypart-table table { width: 100%; border-collapse: collapse; font-size: 13px; }
+
+.bodypart-table th, .bodypart-table td {
+  text-align: left;
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.bodypart-table th {
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.bodypart-table td { color: var(--text-primary); font-family: var(--font-mono); }
+.bodypart-table td.muted { color: var(--text-muted); font-family: var(--font-body); font-size: 12px; }
+.bodypart-table td.ohk { color: var(--danger-strong); font-weight: 500; }
+.bodypart-table td.special { color: var(--danger-strong); font-family: var(--font-body); font-weight: 500; }
+
+.bodypart-note { font-size: 11px; color: var(--text-muted); margin-top: 14px; }
+
+@media (max-width: 720px) {
+  .bodypart-layout { grid-template-columns: 1fr; }
+  .bodypart-figure { max-width: 280px; margin: 0 auto; }
+}
+
 /* ===================== 무기 상세: 탄약 탭 / Chamber / 변경 스탯 ===================== */
 
 .detail-meta-row {
