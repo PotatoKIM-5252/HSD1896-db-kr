@@ -556,11 +556,29 @@ button { font-family: var(--font-body); cursor: pointer; }
   align-items: start;
 }
 
+.bodypart-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .bodypart-figure {
   background: #0a0c08;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 12px;
+}
+
+.bp-chart-wrap {
+  height: 200px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px;
+}
+
+.bp-chart-wrap canvas {
+  cursor: crosshair;
 }
 
 .body-svg { width: 100%; height: auto; display: block; }
