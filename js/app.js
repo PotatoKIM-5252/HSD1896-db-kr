@@ -363,19 +363,17 @@ function renderBodyFigureSVG(partInfo, refRange) {
       <!-- 거리 표기 (좌상단) -->
       <text x="40" y="90" class="body-range">Range: ${refRange}m</text>
 
-      <!-- 가슴 -->
+      <!-- 가슴 (중앙) -->
       <text x="510" y="420" class="body-num">${display("chest")}</text>
 
-      <!-- 팔 (좌우 동일 값) -->
-      <text x="335" y="430" class="body-num">${display("arm")}</text>
-      <text x="685" y="430" class="body-num">${display("arm")}</text>
+      <!-- 팔 (좌측 팔꿈치 부근에 하나만) -->
+      <text x="310" y="600" class="body-num">${display("arm")}</text>
 
-      <!-- 배 -->
+      <!-- 배 (중앙) -->
       <text x="510" y="660" class="body-num">${display("belly")}</text>
 
-      <!-- 하체 (좌우 동일 값) -->
-      <text x="430" y="900" class="body-num">${display("lower")}</text>
-      <text x="590" y="900" class="body-num">${display("lower")}</text>
+      <!-- 하체 (좌측 무릎 부근에 하나만) -->
+      <text x="440" y="1100" class="body-num">${display("lower")}</text>
     </svg>
   `;
 }
