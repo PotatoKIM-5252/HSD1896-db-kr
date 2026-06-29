@@ -364,7 +364,14 @@ button { font-family: var(--font-body); cursor: pointer; }
 .detail-ammo span { color: var(--text-muted); font-size: 11px; text-transform: uppercase; }
 .detail-ammo b { color: var(--text-primary); font-weight: 500; }
 
-.detail-chart-wrap { height: 200px; margin-bottom: 8px; }
+.detail-chart-wrap {
+  height: 200px;
+  margin-bottom: 8px;
+}
+
+.detail-chart-wrap canvas {
+  cursor: crosshair;
+}
 
 .detail-stats {
   display: grid;
@@ -491,40 +498,44 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 .bodypart-layout {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 340px 1fr;
   gap: 28px;
   align-items: start;
 }
 
 .bodypart-figure {
-  background: var(--bg-input);
+  background: #0a0c08;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 16px;
+  padding: 12px;
 }
 
-.body-svg { width: 100%; height: auto; display: block; }
-
-.body-part {
-  fill: var(--bg-card);
-  stroke: var(--border-strong);
-  stroke-width: 1.5;
+.body-svg {
+  width: 100%;
+  height: auto;
+  display: block;
 }
 
 .body-num {
   text-anchor: middle;
-  fill: var(--accent-strong);
-  font-family: var(--font-mono);
-  font-size: 16px;
-  font-weight: 500;
+  fill: #ece6d3;
+  font-family: var(--font-display);
+  font-size: 70px;
+  font-weight: 400;
   pointer-events: none;
 }
 
-.body-num-special {
-  fill: var(--danger-strong);
-  font-family: var(--font-body);
+.body-range {
+  fill: #ece6d3;
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 400;
+}
+
+.bodypart-hint {
+  color: var(--text-muted);
   font-size: 12px;
-  font-weight: 600;
+  margin-left: 6px;
 }
 
 .bodypart-table h4 {
@@ -554,7 +565,6 @@ button { font-family: var(--font-body); cursor: pointer; }
 .bodypart-table td { color: var(--text-primary); font-family: var(--font-mono); }
 .bodypart-table td.muted { color: var(--text-muted); font-family: var(--font-body); font-size: 12px; }
 .bodypart-table td.ohk { color: var(--danger-strong); font-weight: 500; }
-.bodypart-table td.special { color: var(--danger-strong); font-family: var(--font-body); font-weight: 500; }
 
 .bodypart-note { font-size: 11px; color: var(--text-muted); margin-top: 14px; }
 
