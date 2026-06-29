@@ -21,16 +21,13 @@ const HUNTER_HP = 150;
 // 2. BODY_PART_MULTIPLIERS — 부위별 데미지 배율
 //    "자세히 보기"에서 부위 데미지를 자동 계산할 때 사용합니다.
 //
-//    ▣ 머리(head)는 무기/탄약에 따라 배율이 다르고 OHK 여부가 결정되는
-//      특수 부위라서, 일반 multiplier 대신 specialLabel("치명상")로 표시합니다.
-//      정확한 헤드샷 사거리/배율은 추후 무기별로 따로 입력할 예정.
+//    ▣ 머리는 무조건 즉사라서 따로 표시하지 않습니다.
 // -------------------------------------------------------------------------
 const BODY_PART_MULTIPLIERS = {
-  head:        { label: "머리",   multiplier: null, specialLabel: "즉사" },
-  upper_torso: { label: "상체",   multiplier: 1.3 },
-  torso:       { label: "몸통",   multiplier: 1.2 },
-  arm:         { label: "팔",     multiplier: 0.9 },
-  leg:         { label: "다리",   multiplier: 0.8 },
+  chest:  { label: "가슴",  multiplier: 1.3 },
+  arm:    { label: "팔",    multiplier: 0.9 },
+  belly:  { label: "배",    multiplier: 1.2 },
+  lower:  { label: "하체",  multiplier: 0.8 },
 };
 
 // -------------------------------------------------------------------------

@@ -19,6 +19,9 @@ const state = {
   // 무기 상세 패널에서 현재 선택된 탄약 (무기 id 단위로 기억)
   selectedAmmo: {},        // { "weapon_frontier_73c": "compact_fmj", ... }
 
+  // 무기별 "부위 데미지 기준 거리" (그래프 클릭으로 변경). 기본 10m.
+  refRange: {},            // { "weapon_frontier_73c": 47, ... }
+
   // 비교 목록: { weaponId, ammoId } 쌍의 배열
   compareEntries: [],
 
@@ -275,31 +278,32 @@ function openBodyPartView(item, ammoId) {
   const overlay = document.getElementById("bodypart-overlay");
   const content = document.getElementById("bodypart-content");
 
-  // 부위별 데미지 계산 (10m 기준 — 게임 내 표기 거리와 동일)
-  const refRange = 10;
+  // 기준 거리: 그래프에서 클릭한 값. 없으면 10m 기본.
+  const refRange = state.refRange[item.id] ?? 10;
   const distMult = ammo?.falloff ? interpolateFalloff(ammo.falloff, refRange) : 1;
-  const dmgAt10m = baseDmg * distMult;
+  const dmgAtRange = baseDmg * distMult;
 
-  // 각 부위별 데미지 — 머리는 specialLabel 우선
+  // 각 부위별 데미지
   const partInfo = {};
   Object.entries(BODY_PART_MULTIPLIERS).forEach(([key, def]) => {
-    if (def.specialLabel) {
-      partInfo[key] = { isSpecial: true, label: def.specialLabel };
-    } else if (def.multiplier == null) {
-      partInfo[key] = { isSpecial: false, dmg: null };
+    if (def.multiplier == null) {
+      partInfo[key] = { dmg: null };
     } else {
-      partInfo[key] = { isSpecial: false, dmg: Math.round(dmgAt10m * def.multiplier) };
+      partInfo[key] = { dmg: Math.round(dmgAtRange * def.multiplier) };
     }
   });
 
   content.innerHTML = `
     <button id="bodypart-close-btn" type="button">✕</button>
     <h2>${item.name} <span class="bodypart-ammo">${ammo?.label ?? ""}</span></h2>
-    <p class="bodypart-subtitle">10m 거리 기준 부위별 데미지 (헌터 HP ${HUNTER_HP})</p>
+    <p class="bodypart-subtitle">
+      Range: <b>${refRange}m</b> 기준 부위별 데미지 (헌터 HP ${HUNTER_HP})
+      <span class="bodypart-hint">— 그래프 위를 클릭하면 거리를 바꿀 수 있어요</span>
+    </p>
 
     <div class="bodypart-layout">
       <div class="bodypart-figure">
-        ${renderBodyFigureSVG(partInfo)}
+        ${renderBodyFigureSVG(partInfo, refRange)}
       </div>
       <div class="bodypart-table">
         <h4>부위별 BTK</h4>
@@ -310,13 +314,6 @@ function openBodyPartView(item, ammoId) {
           <tbody>
             ${Object.entries(BODY_PART_MULTIPLIERS).map(([key, def]) => {
               const info = partInfo[key];
-              if (info.isSpecial) {
-                return `<tr>
-                  <td>${def.label}</td>
-                  <td class="special">${info.label}</td>
-                  <td class="ohk">1발 (OHK)</td>
-                </tr>`;
-              }
               if (info.dmg == null) {
                 return `<tr><td>${def.label}</td><td class="muted">배율 없음</td><td>-</td></tr>`;
               }
@@ -331,7 +328,7 @@ function openBodyPartView(item, ammoId) {
           </tbody>
         </table>
         <p class="bodypart-note">
-          ※ 머리는 부위 명중 시 무조건 즉사 처리됩니다.
+          ※ 머리 명중은 무조건 즉사이므로 별도 표시하지 않습니다.
         </p>
       </div>
     </div>
@@ -349,45 +346,36 @@ function closeBodyPartView() {
   document.getElementById("bodypart-overlay").hidden = true;
 }
 
-// 사람 실루엣 SVG에 부위별 데미지 숫자 배치
-function renderBodyFigureSVG(partInfo) {
+// 마네킹 이미지 + 데미지 숫자 오버레이
+// 이미지: 1024x1536
+function renderBodyFigureSVG(partInfo, refRange) {
   const display = (key) => {
     const info = partInfo[key];
-    if (!info) return "?";
-    if (info.isSpecial) return info.label;
+    if (!info) return "";
     return info.dmg == null ? "?" : info.dmg;
   };
 
   return `
-    <svg viewBox="0 0 280 540" xmlns="http://www.w3.org/2000/svg" class="body-svg">
-      <!-- 머리 -->
-      <ellipse cx="140" cy="55" rx="38" ry="44" class="body-part" data-part="head"/>
-      <text x="140" y="62" class="body-num body-num-special">${display("head")}</text>
+    <svg viewBox="0 0 1024 1536" xmlns="http://www.w3.org/2000/svg" class="body-svg">
+      <!-- 배경 이미지: 빈 마네킹 -->
+      <image href="images/ui/mannequin.png" x="0" y="0" width="1024" height="1536"/>
 
-      <!-- 목 -->
-      <rect x="125" y="95" width="30" height="20" class="body-part"/>
+      <!-- 거리 표기 (좌상단) -->
+      <text x="40" y="90" class="body-range">Range: ${refRange}m</text>
 
-      <!-- 상체 (어깨 ~ 가슴) -->
-      <path d="M 80 115 Q 75 130 80 195 L 200 195 Q 205 130 200 115 L 175 110 L 105 110 Z" class="body-part" data-part="upper_torso"/>
-      <text x="140" y="160" class="body-num">${display("upper_torso")}</text>
+      <!-- 가슴 -->
+      <text x="510" y="420" class="body-num">${display("chest")}</text>
 
-      <!-- 몸통 (배 ~ 골반) -->
-      <path d="M 84 195 L 196 195 L 192 280 L 88 280 Z" class="body-part" data-part="torso"/>
-      <text x="140" y="245" class="body-num">${display("torso")}</text>
+      <!-- 팔 (좌우 동일 값) -->
+      <text x="335" y="430" class="body-num">${display("arm")}</text>
+      <text x="685" y="430" class="body-num">${display("arm")}</text>
 
-      <!-- 왼팔 -->
-      <path d="M 75 120 Q 50 130 45 200 L 40 285 L 65 290 L 75 210 Z" class="body-part" data-part="arm"/>
-      <text x="55" y="215" class="body-num">${display("arm")}</text>
+      <!-- 배 -->
+      <text x="510" y="660" class="body-num">${display("belly")}</text>
 
-      <!-- 오른팔 (대칭, 라벨 생략) -->
-      <path d="M 205 120 Q 230 130 235 200 L 240 285 L 215 290 L 205 210 Z" class="body-part" data-part="arm"/>
-
-      <!-- 왼다리 -->
-      <path d="M 88 280 L 96 410 L 112 510 L 138 510 L 138 280 Z" class="body-part" data-part="leg"/>
-      <text x="115" y="400" class="body-num">${display("leg")}</text>
-
-      <!-- 오른다리 (대칭) -->
-      <path d="M 192 280 L 184 410 L 168 510 L 142 510 L 142 280 Z" class="body-part" data-part="leg"/>
+      <!-- 하체 (좌우 동일 값) -->
+      <text x="430" y="900" class="body-num">${display("lower")}</text>
+      <text x="590" y="900" class="body-num">${display("lower")}</text>
     </svg>
   `;
 }
@@ -580,20 +568,42 @@ function drawWeaponChart(item, ammoId) {
   const maxDmg = Math.max(...ds.data.map((d) => d.y));
   const canOHK = maxDmg >= HUNTER_HP;
 
+  const currentRef = state.refRange[item.id] ?? 10;
+
   state.charts.detail = new Chart(canvas.getContext("2d"), {
     type: "line",
     data: { datasets: [ds] },
-    options: chartOptions("거리 (m)", "데미지", { showOHK: canOHK }),
-    plugins: [btkLinesPlugin],
+    options: chartOptions("거리 (m)", "데미지", { showOHK: canOHK, refRange: currentRef }),
+    plugins: [btkLinesPlugin, refRangePlugin],
   });
+
+  // 그래프 클릭 → 클릭한 x값을 기준 거리로 저장
+  canvas.onclick = (evt) => {
+    const chart = state.charts.detail;
+    if (!chart) return;
+    const xScale = chart.scales.x;
+    const rect = canvas.getBoundingClientRect();
+    const xPixel = evt.clientX - rect.left;
+    const xValue = Math.round(xScale.getValueForPixel(xPixel));
+    const clamped = Math.max(0, Math.min(200, xValue));
+    state.refRange[item.id] = clamped;
+
+    // 차트 옵션 갱신해서 즉시 다시 그림
+    chart.options.btkLines.refRange = clamped;
+    chart.update("none");
+
+    // 부위 데미지 화면이 열려있으면 같이 갱신
+    if (!document.getElementById("bodypart-overlay").hidden) {
+      openBodyPartView(item, ammoId);
+    }
+  };
 }
 
 function chartOptions(xLabel, yLabel, opts = {}) {
   return {
     responsive: true,
     maintainAspectRatio: false,
-    // 플러그인이 쓸 커스텀 옵션 (showOHK 등)
-    btkLines: { showOHK: opts.showOHK === true },
+    btkLines: { showOHK: opts.showOHK === true, refRange: opts.refRange },
     interaction: { mode: "index", intersect: false, axis: "x" },
     plugins: {
       legend: { labels: { color: "#aba894" } },
@@ -616,9 +626,7 @@ function chartOptions(xLabel, yLabel, opts = {}) {
   };
 }
 
-// BTK 가이드 라인 플러그인:
-//   - 75 HP 가로선 (2발 처치 가능 기준선) — 항상 표시
-//   - 150 HP 가로선 (1발 OHK 기준선) — 데미지가 150 이상인 무기가 있을 때만 표시
+// BTK 가이드 라인 플러그인 (2BTK / OHK 가로선)
 const btkLinesPlugin = {
   id: "btkLines",
   afterDatasetsDraw(chart) {
@@ -631,15 +639,47 @@ const btkLinesPlugin = {
     ctx.setLineDash([5, 4]);
     ctx.font = "11px Inter, sans-serif";
     ctx.textBaseline = "middle";
-
-    // 2BTK 기준선: y = 75 (150HP / 2)
     drawGuideLine(ctx, scales, chartArea, 75, "rgba(123, 160, 196, 0.7)", "2BTK · 75");
-
-    // 1BTK(OHK) 기준선: y = 150 — OHK 가능한 무기일 때만
     if (opts.showOHK) {
       drawGuideLine(ctx, scales, chartArea, 150, "rgba(194, 91, 77, 0.8)", "OHK · 150");
     }
+    ctx.restore();
+  },
+};
 
+// 기준 거리 세로선 플러그인 (그래프 클릭 시 표시)
+const refRangePlugin = {
+  id: "refRange",
+  afterDatasetsDraw(chart) {
+    const opts = chart.options.btkLines || {};
+    const r = opts.refRange;
+    if (r == null) return;
+    const { ctx, chartArea, scales } = chart;
+    if (!chartArea || !scales.x) return;
+    if (r < scales.x.min || r > scales.x.max) return;
+
+    const xPixel = scales.x.getPixelForValue(r);
+    // 해당 거리의 데이터 포인트 데미지 찾기
+    const ds = chart.data.datasets[0];
+    const point = ds?.data.find((d) => d.x === r);
+    const dmgText = point ? ` · ${point.y} 데미지` : "";
+
+    ctx.save();
+    ctx.strokeStyle = "rgba(240, 164, 69, 0.9)";
+    ctx.lineWidth = 2;
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    ctx.moveTo(xPixel, chartArea.top);
+    ctx.lineTo(xPixel, chartArea.bottom);
+    ctx.stroke();
+
+    // 상단에 라벨
+    ctx.fillStyle = "rgba(240, 164, 69, 0.95)";
+    ctx.font = "12px Inter, sans-serif";
+    ctx.textBaseline = "top";
+    ctx.textAlign = xPixel > chartArea.right - 100 ? "right" : "left";
+    const labelX = xPixel > chartArea.right - 100 ? xPixel - 6 : xPixel + 6;
+    ctx.fillText(`${r}m${dmgText}`, labelX, chartArea.top + 4);
     ctx.restore();
   },
 };
