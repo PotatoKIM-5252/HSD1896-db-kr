@@ -22,6 +22,9 @@ const state = {
   // 무기별 "부위 데미지 기준 거리" (그래프 클릭으로 변경). 기본 10m.
   refRange: {},            // { "weapon_frontier_73c": 47, ... }
 
+  // 자세히 보기 화면에서 현재 선택된 파생형 인덱스
+  selectedVariantIdx: {},  // { "weapon_frontier_73c": 0, ... } 0=모무기, 1+=파생형
+
   // 비교 목록: { weaponId, ammoId } 쌍의 배열
   compareEntries: [],
 
@@ -193,7 +196,7 @@ function createItemCard(item) {
     ? `<img src="${item.image}" alt="${item.name}" class="item-card-img" onerror="this.style.display='none'">`
     : `<div class="item-card-icon">${cat ? cat.icon : ""}</div>`;
 
-  // 무기 카드: 이름 + 이미지 + 칸수 + 가격만 표시
+  // 무기 카드: 이름 + 이미지 + 칸수 + 가격 + (자세히 보기 버튼)
   if (item.category === "weapon") {
     card.innerHTML = `
       ${imgHTML}
@@ -201,15 +204,22 @@ function createItemCard(item) {
       <div class="item-card-meta">
         <span class="item-card-slots">${"▪".repeat(item.slotSize || 0)}</span>
         ${item.price != null ? `<span class="item-card-price">$${item.price}</span>` : ""}
-      </div>`;
+      </div>
+      <button class="item-card-detail-btn" type="button">자세히 보기 ›</button>`;
+
+    // 버튼은 자세히 보기 화면 열기 (이벤트 전파 차단)
+    card.querySelector(".item-card-detail-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      openBodyPartView(item, item.defaultAmmo || (item.ammoTypes && item.ammoTypes[0]));
+    });
   } else {
-    // 그 외(도구/소모품/특성): 이름 + 카테고리만
     card.innerHTML = `
       ${imgHTML}
       <div class="item-card-name">${item.name}</div>
       <div class="item-card-category">${cat ? cat.label : item.category}</div>`;
   }
 
+  // 카드 본체 클릭: 우측 요약 패널 열기
   card.addEventListener("click", () => renderItemDetail(item));
   return card;
 }
@@ -262,60 +272,138 @@ function bindCompareButton(item, ammoId) {
     }
     renderItemDetail(item);
   });
-
-  document.querySelector("#detail-show-bodyparts-btn")?.addEventListener("click", () => {
-    openBodyPartView(item, ammoId);
-  });
 }
 
 // -------------------------------------------------------------------------
-// 자세히 보기 - 부위별 데미지 화면
+// 자세히 보기 — 파생형 탭 + 스탯표 + 부위별 데미지 (큰 모달)
 // -------------------------------------------------------------------------
-function openBodyPartView(item, ammoId) {
-  const { stats, ammo } = resolveWeaponWithAmmo(item, ammoId);
-  const baseDmg = stats.damage ?? 0;
 
+// 모무기 + 파생형들을 합쳐서 "탭에 표시할 무기 리스트" 만들기
+// 파생형의 비어있는 필드는 모무기 값으로 채워서 완전한 무기 객체로 변환
+function buildWeaponVariantsList(parentItem) {
+  const list = [{ ...parentItem, _isParent: true, _displayName: parentItem.name + " (기본)" }];
+
+  if (!Array.isArray(parentItem.variants)) return list;
+
+  parentItem.variants.forEach((v) => {
+    // 모무기 위에 파생형의 값을 얹어서 완전한 객체로 만듦
+    const merged = {
+      ...parentItem,
+      ...v,
+      // stats는 깊은 머지 (객체끼리 합쳐야 함)
+      stats: { ...parentItem.stats, ...(v.stats || {}) },
+      chamber: { ...(parentItem.chamber || {}), ...(v.chamber || {}) },
+      _isParent: false,
+      _displayName: v.name,
+      // 파생형 자체에는 variants 가 없도록
+      variants: undefined,
+    };
+    list.push(merged);
+  });
+
+  return list;
+}
+
+function openBodyPartView(parentItem, ammoId) {
   const overlay = document.getElementById("bodypart-overlay");
   const content = document.getElementById("bodypart-content");
 
-  // 기준 거리: 그래프에서 클릭한 값. 없으면 10m 기본.
-  const refRange = state.refRange[item.id] ?? 10;
+  // 자세히 보기 화면에서 현재 보고 있는 파생형 인덱스 (기본은 모무기)
+  if (state.selectedVariantIdx[parentItem.id] == null) {
+    state.selectedVariantIdx[parentItem.id] = 0;
+  }
+  const variantsList = buildWeaponVariantsList(parentItem);
+  const currentIdx = Math.min(state.selectedVariantIdx[parentItem.id], variantsList.length - 1);
+  const currentItem = variantsList[currentIdx];
+
+  // 파생형에 따라 사용 가능한 탄약이 다를 수 있음. 현재 ammoId가 없으면 기본탄으로 폴백.
+  let activeAmmoId = ammoId;
+  if (!activeAmmoId || !(currentItem.ammoTypes || []).includes(activeAmmoId)) {
+    activeAmmoId = currentItem.defaultAmmo || (currentItem.ammoTypes && currentItem.ammoTypes[0]);
+  }
+
+  const { stats, chamber, ammo } = resolveWeaponWithAmmo(currentItem, activeAmmoId);
+  const baseDmg = stats.damage ?? 0;
+
+  // 기준 거리: 무기별로 저장. 없으면 10m.
+  const refRange = state.refRange[parentItem.id] ?? 10;
   const distMult = ammo?.falloff ? interpolateFalloff(ammo.falloff, refRange) : 1;
   const dmgAtRange = baseDmg * distMult;
 
-  // 각 부위별 데미지
+  // 부위별 데미지 계산
   const partInfo = {};
   Object.entries(BODY_PART_MULTIPLIERS).forEach(([key, def]) => {
-    if (def.multiplier == null) {
-      partInfo[key] = { dmg: null };
-    } else {
-      partInfo[key] = { dmg: Math.round(dmgAtRange * def.multiplier) };
-    }
+    if (def.multiplier == null) partInfo[key] = { dmg: null };
+    else partInfo[key] = { dmg: Math.round(dmgAtRange * def.multiplier) };
   });
+
+  // 파생형 탭들
+  const variantTabs = variantsList.map((v, idx) => {
+    const active = idx === currentIdx ? "active" : "";
+    return `<button class="variant-tab ${active}" data-variant-idx="${idx}" type="button">${v._displayName}</button>`;
+  }).join("");
+
+  // 탄약 탭들 (현재 선택된 무기 기준)
+  const ammoTabs = (currentItem.ammoTypes || []).map((aid) => {
+    const a = AMMO_TYPES[aid];
+    if (!a) return "";
+    const active = aid === activeAmmoId ? "active" : "";
+    const visual = a.image
+      ? `<img src="${a.image}" alt="${a.label}" class="ammo-tab-img" onerror="this.outerHTML='<span class=ammo-tab-icon>${a.icon ?? "•"}</span>'">`
+      : `<span class="ammo-tab-icon">${a.icon ?? "•"}</span>`;
+    return `
+      <button class="ammo-tab ${active}" data-bp-ammo-id="${aid}" type="button" title="${a.label}${a.cost ? ` ($${a.cost})` : ""}">
+        ${visual}
+      </button>`;
+  }).join("");
 
   content.innerHTML = `
     <button id="bodypart-close-btn" type="button">✕</button>
-    <h2>${item.name} <span class="bodypart-ammo">${ammo?.label ?? ""}</span></h2>
+    <h2>${parentItem.name} <span class="bodypart-ammo">${ammo?.label ?? ""}</span></h2>
     <p class="bodypart-subtitle">
       Range: <b>${refRange}m</b> 기준 부위별 데미지 (헌터 HP ${HUNTER_HP})
       <span class="bodypart-hint">— 그래프 위를 클릭하면 거리를 바꿀 수 있어요</span>
     </p>
 
+    <!-- 파생형 탭 -->
+    <div class="variant-tabs">${variantTabs}</div>
+
+    ${currentItem.description ? `<p class="variant-desc">${currentItem.description}</p>` : ""}
+
+    <!-- 본문 2단: 좌측 마네킹 / 우측 스탯 -->
     <div class="bodypart-layout">
       <div class="bodypart-figure">
         ${renderBodyFigureSVG(partInfo, refRange)}
       </div>
-      <div class="bodypart-table">
+      <div class="bodypart-right">
+        <!-- 기본 정보 -->
+        <h4>기본 정보</h4>
+        <div class="detail-meta-row">
+          ${currentItem.price != null ? `<span>가격 <b>$${currentItem.price}</b></span>` : ""}
+          <span>칸수 <b>${currentItem.slotSize ?? "?"}</b></span>
+        </div>
+
+        <!-- Chamber -->
+        <h4>Chamber</h4>
+        <div class="detail-chamber">
+          <div><span>Ammo</span><b>${ammo?.label ?? "-"}</b></div>
+          <div><span>Loaded</span><b>${chamber.loaded ?? "-"}</b></div>
+          <div><span>Extra</span><b>${chamber.extra ?? "-"}</b></div>
+        </div>
+
+        <!-- 탄약 선택 -->
+        <h4>Ammo Types</h4>
+        <div class="ammo-tabs">${ammoTabs}</div>
+
+        <!-- 부위별 BTK -->
         <h4>부위별 BTK</h4>
-        <table>
-          <thead>
-            <tr><th>부위</th><th>데미지</th><th>BTK</th></tr>
-          </thead>
+        <table class="bp-table">
+          <thead><tr><th>부위</th><th>데미지</th><th>BTK</th></tr></thead>
           <tbody>
             ${Object.entries(BODY_PART_MULTIPLIERS).map(([key, def]) => {
               const info = partInfo[key];
               if (info.dmg == null) {
-                return `<tr><td>${def.label}</td><td class="muted">배율 없음</td><td>-</td></tr>`;
+                return `<tr><td>${def.label}</td><td class="muted">-</td><td>-</td></tr>`;
               }
               const btk = Math.ceil(HUNTER_HP / info.dmg);
               const ohk = info.dmg >= HUNTER_HP;
@@ -327,6 +415,24 @@ function openBodyPartView(item, ammoId) {
             }).join("")}
           </tbody>
         </table>
+
+        <!-- 14개 스탯표 -->
+        <h4>Stats</h4>
+        <div class="detail-stats">
+          ${statRowSimple("Damage", stats.damage)}
+          ${statRowSimple("Drop Range", stats.dropRange)}
+          ${statRowSimple("Rate of Fire", stats.rateOfFire)}
+          ${statRowSimple("Cycle Time", stats.cycleTime)}
+          ${statRowSimple("Spread", stats.spread)}
+          ${statRowSimple("Sway", stats.sway)}
+          ${statRowSimple("Vertical Recoil", stats.verticalRecoil)}
+          ${statRowSimple("Reload Speed", stats.reloadSpeed)}
+          ${statRowSimple("Muzzle Velocity", stats.muzzleVelocity)}
+          ${statRowSimple("Melee Damage", stats.meleeLight)}
+          ${statRowSimple("Heavy Melee Damage", stats.meleeHeavy)}
+          ${statRowSimple("Stamina Consumption", stats.staminaConsumption)}
+        </div>
+
         <p class="bodypart-note">
           ※ 머리 명중은 무조건 즉사이므로 별도 표시하지 않습니다.
         </p>
@@ -336,10 +442,32 @@ function openBodyPartView(item, ammoId) {
 
   overlay.hidden = false;
 
+  // 닫기
   document.getElementById("bodypart-close-btn").addEventListener("click", closeBodyPartView);
   overlay.addEventListener("click", (e) => {
     if (e.target.id === "bodypart-overlay") closeBodyPartView();
   });
+
+  // 파생형 탭 클릭
+  content.querySelectorAll(".variant-tab").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.selectedVariantIdx[parentItem.id] = Number(btn.dataset.variantIdx);
+      openBodyPartView(parentItem, activeAmmoId); // 같은 ammoId로 다시 그림
+    });
+  });
+
+  // 탄약 탭 클릭
+  content.querySelectorAll(".ammo-tab").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      openBodyPartView(parentItem, btn.dataset.bpAmmoId);
+    });
+  });
+}
+
+// 단순 스탯 행 (자세히 보기용 — 화살표 표기 없음)
+function statRowSimple(label, value) {
+  if (value == null) return "";
+  return `<div class="stat-row"><span>${label}</span><b>${value}</b></div>`;
 }
 
 function closeBodyPartView() {
@@ -370,10 +498,10 @@ function renderBodyFigureSVG(partInfo, refRange) {
       <text x="310" y="600" class="body-num">${display("arm")}</text>
 
       <!-- 배 (중앙) -->
-      <text x="510" y="660" class="body-num">${display("belly")}</text>
+      <text x="510" y="720" class="body-num">${display("belly")}</text>
 
       <!-- 하체 (좌측 무릎 부근에 하나만) -->
-      <text x="440" y="1100" class="body-num">${display("lower")}</text>
+      <text x="380" y="1100" class="body-num">${display("lower")}</text>
     </svg>
   `;
 }
@@ -391,7 +519,6 @@ function resolveWeaponWithAmmo(item, ammoId) {
 
 function renderWeaponDetailHTML(item, selectedAmmoId) {
   const { stats, chamber, ammo } = resolveWeaponWithAmmo(item, selectedAmmoId);
-  const baseStats = item.stats;
   const inCompare = state.compareEntries.some((e) => e.weaponId === item.id && e.ammoId === selectedAmmoId);
 
   // 탄약 탭들 (이미지/아이콘만, 이름은 hover 툴팁으로)
@@ -425,9 +552,9 @@ function renderWeaponDetailHTML(item, selectedAmmoId) {
 
     <h4>Chamber</h4>
     <div class="detail-chamber">
-      <div><span>Ammo Type</span><b>${ammo?.label ?? "-"}</b></div>
+      <div><span>Ammo</span><b>${ammo?.label ?? "-"}</b></div>
       <div><span>Loaded</span><b>${chamber.loaded ?? "-"}</b></div>
-      <div><span>Extra</span><b>${overrideMark(chamber.extra, item.chamber?.extra)}</b></div>
+      <div><span>Extra</span><b>${chamber.extra ?? "-"}</b></div>
     </div>
 
     <h4>Ammo Types</h4>
@@ -439,27 +566,8 @@ function renderWeaponDetailHTML(item, selectedAmmoId) {
     <h4>거리별 데미지</h4>
     <div class="detail-chart-wrap"><canvas id="detail-chart"></canvas></div>
 
-    <h4>Stats</h4>
-    <div class="detail-stats">
-      ${statRow("Damage",              stats.damage,             baseStats.damage)}
-      ${statRow("Drop Range",          stats.dropRange,          baseStats.dropRange)}
-      ${statRow("Rate of Fire",        stats.rateOfFire,         baseStats.rateOfFire)}
-      ${statRow("Cycle Time",          stats.cycleTime,          baseStats.cycleTime)}
-      ${statRow("Spread",              stats.spread,             baseStats.spread)}
-      ${statRow("Sway",                stats.sway,               baseStats.sway)}
-      ${statRow("Vertical Recoil",     stats.verticalRecoil,     baseStats.verticalRecoil)}
-      ${statRow("Reload Speed",        stats.reloadSpeed,        baseStats.reloadSpeed)}
-      ${statRow("Muzzle Velocity",     stats.muzzleVelocity,     baseStats.muzzleVelocity)}
-      ${statRow("Melee Damage",        stats.meleeLight,         baseStats.meleeLight)}
-      ${statRow("Heavy Melee Damage",  stats.meleeHeavy,         baseStats.meleeHeavy)}
-      ${statRow("Stamina Consumption", stats.staminaConsumption, baseStats.staminaConsumption)}
-    </div>
-
     <button id="detail-add-compare-btn" type="button" class="compare-btn ${inCompare ? "added" : ""}">
       ${inCompare ? "✓ 비교 목록에 추가됨 (클릭하여 제거)" : "+ 비교 목록에 추가"}
-    </button>
-    <button id="detail-show-bodyparts-btn" type="button" class="bodyparts-btn">
-      🎯 부위별 데미지 자세히 보기
     </button>
   `;
 }
@@ -645,40 +753,12 @@ const btkLinesPlugin = {
   },
 };
 
-// 기준 거리 세로선 플러그인 (그래프 클릭 시 표시)
+// 기준 거리 플러그인 — 시각적 선/라벨은 표시하지 않고 상태만 유지
+// (그래프 클릭으로 거리는 갱신되지만 화면에는 선이 안 그려짐)
 const refRangePlugin = {
   id: "refRange",
-  afterDatasetsDraw(chart) {
-    const opts = chart.options.btkLines || {};
-    const r = opts.refRange;
-    if (r == null) return;
-    const { ctx, chartArea, scales } = chart;
-    if (!chartArea || !scales.x) return;
-    if (r < scales.x.min || r > scales.x.max) return;
-
-    const xPixel = scales.x.getPixelForValue(r);
-    // 해당 거리의 데이터 포인트 데미지 찾기
-    const ds = chart.data.datasets[0];
-    const point = ds?.data.find((d) => d.x === r);
-    const dmgText = point ? ` · ${point.y} 데미지` : "";
-
-    ctx.save();
-    ctx.strokeStyle = "rgba(240, 164, 69, 0.9)";
-    ctx.lineWidth = 2;
-    ctx.setLineDash([]);
-    ctx.beginPath();
-    ctx.moveTo(xPixel, chartArea.top);
-    ctx.lineTo(xPixel, chartArea.bottom);
-    ctx.stroke();
-
-    // 상단에 라벨
-    ctx.fillStyle = "rgba(240, 164, 69, 0.95)";
-    ctx.font = "12px Inter, sans-serif";
-    ctx.textBaseline = "top";
-    ctx.textAlign = xPixel > chartArea.right - 100 ? "right" : "left";
-    const labelX = xPixel > chartArea.right - 100 ? xPixel - 6 : xPixel + 6;
-    ctx.fillText(`${r}m${dmgText}`, labelX, chartArea.top + 4);
-    ctx.restore();
+  afterDatasetsDraw() {
+    // 의도적으로 빈 함수 — 세로선 제거 요청 반영
   },
 };
 

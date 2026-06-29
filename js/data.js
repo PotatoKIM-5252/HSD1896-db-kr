@@ -398,7 +398,7 @@ const ITEMS = [
       extra: 21,
     },
 
-    // 기본 스탯 (탄약이 바뀌면 statOverrides 로 일부가 덮어쓰여짐)
+    // 기본 스탯
     stats: {
       damage: 110,
       dropRange: 140,
@@ -415,6 +415,78 @@ const ITEMS = [
     },
 
     description: "",
+
+    // 파생형 (variants) — 같은 무기 계열의 변형들
+    // 각 파생형은 모무기의 필드를 일부 덮어쓰는 형식
+    // 입력하지 않은 필드는 모무기의 값을 그대로 따라갑니다.
+    variants: [
+      {
+        id: "weapon_frontier_73c_a",
+        name: "[더미] Frontier 73C A",
+        image: "",
+        description: "예시 파생형 A — 모무기보다 약간 짧은 가상의 단축형 (더미 데이터).",
+        // 모무기와 다른 부분만 적기
+        price: 56,
+        slotSize: 2,
+        chamber: { loaded: "7+1", extra: 18 },
+        stats: {
+          damage: 105,
+          rateOfFire: 31,
+          spread: 22,
+          sway: 70,
+          reloadSpeed: 9.8,
+          muzzleVelocity: 380,
+        },
+      },
+      {
+        id: "weapon_frontier_73c_b",
+        name: "[더미] Frontier 73C B",
+        image: "",
+        description: "예시 파생형 B — 모무기에 소음기를 부착한 가상의 변형 (더미 데이터).",
+        price: 70,
+        ammoEffects: ["subsonic", "full_metal", "incendiary", "poison"],
+        // 고속탄(high_velocity) 빠짐 — 소음기 가정
+        ammoTypes: [
+          "compact",
+          "compact_fmj",
+          "compact_incendiary",
+          "compact_poison",
+          "compact_subsonic",
+        ],
+        stats: {
+          damage: 105,
+          muzzleVelocity: 360,
+          verticalRecoil: 4,
+        },
+      },
+      {
+        id: "weapon_frontier_73c_c",
+        name: "[더미] Frontier 73C C",
+        image: "",
+        description: "예시 파생형 C — 모무기에 조준경을 부착한 가상의 마크스맨형 (더미 데이터).",
+        price: 88,
+        slotSize: 4,
+        stats: {
+          sway: 50,
+          spread: 13,
+          reloadSpeed: 10.5,
+        },
+      },
+      {
+        id: "weapon_frontier_73c_d",
+        name: "[더미] Frontier 73C D",
+        image: "",
+        description: "예시 파생형 D — 모무기의 헤비배럴 가상 변형 (더미 데이터).",
+        price: 65,
+        stats: {
+          damage: 118,
+          dropRange: 160,
+          verticalRecoil: 7,
+          rateOfFire: 25,
+          cycleTime: 1.4,
+        },
+      },
+    ],
   },
 
   // ── 더미 데이터: 중형탄 라이플 (1칸) ──────────────────────────────────
@@ -554,5 +626,33 @@ const ITEMS = [
        staminaConsumption: // Stamina Consumption
        // 필요하면 추가 필드도 자유롭게
      },
+
+     // 파생형 (게임 내에서 같은 무기 계열의 변형들 — 단축형/소음기/조준경/장총신 등)
+     // 각 파생형 객체는 모무기의 필드를 "덮어쓰기"하는 방식.
+     // 명시하지 않은 필드는 모무기의 값을 그대로 따라갑니다.
+     variants: [
+       {
+         id: "고유 id",
+         name: "표시 이름",
+         image: "이미지 경로 (없으면 \"\")",
+         description: "이 파생형의 설명",
+
+         // 아래는 "모무기와 다른 부분만" 적으면 됩니다.
+         price: 56,                            // 다르면 적기, 같으면 생략
+         slotSize: 2,                          // 다르면 적기
+         chamber: { loaded: "7+1", extra: 18 }, // 다르면 적기
+         ammoTypes: [...],                     // 다르면 적기 (예: 소음기 변형은 고속탄 빠짐)
+         ammoEffects: [...],                   // 필터용, 다르면 적기
+
+         // stats는 모무기 stats에 "덮어쓰기"로 합쳐집니다.
+         // 같은 값은 적을 필요 없음. 다른 것만 적기.
+         stats: {
+           damage: 105,
+           muzzleVelocity: 360,
+           // ... 다른 부분만
+         },
+       },
+       // ... 더 많은 파생형
+     ],
    }
 ========================================================================= */
