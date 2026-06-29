@@ -28,7 +28,7 @@ const state = {
   // 비교 목록: { weaponId, ammoId } 쌍의 배열
   compareEntries: [],
 
-  charts: { detail: null, compare: null },
+  charts: { detail: null, compare: null, bodypart: null },
 };
 
 function loadoutKey(c, s) { return `${c}__${s}`; }
@@ -370,10 +370,15 @@ function openBodyPartView(parentItem, ammoId) {
 
     ${currentItem.description ? `<p class="variant-desc">${currentItem.description}</p>` : ""}
 
-    <!-- 본문 2단: 좌측 마네킹 / 우측 스탯 -->
+    <!-- 본문 2단: 좌측 마네킹+그래프 / 우측 스탯 -->
     <div class="bodypart-layout">
-      <div class="bodypart-figure">
-        ${renderBodyFigureSVG(partInfo, refRange)}
+      <div class="bodypart-left">
+        <div class="bodypart-figure">
+          ${renderBodyFigureSVG(partInfo, refRange)}
+        </div>
+        <!-- 거리별 데미지 그래프 (클릭하면 마네킹 거리 갱신) -->
+        <h4>거리별 데미지 <span class="bodypart-hint">— 그래프를 클릭하여 거리 선택</span></h4>
+        <div class="bp-chart-wrap"><canvas id="bp-chart"></canvas></div>
       </div>
       <div class="bodypart-right">
         <!-- 기본 정보 -->
@@ -462,6 +467,51 @@ function openBodyPartView(parentItem, ammoId) {
       openBodyPartView(parentItem, btn.dataset.bpAmmoId);
     });
   });
+
+  // 거리별 데미지 그래프 그리기
+  drawBodyPartChart(currentItem, activeAmmoId, refRange, parentItem);
+}
+
+// 자세히 보기 화면 내 그래프 (클릭 시 거리 갱신 → 마네킹 자동 갱신)
+function drawBodyPartChart(currentItem, ammoId, refRange, parentItem) {
+  const canvas = document.getElementById("bp-chart");
+  if (!canvas) return;
+
+  // 이전 차트 정리
+  if (state.charts.bodypart) {
+    state.charts.bodypart.destroy();
+    state.charts.bodypart = null;
+  }
+
+  const ds = buildFalloffDataset(currentItem, ammoId, "#f0a445");
+  if (!ds) {
+    canvas.outerHTML = `<p class="empty-msg">거리별 데이터 없음</p>`;
+    return;
+  }
+  ds.fill = true;
+  ds.backgroundColor = "rgba(240, 164, 69, 0.15)";
+
+  const maxDmg = Math.max(...ds.data.map((d) => d.y));
+  const canOHK = maxDmg >= HUNTER_HP;
+
+  state.charts.bodypart = new Chart(canvas.getContext("2d"), {
+    type: "line",
+    data: { datasets: [ds] },
+    options: chartOptions("거리 (m)", "데미지", { showOHK: canOHK, refRange }),
+    plugins: [btkLinesPlugin],
+  });
+
+  // 그래프 클릭 → 거리 갱신 → 자세히 보기 화면 다시 그림 (마네킹/표 자동 갱신)
+  canvas.onclick = (evt) => {
+    const chart = state.charts.bodypart;
+    if (!chart) return;
+    const rect = canvas.getBoundingClientRect();
+    const xPixel = evt.clientX - rect.left;
+    const xValue = Math.round(chart.scales.x.getValueForPixel(xPixel));
+    const clamped = Math.max(0, Math.min(200, xValue));
+    state.refRange[parentItem.id] = clamped;
+    openBodyPartView(parentItem, ammoId);
+  };
 }
 
 // 단순 스탯 행 (자세히 보기용 — 화살표 표기 없음)
@@ -472,6 +522,10 @@ function statRowSimple(label, value) {
 
 function closeBodyPartView() {
   document.getElementById("bodypart-overlay").hidden = true;
+  if (state.charts.bodypart) {
+    state.charts.bodypart.destroy();
+    state.charts.bodypart = null;
+  }
 }
 
 // 마네킹 이미지 + 데미지 숫자 오버레이
