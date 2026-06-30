@@ -19,10 +19,16 @@ const HUNTER_HP = 150;
 
 // -------------------------------------------------------------------------
 // 2. BODY_PART_MULTIPLIERS — 부위별 데미지 배율
-//    "자세히 보기"에서 부위 데미지를 자동 계산할 때 사용합니다.
+//
+//    ▣ 중요: 무기의 "표기 데미지"는 10m 거리, 가슴(×1.3) 맞췄을 때의 값입니다.
+//      따라서 부위 데미지를 구할 때는
+//        부위 데미지 = 표기데미지 × (부위배율 / 가슴배율 1.3)
+//      예) Frontier 73C 표기 110 → 배: 110×(1.2/1.3)=102, 팔: 110×(0.9/1.3)=76, 하체: 110×(0.8/1.3)=68
 //
 //    ▣ 머리는 무조건 즉사라서 따로 표시하지 않습니다.
 // -------------------------------------------------------------------------
+const CHEST_MULTIPLIER = 1.3;   // 표기 데미지의 기준 (가슴 배율)
+
 const BODY_PART_MULTIPLIERS = {
   chest:  { label: "가슴",  multiplier: 1.3 },
   arm:    { label: "팔",    multiplier: 0.9 },
@@ -129,7 +135,11 @@ const WEAPON_FILTERS = {
 //     },
 //
 //     // 화면에 보여줄 추가 효과 텍스트(태그 형태)
-//     specialEffects: ["Ignites Hunters in one shot up to 20m", "Causes Medium Burning"]
+//     specialEffects: ["Ignites Hunters in one shot up to 20m", "Causes Medium Burning"],
+//
+//     // (선택) 위 specialEffects가 "이 거리 이내에서만" 발동하는 효과라면 적어주세요.
+//     // 적지 않으면 항상 발동하는 것으로 간주합니다. (자세히 보기의 "이 거리에서 적용되는 효과" 칸에 반영됨)
+//     effectMaxRange: 20,
 //   }
 // -------------------------------------------------------------------------
 const AMMO_TYPES = {
@@ -217,6 +227,7 @@ const AMMO_TYPES = {
     ],
     statOverrides: {},
     specialEffects: ["Ignites Hunters in one shot up to 20m", "Causes Medium Burning"],
+    effectMaxRange: 20,  // 20m 이내에서만 발화 효과 발동 (그 이상은 효과 미적용으로 가정)
   },
 
   compact_poison: {
