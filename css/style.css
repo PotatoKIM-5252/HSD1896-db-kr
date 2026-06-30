@@ -779,11 +779,6 @@ button { font-family: var(--font-body); cursor: pointer; }
   opacity: 0.85;
 }
 
-.detail-update {
-  color: var(--accent-strong);
-  font-size: 11px;
-}
-
 .detail-chamber {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -889,50 +884,6 @@ button { font-family: var(--font-body); cursor: pointer; }
   font-size: 11px;
   text-decoration: line-through;
   margin-right: 4px;
-}
-
-/* 거리 슬라이더 */
-.range-slider-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 14px;
-}
-
-.range-slider-row input[type="range"] {
-  flex: 1;
-  -webkit-appearance: none;
-  height: 4px;
-  background: var(--border-strong);
-  border-radius: 999px;
-  outline: none;
-}
-
-.range-slider-row input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--accent);
-  cursor: pointer;
-  border: 2px solid var(--accent-text);
-}
-
-.range-slider-row input[type="range"]::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--accent);
-  cursor: pointer;
-  border: 2px solid var(--accent-text);
-}
-
-.range-slider-value {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  color: var(--accent-strong);
-  min-width: 44px;
-  text-align: right;
 }
 
 /* 2탭 조합표 */

@@ -430,14 +430,8 @@ function openBodyPartView(parentItem, ammoId) {
     <h2>${parentItem.name} <span class="bodypart-ammo">${ammo?.label ?? ""}</span></h2>
     <p class="bodypart-subtitle">
       Range: <b>${refRange}m</b> 기준 부위별 데미지
-      <span class="bodypart-hint">— 그래프 또는 슬라이더로 거리를 바꿀 수 있어요</span>
+      <span class="bodypart-hint">— 그래프를 클릭하여 거리를 바꿀 수 있어요</span>
     </p>
-
-    <!-- 거리 슬라이더 -->
-    <div class="range-slider-row">
-      <input type="range" id="bp-range-slider" min="0" max="200" step="1" value="${refRange}">
-      <span class="range-slider-value">${refRange}m</span>
-    </div>
 
     <!-- 파생형 탭 -->
     <div class="variant-tabs">${variantTabs}</div>
@@ -513,14 +507,6 @@ function openBodyPartView(parentItem, ammoId) {
   document.getElementById("bodypart-close-btn").addEventListener("click", closeBodyPartView);
   overlay.addEventListener("click", (e) => {
     if (e.target.id === "bodypart-overlay") closeBodyPartView();
-  });
-
-  // 거리 슬라이더 — 움직이는 동안 실시간으로 마네킹/표 갱신
-  const slider = document.getElementById("bp-range-slider");
-  slider.addEventListener("input", (e) => {
-    const val = Number(e.target.value);
-    state.refRange[parentItem.id] = val;
-    refreshBodyPartDamage(currentItem, activeAmmoId, parentItem);
   });
 
   // 파생형 탭 클릭
@@ -612,12 +598,6 @@ function refreshBodyPartDamage(currentItem, ammoId, parentItem) {
   // 부제목 거리 표기 갱신
   const subtitleB = document.querySelector(".bodypart-subtitle b");
   if (subtitleB) subtitleB.textContent = `${refRange}m`;
-
-  // 슬라이더 값/표시 텍스트 동기화 (그래프 클릭으로 거리가 바뀐 경우 슬라이더도 따라가게)
-  const sliderEl = document.getElementById("bp-range-slider");
-  if (sliderEl) sliderEl.value = refRange;
-  const sliderValueEl = document.querySelector(".range-slider-value");
-  if (sliderValueEl) sliderValueEl.textContent = `${refRange}m`;
 }
 
 // 단순 스탯 행 (자세히 보기용 — 화살표 표기 없음)
@@ -705,7 +685,6 @@ function renderWeaponDetailHTML(item, selectedAmmoId) {
     <div class="detail-meta-row">
       ${item.price != null ? `<span>가격 <b><img src="images/ui/hunt_dollars.png" alt="$" class="dollar-icon">${item.price}</b></span>` : ""}
       <span>칸수 <b><img src="images/ui/slot_${item.slotSize || 1}.png" alt="${item.slotSize}칸" class="slot-icon-inline"></b></span>
-      ${item.updateAdded ? `<span class="detail-update">${item.updateAdded}</span>` : ""}
     </div>
 
     ${item.image ? `<img src="${item.image}" alt="${item.name}" class="detail-img" onerror="this.style.display='none'">` : ""}
