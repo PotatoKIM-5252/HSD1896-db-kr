@@ -460,7 +460,7 @@ function openBodyPartView(parentItem, ammoId) {
         </div>
       </div>
 
-      <!-- 가운데: 무기 사진 + Chamber + 탄약 -->
+      <!-- 가운데: 무기 사진 + 탄약상태 + 탄약 -->
       <div class="bodypart-mid">
         ${currentItem.image
           ? `<img src="${currentItem.image}" alt="${currentItem.name}" class="bp-weapon-img" onerror="this.style.display='none'">`
@@ -471,11 +471,11 @@ function openBodyPartView(parentItem, ammoId) {
           <span><img src="images/ui/slot_${currentItem.slotSize || 1}.png" alt="${currentItem.slotSize}칸" class="slot-icon-inline"></span>
         </div>
 
-        <h4>Chamber</h4>
-        <div class="detail-chamber">
-          <div><span>Ammo</span><b>${ammo?.label ?? "-"}</b></div>
-          <div><span>Loaded</span><b>${chamber.loaded ?? "-"}</b></div>
-          <div><span>Extra</span><b>${chamber.extra ?? "-"}</b></div>
+        <!-- 탄약 상태: [탄약 아이콘] 장탄/예비탄 [칸수 아이콘] -->
+        <div class="ammo-status-row">
+          ${ammo?.image ? `<img src="${ammo.image}" alt="${ammo.label}" class="ammo-status-icon">` : ""}
+          <span class="ammo-status-count">${chamber.loaded ?? "-"}/${chamber.extra ?? "-"}</span>
+          <img src="images/ui/slot_${currentItem.slotSize || 1}.png" alt="${currentItem.slotSize}칸" class="ammo-status-slots">
         </div>
 
         <h4>Ammo Types</h4>

@@ -800,6 +800,38 @@ button { font-family: var(--font-body); cursor: pointer; }
 .detail-chamber span { color: var(--text-muted); font-size: 10px; text-transform: uppercase; }
 .detail-chamber b { color: var(--text-primary); font-weight: 500; }
 
+/* 탄약 상태 한 줄 표시: [탄약 아이콘] 장탄/예비탄 [칸수 아이콘] */
+.ammo-status-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #1c1c1c;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: 6px 14px;
+  margin: 4px 0 6px;
+}
+
+.ammo-status-icon {
+  height: 18px;
+  width: auto;
+  display: block;
+}
+
+.ammo-status-count {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.ammo-status-slots {
+  height: 12px;
+  width: auto;
+  display: block;
+  margin-left: 2px;
+}
+
 .ammo-tabs {
   display: flex;
   flex-wrap: wrap;
