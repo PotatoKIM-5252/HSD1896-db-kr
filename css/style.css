@@ -196,6 +196,29 @@ button { font-family: var(--font-body); cursor: pointer; }
   color: var(--accent-strong);
 }
 
+/* 이미지로 표시되는 필터 칩 (예: 무기 칸수) */
+.filter-chip-icon {
+  padding: 6px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.filter-chip-img {
+  height: 16px;
+  width: auto;
+  display: block;
+  opacity: 0.75;
+  transition: opacity 0.15s;
+}
+
+.filter-chip-icon:hover .filter-chip-img { opacity: 0.95; }
+.filter-chip-icon.active .filter-chip-img { opacity: 1; }
+.filter-chip-icon.active {
+  background: rgba(236, 230, 211, 0.12);
+  border-color: var(--accent);
+}
+
 /* ===================== 검색 결과 / 상세 ===================== */
 
 #search-body {
@@ -263,16 +286,31 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 .item-card-slots {
-  font-family: var(--font-mono);
-  color: var(--accent-strong);
-  letter-spacing: 2px;
-  font-size: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.slot-icon {
+  height: 14px;
+  width: auto;
+  display: block;
+  opacity: 0.85;
 }
 
 .item-card-price {
+  display: flex;
+  align-items: center;
+  gap: 3px;
   font-family: var(--font-mono);
   color: var(--text-secondary);
   font-size: 12px;
+}
+
+.dollar-icon {
+  height: 13px;
+  width: 13px;
+  display: block;
+  opacity: 0.85;
 }
 
 /* 상세 패널 */
@@ -703,6 +741,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 .detail-meta-row {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 14px;
   font-size: 12px;
   color: var(--text-secondary);
@@ -713,6 +752,22 @@ button { font-family: var(--font-body); cursor: pointer; }
   color: var(--text-primary);
   font-family: var(--font-mono);
   font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.detail-meta-row .dollar-icon {
+  height: 14px;
+  width: 14px;
+  opacity: 0.85;
+}
+
+.slot-icon-inline {
+  height: 15px;
+  width: auto;
+  display: block;
+  opacity: 0.85;
 }
 
 .detail-update {
