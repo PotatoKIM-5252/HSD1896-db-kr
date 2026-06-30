@@ -1,30 +1,29 @@
 /* =========================================================================
    style.css
-   컨셉: 헌트 쇼다운의 늪지대 + 사냥꾼의 랜턴 불빛
-   - 어두운 올리브/그린 배경 + 따뜻한 호박색(랜턴) 포인트
+   컨셉: 헌트 쇼다운 1896 - 어두운 흑백 톤
    ========================================================================= */
 
 :root {
-  --bg-page: #14170f;
-  --bg-panel: #1d2117;
-  --bg-card: #262b1f;
-  --bg-card-hover: #2f3526;
-  --bg-input: #181b13;
+  --bg-page: #050505;
+  --bg-panel: #0e0e0e;
+  --bg-card: #161616;
+  --bg-card-hover: #1f1f1f;
+  --bg-input: #0a0a0a;
 
-  --border: #3a4030;
-  --border-strong: #4d5640;
+  --border: #2a2a2a;
+  --border-strong: #3d3d3d;
 
-  --text-primary: #ece6d3;
-  --text-secondary: #aba894;
-  --text-muted: #7d7a68;
+  --text-primary: #ededea;
+  --text-secondary: #a3a39e;
+  --text-muted: #6e6e6a;
 
-  --accent: #d68a32;
-  --accent-strong: #f0a445;
-  --accent-text: #1a1306;
+  --accent: #c9c4b3;
+  --accent-strong: #ece6d3;
+  --accent-text: #0a0a0a;
 
-  --danger: #a8453a;
-  --danger-strong: #c25b4d;
-  --success: #5c8a63;
+  --danger: #8a4a42;
+  --danger-strong: #b0584c;
+  --success: #5c7a63;
 
   --radius: 6px;
   --font-display: "Cinzel", serif;
@@ -38,8 +37,8 @@ body {
   margin: 0;
   background: var(--bg-page);
   background-image:
-    radial-gradient(circle at 15% 0%, rgba(214, 138, 50, 0.06), transparent 40%),
-    radial-gradient(circle at 85% 100%, rgba(92, 138, 99, 0.05), transparent 45%);
+    radial-gradient(circle at 15% 0%, rgba(255, 255, 255, 0.025), transparent 40%),
+    radial-gradient(circle at 85% 100%, rgba(255, 255, 255, 0.02), transparent 45%);
   color: var(--text-primary);
   font-family: var(--font-body);
   font-size: 15px;
@@ -66,16 +65,19 @@ button { font-family: var(--font-body); cursor: pointer; }
   gap: 16px;
   padding: 20px 32px;
   border-bottom: 1px solid var(--border);
-  background: linear-gradient(180deg, #1a1e14, #14170f);
+  background: linear-gradient(180deg, #0c0c0c, #050505);
 }
 
-#app-header h1 {
-  font-size: 24px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+#site-logo {
+  display: inline-block;
+  line-height: 0;
 }
 
-#app-header h1::before { content: "◆ "; color: var(--accent); }
+#site-logo img {
+  height: 52px;
+  width: auto;
+  display: block;
+}
 
 #main-nav {
   display: flex;
@@ -190,7 +192,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 .filter-chip.active {
   border-color: var(--accent);
-  background: rgba(214, 138, 50, 0.15);
+  background: rgba(236, 230, 211, 0.12);
   color: var(--accent-strong);
 }
 
@@ -416,7 +418,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   transition: background 0.15s;
 }
 
-.compare-btn:hover { background: rgba(214, 138, 50, 0.1); }
+.compare-btn:hover { background: rgba(236, 230, 211, 0.08); }
 
 .compare-btn.added {
   border-style: solid;
@@ -444,7 +446,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 .item-card-detail-btn:hover {
   border-color: var(--accent);
   color: var(--accent-strong);
-  background: rgba(214, 138, 50, 0.08);
+  background: rgba(236, 230, 211, 0.07);
 }
 
 #bodypart-overlay {
@@ -759,7 +761,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 .ammo-tab.active {
-  background: rgba(214, 138, 50, 0.15);
+  background: rgba(236, 230, 211, 0.12);
   border-color: var(--accent);
 }
 
@@ -1011,7 +1013,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   transition: border-color 0.15s, background 0.15s;
 }
 
-.add-item-btn:hover { border-color: var(--accent); background: rgba(214, 138, 50, 0.08); }
+.add-item-btn:hover { border-color: var(--accent); background: rgba(236, 230, 211, 0.07); }
 
 #loadout-actions {
   display: flex;
