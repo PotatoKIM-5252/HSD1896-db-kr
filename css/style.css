@@ -467,8 +467,8 @@ button { font-family: var(--font-body); cursor: pointer; }
   border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   width: 100%;
-  max-width: 1100px;
-  padding: 28px 32px;
+  max-width: 1500px;
+  padding: 28px 32px 36px;
   margin: auto;
 }
 
@@ -548,18 +548,19 @@ button { font-family: var(--font-body); cursor: pointer; }
   border-radius: 4px;
 }
 
-/* 자세히 보기 본문 (마네킹 좌 / 정보 우) */
+/* 자세히 보기 본문 (마네킹 / 무기이미지+탄약 / 스탯) 3단 */
 .bodypart-layout {
   display: grid;
-  grid-template-columns: 360px 1fr;
-  gap: 28px;
+  grid-template-columns: 320px 1fr 320px;
+  gap: 24px;
   align-items: start;
+  margin-bottom: 20px;
 }
 
-.bodypart-left {
+.bodypart-figure-col {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .bodypart-figure {
@@ -569,12 +570,73 @@ button { font-family: var(--font-body); cursor: pointer; }
   padding: 12px;
 }
 
-.bp-chart-wrap {
-  height: 200px;
+/* 거리에서 적용되는 상태이상 효과 박스 */
+.status-effect-box {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+
+.status-effect-box h4 { margin: 0 0 8px !important; }
+
+.status-effect-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--accent-strong);
+}
+
+.status-effect-list li::before { content: "● "; color: var(--accent); font-size: 9px; }
+
+.muted-text { font-size: 12px; color: var(--text-muted); margin: 0; }
+
+.bp-weapon-img {
+  width: 100%;
   background: var(--bg-input);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 10px;
+  padding: 16px;
+  object-fit: contain;
+  margin-bottom: 4px;
+}
+
+.bp-weapon-img-placeholder {
+  width: 100%;
+  height: 110px;
+  background: var(--bg-input);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.bodypart-mid h4:first-of-type,
+.bodypart-right h4:first-of-type { margin-top: 14px; }
+
+/* 하단 전체폭 그래프 */
+.bp-chart-heading {
+  font-size: 12px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin: 12px 0 8px !important;
+}
+
+.bp-chart-wrap {
+  height: 340px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
 }
 
 .bp-chart-wrap canvas {
@@ -628,9 +690,10 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 .bodypart-note { font-size: 11px; color: var(--text-muted); margin-top: 14px; }
 
-@media (max-width: 880px) {
+@media (max-width: 1100px) {
   .bodypart-layout { grid-template-columns: 1fr; }
-  .bodypart-figure { max-width: 360px; margin: 0 auto; }
+  .bodypart-figure-col { max-width: 360px; margin: 0 auto; width: 100%; }
+  .bp-chart-wrap { height: 280px; }
 }
 
 /* ===================== 무기 상세: 탄약 탭 / Chamber / 변경 스탯 ===================== */
@@ -728,6 +791,119 @@ button { font-family: var(--font-body); cursor: pointer; }
   font-size: 11px;
   text-decoration: line-through;
   margin-right: 4px;
+}
+
+/* 거리 슬라이더 */
+.range-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.range-slider-row input[type="range"] {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 4px;
+  background: var(--border-strong);
+  border-radius: 999px;
+  outline: none;
+}
+
+.range-slider-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: 2px solid var(--accent-text);
+}
+
+.range-slider-row input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: 2px solid var(--accent-text);
+}
+
+.range-slider-value {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent-strong);
+  min-width: 44px;
+  text-align: right;
+}
+
+/* 2탭 조합표 */
+.bp-section-heading {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin: 24px 0 10px;
+}
+
+.two-tap-wrap {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+}
+
+.two-tap-table { font-size: 13px; }
+.two-tap-table td.ohk { color: var(--success); font-weight: 500; }
+.two-tap-table td.muted { color: var(--text-muted); }
+
+/* 무기 카드 호버 미리보기 */
+#hover-preview {
+  position: fixed;
+  z-index: 80;
+  background: var(--bg-panel);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  min-width: 180px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+#hover-preview[hidden] { display: none; }
+
+.hover-preview-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.hover-preview-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 12px;
+}
+
+.hover-preview-stats div {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.hover-preview-stats span {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.hover-preview-stats b {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent-strong);
+  font-weight: 500;
 }
 
 /* ===================== 로드아웃 빌더 ===================== */
