@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hunt: Showdown DB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header id="app-header">
+    <a href="#" id="site-logo" aria-label="Hunt: Showdown 1896 DB">
+      <img src="images/ui/logo_full.png" alt="Hunt: Showdown 1896">
+    </a>
+    <nav id="main-nav">
+      <button class="nav-btn" data-tab="search" type="button">DB 검색</button>
+      <button class="nav-btn" data-tab="loadout" type="button">로드아웃 빌더</button>
+      <button class="nav-btn" data-tab="analysis" type="button">무기 비교</button>
+    </nav>
+  </header>
+
+  <main id="app-main">
+
+    <!-- ===================== 1. DB 검색 탭 ===================== -->
+    <section id="tab-search" class="tab-panel">
+
+      <div id="search-controls">
+        <input type="text" id="search-input" placeholder="이름으로 검색...">
+
+        <div id="category-filters"></div>
+
+        <!-- 무기 전용 필터 (칸수/탄종/탄약효과) -->
+        <div id="weapon-filters"></div>
+      </div>
+
+      <div id="search-body">
+        <div id="item-grid"></div>
+        <aside id="item-detail-panel" hidden></aside>
+      </div>
+    </section>
+
+    <!-- ===================== 2. 로드아웃 빌더 탭 ===================== -->
+    <section id="tab-loadout" class="tab-panel" hidden>
+      <div id="loadout-board"></div>
+      <div id="loadout-actions">
+        <button id="clear-loadout-btn" type="button">로드아웃 초기화</button>
+        <button id="goto-analysis-btn" type="button">무기 비교 탭으로 이동</button>
+      </div>
+    </section>
+
+    <!-- ===================== 3. 무기 비교 탭 ===================== -->
+    <section id="tab-analysis" class="tab-panel" hidden>
+      <div id="compare-header">
+        <h2>거리별 데미지 비교</h2>
+        <button id="clear-compare-btn" type="button">비교 목록 초기화</button>
+      </div>
+      <div id="compare-weapon-list"></div>
+      <div id="compare-chart-wrap"></div>
+    </section>
+
+  </main>
+
+  <!-- ===================== 아이템 선택 모달 ===================== -->
+  <div id="modal-overlay" hidden>
+    <div id="modal-box">
+      <header id="modal-header">
+        <h3 id="modal-title">아이템 선택</h3>
+        <button id="modal-close-btn" type="button">닫기</button>
+      </header>
+      <input type="text" id="modal-search-input" placeholder="이름으로 검색...">
+      <div id="modal-item-list"></div>
+    </div>
+  </div>
+
+  <!-- ===================== 부위별 데미지 자세히 보기 오버레이 ===================== -->
+  <div id="bodypart-overlay" hidden>
+    <div id="bodypart-content"></div>
+  </div>
+
+  <!-- Chart.js: 거리별 데미지 그래프용 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
