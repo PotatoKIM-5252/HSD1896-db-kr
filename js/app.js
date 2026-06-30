@@ -140,7 +140,7 @@ function renderWeaponFilters() {
         const img = document.createElement("img");
         img.src = opt.image;
         img.alt = opt.label;
-        img.className = "filter-chip-img";
+        img.className = `filter-chip-img filter-chip-img--${filterKey}`;
         img.onerror = () => { chip.classList.remove("filter-chip-icon"); chip.textContent = opt.label; };
         chip.appendChild(img);
       } else {
@@ -369,15 +369,6 @@ function buildWeaponVariantsList(parentItem) {
   return list;
 }
 
-// 현재 거리에서 발동하는 탄약 상태이상 효과를 계산
-// ammo.specialEffects 가 있으면, ammo.effectMaxRange (있으면) 이하 거리에서만 발동한다고 가정
-// effectMaxRange 가 없으면 항상 발동(거리 제한 없음)으로 처리
-function getActiveStatusEffects(ammo, refRange) {
-  if (!ammo || !ammo.specialEffects || ammo.specialEffects.length === 0) return [];
-  if (ammo.effectMaxRange != null && refRange > ammo.effectMaxRange) return [];
-  return ammo.specialEffects;
-}
-
 function openBodyPartView(parentItem, ammoId) {
   const overlay = document.getElementById("bodypart-overlay");
   const content = document.getElementById("bodypart-content");
@@ -434,10 +425,6 @@ function openBodyPartView(parentItem, ammoId) {
       </button>`;
   }).join("");
 
-  // 거리에 따라 탄약 효과(출혈/소이/중독 등)가 발동하는지 계산
-  // ammo.effectRangeLimit 이 있으면 그 거리까지만 효과 발동, 없으면 항상 발동(특수효과가 있을 때)
-  const activeStatusEffects = getActiveStatusEffects(ammo, refRange);
-
   content.innerHTML = `
     <button id="bodypart-close-btn" type="button">✕</button>
     <h2>${parentItem.name} <span class="bodypart-ammo">${ammo?.label ?? ""}</span></h2>
@@ -464,32 +451,31 @@ function openBodyPartView(parentItem, ammoId) {
         <div class="bodypart-figure">
           ${renderBodyFigureSVG(partInfo, refRange)}
         </div>
-        <!-- 이 거리에서 발동하는 상태이상 효과 -->
+        <!-- 탄약 효과 -->
         <div class="status-effect-box">
-          <h4>이 거리에서 적용되는 효과</h4>
-          ${activeStatusEffects.length
-            ? `<ul class="status-effect-list">${activeStatusEffects.map((e) => `<li>${e}</li>`).join("")}</ul>`
-            : `<p class="muted-text">이 탄약에는 특수 효과가 없거나, 이 거리에서는 적용되지 않습니다.</p>`}
+          <h4>효과</h4>
+          ${ammo?.specialEffects?.length
+            ? `<ul class="status-effect-list">${ammo.specialEffects.map((e) => `<li>${e}</li>`).join("")}</ul>`
+            : `<p class="muted-text">이 탄약에는 특수 효과가 없습니다.</p>`}
         </div>
       </div>
 
-      <!-- 가운데: 무기 사진 + Chamber + 탄약 -->
+      <!-- 가운데: 무기 사진 + 탄약상태 + 탄약 -->
       <div class="bodypart-mid">
         ${currentItem.image
           ? `<img src="${currentItem.image}" alt="${currentItem.name}" class="bp-weapon-img" onerror="this.style.display='none'">`
           : `<div class="bp-weapon-img-placeholder">무기 이미지 없음</div>`}
 
-        <h4>기본 정보</h4>
         <div class="detail-meta-row">
-          ${currentItem.price != null ? `<span>가격 <b><img src="images/ui/hunt_dollars.png" alt="$" class="dollar-icon">${currentItem.price}</b></span>` : ""}
-          <span>칸수 <b><img src="images/ui/slot_${currentItem.slotSize || 1}.png" alt="${currentItem.slotSize}칸" class="slot-icon-inline"></b></span>
+          ${currentItem.price != null ? `<span><img src="images/ui/hunt_dollars.png" alt="$" class="dollar-icon">${currentItem.price}</span>` : ""}
+          <span><img src="images/ui/slot_${currentItem.slotSize || 1}.png" alt="${currentItem.slotSize}칸" class="slot-icon-inline"></span>
         </div>
 
-        <h4>Chamber</h4>
-        <div class="detail-chamber">
-          <div><span>Ammo</span><b>${ammo?.label ?? "-"}</b></div>
-          <div><span>Loaded</span><b>${chamber.loaded ?? "-"}</b></div>
-          <div><span>Extra</span><b>${chamber.extra ?? "-"}</b></div>
+        <!-- 탄약 상태: [탄약 아이콘] 장탄/예비탄 [칸수 아이콘] -->
+        <div class="ammo-status-row">
+          ${ammo?.image ? `<img src="${ammo.image}" alt="${ammo.label}" class="ammo-status-icon">` : ""}
+          <span class="ammo-status-count">${chamber.loaded ?? "-"}/${chamber.extra ?? "-"}</span>
+          <img src="images/ui/slot_${currentItem.slotSize || 1}.png" alt="${currentItem.slotSize}칸" class="ammo-status-slots">
         </div>
 
         <h4>Ammo Types</h4>
@@ -498,20 +484,20 @@ function openBodyPartView(parentItem, ammoId) {
 
       <!-- 우측: 스탯 -->
       <div class="bodypart-right">
-        <h4>Stats</h4>
+        <h4>총기 스탯</h4>
         <div class="detail-stats">
-          ${statRowSimple("Damage", stats.damage)}
-          ${statRowSimple("Drop Range", stats.dropRange)}
-          ${statRowSimple("Rate of Fire", stats.rateOfFire)}
-          ${statRowSimple("Cycle Time", stats.cycleTime)}
-          ${statRowSimple("Spread", stats.spread)}
-          ${statRowSimple("Sway", stats.sway)}
-          ${statRowSimple("Vertical Recoil", stats.verticalRecoil)}
-          ${statRowSimple("Reload Speed", stats.reloadSpeed)}
-          ${statRowSimple("Muzzle Velocity", stats.muzzleVelocity)}
-          ${statRowSimple("Melee Damage", stats.meleeLight)}
-          ${statRowSimple("Heavy Melee Damage", stats.meleeHeavy)}
-          ${statRowSimple("Stamina Consumption", stats.staminaConsumption)}
+          ${statRowSimple("피해", stats.damage)}
+          ${statRowSimple("낙하 범위", stats.dropRange)}
+          ${statRowSimple("발사속도", stats.rateOfFire)}
+          ${statRowSimple("사이클 시간", stats.cycleTime)}
+          ${statRowSimple("분산도", stats.spread)}
+          ${statRowSimple("흔들림", stats.sway)}
+          ${statRowSimple("수직 반동", stats.verticalRecoil)}
+          ${statRowSimple("재장전 속도", stats.reloadSpeed)}
+          ${statRowSimple("총구속도", stats.muzzleVelocity)}
+          ${statRowSimple("근접 피해", stats.meleeLight)}
+          ${statRowSimple("중형 근접 피해", stats.meleeHeavy)}
+          ${statRowSimple("기력 비용(강공격)", stats.staminaConsumption)}
         </div>
       </div>
     </div>
@@ -632,18 +618,6 @@ function refreshBodyPartDamage(currentItem, ammoId, parentItem) {
   if (sliderEl) sliderEl.value = refRange;
   const sliderValueEl = document.querySelector(".range-slider-value");
   if (sliderValueEl) sliderValueEl.textContent = `${refRange}m`;
-
-  // 상태이상 효과 박스 갱신
-  const activeStatusEffects = getActiveStatusEffects(ammo, refRange);
-  const statusBox = document.querySelector(".status-effect-box");
-  if (statusBox) {
-    statusBox.innerHTML = `
-      <h4>이 거리에서 적용되는 효과</h4>
-      ${activeStatusEffects.length
-        ? `<ul class="status-effect-list">${activeStatusEffects.map((e) => `<li>${e}</li>`).join("")}</ul>`
-        : `<p class="muted-text">이 탄약에는 특수 효과가 없거나, 이 거리에서는 적용되지 않습니다.</p>`}
-    `;
-  }
 }
 
 // 단순 스탯 행 (자세히 보기용 — 화살표 표기 없음)

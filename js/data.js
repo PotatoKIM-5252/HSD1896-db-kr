@@ -153,7 +153,7 @@ const AMMO_TYPES = {
     label: "Compact",
     category: "compact",
     isBase: true,                // 기본탄 (특수탄이 아님)
-    image: "",                   // 이미지 파일 (없으면 icon으로 fallback)
+    image: "images/ui/ammo_effects/ammo_compact_regular.png",
     icon: "🟫",
     description: "Compact - Damage dropoff starts at 20m. Low penetration damage.",
     cost: 0,
@@ -171,7 +171,7 @@ const AMMO_TYPES = {
     label: "FMJ Ammo",
     category: "compact",
     effect: "full_metal",
-    image: "images/ammo/fmj.png",
+    image: "images/ui/ammo_effects/ammo_compact_full_metal.png",
     icon: "🟤",
     description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
     cost: 50,
@@ -194,7 +194,7 @@ const AMMO_TYPES = {
     label: "High Velocity Ammo",
     category: "compact",
     effect: "high_velocity",
-    image: "images/ammo/high_velocity.png",
+    image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
     icon: "🟠",
     description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
     cost: 60,
@@ -218,7 +218,7 @@ const AMMO_TYPES = {
     label: "Incendiary Ammo",
     category: "compact",
     effect: "incendiary",
-    image: "images/ammo/incendiary.png",
+    image: "images/ui/ammo_effects/ammo_compact_incendiary.png",
     icon: "🔥",
     description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
     cost: 40,
@@ -238,7 +238,7 @@ const AMMO_TYPES = {
     label: "Poison Ammo",
     category: "compact",
     effect: "poison",
-    image: "images/ammo/poison.png",
+    image: "images/ui/ammo_effects/ammo_compact_poison.png",
     icon: "🟢",
     description: "중독탄 - 명중 시 독 효과. 관통 불가.",
     cost: 50,
@@ -257,7 +257,7 @@ const AMMO_TYPES = {
     label: "Subsonic Ammo",
     category: "compact",
     effect: "subsonic",
-    image: "images/ammo/subsonic.png",
+    image: "images/ui/ammo_effects/ammo_compact_subsonic.png",
     icon: "🔇",
     description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 사거리/탄속 감소.",
     cost: 5,
@@ -274,104 +274,6 @@ const AMMO_TYPES = {
       ammoExtra: 34,
     },
     specialEffects: ["Reduced Sound"],
-  },
-
-  // ── 더미 데이터: Medium 탄종 ──────────────────────────────────────────
-  medium: {
-    label: "Medium",
-    category: "medium",
-    isBase: true,
-    image: "",
-    icon: "🟫",
-    description: "[더미] Medium 기본탄. 30m까지 평탄 유지.",
-    cost: 0,
-    falloff: [
-      [0,   1.00],
-      [30,  1.00],
-      [100, 0.65],
-      [200, 0.45],
-      [350, 0.30],
-    ],
-    statOverrides: {},
-  },
-
-  medium_fmj: {
-    label: "FMJ Ammo (Medium)",
-    category: "medium",
-    effect: "full_metal",
-    image: "images/ammo/fmj.png",
-    icon: "🟤",
-    description: "[더미] 중형 FMJ. 데미지 유지 거리 +40m.",
-    cost: 75,
-    falloff: [
-      [0,   1.00],
-      [70,  1.00],
-      [140, 0.65],
-      [240, 0.45],
-      [350, 0.30],
-    ],
-    statOverrides: {
-      muzzleVelocity: 360,
-    },
-  },
-
-  // ── 더미 데이터: Long 탄종 ────────────────────────────────────────────
-  long: {
-    label: "Long",
-    category: "long",
-    isBase: true,
-    image: "",
-    icon: "🟫",
-    description: "[더미] Long 기본탄. 60m까지 평탄 유지.",
-    cost: 0,
-    falloff: [
-      [0,   1.00],
-      [60,  1.00],
-      [150, 0.85],
-      [300, 0.60],
-      [500, 0.40],
-    ],
-    statOverrides: {},
-  },
-
-  long_spitzer: {
-    label: "Spitzer Ammo",
-    category: "long",
-    effect: "high_velocity",
-    image: "images/ammo/high_velocity.png",
-    icon: "🟠",
-    description: "[더미] Spitzer. 기본 데미지 감소, 장거리 유지력 향상.",
-    cost: 70,
-    falloff: [
-      [0,   1.00],
-      [80,  1.00],
-      [180, 0.85],
-      [350, 0.65],
-      [500, 0.45],
-    ],
-    statOverrides: {
-      damage: 130,        // 기본 149 → 130
-      muzzleVelocity: 900,
-      verticalRecoil: 12,
-    },
-  },
-
-  // ── 더미 데이터: Shotgun 탄종 ─────────────────────────────────────────
-  shotgun: {
-    label: "Buckshot",
-    category: "shotgun",
-    isBase: true,
-    image: "",
-    icon: "🟫",
-    description: "[더미] 산탄. 짧은 사거리 내 강한 데미지.",
-    cost: 0,
-    falloff: [
-      [0,   1.00],
-      [10,  1.00],
-      [25,  0.50],
-      [45,  0.15],
-    ],
-    statOverrides: {},
   },
 };
 
@@ -431,170 +333,11 @@ const ITEMS = [
 
     description: "",
 
-    // 파생형 (variants) — 같은 무기 계열의 변형들
-    // 각 파생형은 모무기의 필드를 일부 덮어쓰는 형식
+    // 파생형 (variants) — 같은 무기 계열의 변형들 (단축형/소음기/조준경/장총신 등)
+    // 각 파생형은 모무기의 필드를 일부 덮어쓰는 형식입니다.
     // 입력하지 않은 필드는 모무기의 값을 그대로 따라갑니다.
-    variants: [
-      {
-        id: "weapon_frontier_73c_a",
-        name: "[더미] Frontier 73C A",
-        image: "",
-        description: "예시 파생형 A — 모무기보다 약간 짧은 가상의 단축형 (더미 데이터).",
-        // 모무기와 다른 부분만 적기
-        price: 56,
-        slotSize: 2,
-        chamber: { loaded: "7+1", extra: 18 },
-        stats: {
-          damage: 105,
-          rateOfFire: 31,
-          spread: 22,
-          sway: 70,
-          reloadSpeed: 9.8,
-          muzzleVelocity: 380,
-        },
-      },
-      {
-        id: "weapon_frontier_73c_b",
-        name: "[더미] Frontier 73C B",
-        image: "",
-        description: "예시 파생형 B — 모무기에 소음기를 부착한 가상의 변형 (더미 데이터).",
-        price: 70,
-        ammoEffects: ["subsonic", "full_metal", "incendiary", "poison"],
-        // 고속탄(high_velocity) 빠짐 — 소음기 가정
-        ammoTypes: [
-          "compact",
-          "compact_fmj",
-          "compact_incendiary",
-          "compact_poison",
-          "compact_subsonic",
-        ],
-        stats: {
-          damage: 105,
-          muzzleVelocity: 360,
-          verticalRecoil: 4,
-        },
-      },
-      {
-        id: "weapon_frontier_73c_c",
-        name: "[더미] Frontier 73C C",
-        image: "",
-        description: "예시 파생형 C — 모무기에 조준경을 부착한 가상의 마크스맨형 (더미 데이터).",
-        price: 88,
-        slotSize: 4,
-        stats: {
-          sway: 50,
-          spread: 13,
-          reloadSpeed: 10.5,
-        },
-      },
-      {
-        id: "weapon_frontier_73c_d",
-        name: "[더미] Frontier 73C D",
-        image: "",
-        description: "예시 파생형 D — 모무기의 헤비배럴 가상 변형 (더미 데이터).",
-        price: 65,
-        stats: {
-          damage: 118,
-          dropRange: 160,
-          verticalRecoil: 7,
-          rateOfFire: 25,
-          cycleTime: 1.4,
-        },
-      },
-    ],
-  },
-
-  // ── 더미 데이터: 중형탄 라이플 (1칸) ──────────────────────────────────
-  {
-    id: "weapon_dummy_pistol",
-    category: "weapon",
-    name: "[더미] Medium Pistol",
-    image: "",
-    slotSize: 1,
-    ammoCategory: "medium",
-    ammoEffects: ["full_metal"],
-    ammoTypes: ["medium", "medium_fmj"],
-    defaultAmmo: "medium",
-    price: 45,
-    updateAdded: "더미 데이터",
-    chamber: { loaded: "6", extra: 24 },
-    stats: {
-      damage: 91,
-      dropRange: 80,
-      rateOfFire: 35,
-      cycleTime: 0.6,
-      spread: 22,
-      sway: 95,
-      verticalRecoil: 8,
-      reloadSpeed: 7.2,
-      muzzleVelocity: 320,
-      meleeLight: 22,
-      meleeHeavy: 44,
-      staminaConsumption: 20,
-    },
-    description: "테스트용 더미. 중형탄 권총.",
-  },
-
-  // ── 더미 데이터: 롱탄 저격소총 (3칸) ──────────────────────────────────
-  {
-    id: "weapon_dummy_sniper",
-    category: "weapon",
-    name: "[더미] Long Rifle",
-    image: "",
-    slotSize: 3,
-    ammoCategory: "long",
-    ammoEffects: ["high_velocity"],
-    ammoTypes: ["long", "long_spitzer"],
-    defaultAmmo: "long",
-    price: 530,
-    updateAdded: "더미 데이터",
-    chamber: { loaded: "5", extra: 15 },
-    stats: {
-      damage: 149,
-      dropRange: 250,
-      rateOfFire: 15,
-      cycleTime: 2.4,
-      spread: 8,
-      sway: 35,
-      verticalRecoil: 18,
-      reloadSpeed: 14.5,
-      muzzleVelocity: 700,
-      meleeLight: 30,
-      meleeHeavy: 60,
-      staminaConsumption: 30,
-    },
-    description: "테스트용 더미. 롱탄 볼트액션 라이플.",
-  },
-
-  // ── 더미 데이터: 샷건 (2칸) ───────────────────────────────────────────
-  {
-    id: "weapon_dummy_shotgun",
-    category: "weapon",
-    name: "[더미] Shotgun",
-    image: "",
-    slotSize: 2,
-    ammoCategory: "shotgun",
-    ammoEffects: [],
-    ammoTypes: ["shotgun"],
-    defaultAmmo: "shotgun",
-    price: 110,
-    updateAdded: "더미 데이터",
-    chamber: { loaded: "2", extra: 16 },
-    stats: {
-      damage: 220,
-      dropRange: 30,
-      rateOfFire: 18,
-      cycleTime: 0.8,
-      spread: 65,
-      sway: 70,
-      verticalRecoil: 15,
-      reloadSpeed: 4.5,
-      muzzleVelocity: 410,
-      meleeLight: 28,
-      meleeHeavy: 56,
-      staminaConsumption: 25,
-    },
-    description: "테스트용 더미. 더블배럴 샷건.",
+    // 작성 방법은 파일 맨 아래 "빠른 참조" 섹션의 예시를 참고하세요.
+    variants: [],
   },
 
   // ── 도구 / 소모품 / 특성은 차후 채울 예정 ─────────────────────────────
