@@ -86,11 +86,11 @@ const WEAPON_FILTERS = {
   ammoCategory: {
     label: "탄종",
     options: [
-      { value: "compact", label: "소형탄" },
-      { value: "medium",  label: "중형탄" },
-      { value: "long",    label: "롱탄" },
-      { value: "shotgun", label: "샷건탄" },
-      { value: "special", label: "특수탄" },
+      { value: "compact", label: "소형탄", image: "images/ui/ammo_compact.webp" },
+      { value: "medium",  label: "중형탄", image: "images/ui/ammo_medium.webp" },
+      { value: "long",    label: "롱탄",   image: "images/ui/ammo_long.webp" },
+      { value: "shotgun", label: "샷건탄", image: "images/ui/ammo_shotgun.webp" },
+      { value: "special", label: "특수탄", image: "images/ui/ammo_special.webp" },
     ],
   },
   ammoEffect: {
