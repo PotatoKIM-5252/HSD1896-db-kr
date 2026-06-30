@@ -67,16 +67,20 @@ const CATEGORIES = {
 
 // -------------------------------------------------------------------------
 // 2. WEAPON_FILTERS
+//
+//    각 option에 image 필드를 넣으면, 검색 필터 칩이 텍스트 대신
+//    그 이미지로 자동 표시됩니다. (image가 없으면 그냥 텍스트로 표시)
+//    예: { value: "explosive", label: "폭발탄", image: "images/ui/ammo_explosive.png" }
 // -------------------------------------------------------------------------
 const WEAPON_FILTERS = {
   slotSize: {
     label: "무기 칸수",
     options: [
-      { value: 1, label: "1칸" },
-      { value: 2, label: "2칸" },
-      { value: 3, label: "3칸" },
-      { value: 4, label: "4칸" },
-      { value: 5, label: "5칸" },
+      { value: 1, label: "1칸", image: "images/ui/slot_1.png" },
+      { value: 2, label: "2칸", image: "images/ui/slot_2.png" },
+      { value: 3, label: "3칸", image: "images/ui/slot_3.png" },
+      { value: 4, label: "4칸", image: "images/ui/slot_4.png" },
+      { value: 5, label: "5칸", image: "images/ui/slot_5.png" },
     ],
   },
   ammoCategory: {

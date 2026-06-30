@@ -132,7 +132,21 @@ function renderWeaponFilters() {
       const chip = document.createElement("button");
       chip.type = "button";
       chip.className = "filter-chip";
-      chip.textContent = opt.label;
+
+      if (opt.image) {
+        // 이미지가 있으면 텍스트 대신 아이콘으로 (이름은 title 툴팁으로)
+        chip.classList.add("filter-chip-icon");
+        chip.title = opt.label;
+        const img = document.createElement("img");
+        img.src = opt.image;
+        img.alt = opt.label;
+        img.className = "filter-chip-img";
+        img.onerror = () => { chip.classList.remove("filter-chip-icon"); chip.textContent = opt.label; };
+        chip.appendChild(img);
+      } else {
+        chip.textContent = opt.label;
+      }
+
       chip.addEventListener("click", () => {
         const set = state.weaponFilters[filterKey];
         if (set.has(opt.value)) { set.delete(opt.value); chip.classList.remove("active"); }
@@ -202,8 +216,8 @@ function createItemCard(item) {
       ${imgHTML}
       <div class="item-card-name">${item.name}</div>
       <div class="item-card-meta">
-        <span class="item-card-slots">${"▪".repeat(item.slotSize || 0)}</span>
-        ${item.price != null ? `<span class="item-card-price">$${item.price}</span>` : ""}
+        <span class="item-card-slots"><img src="images/ui/slot_${item.slotSize || 1}.png" alt="${item.slotSize}칸" class="slot-icon"></span>
+        ${item.price != null ? `<span class="item-card-price"><img src="images/ui/hunt_dollars.png" alt="$" class="dollar-icon">${item.price}</span>` : ""}
       </div>
       <button class="item-card-detail-btn" type="button">자세히 보기 ›</button>`;
 
@@ -364,31 +378,6 @@ function getActiveStatusEffects(ammo, refRange) {
   return ammo.specialEffects;
 }
 
-// 서로 다른 두 부위에 한 발씩 맞았을 때 처치(150 이상) 가능한지 모든 조합 계산
-function buildTwoTapCombinations(partInfo) {
-  const parts = Object.entries(BODY_PART_MULTIPLIERS)
-    .filter(([, def]) => def.multiplier != null)
-    .map(([key, def]) => ({ key, label: def.label, dmg: partInfo[key]?.dmg ?? 0 }));
-
-  const rows = [];
-  for (let i = 0; i < parts.length; i++) {
-    for (let j = i; j < parts.length; j++) {
-      const a = parts[i];
-      const b = parts[j];
-      const total = a.dmg + b.dmg;
-      rows.push({
-        partA: a.label,
-        partB: b.label,
-        total,
-        kill: total >= HUNTER_HP,
-      });
-    }
-  }
-  // 합산 데미지 높은 순으로 정렬 (처치 가능한 조합이 위로)
-  rows.sort((r1, r2) => r2.total - r1.total);
-  return rows;
-}
-
 function openBodyPartView(parentItem, ammoId) {
   const overlay = document.getElementById("bodypart-overlay");
   const content = document.getElementById("bodypart-content");
@@ -449,14 +438,11 @@ function openBodyPartView(parentItem, ammoId) {
   // ammo.effectRangeLimit 이 있으면 그 거리까지만 효과 발동, 없으면 항상 발동(특수효과가 있을 때)
   const activeStatusEffects = getActiveStatusEffects(ammo, refRange);
 
-  // 2탭(2발) 부위 조합표 — 서로 다른 두 부위에 한 발씩 맞았을 때 죽는지 계산
-  const twoTapRows = buildTwoTapCombinations(partInfo);
-
   content.innerHTML = `
     <button id="bodypart-close-btn" type="button">✕</button>
     <h2>${parentItem.name} <span class="bodypart-ammo">${ammo?.label ?? ""}</span></h2>
     <p class="bodypart-subtitle">
-      Range: <b>${refRange}m</b> 기준 부위별 데미지 (헌터 HP ${HUNTER_HP})
+      Range: <b>${refRange}m</b> 기준 부위별 데미지
       <span class="bodypart-hint">— 그래프 또는 슬라이더로 거리를 바꿀 수 있어요</span>
     </p>
 
@@ -495,8 +481,8 @@ function openBodyPartView(parentItem, ammoId) {
 
         <h4>기본 정보</h4>
         <div class="detail-meta-row">
-          ${currentItem.price != null ? `<span>가격 <b>$${currentItem.price}</b></span>` : ""}
-          <span>칸수 <b>${currentItem.slotSize ?? "?"}</b></span>
+          ${currentItem.price != null ? `<span>가격 <b><img src="images/ui/hunt_dollars.png" alt="$" class="dollar-icon">${currentItem.price}</b></span>` : ""}
+          <span>칸수 <b><img src="images/ui/slot_${currentItem.slotSize || 1}.png" alt="${currentItem.slotSize}칸" class="slot-icon-inline"></b></span>
         </div>
 
         <h4>Chamber</h4>
@@ -510,28 +496,8 @@ function openBodyPartView(parentItem, ammoId) {
         <div class="ammo-tabs">${ammoTabs}</div>
       </div>
 
-      <!-- 우측: 부위별 BTK + 스탯 -->
+      <!-- 우측: 스탯 -->
       <div class="bodypart-right">
-        <h4>부위별 BTK (동일 부위 연속 명중 기준)</h4>
-        <table class="bp-table">
-          <thead><tr><th>부위</th><th>데미지</th><th>BTK</th></tr></thead>
-          <tbody>
-            ${Object.entries(BODY_PART_MULTIPLIERS).map(([key, def]) => {
-              const info = partInfo[key];
-              if (info.dmg == null) {
-                return `<tr><td>${def.label}</td><td class="muted">-</td><td>-</td></tr>`;
-              }
-              const btk = Math.ceil(HUNTER_HP / info.dmg);
-              const ohk = info.dmg >= HUNTER_HP;
-              return `<tr>
-                <td>${def.label}</td>
-                <td>${info.dmg}</td>
-                <td class="${ohk ? "ohk" : ""}">${btk}발${ohk ? " (OHK)" : ""}</td>
-              </tr>`;
-            }).join("")}
-          </tbody>
-        </table>
-
         <h4>Stats</h4>
         <div class="detail-stats">
           ${statRowSimple("Damage", stats.damage)}
@@ -547,30 +513,7 @@ function openBodyPartView(parentItem, ammoId) {
           ${statRowSimple("Heavy Melee Damage", stats.meleeHeavy)}
           ${statRowSimple("Stamina Consumption", stats.staminaConsumption)}
         </div>
-
-        <p class="bodypart-note">
-          ※ 머리 명중은 무조건 즉사이므로 별도 표시하지 않습니다.
-        </p>
       </div>
-    </div>
-
-    <!-- 2탭(서로 다른 부위 두 발) 조합표 -->
-    <h4 class="bp-section-heading">2발 조합 처치 가능 여부 (서로 다른 부위에 한 발씩)</h4>
-    <div class="two-tap-wrap">
-      <table class="bp-table two-tap-table">
-        <thead><tr><th>부위 1</th><th>부위 2</th><th>합산 데미지</th><th>처치 가능?</th></tr></thead>
-        <tbody>
-          ${twoTapRows.map((row) => `
-            <tr>
-              <td>${row.partA}</td>
-              <td>${row.partB}</td>
-              <td>${row.total}</td>
-              <td class="${row.kill ? "ohk" : "muted"}">${row.kill ? "✓ 처치 가능" : "✕ 부족"}</td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-      <p class="bodypart-note">※ 현재 Range ${refRange}m 기준, 머리 제외 4개 부위의 모든 조합(중복 포함)을 계산한 결과입니다.</p>
     </div>
 
     <!-- 하단 전체폭 그래프 -->
@@ -624,13 +567,13 @@ function drawBodyPartChart(currentItem, ammoId, refRange, parentItem) {
     state.charts.bodypart = null;
   }
 
-  const ds = buildFalloffDataset(currentItem, ammoId, "#f0a445");
+  const ds = buildFalloffDataset(currentItem, ammoId, "#ece6d3");
   if (!ds) {
     canvas.outerHTML = `<p class="empty-msg">거리별 데이터 없음</p>`;
     return;
   }
   ds.fill = true;
-  ds.backgroundColor = "rgba(240, 164, 69, 0.15)";
+  ds.backgroundColor = "rgba(236, 230, 211, 0.12)";
 
   const maxDmg = Math.max(...ds.data.map((d) => d.y));
   const canOHK = maxDmg >= HUNTER_HP;
@@ -700,42 +643,6 @@ function refreshBodyPartDamage(currentItem, ammoId, parentItem) {
         ? `<ul class="status-effect-list">${activeStatusEffects.map((e) => `<li>${e}</li>`).join("")}</ul>`
         : `<p class="muted-text">이 탄약에는 특수 효과가 없거나, 이 거리에서는 적용되지 않습니다.</p>`}
     `;
-  }
-
-  // BTK 표만 다시 그리기
-  const tbodyEl = document.querySelector(".bp-table tbody");
-  if (tbodyEl) {
-    tbodyEl.innerHTML = Object.entries(BODY_PART_MULTIPLIERS).map(([key, def]) => {
-      const info = partInfo[key];
-      if (info.dmg == null) {
-        return `<tr><td>${def.label}</td><td class="muted">-</td><td>-</td></tr>`;
-      }
-      const btk = Math.ceil(HUNTER_HP / info.dmg);
-      const ohk = info.dmg >= HUNTER_HP;
-      return `<tr>
-        <td>${def.label}</td>
-        <td>${info.dmg}</td>
-        <td class="${ohk ? "ohk" : ""}">${btk}발${ohk ? " (OHK)" : ""}</td>
-      </tr>`;
-    }).join("");
-  }
-
-  // 2탭 조합표 갱신
-  const twoTapRows = buildTwoTapCombinations(partInfo);
-  const twoTapTbody = document.querySelector(".two-tap-table tbody");
-  if (twoTapTbody) {
-    twoTapTbody.innerHTML = twoTapRows.map((row) => `
-      <tr>
-        <td>${row.partA}</td>
-        <td>${row.partB}</td>
-        <td>${row.total}</td>
-        <td class="${row.kill ? "ohk" : "muted"}">${row.kill ? "✓ 처치 가능" : "✕ 부족"}</td>
-      </tr>
-    `).join("");
-  }
-  const twoTapNote = document.querySelector(".two-tap-wrap .bodypart-note");
-  if (twoTapNote) {
-    twoTapNote.textContent = `※ 현재 Range ${refRange}m 기준, 머리 제외 4개 부위의 모든 조합(중복 포함)을 계산한 결과입니다.`;
   }
 }
 
@@ -822,8 +729,8 @@ function renderWeaponDetailHTML(item, selectedAmmoId) {
     <h2>${item.name}</h2>
 
     <div class="detail-meta-row">
-      ${item.price != null ? `<span>가격 <b>$${item.price}</b></span>` : ""}
-      <span>칸수 <b>${item.slotSize ?? "?"}</b></span>
+      ${item.price != null ? `<span>가격 <b><img src="images/ui/hunt_dollars.png" alt="$" class="dollar-icon">${item.price}</b></span>` : ""}
+      <span>칸수 <b><img src="images/ui/slot_${item.slotSize || 1}.png" alt="${item.slotSize}칸" class="slot-icon-inline"></b></span>
       ${item.updateAdded ? `<span class="detail-update">${item.updateAdded}</span>` : ""}
     </div>
 
@@ -941,13 +848,13 @@ function interpolateFalloff(keypoints, r) {
 function drawWeaponChart(item, ammoId) {
   const canvas = document.getElementById("detail-chart");
   if (!canvas) return;
-  const ds = buildFalloffDataset(item, ammoId, "#f0a445");
+  const ds = buildFalloffDataset(item, ammoId, "#ece6d3");
   if (!ds) {
     canvas.outerHTML = `<p class="empty-msg">거리별 데이터 없음</p>`;
     return;
   }
   ds.fill = true;
-  ds.backgroundColor = "rgba(240, 164, 69, 0.15)";
+  ds.backgroundColor = "rgba(236, 230, 211, 0.12)";
 
   // 이 무기가 1발 킬(OHK)이 가능한가? — 최대 데미지가 150 이상이면 표시
   const maxDmg = Math.max(...ds.data.map((d) => d.y));
@@ -1190,7 +1097,7 @@ function clearLoadout() { initLoadoutState(); renderLoadoutBoard(); }
 // -------------------------------------------------------------------------
 // 분석 탭 — 무기+탄약 조합 비교
 // -------------------------------------------------------------------------
-const COMPARE_COLORS = ["#f0a445", "#5c8a63", "#c25b4d", "#7ba0c4", "#b48ec4", "#d4c25e", "#c4865c"];
+const COMPARE_COLORS = ["#ece6d3", "#5c8a63", "#c25b4d", "#7ba0c4", "#b48ec4", "#d4c25e", "#c4865c"];
 
 function renderAnalysis() {
   const listEl = document.getElementById("compare-weapon-list");
