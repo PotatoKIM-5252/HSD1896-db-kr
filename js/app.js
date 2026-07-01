@@ -460,16 +460,12 @@ function openBodyPartView(parentItem, ammoId) {
           ? `<img src="${currentItem.image}" alt="${currentItem.name}" class="bp-weapon-img" onerror="this.style.display='none'">`
           : `<div class="bp-weapon-img-placeholder">무기 이미지 없음</div>`}
 
-        <div class="detail-meta-row">
-          ${currentItem.price != null ? `<span><img src="images/ui/hunt_dollars.png" alt="$" class="dollar-icon">${currentItem.price}</span>` : ""}
-          <span><img src="images/ui/slot_${currentItem.slotSize || 1}.png" alt="${currentItem.slotSize}칸" class="slot-icon-inline"></span>
-        </div>
-
-        <!-- 탄약 상태: [탄약 아이콘] 장탄/예비탄 [칸수 아이콘] -->
+        <!-- 탄약 상태: [탄약 아이콘] 장탄/예비탄 [칸수 아이콘] [가격 아이콘] 가격 -->
         <div class="ammo-status-row">
           ${ammo?.image ? `<img src="${ammo.image}" alt="${ammo.label}" class="ammo-status-icon">` : ""}
           <span class="ammo-status-count">${chamber.loaded ?? "-"}/${chamber.extra ?? "-"}</span>
           <img src="images/ui/slot_${currentItem.slotSize || 1}.png" alt="${currentItem.slotSize}칸" class="ammo-status-slots">
+          ${currentItem.price != null ? `<img src="images/ui/hunt_dollars.png" alt="$" class="ammo-status-dollar"><span class="ammo-status-price">${currentItem.price}</span>` : ""}
         </div>
 
         <h4>Ammo Types</h4>
@@ -682,18 +678,14 @@ function renderWeaponDetailHTML(item, selectedAmmoId) {
     <button id="detail-close-btn" type="button">✕</button>
     <h2>${item.name}</h2>
 
-    <div class="detail-meta-row">
-      ${item.price != null ? `<span>가격 <b><img src="images/ui/hunt_dollars.png" alt="$" class="dollar-icon">${item.price}</b></span>` : ""}
-      <span>칸수 <b><img src="images/ui/slot_${item.slotSize || 1}.png" alt="${item.slotSize}칸" class="slot-icon-inline"></b></span>
-    </div>
-
     ${item.image ? `<img src="${item.image}" alt="${item.name}" class="detail-img" onerror="this.style.display='none'">` : ""}
 
-    <h4>Chamber</h4>
-    <div class="detail-chamber">
-      <div><span>Ammo</span><b>${ammo?.label ?? "-"}</b></div>
-      <div><span>Loaded</span><b>${chamber.loaded ?? "-"}</b></div>
-      <div><span>Extra</span><b>${chamber.extra ?? "-"}</b></div>
+    <!-- 한 줄: [탄약 아이콘] 장탄/예비탄 [칸수 아이콘] | [달러 아이콘] 가격 -->
+    <div class="ammo-status-row">
+      ${ammo?.image ? `<img src="${ammo.image}" alt="${ammo.label}" class="ammo-status-icon">` : ""}
+      <span class="ammo-status-count">${chamber.loaded ?? "-"}/${chamber.extra ?? "-"}</span>
+      <img src="images/ui/slot_${item.slotSize || 1}.png" alt="${item.slotSize}칸" class="ammo-status-slots">
+      ${item.price != null ? `<img src="images/ui/hunt_dollars.png" alt="$" class="ammo-status-dollar"><span class="ammo-status-price">${item.price}</span>` : ""}
     </div>
 
     <h4>Ammo Types</h4>

@@ -795,7 +795,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 .detail-chamber span { color: var(--text-muted); font-size: 10px; text-transform: uppercase; }
 .detail-chamber b { color: var(--text-primary); font-weight: 500; }
 
-/* 탄약 상태 한 줄 표시: [탄약 아이콘] 장탄/예비탄 [칸수 아이콘] */
+/* 탄약 상태 한 줄 표시: [탄약 아이콘] 장탄/예비탄 [칸수 아이콘] [가격 아이콘] 가격 */
 .ammo-status-row {
   display: inline-flex;
   align-items: center;
@@ -805,6 +805,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   border-radius: 999px;
   padding: 6px 14px;
   margin: 4px 0 6px;
+  flex-wrap: wrap;
 }
 
 .ammo-status-icon {
@@ -825,6 +826,22 @@ button { font-family: var(--font-body); cursor: pointer; }
   width: auto;
   display: block;
   margin-left: 2px;
+}
+
+.ammo-status-dollar {
+  height: 22px;
+  width: auto;
+  display: block;
+  margin-left: 8px;
+  padding-left: 10px;
+  border-left: 1px solid var(--border-strong);
+}
+
+.ammo-status-price {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 500;
 }
 
 .ammo-tabs {
