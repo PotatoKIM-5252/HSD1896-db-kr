@@ -729,17 +729,22 @@ function buildFalloffDataset(item, ammoId, color) {
 
   const baseDmg = stats.damage ?? 0;
   const keypoints = ammo.falloff;
-  const maxRange = keypoints[keypoints.length - 1][0];
 
-  // 키포인트 거리값 Set (O(1) 조회용)
-  const keypointRanges = new Set(keypoints.map(([r]) => r));
+  // 그래프 표시 범위 (200m까지만)
+  const dataMax = 200;
 
-  // 1m 단위로 보간 데이터 생성 (그래프 표시 범위 200m까지만)
-  const dataMax = Math.min(maxRange, 200);
+  // 1m 단위로 잘게 쪼개서 보간하면 반올림 때문에 계단현상이 생기므로,
+  // 실제로 꺾이는 지점(keypoint)만 데이터로 사용해 그 사이는 Canvas가 곧은 직선으로 그리게 함.
   const data = [];
-  for (let r = 0; r <= dataMax; r++) {
-    const dmg = Math.round(baseDmg * interpolateFalloff(keypoints, r));
-    data.push({ x: r, y: dmg });
+  for (const [r, m] of keypoints) {
+    if (r > dataMax) break;
+    data.push({ x: r, y: Math.round(baseDmg * m) });
+  }
+  // 마지막 키포인트가 표시 범위(200m)보다 짧으면 그대로 끝나고,
+  // 표시 범위를 넘어가면 200m 지점의 보간값을 잘라서 하나 더 찍어준다.
+  const lastR = keypoints[keypoints.length - 1][0];
+  if (lastR > dataMax) {
+    data.push({ x: dataMax, y: Math.round(baseDmg * interpolateFalloff(keypoints, dataMax)) });
   }
 
   return {
@@ -751,10 +756,8 @@ function buildFalloffDataset(item, ammoId, color) {
     tension: 0,
     stepped: false,
     fill: false,
-    // 점을 키포인트에만 보이게: 키포인트면 3px, 아니면 0
-    pointRadius: (ctx) => keypointRanges.has(ctx.parsed?.x) ? 3 : 0,
-    // 마우스 hover 시에도 키포인트만 강조
-    pointHoverRadius: (ctx) => keypointRanges.has(ctx.parsed?.x) ? 5 : 3,
+    pointRadius: 3,
+    pointHoverRadius: 5,
     pointBackgroundColor: color,
     pointBorderColor: color,
     pointHitRadius: 10,

@@ -831,7 +831,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 .ammo-status-icon {
-  height: 18px;
+  height: 40px;
   width: auto;
   display: block;
 }
@@ -873,14 +873,14 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 .ammo-tab {
-  width: 52px;
-  height: 52px;
+  width: 76px;
+  height: 76px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--bg-card);
   border: 1px solid var(--border);
-  padding: 6px;
+  padding: 8px;
   border-radius: var(--radius);
   transition: border-color 0.15s, background 0.15s, transform 0.1s;
 }
@@ -895,7 +895,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   border-color: var(--accent);
 }
 
-.ammo-tab-icon { font-size: 22px; line-height: 1; }
+.ammo-tab-icon { font-size: 32px; line-height: 1; }
 
 .ammo-tab-img {
   max-width: 100%;
