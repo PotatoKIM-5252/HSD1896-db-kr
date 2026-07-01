@@ -447,12 +447,8 @@ function openBodyPartView(parentItem, ammoId) {
         </div>
       </div>
 
-      <!-- 우측: 무기이미지 + 탄약상태 + 탄약탭 + 총기 스탯 -->
+      <!-- 우측: 그래프 + 탄약상태 + (탄약탭+무기이미지) + 총기 스탯 -->
       <div class="bodypart-mid-full">
-        ${currentItem.image
-          ? `<img src="${currentItem.image}" alt="${currentItem.name}" class="bp-weapon-img" onerror="this.style.display='none'">`
-          : `<div class="bp-weapon-img-placeholder">무기 이미지 없음</div>`}
-
         <!-- 탄약 상태: [탄약 아이콘] 장탄/예비탄 [칸수 아이콘] | [달러 아이콘] 가격 -->
         <div class="ammo-status-row">
           ${ammo?.image ? `<img src="${ammo.image}" alt="${ammo.label}" class="ammo-status-icon">` : ""}
@@ -461,8 +457,17 @@ function openBodyPartView(parentItem, ammoId) {
           ${currentItem.price != null ? `<img src="images/ui/hunt_dollars.png" alt="$" class="ammo-status-dollar"><span class="ammo-status-price">${currentItem.price}</span>` : ""}
         </div>
 
-        <!-- 탄약 탭 -->
-        <div class="ammo-tabs">${ammoTabs}</div>
+        <!-- 거리별 데미지 그래프 (기존 무기 이미지 자리) -->
+        <h4 class="bp-chart-heading">거리별 데미지 <span class="bodypart-hint">— 그래프를 클릭하여 거리 선택</span></h4>
+        <div class="bp-chart-wrap"><canvas id="bp-chart"></canvas></div>
+
+        <!-- 탄약 탭 + 남는 공간에 무기 이미지 -->
+        <div class="ammo-tabs-row">
+          <div class="ammo-tabs">${ammoTabs}</div>
+          ${currentItem.image
+            ? `<img src="${currentItem.image}" alt="${currentItem.name}" class="bp-weapon-img-side" onerror="this.style.display='none'">`
+            : ""}
+        </div>
 
         <!-- 총기 스탯: 탄약 바꾸면 이 자리에서 바로 갱신됨 -->
         <div class="detail-stats bp-stats-inline">
@@ -481,10 +486,6 @@ function openBodyPartView(parentItem, ammoId) {
         </div>
       </div>
     </div>
-
-    <!-- 하단 전체폭 그래프 -->
-    <h4 class="bp-chart-heading">거리별 데미지 <span class="bodypart-hint">— 그래프를 클릭하여 거리 선택</span></h4>
-    <div class="bp-chart-wrap"><canvas id="bp-chart"></canvas></div>
   `;
 
   overlay.hidden = false;
@@ -729,22 +730,19 @@ function buildFalloffDataset(item, ammoId, color) {
 
   const baseDmg = stats.damage ?? 0;
   const keypoints = ammo.falloff;
+  const maxRange = keypoints[keypoints.length - 1][0];
 
-  // 그래프 표시 범위 (200m까지만)
-  const dataMax = 200;
+  // 키포인트(꺾이는 지점) 거리값 Set — 그래프에 점으로 표시할 위치
+  const keypointRanges = new Set(keypoints.map(([r]) => r));
 
-  // 1m 단위로 잘게 쪼개서 보간하면 반올림 때문에 계단현상이 생기므로,
-  // 실제로 꺾이는 지점(keypoint)만 데이터로 사용해 그 사이는 Canvas가 곧은 직선으로 그리게 함.
+  // 1m 단위로 촘촘하게 데이터를 만들어야 마우스오버 시 커서 위치의 거리(m)가
+  // 정확하게 표시됨. 단, 반올림(Math.round)을 하면 평평한 구간에서 값이
+  // 계단식으로 튀어보이므로, 실제 값(소수)을 그대로 저장해 선은 완전히
+  // 매끈하게 유지하고, 반올림은 툴팁에 표시할 때만 한다.
+  const dataMax = Math.min(maxRange, 200);
   const data = [];
-  for (const [r, m] of keypoints) {
-    if (r > dataMax) break;
-    data.push({ x: r, y: Math.round(baseDmg * m) });
-  }
-  // 마지막 키포인트가 표시 범위(200m)보다 짧으면 그대로 끝나고,
-  // 표시 범위를 넘어가면 200m 지점의 보간값을 잘라서 하나 더 찍어준다.
-  const lastR = keypoints[keypoints.length - 1][0];
-  if (lastR > dataMax) {
-    data.push({ x: dataMax, y: Math.round(baseDmg * interpolateFalloff(keypoints, dataMax)) });
+  for (let r = 0; r <= dataMax; r++) {
+    data.push({ x: r, y: baseDmg * interpolateFalloff(keypoints, r) });
   }
 
   return {
@@ -756,8 +754,9 @@ function buildFalloffDataset(item, ammoId, color) {
     tension: 0,
     stepped: false,
     fill: false,
-    pointRadius: 3,
-    pointHoverRadius: 5,
+    // 점은 꺾이는 지점(keypoint)에만 보이게
+    pointRadius: (ctx) => keypointRanges.has(ctx.parsed?.x) ? 3 : 0,
+    pointHoverRadius: (ctx) => keypointRanges.has(ctx.parsed?.x) ? 5 : 3,
     pointBackgroundColor: color,
     pointBorderColor: color,
     pointHitRadius: 10,
@@ -838,7 +837,7 @@ function chartOptions(xLabel, yLabel, opts = {}) {
         intersect: false,
         callbacks: {
           title: (items) => items.length ? `거리: ${items[0].parsed.x}m` : "",
-          label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y}`,
+          label: (ctx) => `${ctx.dataset.label}: ${Math.round(ctx.parsed.y)}`,
         },
       },
     },

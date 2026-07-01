@@ -694,6 +694,23 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 .bodypart-mid-full h4:first-of-type { margin-top: 4px; }
 
+/* 탄약 탭 + 오른쪽 남는 공간의 무기 이미지 */
+.ammo-tabs-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.bp-weapon-img-side {
+  flex: 1 1 160px;
+  min-width: 140px;
+  max-height: 84px;
+  object-fit: contain;
+  object-position: right center;
+}
+
 /* 하단 전체폭 그래프 */
 .bp-chart-heading {
   font-size: 12px !important;
@@ -831,7 +848,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 .ammo-status-icon {
-  height: 32px;
+  height: 40px;
   width: auto;
   display: block;
 }
