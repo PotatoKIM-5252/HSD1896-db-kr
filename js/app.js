@@ -428,17 +428,10 @@ function openBodyPartView(parentItem, ammoId) {
   content.innerHTML = `
     <button id="bodypart-close-btn" type="button">✕</button>
     <h2>${parentItem.name} <span class="bodypart-ammo">${ammo?.label ?? ""}</span></h2>
-    <p class="bodypart-subtitle">
-      Range: <b>${refRange}m</b> 기준 부위별 데미지
-      <span class="bodypart-hint">— 그래프를 클릭하여 거리를 바꿀 수 있어요</span>
-    </p>
-
-    <!-- 파생형 탭 -->
-    <div class="variant-tabs">${variantTabs}</div>
-
+    ${variantsList.length > 1 ? `<div class="variant-tabs variant-tabs-compact">${variantTabs}</div>` : ""}
     ${currentItem.description ? `<p class="variant-desc">${currentItem.description}</p>` : ""}
 
-    <!-- 본문: 상단 3단(마네킹/무기이미지+Chamber/탄약/스탯) + 하단 전체폭 그래프 -->
+    <!-- 본문: 좌측 마네킹 / 우측(무기이미지 + 탄약상태 + 탄약탭 + 스탯 한 데 모음) -->
     <div class="bodypart-layout">
       <!-- 좌측: 마네킹 -->
       <div class="bodypart-figure-col">
@@ -454,13 +447,13 @@ function openBodyPartView(parentItem, ammoId) {
         </div>
       </div>
 
-      <!-- 가운데: 무기 사진 + 탄약상태 + 탄약 -->
-      <div class="bodypart-mid">
+      <!-- 우측: 무기이미지 + 탄약상태 + 탄약탭 + 총기 스탯 -->
+      <div class="bodypart-mid-full">
         ${currentItem.image
           ? `<img src="${currentItem.image}" alt="${currentItem.name}" class="bp-weapon-img" onerror="this.style.display='none'">`
           : `<div class="bp-weapon-img-placeholder">무기 이미지 없음</div>`}
 
-        <!-- 탄약 상태: [탄약 아이콘] 장탄/예비탄 [칸수 아이콘] [가격 아이콘] 가격 -->
+        <!-- 탄약 상태: [탄약 아이콘] 장탄/예비탄 [칸수 아이콘] | [달러 아이콘] 가격 -->
         <div class="ammo-status-row">
           ${ammo?.image ? `<img src="${ammo.image}" alt="${ammo.label}" class="ammo-status-icon">` : ""}
           <span class="ammo-status-count">${chamber.loaded ?? "-"}/${chamber.extra ?? "-"}</span>
@@ -468,14 +461,11 @@ function openBodyPartView(parentItem, ammoId) {
           ${currentItem.price != null ? `<img src="images/ui/hunt_dollars.png" alt="$" class="ammo-status-dollar"><span class="ammo-status-price">${currentItem.price}</span>` : ""}
         </div>
 
-        <h4>Ammo Types</h4>
+        <!-- 탄약 탭 -->
         <div class="ammo-tabs">${ammoTabs}</div>
-      </div>
 
-      <!-- 우측: 스탯 -->
-      <div class="bodypart-right">
-        <h4>총기 스탯</h4>
-        <div class="detail-stats">
+        <!-- 총기 스탯: 탄약 바꾸면 이 자리에서 바로 갱신됨 -->
+        <div class="detail-stats bp-stats-inline">
           ${statRowSimple("피해", stats.damage)}
           ${statRowSimple("낙하 범위", stats.dropRange)}
           ${statRowSimple("발사속도", stats.rateOfFire)}
@@ -590,10 +580,6 @@ function refreshBodyPartDamage(currentItem, ammoId, parentItem) {
   // 마네킹만 다시 그리기
   const figureEl = document.querySelector(".bodypart-figure");
   if (figureEl) figureEl.innerHTML = renderBodyFigureSVG(partInfo, refRange);
-
-  // 부제목 거리 표기 갱신
-  const subtitleB = document.querySelector(".bodypart-subtitle b");
-  if (subtitleB) subtitleB.textContent = `${refRange}m`;
 }
 
 // 단순 스탯 행 (자세히 보기용 — 화살표 표기 없음)

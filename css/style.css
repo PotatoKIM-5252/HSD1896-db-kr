@@ -565,6 +565,18 @@ button { font-family: var(--font-body); cursor: pointer; }
   border-bottom: 1px solid var(--border);
 }
 
+/* 파생형이 있을 때만 h2 아래 작게 표시되는 버전 */
+.variant-tabs-compact {
+  margin: 6px 0 14px;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.variant-tabs-compact .variant-tab {
+  font-size: 11px;
+  padding: 4px 10px;
+}
+
 .variant-tab {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -597,13 +609,25 @@ button { font-family: var(--font-body); cursor: pointer; }
   border-radius: 4px;
 }
 
-/* 자세히 보기 본문 (마네킹 / 무기이미지+탄약 / 스탯) 3단 */
+/* 자세히 보기 본문: 마네킹(좌) + 무기이미지·탄약·스탯 한 데 모음(우) 2단 */
 .bodypart-layout {
   display: grid;
-  grid-template-columns: 320px 1fr 320px;
+  grid-template-columns: 320px 1fr;
   gap: 24px;
   align-items: start;
   margin-bottom: 20px;
+}
+
+.bodypart-mid-full {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.bp-stats-inline {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px 24px;
 }
 
 .bodypart-figure-col {
@@ -668,8 +692,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   margin-bottom: 4px;
 }
 
-.bodypart-mid h4:first-of-type,
-.bodypart-right h4:first-of-type { margin-top: 14px; }
+.bodypart-mid-full h4:first-of-type { margin-top: 4px; }
 
 /* 하단 전체폭 그래프 */
 .bp-chart-heading {
@@ -710,8 +733,6 @@ button { font-family: var(--font-body); cursor: pointer; }
   font-weight: 400;
 }
 
-.bodypart-right h4:first-child { margin-top: 0; }
-
 /* BTK 테이블 */
 .bp-table {
   width: 100%;
@@ -743,6 +764,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   .bodypart-layout { grid-template-columns: 1fr; }
   .bodypart-figure-col { max-width: 360px; margin: 0 auto; width: 100%; }
   .bp-chart-wrap { height: 280px; }
+  .bp-stats-inline { grid-template-columns: 1fr; }
 }
 
 /* ===================== 무기 상세: 탄약 탭 / Chamber / 변경 스탯 ===================== */
