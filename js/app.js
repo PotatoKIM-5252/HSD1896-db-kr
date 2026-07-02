@@ -28,7 +28,10 @@ const state = {
   // 비교 목록: { weaponId, ammoId } 쌍의 배열
   compareEntries: [],
 
-  charts: { detail: null, compare: null, bodypart: null },
+  // 비교 목록 중 "총기 스탯 비교"에서 선택된 항목 ({ weaponId, ammoId } 쌍의 배열)
+  statCompareSelection: [],
+
+  charts: { detail: null, compare: null, bodypart: null, compareStats: null },
 };
 
 function loadoutKey(c, s) { return `${c}__${s}`; }
@@ -440,9 +443,6 @@ function openBodyPartView(parentItem, ammoId) {
         <div class="bodypart-figure">
           ${renderBodyFigureSVG(partInfo, refRange)}
         </div>
-        <button id="bp-add-compare-btn" type="button" class="compare-btn ${inBpCompare ? "added" : ""}">
-          ${inBpCompare ? "✓ 비교 목록에 추가됨 (클릭하여 제거)" : "+ 비교 목록에 추가"}
-        </button>
       </div>
 
       <!-- 중앙: 무기 이미지 → 기본정보 → 총기 스탯 -->
@@ -481,7 +481,12 @@ function openBodyPartView(parentItem, ammoId) {
         <h4 class="bp-chart-heading">거리별 데미지 <span class="bodypart-hint">— 그래프를 클릭하여 거리 선택</span></h4>
         <div class="bp-chart-wrap"><canvas id="bp-chart"></canvas></div>
 
-        <div class="ammo-tabs">${ammoTabs}</div>
+        <div class="ammo-tabs-row">
+          <div class="ammo-tabs">${ammoTabs}</div>
+          <button id="bp-add-compare-btn" type="button" class="compare-btn-inline ${inBpCompare ? "added" : ""}">
+            ${inBpCompare ? "✓ 비교 목록에 추가됨" : "+ 비교 목록에 추가"}
+          </button>
+        </div>
 
         <!-- 탄약 효과 (특수탄 근처에 배치) -->
         <div class="status-effect-box">
@@ -1057,6 +1062,8 @@ function renderAnalysis() {
   if (state.compareEntries.length === 0) {
     listEl.innerHTML = `<p class="empty-msg">비교할 항목이 없습니다. DB 검색 → 무기 클릭 → 탄약 선택 → "비교 목록에 추가"를 눌러주세요.</p>`;
     chartWrap.innerHTML = "";
+    state.statCompareSelection = [];
+    renderCompareStatsSection();
     return;
   }
 
@@ -1066,16 +1073,29 @@ function renderAnalysis() {
     const ammo = AMMO_TYPES[entry.ammoId];
     if (!item || !ammo) return;
     const color = COMPARE_COLORS[idx % COMPARE_COLORS.length];
+    const isSelected = state.statCompareSelection.some((s) => s.weaponId === entry.weaponId && s.ammoId === entry.ammoId);
     const chip = document.createElement("div");
-    chip.className = "compare-chip";
+    chip.className = `compare-chip ${isSelected ? "stat-selected" : ""}`;
     chip.style.borderColor = color;
+    chip.title = "클릭하면 아래 총기 스탯 비교에 추가/제외됩니다";
     chip.innerHTML = `
       <span class="compare-swatch" style="background:${color}"></span>
       <span>${item.name} · ${ammo.label}</span>
       <button class="slot-clear-btn" type="button">✕</button>
     `;
-    chip.querySelector(".slot-clear-btn").addEventListener("click", () => {
+    chip.querySelector(".slot-clear-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
       state.compareEntries.splice(idx, 1);
+      state.statCompareSelection = state.statCompareSelection.filter((s) => !(s.weaponId === entry.weaponId && s.ammoId === entry.ammoId));
+      renderAnalysis();
+    });
+    chip.addEventListener("click", () => {
+      const exists = state.statCompareSelection.some((s) => s.weaponId === entry.weaponId && s.ammoId === entry.ammoId);
+      if (exists) {
+        state.statCompareSelection = state.statCompareSelection.filter((s) => !(s.weaponId === entry.weaponId && s.ammoId === entry.ammoId));
+      } else {
+        state.statCompareSelection.push({ weaponId: entry.weaponId, ammoId: entry.ammoId });
+      }
       renderAnalysis();
     });
     listEl.appendChild(chip);
@@ -1097,6 +1117,122 @@ function renderAnalysis() {
     data: { datasets },
     options: chartOptions("거리 (m)", "데미지", { showOHK: anyOHK }),
     plugins: [btkLinesPlugin],
+  });
+
+  renderCompareStatsSection();
+}
+
+// 총기 스탯 비교 (칩 클릭으로 선택된 항목만 대상)
+const STAT_DEFS = [
+  { key: "damage", label: "피해" },
+  { key: "dropRange", label: "낙하 범위" },
+  { key: "rateOfFire", label: "발사속도" },
+  { key: "cycleTime", label: "사이클 시간" },
+  { key: "spread", label: "분산도" },
+  { key: "sway", label: "흔들림" },
+  { key: "verticalRecoil", label: "수직 반동" },
+  { key: "reloadSpeed", label: "재장전 속도" },
+  { key: "muzzleVelocity", label: "총구속도" },
+  { key: "meleeLight", label: "근접 피해" },
+  { key: "meleeHeavy", label: "중형 근접 피해" },
+  { key: "staminaConsumption", label: "기력 비용(강공격)" },
+];
+
+function renderCompareStatsSection() {
+  const wrap = document.getElementById("compare-stats-wrap");
+  if (state.charts.compareStats) { state.charts.compareStats.destroy(); state.charts.compareStats = null; }
+
+  // 비교 목록에서 제거된 항목은 선택에서도 자동으로 정리
+  state.statCompareSelection = state.statCompareSelection.filter((s) =>
+    state.compareEntries.some((e) => e.weaponId === s.weaponId && e.ammoId === s.ammoId)
+  );
+
+  const selected = state.statCompareSelection
+    .map((s) => {
+      const item = ITEMS.find((i) => i.id === s.weaponId);
+      const ammo = AMMO_TYPES[s.ammoId];
+      if (!item || !ammo) return null;
+      const { stats } = resolveWeaponWithAmmo(item, s.ammoId);
+      return { item, ammo, stats };
+    })
+    .filter(Boolean);
+
+  if (selected.length === 0) {
+    wrap.style.height = "auto";
+    wrap.innerHTML = `<p class="empty-msg">위 목록에서 총을 클릭하면 스탯을 비교할 수 있습니다.</p>`;
+    return;
+  }
+
+  if (selected.length === 1) {
+    wrap.style.height = "auto";
+    const { item, ammo, stats } = selected[0];
+    wrap.innerHTML = `
+      <h4 class="compare-stats-single-title">${item.name} · ${ammo.label}</h4>
+      <div class="detail-stats">
+        ${STAT_DEFS.map((d) => statRowSimple(d.label, stats[d.key])).join("")}
+      </div>
+    `;
+    return;
+  }
+
+  // 2개 이상: 스탯별 상대값(%) 그래프로 차이 표시
+  wrap.style.height = "440px";
+  wrap.innerHTML = `<canvas id="compare-stats-chart"></canvas>`;
+  const canvas = document.getElementById("compare-stats-chart");
+
+  const datasets = selected.map((s, idx) => {
+    const color = COMPARE_COLORS[idx % COMPARE_COLORS.length];
+    return {
+      label: `${s.item.name} · ${s.ammo.label}`,
+      backgroundColor: color,
+      rawValues: STAT_DEFS.map((d) => s.stats[d.key] ?? 0),
+      data: STAT_DEFS.map((d) => s.stats[d.key] ?? 0),
+    };
+  });
+
+  // 스탯별 최댓값 기준 상대값(%)으로 정규화 (절대 단위가 서로 달라 직접 비교가 어려우므로)
+  STAT_DEFS.forEach((d, statIdx) => {
+    const maxVal = Math.max(...datasets.map((ds) => ds.rawValues[statIdx]), 0.0001);
+    datasets.forEach((ds) => {
+      ds.data[statIdx] = Math.round((ds.rawValues[statIdx] / maxVal) * 1000) / 10;
+    });
+  });
+
+  state.charts.compareStats = new Chart(canvas.getContext("2d"), {
+    type: "bar",
+    data: {
+      labels: STAT_DEFS.map((d) => d.label),
+      datasets,
+    },
+    options: {
+      indexAxis: "y",
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          min: 0,
+          max: 100,
+          title: { display: true, text: "항목 내 최댓값 대비 상대값 (%)", color: "#a3a39e" },
+          ticks: { color: "#a3a39e" },
+          grid: { color: "#2a2a2a" },
+        },
+        y: {
+          ticks: { color: "#ededea" },
+          grid: { display: false },
+        },
+      },
+      plugins: {
+        legend: { labels: { color: "#ededea" } },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const raw = ctx.dataset.rawValues[ctx.dataIndex];
+              return `${ctx.dataset.label}: ${raw} (${ctx.parsed.x}%)`;
+            },
+          },
+        },
+      },
+    },
   });
 }
 
