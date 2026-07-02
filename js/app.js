@@ -406,6 +406,8 @@ function openBodyPartView(parentItem, ammoId) {
   });
 
   // 파생형 탭들
+  const inBpCompare = state.compareEntries.some((e) => e.weaponId === currentItem.id && e.ammoId === activeAmmoId);
+
   const variantTabs = variantsList.map((v, idx) => {
     const active = idx === currentIdx ? "active" : "";
     return `<button class="variant-tab ${active}" data-variant-idx="${idx}" type="button">${v._displayName}</button>`;
@@ -438,6 +440,9 @@ function openBodyPartView(parentItem, ammoId) {
         <div class="bodypart-figure">
           ${renderBodyFigureSVG(partInfo, refRange)}
         </div>
+        <button id="bp-add-compare-btn" type="button" class="compare-btn ${inBpCompare ? "added" : ""}">
+          ${inBpCompare ? "✓ 비교 목록에 추가됨 (클릭하여 제거)" : "+ 비교 목록에 추가"}
+        </button>
       </div>
 
       <!-- 중앙: 무기 이미지 → 기본정보 → 총기 스탯 -->
@@ -510,6 +515,17 @@ function openBodyPartView(parentItem, ammoId) {
     btn.addEventListener("click", () => {
       openBodyPartView(parentItem, btn.dataset.bpAmmoId);
     });
+  });
+
+  // 비교 목록 추가/제거
+  document.getElementById("bp-add-compare-btn")?.addEventListener("click", () => {
+    const exists = state.compareEntries.some((e) => e.weaponId === currentItem.id && e.ammoId === activeAmmoId);
+    if (exists) {
+      state.compareEntries = state.compareEntries.filter((e) => !(e.weaponId === currentItem.id && e.ammoId === activeAmmoId));
+    } else {
+      state.compareEntries.push({ weaponId: currentItem.id, ammoId: activeAmmoId });
+    }
+    openBodyPartView(parentItem, activeAmmoId); // 버튼 상태 갱신을 위해 다시 그림
   });
 
   // 거리별 데미지 그래프 그리기
@@ -619,7 +635,7 @@ function renderBodyFigureSVG(partInfo, refRange) {
       <text x="510" y="420" class="body-num">${display("chest")}</text>
 
       <!-- 팔 (좌측 팔꿈치 부근에 하나만) -->
-      <text x="310" y="600" class="body-num">${display("arm")}</text>
+      <text x="270" y="600" class="body-num">${display("arm")}</text>
 
       <!-- 배 (중앙) -->
       <text x="510" y="720" class="body-num">${display("belly")}</text>
