@@ -431,42 +431,27 @@ function openBodyPartView(parentItem, ammoId) {
     ${variantsList.length > 1 ? `<div class="variant-tabs variant-tabs-compact">${variantTabs}</div>` : ""}
     ${currentItem.description ? `<p class="variant-desc">${currentItem.description}</p>` : ""}
 
-    <!-- 본문: 좌측 마네킹 / 우측(무기이미지 + 탄약상태 + 탄약탭 + 스탯 한 데 모음) -->
+    <!-- 본문: 좌측 마네킹 / 중앙 무기이미지+기본정보+스탯 / 우측 그래프+특수탄+효과 -->
     <div class="bodypart-layout">
       <!-- 좌측: 마네킹 -->
       <div class="bodypart-figure-col">
         <div class="bodypart-figure">
           ${renderBodyFigureSVG(partInfo, refRange)}
         </div>
-        <!-- 탄약 효과 -->
-        <div class="status-effect-box">
-          <h4>효과</h4>
-          ${ammo?.specialEffects?.length
-            ? `<ul class="status-effect-list">${ammo.specialEffects.map((e) => `<li>${e}</li>`).join("")}</ul>`
-            : `<p class="muted-text">이 탄약에는 특수 효과가 없습니다.</p>`}
-        </div>
       </div>
 
-      <!-- 우측: 그래프 + 탄약상태 + (탄약탭+무기이미지) + 총기 스탯 -->
-      <div class="bodypart-mid-full">
+      <!-- 중앙: 무기 이미지 → 기본정보 → 총기 스탯 -->
+      <div class="bodypart-weapon-col">
+        ${currentItem.image
+          ? `<img src="${currentItem.image}" alt="${currentItem.name}" class="bp-weapon-img" onerror="this.style.display='none'">`
+          : `<div class="bp-weapon-img-placeholder">무기 이미지 없음</div>`}
+
         <!-- 탄약 상태: [탄약 아이콘] 장탄/예비탄 [칸수 아이콘] | [달러 아이콘] 가격 -->
         <div class="ammo-status-row">
           ${ammo?.image ? `<img src="${ammo.image}" alt="${ammo.label}" class="ammo-status-icon">` : ""}
           <span class="ammo-status-count">${chamber.loaded ?? "-"}/${chamber.extra ?? "-"}</span>
           <img src="images/ui/slot_${currentItem.slotSize || 1}.png" alt="${currentItem.slotSize}칸" class="ammo-status-slots">
           ${currentItem.price != null ? `<img src="images/ui/hunt_dollars.png" alt="$" class="ammo-status-dollar"><span class="ammo-status-price">${currentItem.price}</span>` : ""}
-        </div>
-
-        <!-- 거리별 데미지 그래프 (기존 무기 이미지 자리) -->
-        <h4 class="bp-chart-heading">거리별 데미지 <span class="bodypart-hint">— 그래프를 클릭하여 거리 선택</span></h4>
-        <div class="bp-chart-wrap"><canvas id="bp-chart"></canvas></div>
-
-        <!-- 탄약 탭 + 남는 공간에 무기 이미지 -->
-        <div class="ammo-tabs-row">
-          <div class="ammo-tabs">${ammoTabs}</div>
-          ${currentItem.image
-            ? `<img src="${currentItem.image}" alt="${currentItem.name}" class="bp-weapon-img-side" onerror="this.style.display='none'">`
-            : ""}
         </div>
 
         <!-- 총기 스탯: 탄약 바꾸면 이 자리에서 바로 갱신됨 -->
@@ -483,6 +468,22 @@ function openBodyPartView(parentItem, ammoId) {
           ${statRowSimple("근접 피해", stats.meleeLight)}
           ${statRowSimple("중형 근접 피해", stats.meleeHeavy)}
           ${statRowSimple("기력 비용(강공격)", stats.staminaConsumption)}
+        </div>
+      </div>
+
+      <!-- 우측: 그래프 → 특수탄 탭 → 특수탄 효과 -->
+      <div class="bodypart-graph-col">
+        <h4 class="bp-chart-heading">거리별 데미지 <span class="bodypart-hint">— 그래프를 클릭하여 거리 선택</span></h4>
+        <div class="bp-chart-wrap"><canvas id="bp-chart"></canvas></div>
+
+        <div class="ammo-tabs">${ammoTabs}</div>
+
+        <!-- 탄약 효과 (특수탄 근처에 배치) -->
+        <div class="status-effect-box">
+          <h4>효과</h4>
+          ${ammo?.specialEffects?.length
+            ? `<ul class="status-effect-list">${ammo.specialEffects.map((e) => `<li>${e}</li>`).join("")}</ul>`
+            : `<p class="muted-text">이 탄약에는 특수 효과가 없습니다.</p>`}
         </div>
       </div>
     </div>
@@ -526,7 +527,7 @@ function drawBodyPartChart(currentItem, ammoId, refRange, parentItem) {
     state.charts.bodypart = null;
   }
 
-  const ds = buildFalloffDataset(currentItem, ammoId, "#ece6d3");
+  const ds = buildFalloffDataset(currentItem, ammoId, "#ece6d3", 150);
   if (!ds) {
     canvas.outerHTML = `<p class="empty-msg">거리별 데이터 없음</p>`;
     return;
@@ -537,7 +538,7 @@ function drawBodyPartChart(currentItem, ammoId, refRange, parentItem) {
   const maxDmg = Math.max(...ds.data.map((d) => d.y));
   const canOHK = maxDmg >= HUNTER_HP;
 
-  const opts = chartOptions("거리 (m)", "데미지", { showOHK: canOHK, refRange });
+  const opts = chartOptions("거리 (m)", "데미지", { showOHK: canOHK, refRange, xMax: 150 });
   // 애니메이션 비활성화 — 클릭마다 그래프가 다시 올라오는 효과 제거
   opts.animation = false;
   opts.animations = { colors: false, x: false, y: false };
@@ -557,7 +558,7 @@ function drawBodyPartChart(currentItem, ammoId, refRange, parentItem) {
     const rect = canvas.getBoundingClientRect();
     const xPixel = evt.clientX - rect.left;
     const xValue = Math.round(chart.scales.x.getValueForPixel(xPixel));
-    const clamped = Math.max(0, Math.min(200, xValue));
+    const clamped = Math.max(0, Math.min(150, xValue));
     state.refRange[parentItem.id] = clamped;
     refreshBodyPartDamage(currentItem, ammoId, parentItem);
   };
@@ -724,7 +725,7 @@ function renderGenericDetailHTML(item) {
 // -------------------------------------------------------------------------
 // Chart.js
 // -------------------------------------------------------------------------
-function buildFalloffDataset(item, ammoId, color) {
+function buildFalloffDataset(item, ammoId, color, xMax = 200) {
   const { stats, ammo } = resolveWeaponWithAmmo(item, ammoId);
   if (!ammo || !ammo.falloff || ammo.falloff.length === 0) return null;
 
@@ -739,7 +740,7 @@ function buildFalloffDataset(item, ammoId, color) {
   // 정확하게 표시됨. 단, 반올림(Math.round)을 하면 평평한 구간에서 값이
   // 계단식으로 튀어보이므로, 실제 값(소수)을 그대로 저장해 선은 완전히
   // 매끈하게 유지하고, 반올림은 툴팁에 표시할 때만 한다.
-  const dataMax = Math.min(maxRange, 200);
+  const dataMax = Math.min(maxRange, xMax);
   const data = [];
   for (let r = 0; r <= dataMax; r++) {
     data.push({ x: r, y: baseDmg * interpolateFalloff(keypoints, r) });
@@ -842,7 +843,7 @@ function chartOptions(xLabel, yLabel, opts = {}) {
       },
     },
     scales: {
-      x: { type: "linear", min: 0, max: 200,
+      x: { type: "linear", min: 0, max: opts.xMax ?? 200,
            title: { display: true, text: xLabel, color: "#aba894" },
            ticks: { color: "#aba894" }, grid: { color: "rgba(77, 86, 64, 0.3)" } },
       y: { beginAtZero: true, title: { display: true, text: yLabel, color: "#aba894" },

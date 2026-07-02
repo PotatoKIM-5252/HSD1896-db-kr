@@ -609,16 +609,17 @@ button { font-family: var(--font-body); cursor: pointer; }
   border-radius: 4px;
 }
 
-/* 자세히 보기 본문: 마네킹(좌) + 무기이미지·탄약·스탯 한 데 모음(우) 2단 */
+/* 자세히 보기 본문: 마네킹(좌) / 무기이미지+기본정보+스탯(중) / 그래프+특수탄+효과(우) 3단 */
 .bodypart-layout {
   display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 24px;
+  grid-template-columns: 300px minmax(280px, 360px) 1fr;
+  gap: 20px;
   align-items: start;
   margin-bottom: 20px;
 }
 
-.bodypart-mid-full {
+.bodypart-weapon-col,
+.bodypart-graph-col {
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -626,8 +627,8 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 .bp-stats-inline {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px 24px;
+  grid-template-columns: 1fr;
+  gap: 6px 24px;
 }
 
 .bodypart-figure-col {
@@ -692,24 +693,8 @@ button { font-family: var(--font-body); cursor: pointer; }
   margin-bottom: 4px;
 }
 
-.bodypart-mid-full h4:first-of-type { margin-top: 4px; }
-
-/* 탄약 탭 + 오른쪽 남는 공간의 무기 이미지 */
-.ammo-tabs-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.bp-weapon-img-side {
-  flex: 1 1 160px;
-  min-width: 140px;
-  max-height: 84px;
-  object-fit: contain;
-  object-position: right center;
-}
+.bodypart-weapon-col h4:first-of-type,
+.bodypart-graph-col h4:first-of-type { margin-top: 4px; }
 
 /* 하단 전체폭 그래프 */
 .bp-chart-heading {
@@ -848,7 +833,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 .ammo-status-icon {
-  height: 40px;
+  height: 34px;
   width: auto;
   display: block;
 }
@@ -893,8 +878,8 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 .ammo-tab {
-  width: 84px;
-  height: 84px;
+  width: 64px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -915,7 +900,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   border-color: var(--accent-strong);
 }
 
-.ammo-tab-icon { font-size: 36px; line-height: 1; }
+.ammo-tab-icon { font-size: 30px; line-height: 1; }
 
 .ammo-tab-img {
   width: 100%;
