@@ -117,6 +117,29 @@ function init() {
     renderAnalysis();
   });
 
+  // 무기 스탯(피해/재장전속도 등)에 마우스를 올리면 커서 오른쪽에 설명 표시
+  // (동적으로 다시 그려지는 요소라 document에 이벤트 위임)
+  const statTooltip = document.getElementById("stat-tooltip");
+  document.addEventListener("mousemove", (e) => {
+    const row = e.target.closest(".stat-row[data-stat-key]");
+    if (!row) {
+      if (!statTooltip.hidden) statTooltip.hidden = true;
+      return;
+    }
+    const desc = STAT_DESCRIPTIONS[row.dataset.statKey];
+    if (!desc) {
+      statTooltip.hidden = true;
+      return;
+    }
+    statTooltip.hidden = false;
+    statTooltip.innerHTML = desc.split("\n").map((line) => `<p>${line}</p>`).join("");
+    const TOOLTIP_W = 280;
+    const offsetRight = e.clientX + 16;
+    const left = (offsetRight + TOOLTIP_W > window.innerWidth) ? (e.clientX - TOOLTIP_W - 16) : offsetRight;
+    statTooltip.style.left = `${Math.max(4, left)}px`;
+    statTooltip.style.top = `${e.clientY + 4}px`;
+  });
+
   renderCategoryFilters();
   renderWeaponFilters();
   renderItemGrid();
@@ -135,6 +158,8 @@ function initLoadoutState() {
 
 function switchTab(tabName) {
   state.activeTab = tabName;
+  const statTooltip = document.getElementById("stat-tooltip");
+  if (statTooltip) statTooltip.hidden = true;
   document.querySelectorAll(".tab-panel").forEach((panel) => {
     panel.hidden = panel.id !== `tab-${tabName}`;
   });
@@ -549,18 +574,18 @@ function openBodyPartView(parentItem, ammoId) {
 
         <!-- 총기 스탯: 탄약 바꾸면 이 자리에서 바로 갱신됨 -->
         <div class="detail-stats bp-stats-inline">
-          ${statRowSimple("피해", stats.damage)}
-          ${statRowSimple("낙하 범위", stats.dropRange)}
-          ${statRowSimple("발사속도", stats.rateOfFire)}
-          ${statRowSimple("사이클 시간", stats.cycleTime)}
-          ${statRowSimple("분산도", stats.spread)}
-          ${statRowSimple("흔들림", stats.sway)}
-          ${statRowSimple("수직 반동", stats.verticalRecoil)}
-          ${statRowSimple("재장전 속도", stats.reloadSpeed)}
-          ${statRowSimple("총구속도", stats.muzzleVelocity)}
-          ${statRowSimple("근접 피해", stats.meleeLight)}
-          ${statRowSimple("중형 근접 피해", stats.meleeHeavy)}
-          ${statRowSimple("기력 비용(강공격)", stats.staminaConsumption)}
+          ${statRowSimple("피해", stats.damage, "damage")}
+          ${statRowSimple("낙하 범위", stats.dropRange, "dropRange")}
+          ${statRowSimple("발사속도", stats.rateOfFire, "rateOfFire")}
+          ${statRowSimple("사이클 시간", stats.cycleTime, "cycleTime")}
+          ${statRowSimple("분산도", stats.spread, "spread")}
+          ${statRowSimple("흔들림", stats.sway, "sway")}
+          ${statRowSimple("수직 반동", stats.verticalRecoil, "verticalRecoil")}
+          ${statRowSimple("재장전 속도", stats.reloadSpeed, "reloadSpeed")}
+          ${statRowSimple("총구속도", stats.muzzleVelocity, "muzzleVelocity")}
+          ${statRowSimple("근접 피해", stats.meleeLight, "meleeLight")}
+          ${statRowSimple("중형 근접 피해", stats.meleeHeavy, "meleeHeavy")}
+          ${statRowSimple("기력 비용(강공격)", stats.staminaConsumption, "staminaConsumption")}
         </div>
       </div>
 
@@ -732,16 +757,34 @@ function refreshBodyPartDamage(currentItem, ammoId, parentItem) {
   if (figureEl) figureEl.innerHTML = renderBodyFigureSVG(partInfo, refRange);
 }
 
-// 단순 스탯 행 (자세히 보기용 — 화살표 표기 없음)
-function statRowSimple(label, value) {
+// 단순 스탯 행 (자세히 보기용 — 화살표 표기 없음). key를 주면 마우스오버 시 설명 툴팁이 뜸.
+function statRowSimple(label, value, key) {
   if (value == null) return "";
-  return `<div class="stat-row"><span>${label}</span><b>${value}</b></div>`;
+  return `<div class="stat-row" ${key ? `data-stat-key="${key}"` : ""}><span>${label}</span><b>${value}</b></div>`;
 }
+
+// 무기 스탯 설명 (Hunt: Showdown 공식 위키 원문을 한글로 번역)
+const STAT_DESCRIPTIONS = {
+  damage: "가슴(상체) 10m 거리에서 명중했을 때의 데미지 값입니다.\n샷건은 10m 근접사격 시 평균 데미지 기준입니다.",
+  dropRange: "탄환이 조준점보다 대략 머리 높이(20cm)만큼 떨어지는 거리(m)입니다.\n조준(ADS) 시 HUD에 표시됩니다.\n탄종, 탄속, 총열 길이, 무기 작동 방식에 따라 낙하율이 달라집니다.",
+  rateOfFire: "분당 발사 가능 횟수이며, 재장전 시간도 포함된 값입니다.",
+  cycleTime: "다음 사격이 가능해지기까지 걸리는 시간(초)입니다.\n단발 무기는 재장전 시간도 포함됩니다.\n듀얼 웰드의 경우, 먼저 발사한 무기가 다시 준비되는 데 걸리는 시간입니다.",
+  spread: "허리 조준(히프파이어) 상태에서 조준선이 벌어지는 정도를 상대적으로 나타낸 값입니다.\n샷건은 상대적으로 더 넓은 분산도를 가집니다.",
+  sway: "조준(ADS) 상태에서 무기가 흔들리는 정도를 상대적으로 나타낸 값입니다.",
+  verticalRecoil: "사격 후 수직 반동의 세기(도, degree)입니다.",
+  reloadSpeed: "탄창이 빈 상태에서 완전히 재장전하는 데 걸리는 시간(초)입니다.\n클립 재장전이나, 마지막 탄을 넣기 전 무기를 조작해야 하는 등의 특수 동작 시간도 포함됩니다.",
+  muzzleVelocity: "탄환이 발사될 때의 속도(m/s)입니다.\n탄환은 포물선을 그리며 날아갑니다.",
+  meleeLight: "라이트 근접 공격이 상체에 명중했을 때의 데미지 값입니다.",
+  meleeHeavy: "헤비 근접 공격이 상체에 명중했을 때의 데미지 값입니다.",
+  staminaConsumption: "라이트 또는 헤비 근접 공격 시 소모되는 기력(100 기준)입니다.",
+};
 
 function closeBodyPartView() {
   document.getElementById("bodypart-overlay").hidden = true;
   const killTooltip = document.getElementById("bp-kill-tooltip");
   if (killTooltip) killTooltip.hidden = true;
+  const statTooltip = document.getElementById("stat-tooltip");
+  if (statTooltip) statTooltip.hidden = true;
   if (state.charts.bodypart) {
     state.charts.bodypart.destroy();
     state.charts.bodypart = null;
@@ -1492,7 +1535,7 @@ function renderCompareStatsSection() {
     wrap.innerHTML = `
       <h4 class="compare-stats-single-title">${item.name} · ${ammo.label}</h4>
       <div class="detail-stats">
-        ${STAT_DEFS.map((d) => statRowSimple(d.label, stats[d.key])).join("")}
+        ${STAT_DEFS.map((d) => statRowSimple(d.label, stats[d.key], d.key)).join("")}
       </div>
     `;
     return;

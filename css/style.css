@@ -1575,6 +1575,26 @@ button { font-family: var(--font-body); cursor: pointer; }
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
+.stat-tooltip {
+  position: fixed;
+  z-index: 999;
+  max-width: 280px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.stat-tooltip p { margin: 0 0 4px; }
+.stat-tooltip p:last-child { margin-bottom: 0; }
+
+.stat-row[data-stat-key] { cursor: help; }
+
 /* ===================== 반응형 ===================== */
 
 @media (max-width: 880px) {
