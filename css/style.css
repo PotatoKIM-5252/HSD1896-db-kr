@@ -1552,6 +1552,21 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 .modal-back-btn:hover { color: var(--text-primary); border-color: var(--accent); }
 
+/* 자세히 보기 그래프 — 보장킬 세로선 마우스오버 시 커서 옆 안내 */
+.bp-kill-tooltip {
+  position: fixed;
+  z-index: 999;
+  background: var(--bg-panel);
+  border: 1px solid var(--accent-strong);
+  border-radius: var(--radius);
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--text-primary);
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
 /* ===================== 반응형 ===================== */
 
 @media (max-width: 880px) {

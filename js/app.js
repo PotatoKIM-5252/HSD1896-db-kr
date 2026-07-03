@@ -668,11 +668,15 @@ function drawBodyPartChart(currentItem, ammoId, refRange, parentItem) {
   opts.animations = { colors: false, x: false, y: false };
   opts.transitions = { active: { animation: { duration: 0 } } };
 
+  // 어디를 맞춰도(가장 배율 낮은 부위 기준) N발컷이 보장되는 거리 계산 → 연한 세로 점선으로 표시
+  const { lines: killLines, partLabel: weakestPartLabel } = computeGuaranteedKillLines(currentItem, ammoId, 150);
+  opts.plugins.guaranteedKillLines = { lines: killLines };
+
   state.charts.bodypart = new Chart(canvas.getContext("2d"), {
     type: "line",
     data: { datasets: [ds] },
     options: opts,
-    plugins: [btkLinesPlugin],
+    plugins: [btkLinesPlugin, guaranteedKillLinesPlugin],
   });
 
   // 그래프 클릭 → 거리만 갱신 → 마네킹과 표만 새로 그림 (그래프는 그대로 유지)
@@ -686,6 +690,25 @@ function drawBodyPartChart(currentItem, ammoId, refRange, parentItem) {
     state.refRange[parentItem.id] = clamped;
     refreshBodyPartDamage(currentItem, ammoId, parentItem);
   };
+
+  // 세로 점선에 마우스를 가져다 대면 커서 옆에 "N발컷 보장" 안내 표시
+  const killTooltip = document.getElementById("bp-kill-tooltip");
+  canvas.onmousemove = (evt) => {
+    const chart = state.charts.bodypart;
+    if (!chart || !killTooltip || killLines.length === 0) return;
+    const rect = canvas.getBoundingClientRect();
+    const xPixel = evt.clientX - rect.left;
+    const hit = killLines.find((l) => Math.abs(chart.scales.x.getPixelForValue(l.range) - xPixel) < 6);
+    if (hit) {
+      killTooltip.hidden = false;
+      killTooltip.textContent = `${Math.round(hit.range)}m 이내 — 어디를 맞춰도(${weakestPartLabel} 기준) ${hit.n}발컷`;
+      killTooltip.style.left = `${evt.clientX + 14}px`;
+      killTooltip.style.top = `${evt.clientY + 14}px`;
+    } else {
+      killTooltip.hidden = true;
+    }
+  };
+  canvas.onmouseleave = () => { if (killTooltip) killTooltip.hidden = true; };
 }
 
 // 거리만 바뀌었을 때: 마네킹 + 부제목 + BTK 표만 다시 그리기 (그래프는 그대로 유지)
@@ -716,6 +739,8 @@ function statRowSimple(label, value) {
 
 function closeBodyPartView() {
   document.getElementById("bodypart-overlay").hidden = true;
+  const killTooltip = document.getElementById("bp-kill-tooltip");
+  if (killTooltip) killTooltip.hidden = true;
   if (state.charts.bodypart) {
     state.charts.bodypart.destroy();
     state.charts.bodypart = null;
@@ -894,6 +919,28 @@ function buildFalloffDataset(item, ammoId, color, xMax = 200) {
 }
 
 // 키포인트 배열에서 임의의 거리 r에 해당하는 배율을 선형 보간
+// falloff 곡선에서 특정 배율(targetMult)에 도달하는 거리를 역으로 찾음.
+// falloff는 거리가 늘어날수록 배율이 같거나 줄어든다고 가정.
+// 반환값: 그 거리(m) 또는 null(0m에서도 도달 불가능한 경우)
+function findRangeForMultiplier(keypoints, targetMult, maxRange) {
+  const m0 = keypoints[0][1];
+  if (targetMult > m0) return null; // 0m에서도 이 배율에 못 미침 → 불가능
+
+  for (let i = 0; i < keypoints.length - 1; i++) {
+    const [r1, m1] = keypoints[i];
+    const [r2, m2] = keypoints[i + 1];
+    if (targetMult <= m1 && targetMult >= m2) {
+      if (m1 === m2) return r1;
+      const t = (m1 - targetMult) / (m1 - m2);
+      return r1 + t * (r2 - r1);
+    }
+  }
+  // falloff 데이터 끝까지도 targetMult 이상을 유지하는 경우 → 표시 범위 끝까지 보장
+  const lastMult = keypoints[keypoints.length - 1][1];
+  if (targetMult <= lastMult) return Math.min(keypoints[keypoints.length - 1][0], maxRange);
+  return null;
+}
+
 function interpolateFalloff(keypoints, r) {
   if (r <= keypoints[0][0]) return keypoints[0][1];
   if (r >= keypoints[keypoints.length - 1][0]) return keypoints[keypoints.length - 1][1];
@@ -995,6 +1042,59 @@ const refRangePlugin = {
   id: "refRange",
   afterDatasetsDraw() {
     // 의도적으로 빈 함수 — 세로선 제거 요청 반영
+  },
+};
+
+// 어디를 맞춰도(가장 배율이 낮은 부위 기준) N발컷이 보장되는 거리를 계산
+function computeGuaranteedKillLines(currentItem, ammoId, maxRange) {
+  const { stats, ammo } = resolveWeaponWithAmmo(currentItem, ammoId);
+  const baseDmg = stats.damage ?? 0;
+  const keypoints = ammo?.falloff;
+  if (!keypoints || !keypoints.length || baseDmg <= 0) return { lines: [], partLabel: "" };
+
+  // 데미지 배율이 가장 낮은 부위 찾기 (예: 하체)
+  let lowestKey = null;
+  let lowestMult = Infinity;
+  Object.entries(BODY_PART_MULTIPLIERS).forEach(([k, def]) => {
+    if (def.multiplier != null && def.multiplier < lowestMult) {
+      lowestMult = def.multiplier;
+      lowestKey = k;
+    }
+  });
+  if (lowestKey === null) return { lines: [], partLabel: "" };
+  const partLabel = BODY_PART_MULTIPLIERS[lowestKey].label;
+
+  const lines = [];
+  [3, 2, 1].forEach((n) => {
+    // 가장 약한 부위를 맞춰도 n발에 죽으려면 필요한 "표기 데미지(가슴 환산)" 값
+    const neededChestDmg = (HUNTER_HP * CHEST_MULTIPLIER) / (lowestMult * n);
+    const targetMult = neededChestDmg / baseDmg;
+    const range = findRangeForMultiplier(keypoints, targetMult, maxRange);
+    if (range != null) lines.push({ n, range: Math.min(range, maxRange) });
+  });
+  return { lines, partLabel };
+}
+
+// N발컷 보장 거리를 연한 세로 점선으로 표시 (텍스트 라벨은 그리지 않고, 마우스오버 시 커서 옆에 안내)
+const guaranteedKillLinesPlugin = {
+  id: "guaranteedKillLines",
+  afterDatasetsDraw(chart) {
+    const lines = chart.options.plugins?.guaranteedKillLines?.lines;
+    if (!lines || !lines.length) return;
+    const { ctx, chartArea, scales } = chart;
+    ctx.save();
+    ctx.strokeStyle = "rgba(236, 230, 211, 0.28)";
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    lines.forEach((l) => {
+      const x = scales.x.getPixelForValue(l.range);
+      if (x < chartArea.left || x > chartArea.right) return;
+      ctx.beginPath();
+      ctx.moveTo(x, chartArea.top);
+      ctx.lineTo(x, chartArea.bottom);
+      ctx.stroke();
+    });
+    ctx.restore();
   },
 };
 
