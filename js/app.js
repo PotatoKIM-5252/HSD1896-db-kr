@@ -38,7 +38,7 @@ function loadoutKey(c, s) { return `${c}__${s}`; }
 
 // 아이템을 카테고리에 맞는 로드아웃 슬롯 중 "첫 번째 빈 자리"에 자동으로 채워넣는다.
 // (무기: 주무기 → 보조무기 순으로 탐색, 특성처럼 개수 제한이 없는 슬롯은 목록에 추가)
-function addToLoadoutQuick(item) {
+function addToLoadoutQuick(item, ammoId = null) {
   const catDef = CATEGORIES[item.category];
   if (!catDef) return { ok: false, message: "로드아웃에 추가할 수 없는 항목입니다." };
 
@@ -55,7 +55,7 @@ function addToLoadoutQuick(item) {
       const arr = state.loadout[key];
       const emptyIdx = arr.findIndex((v) => v === null);
       if (emptyIdx !== -1) {
-        arr[emptyIdx] = item;
+        arr[emptyIdx] = { item, ammoId };
         return { ok: true, slotLabel: slotDef.max > 1 ? `${slotDef.label} ${emptyIdx + 1}` : slotDef.label };
       }
     }
@@ -350,7 +350,7 @@ function renderItemDetail(item) {
     bindDetailClose(panel);
     bindAmmoTabs(item);
     bindCompareButton(item, selectedAmmoId);
-    bindLoadoutQuickAddButton(item);
+    bindLoadoutQuickAddButton(item, selectedAmmoId);
     drawWeaponChart(item, selectedAmmoId);
   } else {
     panel.innerHTML = renderGenericDetailHTML(item);
@@ -388,12 +388,12 @@ function bindCompareButton(item, ammoId) {
 }
 
 // DB 검색 화면 → 로드아웃 빌더로 "장바구니에 담듯" 바로 추가하는 버튼
-function bindLoadoutQuickAddButton(item) {
+function bindLoadoutQuickAddButton(item, ammoId = null) {
   const btn = document.querySelector("#detail-add-loadout-btn");
   if (!btn) return;
   const originalText = btn.textContent;
   btn.addEventListener("click", () => {
-    const result = addToLoadoutQuick(item);
+    const result = addToLoadoutQuick(item, ammoId);
     if (result.ok) renderLoadoutBoard();
     btn.textContent = result.ok ? `✓ ${result.slotLabel}에 추가됨` : result.message;
     btn.classList.toggle("added", result.ok);
@@ -599,7 +599,7 @@ function openBodyPartView(parentItem, ammoId) {
   // 로드아웃에 바로 추가 ("장바구니 담기"처럼)
   document.getElementById("bp-add-loadout-btn")?.addEventListener("click", (e) => {
     const btn = e.currentTarget;
-    const result = addToLoadoutQuick(currentItem);
+    const result = addToLoadoutQuick(currentItem, activeAmmoId);
     if (result.ok) renderLoadoutBoard();
     const original = "+ 로드아웃에 추가";
     btn.textContent = result.ok ? `✓ ${result.slotLabel}에 추가됨` : result.message;
@@ -999,12 +999,14 @@ function openModal(categoryFilter, onSelect) {
   document.getElementById("modal-overlay").hidden = false;
   document.getElementById("modal-title").textContent =
     `${CATEGORIES[categoryFilter]?.label ?? categoryFilter} 선택`;
+  document.getElementById("modal-search-input").hidden = false;
   document.getElementById("modal-search-input").value = "";
   renderModalList("");
 }
 
 function closeModal() {
   document.getElementById("modal-overlay").hidden = true;
+  document.getElementById("modal-search-input").hidden = false;
   state.modal.onSelect = null;
   state.modal.categoryFilter = null;
 }
@@ -1024,9 +1026,54 @@ function renderModalList(query) {
     row.className = "modal-item-row";
     row.innerHTML = `
       ${item.image ? `<img src="${item.image}" alt="" class="modal-item-thumb" onerror="this.style.display='none'">` : `<span class="modal-item-thumb-placeholder"></span>`}
-      <span>${item.name}</span>
+      <span class="modal-item-name">${item.name}</span>
+      ${item.price != null ? `<span class="modal-item-price"><img src="images/ui/hunt_dollars.png" alt="$">${item.price}</span>` : ""}
     `;
-    row.addEventListener("click", () => { if (state.modal.onSelect) state.modal.onSelect(item); });
+    row.addEventListener("click", () => {
+      // 무기는 클릭하면 바로 확정하지 않고 탄약 선택 단계로 이동
+      if (item.category === "weapon" && item.ammoTypes && item.ammoTypes.length > 0) {
+        renderModalAmmoStep(item);
+      } else if (state.modal.onSelect) {
+        state.modal.onSelect(item, null);
+      }
+    });
+    list.appendChild(row);
+  });
+}
+
+// 무기 선택 후 탄약을 고르는 단계 (가격도 함께 표시)
+function renderModalAmmoStep(weaponItem) {
+  document.getElementById("modal-title").textContent = `${weaponItem.name} — 탄약 선택`;
+  document.getElementById("modal-search-input").hidden = true;
+
+  const list = document.getElementById("modal-item-list");
+  list.innerHTML = "";
+
+  const backBtn = document.createElement("button");
+  backBtn.type = "button";
+  backBtn.className = "modal-back-btn";
+  backBtn.textContent = "← 무기 목록으로";
+  backBtn.addEventListener("click", () => {
+    document.getElementById("modal-search-input").hidden = false;
+    document.getElementById("modal-title").textContent =
+      `${CATEGORIES[state.modal.categoryFilter]?.label ?? state.modal.categoryFilter} 선택`;
+    renderModalList(document.getElementById("modal-search-input").value.trim().toLowerCase());
+  });
+  list.appendChild(backBtn);
+
+  weaponItem.ammoTypes.forEach((ammoId) => {
+    const ammo = AMMO_TYPES[ammoId];
+    if (!ammo) return;
+    const row = document.createElement("div");
+    row.className = "modal-item-row";
+    row.innerHTML = `
+      ${ammo.image ? `<img src="${ammo.image}" alt="" class="modal-item-thumb" onerror="this.style.display='none'">` : `<span class="modal-item-thumb-placeholder"></span>`}
+      <span class="modal-item-name">${ammo.label}${ammoId === weaponItem.defaultAmmo ? " (기본)" : ""}</span>
+      ${ammo.cost != null ? `<span class="modal-item-price"><img src="images/ui/hunt_dollars.png" alt="$">${ammo.cost}</span>` : ""}
+    `;
+    row.addEventListener("click", () => {
+      if (state.modal.onSelect) state.modal.onSelect(weaponItem, ammoId);
+    });
     list.appendChild(row);
   });
 }
@@ -1061,9 +1108,14 @@ function renderFixedSlot(catKey, slotDef, key, index) {
   labelEl.className = "slot-label";
   labelEl.textContent = slotDef.max > 1 ? `${slotDef.label} ${index + 1}` : slotDef.label;
   slotEl.appendChild(labelEl);
+
+  // 무기 슬롯은 { item, ammoId } 형태로 저장됨 (도구/소모품은 ammoId가 항상 null)
+  const slotData = state.loadout[key][index];
+  const item = slotData?.item || null;
+  const ammo = slotData?.ammoId ? AMMO_TYPES[slotData.ammoId] : null;
+
   const contentEl = document.createElement("div");
   contentEl.className = "slot-content";
-  const item = state.loadout[key][index];
   if (item) {
     slotEl.classList.add("filled");
     if (item.image) {
@@ -1078,6 +1130,14 @@ function renderFixedSlot(catKey, slotDef, key, index) {
     nameSpan.className = "slot-item-name";
     nameSpan.textContent = item.name;
     contentEl.appendChild(nameSpan);
+
+    if (item.price != null) {
+      contentEl.insertAdjacentHTML(
+        "beforeend",
+        `<span class="slot-item-price"><img src="images/ui/hunt_dollars.png" alt="$">${item.price}</span>`
+      );
+    }
+
     const clearBtn = document.createElement("button");
     clearBtn.type = "button";
     clearBtn.className = "slot-clear-btn";
@@ -1095,10 +1155,23 @@ function renderFixedSlot(catKey, slotDef, key, index) {
       : `<span class="slot-empty-text">비어있음</span>`;
   }
   slotEl.appendChild(contentEl);
+
+  // 선택된 탄약이 있으면 무기 정보 아래에 탄약 한 줄 추가 (이름 + 가격)
+  if (item && ammo) {
+    const ammoRow = document.createElement("div");
+    ammoRow.className = "slot-ammo-row";
+    ammoRow.innerHTML = `
+      ${ammo.image ? `<img src="${ammo.image}" alt="" class="slot-ammo-icon" onerror="this.style.display='none'">` : ""}
+      <span class="slot-ammo-name">${ammo.label}</span>
+      ${ammo.cost != null ? `<span class="slot-item-price"><img src="images/ui/hunt_dollars.png" alt="$">${ammo.cost}</span>` : ""}
+    `;
+    slotEl.appendChild(ammoRow);
+  }
+
   slotEl.addEventListener("click", (e) => {
     if (e.target.closest(".slot-clear-btn")) return;
-    openModal(catKey, (selectedItem) => {
-      state.loadout[key][index] = selectedItem;
+    openModal(catKey, (selectedItem, selectedAmmoId) => {
+      state.loadout[key][index] = { item: selectedItem, ammoId: selectedAmmoId ?? null };
       renderLoadoutBoard();
       closeModal();
     });

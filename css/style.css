@@ -1110,9 +1110,9 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 .slot {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
   background: var(--bg-input);
   border: 1px dashed var(--border-strong);
   border-radius: var(--radius);
@@ -1139,14 +1139,11 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 .slot-content {
-  flex: 1;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
   gap: 8px;
   font-size: 13px;
   color: var(--text-secondary);
-  text-align: right;
 }
 
 .slot.filled .slot-content { color: var(--text-primary); font-weight: 500; }
@@ -1159,10 +1156,24 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 .slot-item-name {
+  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.slot-item-price {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.slot-item-price img { width: 14px; height: 14px; }
 
 .slot-empty-icon {
   width: 18px;
@@ -1179,9 +1190,29 @@ button { font-family: var(--font-body); cursor: pointer; }
   color: var(--text-muted);
   font-size: 13px;
   padding: 2px 4px;
+  flex-shrink: 0;
 }
 
 .slot-clear-btn:hover { color: var(--danger-strong); }
+
+/* 무기 슬롯에서 선택된 탄약 표시 줄 (무기 썸네일 너비만큼 들여쓰기) */
+.slot-ammo-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: 40px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.slot-ammo-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.slot-ammo-name { flex: 1; }
 
 .loadout-dynamic-group .dynamic-list-items { margin-bottom: 10px; }
 
@@ -1470,6 +1501,38 @@ button { font-family: var(--font-body); cursor: pointer; }
   height: 34px;
   flex-shrink: 0;
 }
+
+.modal-item-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modal-item-price {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.modal-item-price img { width: 14px; height: 14px; }
+
+.modal-back-btn {
+  align-self: flex-start;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text-secondary);
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: var(--radius);
+  margin-bottom: 4px;
+}
+
+.modal-back-btn:hover { color: var(--text-primary); border-color: var(--accent); }
 
 /* ===================== 반응형 ===================== */
 
