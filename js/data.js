@@ -171,7 +171,7 @@ const AMMO_TYPES = {
     isBase: true,                // 기본탄 (특수탄이 아님)
     image: "images/ui/ammo_effects/ammo_compact_regular.png",
     icon: "🟫",
-    description: "Compact - Damage dropoff starts at 20m. Low penetration damage.",
+    description: "Compact - 20m부터 데미지 감소(감쇠) 시작. 관통력 낮음.",
     cost: 0,
     falloff: [
       [0,   1.00],
