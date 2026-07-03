@@ -1243,11 +1243,69 @@ button { font-family: var(--font-body); cursor: pointer; }
   padding: 20px;
 }
 
-#compare-stats-wrap:has(canvas) { height: 440px; }
-
 .compare-stats-single-title {
   font-size: 15px;
   margin-bottom: 12px;
+  color: var(--text-primary);
+}
+
+.stat-compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 32px;
+}
+
+.stat-compare-block h5 {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin: 0 0 8px;
+  letter-spacing: 0.02em;
+}
+
+.stat-compare-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.stat-compare-swatch {
+  flex: 0 0 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.stat-compare-name {
+  flex: 0 0 96px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stat-compare-track {
+  flex: 1;
+  height: 6px;
+  background: var(--bg-input);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.stat-compare-fill {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+}
+
+.stat-compare-value {
+  flex: 0 0 auto;
+  min-width: 36px;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 12px;
   color: var(--text-primary);
 }
 

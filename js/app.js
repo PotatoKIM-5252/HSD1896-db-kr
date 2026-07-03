@@ -1175,65 +1175,33 @@ function renderCompareStatsSection() {
     return;
   }
 
-  // 2개 이상: 스탯별 상대값(%) 그래프로 차이 표시
-  wrap.style.height = "440px";
-  wrap.innerHTML = `<canvas id="compare-stats-chart"></canvas>`;
-  const canvas = document.getElementById("compare-stats-chart");
+  // 2개 이상: 스탯마다 무기별 막대바를 나란히 표시 (게임 내 스탯 표기 스타일)
+  wrap.style.height = "auto";
 
-  const datasets = selected.map((s, idx) => {
-    const color = COMPARE_COLORS[idx % COMPARE_COLORS.length];
-    return {
-      label: `${s.item.name} · ${s.ammo.label}`,
-      backgroundColor: color,
-      rawValues: STAT_DEFS.map((d) => s.stats[d.key] ?? 0),
-      data: STAT_DEFS.map((d) => s.stats[d.key] ?? 0),
-    };
-  });
+  const withColor = selected.map((s, idx) => ({ ...s, color: COMPARE_COLORS[idx % COMPARE_COLORS.length] }));
 
-  // 스탯별 최댓값 기준 상대값(%)으로 정규화 (절대 단위가 서로 달라 직접 비교가 어려우므로)
-  STAT_DEFS.forEach((d, statIdx) => {
-    const maxVal = Math.max(...datasets.map((ds) => ds.rawValues[statIdx]), 0.0001);
-    datasets.forEach((ds) => {
-      ds.data[statIdx] = Math.round((ds.rawValues[statIdx] / maxVal) * 1000) / 10;
-    });
-  });
+  const blocks = STAT_DEFS.map((d) => {
+    const rawValues = withColor.map((s) => s.stats[d.key] ?? 0);
+    const maxVal = Math.max(...rawValues, 0.0001);
+    const bars = withColor.map((s, i) => {
+      const raw = rawValues[i];
+      const pct = Math.max(2, Math.round((raw / maxVal) * 1000) / 10); // 0이어도 막대가 아예 안보이지 않게 최소 2%
+      return `
+        <div class="stat-compare-bar-row">
+          <span class="stat-compare-swatch" style="background:${s.color}"></span>
+          <span class="stat-compare-name" title="${s.item.name} · ${s.ammo.label}">${s.item.name} · ${s.ammo.label}</span>
+          <span class="stat-compare-track"><span class="stat-compare-fill" style="width:${pct}%; background:${s.color}"></span></span>
+          <b class="stat-compare-value">${raw}</b>
+        </div>`;
+    }).join("");
+    return `
+      <div class="stat-compare-block">
+        <h5>${d.label}</h5>
+        ${bars}
+      </div>`;
+  }).join("");
 
-  state.charts.compareStats = new Chart(canvas.getContext("2d"), {
-    type: "bar",
-    data: {
-      labels: STAT_DEFS.map((d) => d.label),
-      datasets,
-    },
-    options: {
-      indexAxis: "y",
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        x: {
-          min: 0,
-          max: 100,
-          title: { display: true, text: "항목 내 최댓값 대비 상대값 (%)", color: "#a3a39e" },
-          ticks: { color: "#a3a39e" },
-          grid: { color: "#2a2a2a" },
-        },
-        y: {
-          ticks: { color: "#ededea" },
-          grid: { display: false },
-        },
-      },
-      plugins: {
-        legend: { labels: { color: "#ededea" } },
-        tooltip: {
-          callbacks: {
-            label: (ctx) => {
-              const raw = ctx.dataset.rawValues[ctx.dataIndex];
-              return `${ctx.dataset.label}: ${raw} (${ctx.parsed.x}%)`;
-            },
-          },
-        },
-      },
-    },
-  });
+  wrap.innerHTML = `<div class="stat-compare-grid">${blocks}</div>`;
 }
 
 // -------------------------------------------------------------------------
