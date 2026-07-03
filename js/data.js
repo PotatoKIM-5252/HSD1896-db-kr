@@ -184,7 +184,7 @@ const AMMO_TYPES = {
   },
 
   compact_fmj: {
-    label: "FMJ Ammo",
+    label: "전피갑탄(FMJ)",
     category: "compact",
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_compact_full_metal.png",
@@ -207,7 +207,7 @@ const AMMO_TYPES = {
   },
 
   compact_high_velocity: {
-    label: "High Velocity Ammo",
+    label: "고속탄",
     category: "compact",
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
@@ -231,7 +231,7 @@ const AMMO_TYPES = {
   },
 
   compact_incendiary: {
-    label: "Incendiary Ammo",
+    label: "소이탄",
     category: "compact",
     effect: "incendiary",
     image: "images/ui/ammo_effects/ammo_compact_incendiary.png",
@@ -251,7 +251,7 @@ const AMMO_TYPES = {
   },
 
   compact_poison: {
-    label: "Poison Ammo",
+    label: "중독탄",
     category: "compact",
     effect: "poison",
     image: "images/ui/ammo_effects/ammo_compact_poison.png",
@@ -270,7 +270,7 @@ const AMMO_TYPES = {
   },
 
   compact_subsonic: {
-    label: "Subsonic Ammo",
+    label: "아음속탄",
     category: "compact",
     effect: "subsonic",
     image: "images/ui/ammo_effects/ammo_compact_subsonic.png",
