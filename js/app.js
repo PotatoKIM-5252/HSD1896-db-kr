@@ -36,6 +36,20 @@ const state = {
 
 function loadoutKey(c, s) { return `${c}__${s}`; }
 
+// 같은 sharedGroup을 쓰는 슬롯들(도구+소모품)의 전체 사용 칸 수 합산
+function getSharedGroupUsage(sharedGroup) {
+  let count = 0;
+  Object.entries(CATEGORIES).forEach(([catKey, catDef]) => {
+    catDef.loadoutSlots.forEach((slotDef) => {
+      if (slotDef.sharedGroup === sharedGroup) {
+        const key = loadoutKey(catKey, slotDef.slotKey);
+        count += (state.loadout[key] || []).length;
+      }
+    });
+  });
+  return count;
+}
+
 // 아이템을 카테고리에 맞는 로드아웃 슬롯 중 "첫 번째 빈 자리"에 자동으로 채워넣는다.
 // (무기: 주무기 → 보조무기 순으로 탐색, 특성처럼 개수 제한이 없는 슬롯은 목록에 추가)
 function addToLoadoutQuick(item, ammoId = null) {
@@ -45,8 +59,11 @@ function addToLoadoutQuick(item, ammoId = null) {
   for (const slotDef of catDef.loadoutSlots) {
     const key = loadoutKey(item.category, slotDef.slotKey);
     if (slotDef.max === null) {
-      // 개수 제한 없는 슬롯 (예: 특성)
-      if (state.loadout[key].includes(item.id)) {
+      // 공유 풀 용량 체크 (도구+소모품처럼 여러 카테고리가 칸을 나눠 쓰는 경우)
+      if (slotDef.sharedGroup && getSharedGroupUsage(slotDef.sharedGroup) >= slotDef.sharedCapacity) {
+        return { ok: false, message: "필드 장비 칸이 가득 찼습니다" };
+      }
+      if (!slotDef.allowDuplicates && state.loadout[key].includes(item.id)) {
         return { ok: false, message: "이미 추가되어 있습니다" };
       }
       state.loadout[key].push(item.id);
@@ -1091,6 +1108,14 @@ function renderLoadoutBoard() {
     heading.innerHTML = catDef.image
       ? `<img src="${catDef.image}" alt="" class="loadout-group-icon" onerror="this.style.display='none'">${catDef.label}`
       : `${catDef.icon} ${catDef.label}`;
+    const sharedSlotDef = catDef.loadoutSlots.find((s) => s.sharedGroup);
+    if (sharedSlotDef) {
+      const used = getSharedGroupUsage(sharedSlotDef.sharedGroup);
+      const badge = document.createElement("span");
+      badge.className = "loadout-group-capacity";
+      badge.textContent = `${used}/${sharedSlotDef.sharedCapacity}칸 (도구+소모품 공유)`;
+      heading.appendChild(badge);
+    }
     groupEl.appendChild(heading);
     catDef.loadoutSlots.forEach((slotDef) => {
       const key = loadoutKey(catKey, slotDef.slotKey);
@@ -1186,7 +1211,7 @@ function renderDynamicSlotGroup(catKey, slotDef, key) {
   listEl.className = "dynamic-list-items";
   const ids = state.loadout[key];
   if (ids.length === 0) listEl.innerHTML = `<p class="empty-msg">추가된 ${slotDef.label}이 없습니다.</p>`;
-  else ids.forEach((itemId) => {
+  else ids.forEach((itemId, idx) => {
     const item = ITEMS.find((i) => i.id === itemId);
     if (!item) return;
     const row = document.createElement("div");
@@ -1202,24 +1227,43 @@ function renderDynamicSlotGroup(catKey, slotDef, key) {
     removeBtn.className = "slot-clear-btn";
     removeBtn.textContent = "✕";
     removeBtn.addEventListener("click", () => {
-      state.loadout[key] = state.loadout[key].filter((id) => id !== itemId);
+      // id가 아니라 인덱스로 하나만 제거 (같은 아이템을 여러 개 챙긴 경우 전체가 지워지지 않도록)
+      state.loadout[key].splice(idx, 1);
       renderLoadoutBoard();
     });
     row.appendChild(removeBtn);
     listEl.appendChild(row);
   });
   wrap.appendChild(listEl);
+
+  const isFull = slotDef.sharedGroup && getSharedGroupUsage(slotDef.sharedGroup) >= slotDef.sharedCapacity;
   const addBtn = document.createElement("button");
   addBtn.type = "button";
-  addBtn.className = "add-item-btn";
-  addBtn.textContent = `+ ${slotDef.label} 추가`;
-  addBtn.addEventListener("click", () => {
-    openModal(catKey, (selectedItem) => {
-      if (!state.loadout[key].includes(selectedItem.id)) state.loadout[key].push(selectedItem.id);
-      renderLoadoutBoard();
-      closeModal();
+  if (isFull) {
+    addBtn.className = "add-item-btn add-item-btn-disabled";
+    addBtn.disabled = true;
+    addBtn.textContent = `필드 장비 칸이 가득 찼습니다 (${slotDef.sharedCapacity}/${slotDef.sharedCapacity})`;
+  } else {
+    addBtn.className = "add-item-btn";
+    addBtn.textContent = `+ ${slotDef.label} 추가`;
+    addBtn.addEventListener("click", () => {
+      openModal(catKey, (selectedItem) => {
+        // 모달이 열려있는 동안 다른 경로로 칸이 다 찼을 수도 있으니 다시 확인
+        if (slotDef.sharedGroup && getSharedGroupUsage(slotDef.sharedGroup) >= slotDef.sharedCapacity) {
+          closeModal();
+          renderLoadoutBoard();
+          return;
+        }
+        if (!slotDef.allowDuplicates && state.loadout[key].includes(selectedItem.id)) {
+          closeModal();
+          return;
+        }
+        state.loadout[key].push(selectedItem.id);
+        renderLoadoutBoard();
+        closeModal();
+      });
     });
-  });
+  }
   wrap.appendChild(addBtn);
   return wrap;
 }

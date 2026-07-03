@@ -53,13 +53,15 @@ const CATEGORIES = {
     label: "도구",
     icon: "🧰",
     image: "images/ui/categories/tool.png",
-    loadoutSlots: [{ slotKey: "tool", label: "도구", max: 2 }],
+    // 도구+소모품이 "필드 장비" 8칸을 공유해서 나눠 씀 (도구만 8개, 소모품만 8개, 혹은 섞어서도 가능)
+    loadoutSlots: [{ slotKey: "tool", label: "도구", max: null, sharedGroup: "field", sharedCapacity: 8, allowDuplicates: true }],
   },
   consumable: {
     label: "소모품",
     icon: "🧪",
     image: "images/ui/categories/consumable.png",
-    loadoutSlots: [{ slotKey: "consumable", label: "소모품", max: 4 }],
+    // 소모품은 같은 아이템을 여러 개 챙길 수 있으므로 중복 허용, 하나당 공유 풀에서 1칸씩 차감
+    loadoutSlots: [{ slotKey: "consumable", label: "소모품", max: null, sharedGroup: "field", sharedCapacity: 8, allowDuplicates: true }],
   },
   trait: {
     label: "특성",

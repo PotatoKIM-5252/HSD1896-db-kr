@@ -1108,6 +1108,16 @@ button { font-family: var(--font-body); cursor: pointer; }
   opacity: 0.85;
 }
 
+.loadout-group-capacity {
+  margin-left: auto;
+  font-size: 11px;
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 500;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
 .slot {
   display: flex;
   flex-direction: column;
@@ -1255,6 +1265,14 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 .add-item-btn:hover { border-color: var(--accent); background: rgba(236, 230, 211, 0.07); }
+
+.add-item-btn-disabled {
+  color: var(--text-muted);
+  cursor: not-allowed;
+  border-color: var(--border);
+}
+
+.add-item-btn-disabled:hover { border-color: var(--border); background: transparent; }
 
 #loadout-actions {
   display: flex;
