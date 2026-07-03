@@ -155,7 +155,7 @@ const WEAPON_FILTERS = {
 //     },
 //
 //     // 화면에 보여줄 추가 효과 텍스트(태그 형태)
-//     specialEffects: ["Ignites Hunters in one shot up to 20m", "Causes Medium Burning"],
+//     specialEffects: ["20m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
 //
 //     // (선택) 위 specialEffects가 "이 거리 이내에서만" 발동하는 효과라면 적어주세요.
 //     // 적지 않으면 항상 발동하는 것으로 간주합니다. (자세히 보기의 "이 거리에서 적용되는 효과" 칸에 반영됨)
@@ -203,7 +203,7 @@ const AMMO_TYPES = {
       verticalRecoil: 8,
       muzzleVelocity: 330,
     },
-    specialEffects: ["Damage dropoff begins at 30m"],
+    specialEffects: ["30m부터 데미지 감소(감쇠) 시작"],
   },
 
   compact_high_velocity: {
@@ -246,7 +246,7 @@ const AMMO_TYPES = {
       [300, 0.25],
     ],
     statOverrides: {},
-    specialEffects: ["Ignites Hunters in one shot up to 20m", "Causes Medium Burning"],
+    specialEffects: ["20m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
     effectMaxRange: 20,  // 20m 이내에서만 발화 효과 발동 (그 이상은 효과 미적용으로 가정)
   },
 
@@ -266,7 +266,7 @@ const AMMO_TYPES = {
       [300, 0.25],
     ],
     statOverrides: {},
-    specialEffects: ["Causes Medium Poison"],
+    specialEffects: ["중급 중독 효과 발생"],
   },
 
   compact_subsonic: {
@@ -289,7 +289,7 @@ const AMMO_TYPES = {
       muzzleVelocity: 263,
       ammoExtra: 34,
     },
-    specialEffects: ["Reduced Sound"],
+    specialEffects: ["발사음 감소"],
   },
 };
 
