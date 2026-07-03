@@ -43,6 +43,7 @@ const CATEGORIES = {
   weapon: {
     label: "무기",
     icon: "🔫",
+    image: "images/ui/categories/weapon.png",
     loadoutSlots: [
       { slotKey: "primary", label: "주무기", max: 1 },
       { slotKey: "secondary", label: "보조무기", max: 1 },
@@ -51,16 +52,19 @@ const CATEGORIES = {
   tool: {
     label: "도구",
     icon: "🧰",
+    image: "images/ui/categories/tool.png",
     loadoutSlots: [{ slotKey: "tool", label: "도구", max: 2 }],
   },
   consumable: {
     label: "소모품",
     icon: "🧪",
+    image: "images/ui/categories/consumable.png",
     loadoutSlots: [{ slotKey: "consumable", label: "소모품", max: 4 }],
   },
   trait: {
     label: "특성",
     icon: "⭐",
+    image: "images/ui/categories/trait.png",
     loadoutSlots: [{ slotKey: "trait", label: "특성", max: null }],
   },
 };

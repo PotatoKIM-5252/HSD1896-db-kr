@@ -99,16 +99,32 @@ function renderCategoryFilters() {
   wrap.innerHTML = "";
   wrap.appendChild(createCategoryFilterButton("all", "전체"));
   Object.entries(CATEGORIES).forEach(([key, def]) => {
-    wrap.appendChild(createCategoryFilterButton(key, `${def.icon} ${def.label}`));
+    wrap.appendChild(createCategoryFilterButton(key, def.label, def.image));
   });
 }
 
-function createCategoryFilterButton(categoryKey, labelText) {
+function createCategoryFilterButton(categoryKey, labelText, imageSrc) {
   const btn = document.createElement("button");
   btn.type = "button";
   btn.className = "cat-filter-btn" + (categoryKey === "all" ? " active" : "");
   btn.dataset.category = categoryKey;
-  btn.textContent = labelText;
+
+  if (imageSrc) {
+    btn.classList.add("cat-filter-btn-icon");
+    btn.title = labelText;
+    const img = document.createElement("img");
+    img.src = imageSrc;
+    img.alt = labelText;
+    img.className = "cat-filter-img";
+    img.onerror = () => { btn.classList.remove("cat-filter-btn-icon"); btn.textContent = labelText; };
+    btn.appendChild(img);
+    const span = document.createElement("span");
+    span.textContent = labelText;
+    btn.appendChild(span);
+  } else {
+    btn.textContent = labelText;
+  }
+
   btn.addEventListener("click", () => {
     state.filterCategory = categoryKey;
     document.querySelectorAll(".cat-filter-btn").forEach((b) => b.classList.remove("active"));

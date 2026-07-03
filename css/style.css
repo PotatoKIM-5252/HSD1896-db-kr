@@ -148,6 +148,29 @@ button { font-family: var(--font-body); cursor: pointer; }
 .cat-filter-btn:hover { border-color: var(--border-strong); color: var(--text-primary); }
 .cat-filter-btn.active { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
 
+.cat-filter-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px 5px 8px;
+}
+
+.cat-filter-img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  display: block;
+  opacity: 0.85;
+}
+
+.cat-filter-btn-icon:hover .cat-filter-img,
+.cat-filter-btn-icon.active .cat-filter-img { opacity: 1; }
+
+.cat-filter-btn.active .cat-filter-img {
+  /* 활성화 시 배경이 밝은 색이 되므로 아이콘을 어둡게 반전 */
+  filter: brightness(0);
+}
+
 /* 무기 전용 필터 */
 
 #weapon-filters {
@@ -222,8 +245,12 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 /* 탄약 효과(ammoEffect) 아이콘도 세부 묘사가 있어 크게 표시 */
+/* 원본 아이콘들의 가로세로 비율이 제각각이라(가로로 넓은 것/세로로 좁은 것 등)
+   높이만 맞추면 크기가 들쭉날쭉해 보이므로, 정사각형 박스에 꽉 채우는 방식으로 통일 */
 .filter-chip-img--ammoEffect {
-  height: 32px;
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
 }
 
 .filter-chip:has(.filter-chip-img--ammoEffect) {
