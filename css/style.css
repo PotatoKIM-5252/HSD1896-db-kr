@@ -221,6 +221,15 @@ button { font-family: var(--font-body); cursor: pointer; }
   padding: 4px 14px;
 }
 
+/* 탄약 효과(ammoEffect) 아이콘도 세부 묘사가 있어 크게 표시 */
+.filter-chip-img--ammoEffect {
+  height: 32px;
+}
+
+.filter-chip:has(.filter-chip-img--ammoEffect) {
+  padding: 4px 14px;
+}
+
 .filter-chip-icon:hover .filter-chip-img { opacity: 0.95; }
 .filter-chip-icon.active .filter-chip-img { opacity: 1; }
 .filter-chip-icon.active {
