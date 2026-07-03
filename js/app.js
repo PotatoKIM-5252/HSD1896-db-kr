@@ -36,6 +36,15 @@ const state = {
 
 function loadoutKey(c, s) { return `${c}__${s}`; }
 
+// 한글 단어 받침 유무에 따라 "이/가" 조사를 자동으로 붙여준다 (예: "도구"+가, "소모품"+이)
+function withEulReulIga(word, withBatchim, withoutBatchim) {
+  const lastChar = word[word.length - 1];
+  const code = lastChar.charCodeAt(0) - 0xAC00;
+  if (code < 0 || code > 11171) return word + withoutBatchim; // 한글 음절이 아니면 기본값
+  const hasBatchim = code % 28 !== 0;
+  return word + (hasBatchim ? withBatchim : withoutBatchim);
+}
+
 // 같은 sharedGroup을 쓰는 슬롯들(도구+소모품)의 전체 사용 칸 수 합산
 function getSharedGroupUsage(sharedGroup) {
   let count = 0;
@@ -1108,14 +1117,6 @@ function renderLoadoutBoard() {
     heading.innerHTML = catDef.image
       ? `<img src="${catDef.image}" alt="" class="loadout-group-icon" onerror="this.style.display='none'">${catDef.label}`
       : `${catDef.icon} ${catDef.label}`;
-    const sharedSlotDef = catDef.loadoutSlots.find((s) => s.sharedGroup);
-    if (sharedSlotDef) {
-      const used = getSharedGroupUsage(sharedSlotDef.sharedGroup);
-      const badge = document.createElement("span");
-      badge.className = "loadout-group-capacity";
-      badge.textContent = `${used}/${sharedSlotDef.sharedCapacity}칸 (도구+소모품 공유)`;
-      heading.appendChild(badge);
-    }
     groupEl.appendChild(heading);
     catDef.loadoutSlots.forEach((slotDef) => {
       const key = loadoutKey(catKey, slotDef.slotKey);
@@ -1210,7 +1211,7 @@ function renderDynamicSlotGroup(catKey, slotDef, key) {
   const listEl = document.createElement("div");
   listEl.className = "dynamic-list-items";
   const ids = state.loadout[key];
-  if (ids.length === 0) listEl.innerHTML = `<p class="empty-msg">추가된 ${slotDef.label}이 없습니다.</p>`;
+  if (ids.length === 0) listEl.innerHTML = `<p class="empty-msg">${withEulReulIga(`추가된 ${slotDef.label}`, "이", "가")} 없습니다.</p>`;
   else ids.forEach((itemId, idx) => {
     const item = ITEMS.find((i) => i.id === itemId);
     if (!item) return;
