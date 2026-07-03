@@ -291,6 +291,134 @@ const AMMO_TYPES = {
     },
     specialEffects: ["발사음 감소"],
   },
+
+  // ── Infantry 73L 전용 탄약 (같은 Compact 탄종이라 낙하 곡선은 Frontier 73C와 동일하게 재사용) ──
+  infantry73l_compact: {
+    label: "Compact",
+    category: "compact",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_compact_regular.png",
+    icon: "🟫",
+    description: "Compact - 20m부터 데미지 감소(감쇠) 시작. 관통력 낮음.",
+    cost: 0,
+    falloff: [
+      [0,   1.00],
+      [20,  1.00],
+      [80,  0.65],
+      [200, 0.40],
+      [300, 0.25],
+    ],
+    statOverrides: {},
+  },
+
+  infantry73l_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "compact",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_compact_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    cost: 50,
+    falloff: [
+      [0,   1.00],
+      [30,  1.00],
+      [100, 0.65],
+      [220, 0.40],
+      [300, 0.25],
+    ],
+    statOverrides: {
+      dropRange: 130,
+      verticalRecoil: 5,
+      muzzleVelocity: 330,
+    },
+    specialEffects: ["30m부터 데미지 감소(감쇠) 시작"],
+  },
+
+  infantry73l_high_velocity: {
+    label: "고속탄",
+    category: "compact",
+    effect: "high_velocity",
+    image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    cost: 60,
+    falloff: [
+      [0,   1.00],
+      [20,  1.00],
+      [80,  0.65],
+      [200, 0.40],
+      [300, 0.25],
+    ],
+    statOverrides: {
+      damage: 104,
+      dropRange: 170,
+      verticalRecoil: 5,
+      muzzleVelocity: 525,
+      ammoExtra: 13,
+    },
+  },
+
+  infantry73l_incendiary: {
+    label: "소이탄",
+    category: "compact",
+    effect: "incendiary",
+    image: "images/ui/ammo_effects/ammo_compact_incendiary.png",
+    icon: "🔥",
+    description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
+    cost: 40,
+    falloff: [
+      [0,   1.00],
+      [20,  1.00],
+      [80,  0.65],
+      [200, 0.40],
+      [300, 0.25],
+    ],
+    statOverrides: {},
+    specialEffects: ["20m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
+    effectMaxRange: 20,
+  },
+
+  infantry73l_poison: {
+    label: "중독탄",
+    category: "compact",
+    effect: "poison",
+    image: "images/ui/ammo_effects/ammo_compact_poison.png",
+    icon: "🟢",
+    description: "중독탄 - 명중 시 독 효과. 관통 불가.",
+    cost: 50,
+    falloff: [
+      [0,   1.00],
+      [20,  1.00],
+      [80,  0.65],
+      [200, 0.40],
+      [300, 0.25],
+    ],
+    statOverrides: {},
+    specialEffects: ["중급 중독 효과 발생"],
+  },
+
+  infantry73l_subsonic: {
+    label: "아음속탄",
+    category: "compact",
+    effect: "subsonic",
+    image: "images/ui/ammo_effects/ammo_compact_subsonic.png",
+    icon: "🔇",
+    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 사거리/탄속 감소.",
+    cost: 5,
+    falloff: [
+      [0,   1.00],
+      [15,  1.00],
+      [60,  0.60],
+      [150, 0.35],
+      [250, 0.20],
+    ],
+    statOverrides: {
+      dropRange: 115,
+      muzzleVelocity: 263,
+      ammoExtra: 24,
+    },
+    specialEffects: ["발사음 감소"],
+  },
 };
 
 // -------------------------------------------------------------------------
@@ -353,6 +481,59 @@ const ITEMS = [
     // 각 파생형은 모무기의 필드를 일부 덮어쓰는 형식입니다.
     // 입력하지 않은 필드는 모무기의 값을 그대로 따라갑니다.
     // 작성 방법은 파일 맨 아래 "빠른 참조" 섹션의 예시를 참고하세요.
+    variants: [],
+  },
+
+  {
+    id: "weapon_infantry_73l",
+    category: "weapon",
+    name: "Infantry 73L",
+    image: "images/weapons/infantry_73l.png",
+
+    // 검색 필터용
+    slotSize: 4,
+    ammoCategory: "compact",
+    ammoEffects: ["full_metal", "high_velocity", "incendiary", "poison", "subsonic"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "infantry73l_compact",
+      "infantry73l_fmj",
+      "infantry73l_high_velocity",
+      "infantry73l_incendiary",
+      "infantry73l_poison",
+      "infantry73l_subsonic",
+    ],
+    defaultAmmo: "infantry73l_compact",
+
+    // 기본 정보
+    price: 78,
+    updateAdded: "Update 2.0",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "17+1",
+      extra: 20,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 110,
+      dropRange: 145,
+      rateOfFire: 35,
+      cycleTime: 1.2,
+      spread: 17.5,
+      sway: 77,
+      verticalRecoil: 3,
+      reloadSpeed: 17.9,
+      muzzleVelocity: 400,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+
     variants: [],
   },
 
