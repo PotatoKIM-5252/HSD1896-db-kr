@@ -503,6 +503,14 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 .compare-btn:hover { background: rgba(236, 230, 211, 0.08); }
 
+.detail-action-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.detail-action-row .compare-btn { margin-top: 0; flex: 1; }
+
 .compare-btn.added {
   border-style: solid;
   background: rgba(92, 138, 99, 0.1);
@@ -1088,6 +1096,16 @@ button { font-family: var(--font-body); cursor: pointer; }
   margin-bottom: 12px;
   padding-bottom: 10px;
   border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.loadout-group-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  opacity: 0.85;
 }
 
 .slot {
@@ -1133,6 +1151,28 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 .slot.filled .slot-content { color: var(--text-primary); font-weight: 500; }
 
+.slot-thumb {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.slot-item-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slot-empty-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  opacity: 0.35;
+}
+
+.slot-empty-text { color: var(--text-muted); }
+
 .slot-clear-btn {
   background: transparent;
   border: none;
@@ -1156,6 +1196,19 @@ button { font-family: var(--font-body); cursor: pointer; }
   margin-bottom: 8px;
   font-size: 13px;
   color: var(--text-primary);
+}
+
+.trait-row-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.trait-thumb {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .add-item-btn {
@@ -1390,10 +1443,13 @@ button { font-family: var(--font-body); cursor: pointer; }
 #modal-item-list { overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
 
 .modal-item-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 11px 14px;
+  padding: 8px 14px;
   font-size: 13px;
   color: var(--text-primary);
   cursor: pointer;
@@ -1401,6 +1457,19 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 .modal-item-row:hover { border-color: var(--accent); background: var(--bg-card-hover); }
+
+.modal-item-thumb {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.modal-item-thumb-placeholder {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+}
 
 /* ===================== 반응형 ===================== */
 

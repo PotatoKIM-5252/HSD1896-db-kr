@@ -36,6 +36,33 @@ const state = {
 
 function loadoutKey(c, s) { return `${c}__${s}`; }
 
+// 아이템을 카테고리에 맞는 로드아웃 슬롯 중 "첫 번째 빈 자리"에 자동으로 채워넣는다.
+// (무기: 주무기 → 보조무기 순으로 탐색, 특성처럼 개수 제한이 없는 슬롯은 목록에 추가)
+function addToLoadoutQuick(item) {
+  const catDef = CATEGORIES[item.category];
+  if (!catDef) return { ok: false, message: "로드아웃에 추가할 수 없는 항목입니다." };
+
+  for (const slotDef of catDef.loadoutSlots) {
+    const key = loadoutKey(item.category, slotDef.slotKey);
+    if (slotDef.max === null) {
+      // 개수 제한 없는 슬롯 (예: 특성)
+      if (state.loadout[key].includes(item.id)) {
+        return { ok: false, message: "이미 추가되어 있습니다" };
+      }
+      state.loadout[key].push(item.id);
+      return { ok: true, slotLabel: slotDef.label };
+    } else {
+      const arr = state.loadout[key];
+      const emptyIdx = arr.findIndex((v) => v === null);
+      if (emptyIdx !== -1) {
+        arr[emptyIdx] = item;
+        return { ok: true, slotLabel: slotDef.max > 1 ? `${slotDef.label} ${emptyIdx + 1}` : slotDef.label };
+      }
+    }
+  }
+  return { ok: false, message: "빈 슬롯이 없습니다" };
+}
+
 // -------------------------------------------------------------------------
 function init() {
   initLoadoutState();
@@ -323,10 +350,12 @@ function renderItemDetail(item) {
     bindDetailClose(panel);
     bindAmmoTabs(item);
     bindCompareButton(item, selectedAmmoId);
+    bindLoadoutQuickAddButton(item);
     drawWeaponChart(item, selectedAmmoId);
   } else {
     panel.innerHTML = renderGenericDetailHTML(item);
     bindDetailClose(panel);
+    bindLoadoutQuickAddButton(item);
   }
 }
 
@@ -355,6 +384,23 @@ function bindCompareButton(item, ammoId) {
       state.compareEntries.push({ weaponId: item.id, ammoId });
     }
     renderItemDetail(item);
+  });
+}
+
+// DB 검색 화면 → 로드아웃 빌더로 "장바구니에 담듯" 바로 추가하는 버튼
+function bindLoadoutQuickAddButton(item) {
+  const btn = document.querySelector("#detail-add-loadout-btn");
+  if (!btn) return;
+  const originalText = btn.textContent;
+  btn.addEventListener("click", () => {
+    const result = addToLoadoutQuick(item);
+    if (result.ok) renderLoadoutBoard();
+    btn.textContent = result.ok ? `✓ ${result.slotLabel}에 추가됨` : result.message;
+    btn.classList.toggle("added", result.ok);
+    setTimeout(() => {
+      btn.textContent = originalText;
+      btn.classList.remove("added");
+    }, 1600);
   });
 }
 
@@ -502,6 +548,7 @@ function openBodyPartView(parentItem, ammoId) {
           <button id="bp-add-compare-btn" type="button" class="compare-btn-inline ${inBpCompare ? "added" : ""}">
             ${inBpCompare ? "✓ 비교 목록에 추가됨" : "+ 비교 목록에 추가"}
           </button>
+          <button id="bp-add-loadout-btn" type="button" class="compare-btn-inline">+ 로드아웃에 추가</button>
         </div>
 
         <!-- 탄약 효과 (특수탄 근처에 배치) -->
@@ -547,6 +594,20 @@ function openBodyPartView(parentItem, ammoId) {
       state.compareEntries.push({ weaponId: currentItem.id, ammoId: activeAmmoId });
     }
     openBodyPartView(parentItem, activeAmmoId); // 버튼 상태 갱신을 위해 다시 그림
+  });
+
+  // 로드아웃에 바로 추가 ("장바구니 담기"처럼)
+  document.getElementById("bp-add-loadout-btn")?.addEventListener("click", (e) => {
+    const btn = e.currentTarget;
+    const result = addToLoadoutQuick(currentItem);
+    if (result.ok) renderLoadoutBoard();
+    const original = "+ 로드아웃에 추가";
+    btn.textContent = result.ok ? `✓ ${result.slotLabel}에 추가됨` : result.message;
+    btn.classList.toggle("added", result.ok);
+    setTimeout(() => {
+      btn.textContent = original;
+      btn.classList.remove("added");
+    }, 1600);
   });
 
   // 거리별 데미지 그래프 그리기
@@ -722,9 +783,12 @@ function renderWeaponDetailHTML(item, selectedAmmoId) {
     <h4>거리별 데미지</h4>
     <div class="detail-chart-wrap"><canvas id="detail-chart"></canvas></div>
 
-    <button id="detail-add-compare-btn" type="button" class="compare-btn ${inCompare ? "added" : ""}">
-      ${inCompare ? "✓ 비교 목록에 추가됨 (클릭하여 제거)" : "+ 비교 목록에 추가"}
-    </button>
+    <div class="detail-action-row">
+      <button id="detail-add-compare-btn" type="button" class="compare-btn ${inCompare ? "added" : ""}">
+        ${inCompare ? "✓ 비교 목록에 추가됨 (클릭하여 제거)" : "+ 비교 목록에 추가"}
+      </button>
+      <button id="detail-add-loadout-btn" type="button" class="compare-btn">+ 로드아웃에 추가</button>
+    </div>
   `;
 }
 
@@ -756,6 +820,8 @@ function renderGenericDetailHTML(item) {
     ${item.description ? `<p class="detail-desc">${item.description}</p>` : ""}
     <h4>세부 정보</h4>
     <ul class="detail-meta">${metaList || "<li>없음</li>"}</ul>
+
+    <button id="detail-add-loadout-btn" type="button" class="compare-btn">+ 로드아웃에 추가</button>
   `;
 }
 
@@ -956,7 +1022,10 @@ function renderModalList(query) {
   items.forEach((item) => {
     const row = document.createElement("div");
     row.className = "modal-item-row";
-    row.innerHTML = `<span>${item.name}</span>`;
+    row.innerHTML = `
+      ${item.image ? `<img src="${item.image}" alt="" class="modal-item-thumb" onerror="this.style.display='none'">` : `<span class="modal-item-thumb-placeholder"></span>`}
+      <span>${item.name}</span>
+    `;
     row.addEventListener("click", () => { if (state.modal.onSelect) state.modal.onSelect(item); });
     list.appendChild(row);
   });
@@ -972,7 +1041,9 @@ function renderLoadoutBoard() {
     const groupEl = document.createElement("div");
     groupEl.className = "loadout-group";
     const heading = document.createElement("h2");
-    heading.textContent = `${catDef.icon} ${catDef.label}`;
+    heading.innerHTML = catDef.image
+      ? `<img src="${catDef.image}" alt="" class="loadout-group-icon" onerror="this.style.display='none'">${catDef.label}`
+      : `${catDef.icon} ${catDef.label}`;
     groupEl.appendChild(heading);
     catDef.loadoutSlots.forEach((slotDef) => {
       const key = loadoutKey(catKey, slotDef.slotKey);
@@ -995,7 +1066,16 @@ function renderFixedSlot(catKey, slotDef, key, index) {
   const item = state.loadout[key][index];
   if (item) {
     slotEl.classList.add("filled");
+    if (item.image) {
+      const thumb = document.createElement("img");
+      thumb.src = item.image;
+      thumb.alt = "";
+      thumb.className = "slot-thumb";
+      thumb.onerror = () => { thumb.style.display = "none"; };
+      contentEl.appendChild(thumb);
+    }
     const nameSpan = document.createElement("span");
+    nameSpan.className = "slot-item-name";
     nameSpan.textContent = item.name;
     contentEl.appendChild(nameSpan);
     const clearBtn = document.createElement("button");
@@ -1009,7 +1089,10 @@ function renderFixedSlot(catKey, slotDef, key, index) {
     });
     contentEl.appendChild(clearBtn);
   } else {
-    contentEl.textContent = "비어있음";
+    const catImg = CATEGORIES[catKey]?.image;
+    contentEl.innerHTML = catImg
+      ? `<img src="${catImg}" alt="" class="slot-empty-icon" onerror="this.style.display='none'"><span class="slot-empty-text">비어있음</span>`
+      : `<span class="slot-empty-text">비어있음</span>`;
   }
   slotEl.appendChild(contentEl);
   slotEl.addEventListener("click", (e) => {
@@ -1035,7 +1118,12 @@ function renderDynamicSlotGroup(catKey, slotDef, key) {
     if (!item) return;
     const row = document.createElement("div");
     row.className = "trait-row";
-    row.innerHTML = `<span>${item.name}</span>`;
+    row.innerHTML = `
+      <span class="trait-row-main">
+        ${item.image ? `<img src="${item.image}" alt="" class="trait-thumb" onerror="this.style.display='none'">` : ""}
+        <span>${item.name}</span>
+      </span>
+    `;
     const removeBtn = document.createElement("button");
     removeBtn.type = "button";
     removeBtn.className = "slot-clear-btn";
