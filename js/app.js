@@ -540,7 +540,7 @@ function openBodyPartView(parentItem, ammoId) {
       ? `<img src="${a.image}" alt="${a.label}" class="ammo-tab-img" onerror="this.outerHTML='<span class=ammo-tab-icon>${a.icon ?? "•"}</span>'">`
       : `<span class="ammo-tab-icon">${a.icon ?? "•"}</span>`;
     return `
-      <button class="ammo-tab ${active}" data-bp-ammo-id="${aid}" type="button" title="${a.label}${a.cost ? ` ($${a.cost})` : ""}">
+      <button class="ammo-tab ${active}" data-bp-ammo-id="${aid}" type="button" title="${a.label}${a.scarce ? " (Scarce)" : a.cost ? ` ($${a.cost})` : ""}">
         ${visual}
       </button>`;
   }).join("");
@@ -851,7 +851,7 @@ function renderWeaponDetailHTML(item, selectedAmmoId) {
       ? `<img src="${a.image}" alt="${a.label}" class="ammo-tab-img" onerror="this.outerHTML='<span class=ammo-tab-icon>${a.icon ?? "•"}</span>'">`
       : `<span class="ammo-tab-icon">${a.icon ?? "•"}</span>`;
     return `
-      <button class="ammo-tab ${active}" data-ammo-id="${aid}" type="button" title="${a.label}${a.cost ? ` ($${a.cost})` : ""}">
+      <button class="ammo-tab ${active}" data-ammo-id="${aid}" type="button" title="${a.label}${a.scarce ? " (Scarce)" : a.cost ? ` ($${a.cost})` : ""}">
         ${visual}
       </button>`;
   }).join("");
@@ -1243,7 +1243,9 @@ function renderModalAmmoStep(weaponItem) {
     row.innerHTML = `
       ${ammo.image ? `<img src="${ammo.image}" alt="" class="modal-item-thumb" onerror="this.style.display='none'">` : `<span class="modal-item-thumb-placeholder"></span>`}
       <span class="modal-item-name">${ammo.label}${ammoId === weaponItem.defaultAmmo ? " (기본)" : ""}</span>
-      ${ammo.cost != null ? `<span class="modal-item-price"><img src="images/ui/hunt_dollars.png" alt="$">${ammo.cost}</span>` : ""}
+      ${ammo.scarce
+        ? `<span class="modal-item-price modal-item-scarce"><img src="images/ui/scarce.png" alt="Scarce" title="Scarce (상점 구매 불가, 월드에서만 획득)"></span>`
+        : ammo.cost != null ? `<span class="modal-item-price"><img src="images/ui/hunt_dollars.png" alt="$">${ammo.cost}</span>` : ""}
     `;
     row.addEventListener("click", () => {
       if (state.modal.onSelect) state.modal.onSelect(weaponItem, ammoId);
@@ -1337,7 +1339,9 @@ function renderFixedSlot(catKey, slotDef, key, index) {
     ammoRow.innerHTML = `
       ${ammo.image ? `<img src="${ammo.image}" alt="" class="slot-ammo-icon" onerror="this.style.display='none'">` : ""}
       <span class="slot-ammo-name">${ammo.label}</span>
-      ${ammo.cost != null ? `<span class="slot-item-price"><img src="images/ui/hunt_dollars.png" alt="$">${ammo.cost}</span>` : ""}
+      ${ammo.scarce
+        ? `<span class="slot-item-price"><img src="images/ui/scarce.png" alt="Scarce" title="Scarce (상점 구매 불가, 월드에서만 획득)"></span>`
+        : ammo.cost != null ? `<span class="slot-item-price"><img src="images/ui/hunt_dollars.png" alt="$">${ammo.cost}</span>` : ""}
     `;
     slotEl.appendChild(ammoRow);
   }

@@ -408,6 +408,752 @@ const AMMO_TYPES = {
     specialEffects: ["발사음 감소"],
   },
 
+  // ── Marathon 전용 탄약 (실제 소스코드로 검증됨. 아음속탄 없음) ──
+  marathon_compact: {
+    label: "Compact",
+    category: "compact",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_compact_regular.png",
+    icon: "🟫",
+    description: "Compact - 20m부터 데미지 감소(감쇠) 시작. 관통력 낮음.",
+    cost: 0,
+    falloff: [
+      [0,  1.00],
+      [20, 1.00],
+      [50, 0.6195],
+      [100, 0.5044],
+    ],
+    statOverrides: {},
+  },
+
+  marathon_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "compact",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_compact_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    cost: 50,
+    falloff: [
+      [0,  1.00],
+      [30, 1.00],
+      [60, 0.6195],
+      [100, 0.5221],
+    ],
+    statOverrides: {
+      dropRange: 125,
+      verticalRecoil: 9,
+      muzzleVelocity: 360,
+    },
+    specialEffects: ["30m부터 데미지 감소(감쇠) 시작"],
+  },
+
+  marathon_high_velocity: {
+    label: "고속탄",
+    category: "compact",
+    effect: "high_velocity",
+    image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    cost: 50,
+    falloff: [
+      [0,  1.00],
+      [20, 1.00],
+      [50, 0.6168],
+      [100, 0.5047],
+    ],
+    statOverrides: {
+      damage: 107,
+      dropRange: 170,
+      verticalRecoil: 9,
+      muzzleVelocity: 555,
+      ammoExtra: 16,
+    },
+  },
+
+  marathon_incendiary: {
+    label: "소이탄",
+    category: "compact",
+    effect: "incendiary",
+    image: "images/ui/ammo_effects/ammo_compact_incendiary.png",
+    icon: "🔥",
+    description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
+    cost: 40,
+    falloff: [
+      [0,  1.00],
+      [20, 1.00],
+      [50, 0.6195],
+      [100, 0.5044],
+    ],
+    statOverrides: {},
+    specialEffects: ["20m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
+    effectMaxRange: 20,
+  },
+
+  marathon_poison: {
+    label: "중독탄",
+    category: "compact",
+    effect: "poison",
+    image: "images/ui/ammo_effects/ammo_compact_poison.png",
+    icon: "🟢",
+    description: "중독탄 - 명중 시 독 효과. 관통 불가.",
+    cost: 50,
+    falloff: [
+      [0,  1.00],
+      [20, 1.00],
+      [50, 0.6195],
+      [100, 0.5044],
+    ],
+    statOverrides: {},
+    specialEffects: ["중급 중독 효과 발생"],
+  },
+
+
+  // ── Ranger 73 / Vandal 73C / Bornheim No.3 / Conversion / LeMat / Nagant M1895 / New Army / Officer 전용 탄약 ──
+  ranger73_compact: {
+    label: "Compact",
+    category: "compact",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_compact_regular.png",
+    icon: "🟫",
+    description: "Compact - 20m부터 데미지 감소(감쇠) 시작. 관통력 낮음.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.6182],
+      [100, 0.5000],
+    ],
+    statOverrides: {  },
+  },
+
+  ranger73_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "compact",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_compact_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.6182],
+      [100, 0.5273],
+    ],
+    statOverrides: { dropRange: 125, verticalRecoil: 6, muzzleVelocity: 330 },
+    specialEffects: ["30m부터 데미지 감소(감쇠) 시작"],
+  },
+
+  ranger73_high_velocity: {
+    label: "고속탄",
+    category: "compact",
+    effect: "high_velocity",
+    image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.6058],
+      [100, 0.5000],
+    ],
+    statOverrides: { damage: 104, dropRange: 160, verticalRecoil: 6, muzzleVelocity: 500, ammoExtra: 13 },
+  },
+
+  ranger73_incendiary: {
+    label: "소이탄",
+    category: "compact",
+    effect: "incendiary",
+    image: "images/ui/ammo_effects/ammo_compact_incendiary.png",
+    icon: "🔥",
+    description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
+    cost: 40,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.6182],
+      [100, 0.5000],
+    ],
+    statOverrides: {  },
+    specialEffects: ["20m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
+    effectMaxRange: 20,
+  },
+
+  ranger73_poison: {
+    label: "중독탄",
+    category: "compact",
+    effect: "poison",
+    image: "images/ui/ammo_effects/ammo_compact_poison.png",
+    icon: "🟢",
+    description: "중독탄 - 명중 시 독 효과. 관통 불가.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.6182],
+      [100, 0.5000],
+    ],
+    statOverrides: {  },
+    specialEffects: ["중급 중독 효과 발생"],
+  },
+
+  ranger73_subsonic: {
+    label: "아음속탄",
+    category: "compact",
+    effect: "subsonic",
+    image: "images/ui/ammo_effects/ammo_compact_subsonic.png",
+    icon: "🔇",
+    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 낙하거리·탄속 감소 (데미지 감쇠 시작 거리는 기본탄과 동일).",
+    cost: 5,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.6182],
+      [100, 0.5000],
+    ],
+    statOverrides: { dropRange: 110, muzzleVelocity: 263, ammoExtra: 24 },
+    specialEffects: ["발사음 감소"],
+  },
+
+  vandal73c_compact: {
+    label: "Compact",
+    category: "compact",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_compact_regular.png",
+    icon: "🟫",
+    description: "Compact - 20m부터 데미지 감소(감쇠) 시작. 관통력 낮음.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.6168],
+      [100, 0.5047],
+    ],
+    statOverrides: {  },
+  },
+
+  vandal73c_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "compact",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_compact_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.6168],
+      [100, 0.5327],
+    ],
+    statOverrides: { dropRange: 110, verticalRecoil: 11, muzzleVelocity: 310 },
+    specialEffects: ["30m부터 데미지 감소(감쇠) 시작"],
+  },
+
+  vandal73c_high_velocity: {
+    label: "고속탄",
+    category: "compact",
+    effect: "high_velocity",
+    image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [60, 0.5842],
+      [100, 0.4950],
+    ],
+    statOverrides: { damage: 101, dropRange: 145, verticalRecoil: 12, muzzleVelocity: 470, ammoExtra: 14 },
+  },
+
+  vandal73c_incendiary: {
+    label: "소이탄",
+    category: "compact",
+    effect: "incendiary",
+    image: "images/ui/ammo_effects/ammo_compact_incendiary.png",
+    icon: "🔥",
+    description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
+    cost: 40,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.6168],
+      [100, 0.5047],
+    ],
+    statOverrides: {  },
+    specialEffects: ["20m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
+    effectMaxRange: 20,
+  },
+
+  vandal73c_poison: {
+    label: "중독탄",
+    category: "compact",
+    effect: "poison",
+    image: "images/ui/ammo_effects/ammo_compact_poison.png",
+    icon: "🟢",
+    description: "중독탄 - 명중 시 독 효과. 관통 불가.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.6168],
+      [100, 0.5047],
+    ],
+    statOverrides: {  },
+    specialEffects: ["중급 중독 효과 발생"],
+  },
+
+  vandal73c_subsonic: {
+    label: "아음속탄",
+    category: "compact",
+    effect: "subsonic",
+    image: "images/ui/ammo_effects/ammo_compact_subsonic.png",
+    icon: "🔇",
+    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 낙하거리·탄속 감소 (데미지 감쇠 시작 거리는 기본탄과 동일).",
+    cost: 5,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.6168],
+      [100, 0.5047],
+    ],
+    statOverrides: { dropRange: 95, muzzleVelocity: 252, ammoExtra: 34 },
+    specialEffects: ["발사음 감소"],
+  },  bornheim_compact: {
+    label: "Compact",
+    category: "compact",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_compact_regular.png",
+    icon: "🟫",
+    description: "Compact - 20m부터 데미지 감소(감쇠) 시작. 관통력 낮음.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.5405],
+      [60, 0.4730],
+      [100, 0.4730],
+    ],
+    statOverrides: {  },
+  },
+
+  bornheim_high_velocity: {
+    label: "고속탄",
+    category: "compact",
+    effect: "high_velocity",
+    image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.5571],
+      [60, 0.4714],
+      [100, 0.4714],
+    ],
+    statOverrides: { damage: 70, dropRange: 85, verticalRecoil: 7.5, muzzleVelocity: 455, ammoExtra: 10 },
+  },
+
+  bornheim_incendiary: {
+    label: "소이탄",
+    category: "compact",
+    effect: "incendiary",
+    image: "images/ui/ammo_effects/ammo_compact_incendiary.png",
+    icon: "🔥",
+    description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
+    cost: 40,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.5405],
+      [60, 0.4730],
+      [100, 0.4730],
+    ],
+    statOverrides: {  },
+    specialEffects: ["20m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
+    effectMaxRange: 20,
+  },
+
+  bornheim_subsonic: {
+    label: "아음속탄",
+    category: "compact",
+    effect: "subsonic",
+    image: "images/ui/ammo_effects/ammo_compact_subsonic.png",
+    icon: "🔇",
+    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 낙하거리·탄속 감소 (데미지 감쇠 시작 거리는 기본탄과 동일).",
+    cost: 5,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.5405],
+      [60, 0.4730],
+      [100, 0.4730],
+    ],
+    statOverrides: { dropRange: 60, muzzleVelocity: 256, ammoExtra: 18 },
+    specialEffects: ["발사음 감소"],
+  },
+
+  conversion_compact: {
+    label: "Compact",
+    category: "compact",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_compact_regular.png",
+    icon: "🟫",
+    description: "Compact - 20m부터 데미지 감소(감쇠) 시작. 관통력 낮음.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.5481],
+      [60, 0.4712],
+      [100, 0.4712],
+    ],
+    statOverrides: {  },
+  },
+
+  conversion_dumdum: {
+    label: "덤덤탄(출혈)",
+    category: "compact",
+    effect: "bleed",
+    image: "images/ui/ammo_effects/ammo_compact_bleed.png",
+    icon: "🩸",
+    description: "덤덤탄 - 명중 시 중급 출혈 효과. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.5481],
+      [60, 0.4712],
+      [100, 0.4712],
+    ],
+    statOverrides: { dropRange: 70, muzzleVelocity: 270 },
+    specialEffects: ["중급 출혈 효과 발생"],
+  },
+
+  conversion_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "compact",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_compact_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.5481],
+      [70, 0.5000],
+      [100, 0.5000],
+    ],
+    statOverrides: { dropRange: 70, verticalRecoil: 6.5, muzzleVelocity: 270 },
+    specialEffects: ["30m부터 데미지 감소(감쇠) 시작"],
+  },
+
+  lemat_compact: {
+    label: "Compact",
+    category: "compact",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_compact_regular.png",
+    icon: "🟫",
+    description: "Compact - 20m부터 데미지 감소(감쇠) 시작. 관통력 낮음.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.5464],
+      [60, 0.4742],
+      [100, 0.4742],
+    ],
+    statOverrides: {  },
+  },
+
+  lemat_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "compact",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_compact_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.5464],
+      [70, 0.4948],
+      [100, 0.4948],
+    ],
+    statOverrides: { dropRange: 70, verticalRecoil: 8, muzzleVelocity: 335 },
+    specialEffects: ["30m부터 데미지 감소(감쇠) 시작"],
+  },
+
+  lemat_incendiary: {
+    label: "소이탄",
+    category: "compact",
+    effect: "incendiary",
+    image: "images/ui/ammo_effects/ammo_compact_incendiary.png",
+    icon: "🔥",
+    description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
+    cost: 40,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.5464],
+      [60, 0.4742],
+      [100, 0.4742],
+    ],
+    statOverrides: {  },
+    specialEffects: ["20m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
+    effectMaxRange: 20,
+  },  nagant_compact: {
+    label: "Compact",
+    category: "compact",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_compact_regular.png",
+    icon: "🟫",
+    description: "Compact - 20m부터 데미지 감소(감쇠) 시작. 관통력 낮음.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.5385],
+      [60, 0.4615],
+      [100, 0.4615],
+    ],
+    statOverrides: {  },
+  },
+
+  nagant_dumdum: {
+    label: "덤덤탄(출혈)",
+    category: "compact",
+    effect: "bleed",
+    image: "images/ui/ammo_effects/ammo_compact_bleed.png",
+    icon: "🩸",
+    description: "덤덤탄 - 명중 시 중급 출혈 효과. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.5385],
+      [60, 0.4615],
+      [100, 0.4615],
+    ],
+    statOverrides: { dropRange: 65, muzzleVelocity: 300 },
+    specialEffects: ["중급 출혈 효과 발생"],
+  },
+
+  nagant_high_velocity: {
+    label: "고속탄",
+    category: "compact",
+    effect: "high_velocity",
+    image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.5517],
+      [60, 0.4713],
+      [100, 0.4713],
+    ],
+    statOverrides: { damage: 87, dropRange: 80, verticalRecoil: 6, muzzleVelocity: 405, ammoExtra: 14 },
+  },
+
+  nagant_poison: {
+    label: "중독탄",
+    category: "compact",
+    effect: "poison",
+    image: "images/ui/ammo_effects/ammo_compact_poison.png",
+    icon: "🟢",
+    description: "중독탄 - 명중 시 독 효과. 관통 불가.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.5385],
+      [60, 0.4615],
+      [100, 0.4615],
+    ],
+    statOverrides: {  },
+    specialEffects: ["중급 중독 효과 발생"],
+  },
+
+  nagant_subsonic: {
+    label: "아음속탄",
+    category: "compact",
+    effect: "subsonic",
+    image: "images/ui/ammo_effects/ammo_compact_subsonic.png",
+    icon: "🔇",
+    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 낙하거리·탄속 감소 (데미지 감쇠 시작 거리는 기본탄과 동일).",
+    cost: 5,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.5385],
+      [60, 0.4615],
+      [100, 0.4615],
+    ],
+    statOverrides: { dropRange: 55, muzzleVelocity: 238, ammoExtra: 14 },
+    specialEffects: ["발사음 감소"],
+  },
+
+  newarmy_compact: {
+    label: "Compact",
+    category: "compact",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_compact_regular.png",
+    icon: "🟫",
+    description: "Compact - 20m부터 데미지 감소(감쇠) 시작. 관통력 낮음.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.5464],
+      [60, 0.4742],
+      [100, 0.4742],
+    ],
+    statOverrides: {  },
+  },
+
+  newarmy_dumdum: {
+    label: "덤덤탄(출혈)",
+    category: "compact",
+    effect: "bleed",
+    image: "images/ui/ammo_effects/ammo_compact_bleed.png",
+    icon: "🩸",
+    description: "덤덤탄 - 명중 시 중급 출혈 효과. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.5464],
+      [60, 0.4742],
+      [100, 0.4742],
+    ],
+    statOverrides: { dropRange: 70, muzzleVelocity: 200 },
+    specialEffects: ["중급 출혈 효과 발생"],
+  },
+
+  newarmy_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "compact",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_compact_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.5464],
+      [70, 0.4948],
+      [100, 0.4948],
+    ],
+    statOverrides: { dropRange: 70, verticalRecoil: 7, muzzleVelocity: 200 },
+    specialEffects: ["30m부터 데미지 감소(감쇠) 시작"],
+  },
+
+  officer_compact: {
+    label: "Compact",
+    category: "compact",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_compact_regular.png",
+    icon: "🟫",
+    description: "Compact - 20m부터 데미지 감소(감쇠) 시작. 관통력 낮음.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.5385],
+      [60, 0.4615],
+      [100, 0.4615],
+    ],
+    statOverrides: {  },
+  },
+
+  officer_dumdum: {
+    label: "덤덤탄(출혈)",
+    category: "compact",
+    effect: "bleed",
+    image: "images/ui/ammo_effects/ammo_compact_bleed.png",
+    icon: "🩸",
+    description: "덤덤탄 - 명중 시 중급 출혈 효과. 상점 구매 불가(월드 획득 전용, 희귀도가 더 높음).",
+    cost: null,
+    scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.5385],
+      [60, 0.4615],
+      [100, 0.4615],
+    ],
+    statOverrides: { dropRange: 65, muzzleVelocity: 300 },
+    specialEffects: ["중급 출혈 효과 발생"],
+  },
+
+  officer_high_velocity: {
+    label: "고속탄",
+    category: "compact",
+    effect: "high_velocity",
+    image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.5517],
+      [60, 0.4713],
+      [100, 0.4713],
+    ],
+    statOverrides: { damage: 87, dropRange: 80, verticalRecoil: 7.5, muzzleVelocity: 405, ammoExtra: 9 },
+  },
+
+  officer_poison: {
+    label: "중독탄",
+    category: "compact",
+    effect: "poison",
+    image: "images/ui/ammo_effects/ammo_compact_poison.png",
+    icon: "🟢",
+    description: "중독탄 - 명중 시 독 효과. 관통 불가.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.5385],
+      [60, 0.4615],
+      [100, 0.4615],
+    ],
+    statOverrides: {  },
+    specialEffects: ["중급 중독 효과 발생"],
+  },
+
+  officer_subsonic: {
+    label: "아음속탄",
+    category: "compact",
+    effect: "subsonic",
+    image: "images/ui/ammo_effects/ammo_compact_subsonic.png",
+    icon: "🔇",
+    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 낙하거리·탄속 감소 (데미지 감쇠 시작 거리는 기본탄과 동일).",
+    cost: 5,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.5385],
+      [60, 0.4615],
+      [100, 0.4615],
+    ],
+    statOverrides: { dropRange: 55, muzzleVelocity: 238, ammoExtra: 16 },
+    specialEffects: ["발사음 감소"],
+  },
+
   // ─────────────────────────────────────────────────────────────
   // 아래는 아직 이 탄약을 쓰는 무기가 ITEMS에 없는 "참고용" 데이터입니다.
   // 사용자가 공식 최신 그래프를 보고 직접 불러준 낙하곡선(20/50/100m 등 구간점)이며,
@@ -837,6 +1583,469 @@ const ITEMS = [
       meleeLight: 27,
       meleeHeavy: 54,
       staminaConsumption: 25,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_marathon",
+    category: "weapon",
+    name: "Marathon",
+    image: "images/weapons/marathon.png",
+
+    // 검색 필터용
+    slotSize: 4,
+    ammoCategory: "compact",
+    ammoEffects: ["full_metal", "high_velocity", "incendiary", "poison"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id) — 아음속탄 없음
+    ammoTypes: [
+      "marathon_compact",
+      "marathon_fmj",
+      "marathon_high_velocity",
+      "marathon_incendiary",
+      "marathon_poison",
+    ],
+    defaultAmmo: "marathon_compact",
+
+    // 기본 정보
+    price: 68,
+    updateAdded: "Update 1.16",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "15+1",
+      extra: 24,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 113,
+      dropRange: 140,
+      rateOfFire: 31,
+      cycleTime: 1,
+      spread: 15,
+      sway: 77,
+      verticalRecoil: 7,
+      reloadSpeed: 19.2,
+      muzzleVelocity: 430,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_ranger_73",
+    category: "weapon",
+    name: "Ranger 73",
+    image: "images/weapons/ranger_73.png",
+
+    // 검색 필터용
+    slotSize: 4,
+    ammoCategory: "compact",
+    ammoEffects: ["full_metal", "high_velocity", "incendiary", "poison", "subsonic"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "ranger73_compact",
+      "ranger73_fmj",
+      "ranger73_high_velocity",
+      "ranger73_incendiary",
+      "ranger73_poison",
+      "ranger73_subsonic",
+    ],
+    defaultAmmo: "ranger73_compact",
+
+    // 기본 정보
+    price: 75,
+    updateAdded: "Update Early Access 0.1",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "15+1",
+      extra: 20,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 110,
+      dropRange: 140,
+      rateOfFire: 31,
+      cycleTime: 1.2,
+      spread: 17.5,
+      sway: 77,
+      verticalRecoil: 4,
+      reloadSpeed: 16.4,
+      muzzleVelocity: 400,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_vandal_73c",
+    category: "weapon",
+    name: "Vandal 73C",
+    image: "images/weapons/vandal_73c.png",
+
+    // 검색 필터용
+    slotSize: 2,
+    ammoCategory: "compact",
+    ammoEffects: ["full_metal", "high_velocity", "incendiary", "poison", "subsonic"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "vandal73c_compact",
+      "vandal73c_fmj",
+      "vandal73c_high_velocity",
+      "vandal73c_incendiary",
+      "vandal73c_poison",
+      "vandal73c_subsonic",
+    ],
+    defaultAmmo: "vandal73c_compact",
+
+    // 기본 정보
+    price: 35,
+    updateAdded: "Update 1.4.3",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "6+1",
+      extra: 18,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 107,
+      dropRange: 120,
+      rateOfFire: 28,
+      cycleTime: 1.2,
+      spread: 25,
+      sway: 100,
+      verticalRecoil: 8,
+      reloadSpeed: 9.4,
+      muzzleVelocity: 370,
+      meleeLight: 13,
+      meleeHeavy: 31,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_bornheim_no3",
+    category: "weapon",
+    name: "Bornheim No. 3",
+    image: "images/weapons/bornheim_no3.png",
+
+    // 검색 필터용
+    slotSize: 1,
+    ammoCategory: "compact",
+    ammoEffects: ["high_velocity", "incendiary", "subsonic"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "bornheim_compact",
+      "bornheim_high_velocity",
+      "bornheim_incendiary",
+      "bornheim_subsonic",
+    ],
+    defaultAmmo: "bornheim_compact",
+
+    // 기본 정보
+    price: 146,
+    updateAdded: "Update Early Access 5.0",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "5+1",
+      extra: 15,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 74,
+      dropRange: 80,
+      rateOfFire: 65,
+      cycleTime: 0.2,
+      spread: 25,
+      sway: 128,
+      verticalRecoil: 6,
+      reloadSpeed: 7.4,
+      muzzleVelocity: 380,
+      meleeLight: 13,
+      meleeHeavy: 31,
+      staminaConsumption: 20,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_conversion",
+    category: "weapon",
+    name: "Conversion",
+    image: "images/weapons/conversion.png",
+
+    // 검색 필터용
+    slotSize: 1,
+    ammoCategory: "compact",
+    ammoEffects: ["bleed", "full_metal"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "conversion_compact",
+      "conversion_dumdum",
+      "conversion_fmj",
+    ],
+    defaultAmmo: "conversion_compact",
+
+    // 기본 정보
+    price: 55,
+    updateAdded: "Update Early Access 0.1",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "6",
+      extra: 18,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 104,
+      dropRange: 75,
+      rateOfFire: 21,
+      cycleTime: 1.4,
+      spread: 30,
+      sway: 128,
+      verticalRecoil: 4.5,
+      reloadSpeed: 11.2,
+      muzzleVelocity: 300,
+      meleeLight: 13,
+      meleeHeavy: 31,
+      staminaConsumption: 20,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_lemat",
+    category: "weapon",
+    name: "LeMat",
+    image: "images/weapons/lemat.png",
+
+    // 검색 필터용
+    slotSize: 1,
+    ammoCategory: "compact",
+    ammoEffects: ["full_metal", "incendiary"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "lemat_compact",
+      "lemat_fmj",
+      "lemat_incendiary",
+    ],
+    defaultAmmo: "lemat_compact",
+
+    // 기본 정보
+    price: 83,
+    updateAdded: "Update Early Access 6.0",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "9",
+      extra: 18,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 97,
+      dropRange: 75,
+      rateOfFire: 25,
+      cycleTime: 1.3,
+      spread: 40,
+      sway: 128,
+      verticalRecoil: 6,
+      reloadSpeed: 15.8,
+      muzzleVelocity: 375,
+      meleeLight: 13,
+      meleeHeavy: 31,
+      staminaConsumption: 20,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_nagant_m1895",
+    category: "weapon",
+    name: "Nagant M1895",
+    image: "images/weapons/nagant_m1895.png",
+
+    // 검색 필터용
+    slotSize: 1,
+    ammoCategory: "compact",
+    ammoEffects: ["bleed", "high_velocity", "poison", "subsonic"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "nagant_compact",
+      "nagant_dumdum",
+      "nagant_high_velocity",
+      "nagant_poison",
+      "nagant_subsonic",
+    ],
+    defaultAmmo: "nagant_compact",
+
+    // 기본 정보
+    price: 24,
+    updateAdded: "Update Early Access 0.1",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "7",
+      extra: 21,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 91,
+      dropRange: 70,
+      rateOfFire: 21,
+      cycleTime: 1.5,
+      spread: 40,
+      sway: 128,
+      verticalRecoil: 4,
+      reloadSpeed: 12.5,
+      muzzleVelocity: 330,
+      meleeLight: 13,
+      meleeHeavy: 31,
+      staminaConsumption: 20,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_new_army",
+    category: "weapon",
+    name: "New Army",
+    image: "images/weapons/new_army.png",
+
+    // 검색 필터용
+    slotSize: 1,
+    ammoCategory: "compact",
+    ammoEffects: ["bleed", "full_metal"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "newarmy_compact",
+      "newarmy_dumdum",
+      "newarmy_fmj",
+    ],
+    defaultAmmo: "newarmy_compact",
+
+    // 기본 정보
+    price: 90,
+    updateAdded: "Update 1.8",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "6",
+      extra: 12,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 97,
+      dropRange: 75,
+      rateOfFire: 30,
+      cycleTime: 0.5,
+      spread: 47.5,
+      sway: 128,
+      verticalRecoil: 5,
+      reloadSpeed: 9.5,
+      muzzleVelocity: 230,
+      meleeLight: 13,
+      meleeHeavy: 31,
+      staminaConsumption: 20,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_officer",
+    category: "weapon",
+    name: "Officer",
+    image: "images/weapons/officer.png",
+
+    // 검색 필터용
+    slotSize: 1,
+    ammoCategory: "compact",
+    ammoEffects: ["bleed", "high_velocity", "poison", "subsonic"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "officer_compact",
+      "officer_dumdum",
+      "officer_high_velocity",
+      "officer_poison",
+      "officer_subsonic",
+    ],
+    defaultAmmo: "officer_compact",
+
+    // 기본 정보
+    price: 96,
+    updateAdded: "Update Early Access 2.2",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "7",
+      extra: 14,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 91,
+      dropRange: 70,
+      rateOfFire: 28,
+      cycleTime: 0.5,
+      spread: 50,
+      sway: 128,
+      verticalRecoil: 5,
+      reloadSpeed: 12.8,
+      muzzleVelocity: 330,
+      meleeLight: 13,
+      meleeHeavy: 31,
+      staminaConsumption: 20,
     },
 
     description: "",
