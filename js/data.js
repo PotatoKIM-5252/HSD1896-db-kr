@@ -1263,6 +1263,586 @@ const AMMO_TYPES = {
     specialEffects: ["발사음 감소"],
   },
 
+
+  // ── Drilling / Maynard Sniper / Springfield 1866 / 1865 Carbine / Vetterli 71 / Pax / Scottfield 전용 탄약 ──
+  drilling_medium: {
+    label: "Medium",
+    category: "medium",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_medium_regular.png",
+    icon: "🟫",
+    description: "Medium - 30m부터 데미지 감소(감쇠) 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6333],
+      [100, 0.5833],
+    ],
+    statOverrides: {  },
+  },
+
+  drilling_dumdum: {
+    label: "덤덤탄(출혈)",
+    category: "medium",
+    effect: "bleed",
+    image: "images/ui/ammo_effects/ammo_medium_bleed.png",
+    icon: "🩸",
+    description: "덤덤탄 - 명중 시 강한 출혈 효과.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6333],
+      [100, 0.5833],
+    ],
+    statOverrides: { dropRange: 125, muzzleVelocity: 371 },
+    specialEffects: ["강한 출혈 효과 발생"],
+  },
+
+  drilling_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "medium",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_medium_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6333],
+      [100, 0.6167],
+    ],
+    statOverrides: { dropRange: 125, verticalRecoil: 16, muzzleVelocity: 371 },
+    specialEffects: ["40m부터 데미지 감소(감쇠) 시작"],
+  },
+
+  drilling_high_velocity: {
+    label: "고속탄",
+    category: "medium",
+    effect: "high_velocity",
+    image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6316],
+      [100, 0.5789],
+    ],
+    statOverrides: { damage: 114, dropRange: 165, verticalRecoil: 16, muzzleVelocity: 655, ammoExtra: 13 },
+  },
+
+  maynard_medium: {
+    label: "Medium",
+    category: "medium",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_medium_regular.png",
+    icon: "🟫",
+    description: "Medium - 30m부터 데미지 감소(감쇠) 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6389],
+      [100, 0.5833],
+    ],
+    statOverrides: {  },
+  },
+
+  maynard_dumdum: {
+    label: "덤덤탄(출혈)",
+    category: "medium",
+    effect: "bleed",
+    image: "images/ui/ammo_effects/ammo_medium_bleed.png",
+    icon: "🩸",
+    description: "덤덤탄 - 명중 시 강한 출혈 효과. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6389],
+      [100, 0.5833],
+    ],
+    statOverrides: { dropRange: 150, muzzleVelocity: 448 },
+    specialEffects: ["강한 출혈 효과 발생"],
+  },
+
+  maynard_high_velocity: {
+    label: "고속탄",
+    category: "medium",
+    effect: "high_velocity",
+    image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6423],
+      [100, 0.5839],
+    ],
+    statOverrides: { damage: 137, dropRange: 170, verticalRecoil: 12, muzzleVelocity: 660, ammoExtra: 9 },
+  },
+
+  maynard_subsonic: {
+    label: "아음속탄",
+    category: "medium",
+    effect: "subsonic",
+    image: "images/ui/ammo_effects/ammo_medium_subsonic.png",
+    icon: "🔇",
+    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 낙하거리·탄속 감소.",
+    cost: 5,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6389],
+      [100, 0.5833],
+    ],
+    statOverrides: { dropRange: 130, muzzleVelocity: 319, ammoExtra: 15 },
+    specialEffects: ["발사음 감소"],
+  },
+
+  springfield1866_medium: {
+    label: "Medium",
+    category: "medium",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_medium_regular.png",
+    icon: "🟫",
+    description: "Medium - 30m부터 데미지 감소(감쇠) 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6043],
+      [100, 0.5612],
+    ],
+    statOverrides: {  },
+  },
+
+  springfield1866_dumdum: {
+    label: "덤덤탄(출혈)",
+    category: "medium",
+    effect: "bleed",
+    image: "images/ui/ammo_effects/ammo_medium_bleed.png",
+    icon: "🩸",
+    description: "덤덤탄 - 명중 시 강한 출혈 효과. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6043],
+      [100, 0.5612],
+    ],
+    statOverrides: { dropRange: 155, muzzleVelocity: 440 },
+    specialEffects: ["강한 출혈 효과 발생"],
+  },
+
+  springfield1866_explosive: {
+    label: "폭발탄",
+    category: "medium",
+    effect: "explosive",
+    image: "images/ui/ammo_effects/ammo_medium_explosive.png",
+    icon: "💥",
+    description: "폭발탄 - 광범위 폭발 데미지. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [100, 0.4720],
+    ],
+    statOverrides: { damage: 125, dropRange: 120, muzzleVelocity: 370 },
+  },
+
+  springfield1866_high_velocity: {
+    label: "고속탄",
+    category: "medium",
+    effect: "high_velocity",
+    image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    cost: 30,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6061],
+      [100, 0.5606],
+    ],
+    statOverrides: { damage: 132, dropRange: 180, verticalRecoil: 10, muzzleVelocity: 615, ammoExtra: 8 },
+  },
+
+  springfield1866_poison: {
+    label: "중독탄",
+    category: "medium",
+    effect: "poison",
+    image: "images/ui/ammo_effects/ammo_medium_poison.png",
+    icon: "🟢",
+    description: "중독탄 - 명중 시 독 효과. 관통 불가.",
+    cost: 25,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6043],
+      [100, 0.5612],
+    ],
+    statOverrides: {  },
+    specialEffects: ["중급 중독 효과 발생"],
+  },
+
+  carbine1865_medium: {
+    label: "Medium",
+    category: "medium",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_medium_regular.png",
+    icon: "🟫",
+    description: "Medium - 30m부터 데미지 감소(감쇠) 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6345],
+      [100, 0.5793],
+    ],
+    statOverrides: {  },
+  },
+
+  carbine1865_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "medium",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_medium_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6414],
+      [100, 0.6069],
+    ],
+    statOverrides: { dropRange: 105, verticalRecoil: 7, muzzleVelocity: 272 },
+    specialEffects: ["40m부터 데미지 감소(감쇠) 시작"],
+  },
+
+  carbine1865_subsonic: {
+    label: "아음속탄",
+    category: "medium",
+    effect: "subsonic",
+    image: "images/ui/ammo_effects/ammo_medium_subsonic.png",
+    icon: "🔇",
+    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 낙하거리·탄속 감소.",
+    cost: 10,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6345],
+      [100, 0.5793],
+    ],
+    statOverrides: { dropRange: 95, muzzleVelocity: 242, ammoExtra: 25 },
+    specialEffects: ["발사음 감소"],
+  },  vetterli71_medium: {
+    label: "Medium",
+    category: "medium",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_medium_regular.png",
+    icon: "🟫",
+    description: "Medium - 30m부터 데미지 감소(감쇠) 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6385],
+      [100, 0.5769],
+    ],
+    statOverrides: {  },
+  },
+
+  vetterli71_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "medium",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_medium_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6385],
+      [100, 0.6077],
+    ],
+    statOverrides: { dropRange: 115, verticalRecoil: 9, muzzleVelocity: 350 },
+    specialEffects: ["40m부터 데미지 감소(감쇠) 시작"],
+  },
+
+  vetterli71_high_velocity: {
+    label: "고속탄",
+    category: "medium",
+    effect: "high_velocity",
+    image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6423],
+      [100, 0.5772],
+    ],
+    statOverrides: { damage: 123, dropRange: 140, verticalRecoil: 9, muzzleVelocity: 510, ammoExtra: 10 },
+  },
+
+  vetterli71_incendiary: {
+    label: "소이탄",
+    category: "medium",
+    effect: "incendiary",
+    image: "images/ui/ammo_effects/ammo_medium_incendiary.png",
+    icon: "🔥",
+    description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
+    cost: 40,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6385],
+      [100, 0.5769],
+    ],
+    statOverrides: {  },
+    specialEffects: ["30m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
+    effectMaxRange: 30,
+  },
+
+  vetterli71_subsonic: {
+    label: "아음속탄",
+    category: "medium",
+    effect: "subsonic",
+    image: "images/ui/ammo_effects/ammo_medium_subsonic.png",
+    icon: "🔇",
+    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 낙하거리·탄속 감소.",
+    cost: 10,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6385],
+      [100, 0.5769],
+    ],
+    statOverrides: { dropRange: 100, muzzleVelocity: 266, ammoExtra: 24 },
+    specialEffects: ["발사음 감소"],
+  },
+
+  pax_medium: {
+    label: "Medium",
+    category: "medium",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_medium_regular.png",
+    icon: "🟫",
+    description: "Medium - 30m부터 데미지 감소(감쇠) 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.5545],
+      [80, 0.4727],
+      [100, 0.4727],
+    ],
+    statOverrides: {  },
+  },
+
+  pax_dumdum: {
+    label: "덤덤탄(출혈)",
+    category: "medium",
+    effect: "bleed",
+    image: "images/ui/ammo_effects/ammo_medium_bleed.png",
+    icon: "🩸",
+    description: "덤덤탄 - 명중 시 중급 출혈 효과. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.5545],
+      [80, 0.4727],
+      [100, 0.4727],
+    ],
+    statOverrides: { dropRange: 60, muzzleVelocity: 300 },
+    specialEffects: ["중급 출혈 효과 발생"],
+  },
+
+  pax_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "medium",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_medium_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [70, 0.5545],
+      [80, 0.4909],
+      [100, 0.4909],
+    ],
+    statOverrides: { dropRange: 60, verticalRecoil: 12, muzzleVelocity: 300 },
+    specialEffects: ["40m부터 데미지 감소(감쇠) 시작"],
+  },
+
+  pax_high_velocity: {
+    label: "고속탄",
+    category: "medium",
+    effect: "high_velocity",
+    image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.5481],
+      [80, 0.4712],
+      [100, 0.4712],
+    ],
+    statOverrides: { damage: 104, dropRange: 70, verticalRecoil: 12, muzzleVelocity: 405, ammoExtra: 8 },
+  },
+
+  pax_incendiary: {
+    label: "소이탄",
+    category: "medium",
+    effect: "incendiary",
+    image: "images/ui/ammo_effects/ammo_medium_incendiary.png",
+    icon: "🔥",
+    description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
+    cost: 40,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.5545],
+      [80, 0.4727],
+      [100, 0.4727],
+    ],
+    statOverrides: {  },
+    specialEffects: ["30m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
+    effectMaxRange: 30,
+  },
+
+  pax_poison: {
+    label: "중독탄",
+    category: "medium",
+    effect: "poison",
+    image: "images/ui/ammo_effects/ammo_medium_poison.png",
+    icon: "🟢",
+    description: "중독탄 - 명중 시 독 효과. 관통 불가.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.5545],
+      [80, 0.4727],
+      [100, 0.4727],
+    ],
+    statOverrides: {  },
+    specialEffects: ["중급 중독 효과 발생"],
+  },
+
+  scottfield_medium: {
+    label: "Medium",
+    category: "medium",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_medium_regular.png",
+    icon: "🟫",
+    description: "Medium - 30m부터 데미지 감소(감쇠) 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.5514],
+      [80, 0.4673],
+      [100, 0.4673],
+    ],
+    statOverrides: {  },
+  },
+
+  scottfield_dumdum: {
+    label: "덤덤탄(출혈)",
+    category: "medium",
+    effect: "bleed",
+    image: "images/ui/ammo_effects/ammo_medium_bleed.png",
+    icon: "🩸",
+    description: "덤덤탄 - 명중 시 중급 출혈 효과. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.5514],
+      [80, 0.4673],
+      [100, 0.4673],
+    ],
+    statOverrides: { dropRange: 60, muzzleVelocity: 250 },
+    specialEffects: ["중급 출혈 효과 발생"],
+  },
+
+  scottfield_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "medium",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_medium_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [70, 0.5514],
+      [80, 0.4953],
+      [100, 0.4953],
+    ],
+    statOverrides: { dropRange: 60, verticalRecoil: 12, muzzleVelocity: 250 },
+    specialEffects: ["40m부터 데미지 감소(감쇠) 시작"],
+  },
+
+  scottfield_high_velocity: {
+    label: "고속탄",
+    category: "medium",
+    effect: "high_velocity",
+    image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.5446],
+      [80, 0.4752],
+      [100, 0.4752],
+    ],
+    statOverrides: { damage: 101, dropRange: 75, verticalRecoil: 12, muzzleVelocity: 355, ammoExtra: 8 },
+  },
+
+  scottfield_incendiary: {
+    label: "소이탄",
+    category: "medium",
+    effect: "incendiary",
+    image: "images/ui/ammo_effects/ammo_medium_incendiary.png",
+    icon: "🔥",
+    description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
+    cost: 40,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.5514],
+      [80, 0.4673],
+      [100, 0.4673],
+    ],
+    statOverrides: {  },
+    specialEffects: ["30m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
+    effectMaxRange: 30,
+  },
+
   // ─────────────────────────────────────────────────────────────
   // 아래는 아직 이 탄약을 쓰는 무기가 ITEMS에 없는 "참고용" 데이터입니다.
   // 사용자가 공식 최신 그래프를 보고 직접 불러준 낙하곡선(20/50/100m 등 구간점)이며,
@@ -2208,6 +2788,367 @@ const ITEMS = [
       meleeLight: 27,
       meleeHeavy: 54,
       staminaConsumption: 25,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_drilling",
+    category: "weapon",
+    name: "Drilling",
+    image: "images/weapons/drilling.png",
+
+    // 검색 필터용
+    slotSize: 4,
+    ammoCategory: "medium",
+    ammoEffects: ["bleed", "full_metal", "high_velocity"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "drilling_medium",
+      "drilling_dumdum",
+      "drilling_fmj",
+      "drilling_high_velocity",
+    ],
+    defaultAmmo: "drilling_medium",
+
+    // 기본 정보
+    price: 510,
+    updateAdded: "Update 1.13",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "2/1",
+      extra: 20,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 120,
+      dropRange: 145,
+      rateOfFire: 20,
+      cycleTime: 0.6,
+      spread: 42.5,
+      sway: 77,
+      verticalRecoil: 12,
+      reloadSpeed: 5.3,
+      muzzleVelocity: 530,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_maynard_sniper",
+    category: "weapon",
+    name: "Maynard Sniper",
+    image: "images/weapons/maynard_sniper.png",
+
+    // 검색 필터용
+    slotSize: 4,
+    ammoCategory: "medium",
+    ammoEffects: ["bleed", "high_velocity", "subsonic"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "maynard_medium",
+      "maynard_dumdum",
+      "maynard_high_velocity",
+      "maynard_subsonic",
+    ],
+    defaultAmmo: "maynard_medium",
+
+    // 기본 정보
+    price: 139,
+    updateAdded: "Update 2.1",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "1",
+      extra: 26,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 144,
+      dropRange: 160,
+      rateOfFire: 11,
+      cycleTime: 5.8,
+      spread: 25,
+      sway: 69,
+      verticalRecoil: 8,
+      reloadSpeed: 5,
+      muzzleVelocity: 560,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_springfield_1866",
+    category: "weapon",
+    name: "Springfield 1866",
+    image: "images/weapons/springfield_1866.png",
+
+    // 검색 필터용
+    slotSize: 4,
+    ammoCategory: "medium",
+    ammoEffects: ["bleed", "explosive", "high_velocity", "poison"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "springfield1866_medium",
+      "springfield1866_dumdum",
+      "springfield1866_explosive",
+      "springfield1866_high_velocity",
+      "springfield1866_poison",
+    ],
+    defaultAmmo: "springfield1866_medium",
+
+    // 기본 정보
+    price: 38,
+    updateAdded: "Update 1.1.3",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "1",
+      extra: 24,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 139,
+      dropRange: 160,
+      rateOfFire: 19,
+      cycleTime: 3.3,
+      spread: 20,
+      sway: 77,
+      verticalRecoil: 6,
+      reloadSpeed: 3,
+      muzzleVelocity: 490,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_1865_carbine",
+    category: "weapon",
+    name: "1865 Carbine",
+    image: "images/weapons/carbine_1865.png",
+
+    // 검색 필터용
+    slotSize: 3,
+    ammoCategory: "medium",
+    ammoEffects: ["full_metal", "subsonic"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "carbine1865_medium",
+      "carbine1865_fmj",
+      "carbine1865_subsonic",
+    ],
+    defaultAmmo: "carbine1865_medium",
+
+    // 기본 정보
+    price: 70,
+    updateAdded: "Update 2.0",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "7+1",
+      extra: 21,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 145,
+      dropRange: 115,
+      rateOfFire: 22,
+      cycleTime: 1.8,
+      spread: 23,
+      sway: 77,
+      verticalRecoil: 4,
+      reloadSpeed: 8.5,
+      muzzleVelocity: 340,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_vetterli_71",
+    category: "weapon",
+    name: "Vetterli 71",
+    image: "images/weapons/vetterli_71.png",
+
+    // 검색 필터용
+    slotSize: 3,
+    ammoCategory: "medium",
+    ammoEffects: ["full_metal", "high_velocity", "incendiary", "subsonic"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "vetterli71_medium",
+      "vetterli71_fmj",
+      "vetterli71_high_velocity",
+      "vetterli71_incendiary",
+      "vetterli71_subsonic",
+    ],
+    defaultAmmo: "vetterli71_medium",
+
+    // 기본 정보
+    price: 105,
+    updateAdded: "Update Early Access 0.1",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "6+1",
+      extra: 16,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 130,
+      dropRange: 125,
+      rateOfFire: 24,
+      cycleTime: 1.4,
+      spread: 22.5,
+      sway: 77,
+      verticalRecoil: 5,
+      reloadSpeed: 12.1,
+      muzzleVelocity: 410,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_pax",
+    category: "weapon",
+    name: "Pax",
+    image: "images/weapons/pax.png",
+
+    // 검색 필터용
+    slotSize: 1,
+    ammoCategory: "medium",
+    ammoEffects: ["bleed", "full_metal", "high_velocity", "incendiary", "poison"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "pax_medium",
+      "pax_dumdum",
+      "pax_fmj",
+      "pax_high_velocity",
+      "pax_incendiary",
+      "pax_poison",
+    ],
+    defaultAmmo: "pax_medium",
+
+    // 기본 정보
+    price: 80,
+    updateAdded: "Update Early Access 4.2",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "6",
+      extra: 12,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 110,
+      dropRange: 65,
+      rateOfFire: 22,
+      cycleTime: 1.4,
+      spread: 32.5,
+      sway: 128,
+      verticalRecoil: 10,
+      reloadSpeed: 11.2,
+      muzzleVelocity: 330,
+      meleeLight: 13,
+      meleeHeavy: 31,
+      staminaConsumption: 20,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_scottfield",
+    category: "weapon",
+    name: "Scottfield",
+    image: "images/weapons/scottfield.png",
+
+    // 검색 필터용
+    slotSize: 1,
+    ammoCategory: "medium",
+    ammoEffects: ["bleed", "full_metal", "high_velocity", "incendiary"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "scottfield_medium",
+      "scottfield_dumdum",
+      "scottfield_fmj",
+      "scottfield_high_velocity",
+      "scottfield_incendiary",
+    ],
+    defaultAmmo: "scottfield_medium",
+
+    // 기본 정보
+    price: 77,
+    updateAdded: "Update 1.6.2",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "6",
+      extra: 12,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 107,
+      dropRange: 65,
+      rateOfFire: 24,
+      cycleTime: 1.5,
+      spread: 28.1,
+      sway: 128,
+      verticalRecoil: 9,
+      reloadSpeed: 9,
+      muzzleVelocity: 280,
+      meleeLight: 13,
+      meleeHeavy: 31,
+      staminaConsumption: 20,
     },
 
     description: "",
