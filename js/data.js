@@ -1843,6 +1843,654 @@ const AMMO_TYPES = {
     effectMaxRange: 30,
   },
 
+
+  // ── Mako 1895 / Martini-Henry / Sparks / Haymaker / Uppercut / Krag / Lebel 1886 / Mosin-Nagant / Berthier 1892 / Mosin Obrez 전용 탄약 ──
+  mako1895_long: {
+    label: "Long",
+    category: "long",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_long_regular.png",
+    icon: "🟫",
+    description: "Long - 40m부터 데미지 감소(감쇠) 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6172],
+      [100, 0.6094],
+    ],
+    statOverrides: {  },
+  },
+
+  mako1895_explosive: {
+    label: "폭발탄",
+    category: "long",
+    effect: "explosive",
+    image: "images/ui/ammo_effects/ammo_long_explosive.png",
+    icon: "💥",
+    description: "폭발탄 - 광범위 폭발 데미지. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [70, 0.7480],
+      [90, 0.5984],
+      [100, 0.5827],
+    ],
+    statOverrides: { damage: 127, dropRange: 85, muzzleVelocity: 332 },
+  },
+
+  mako1895_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "long",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_long_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [50, 1.00],
+      [100, 0.6172],
+    ],
+    statOverrides: { dropRange: 95, verticalRecoil: 14, muzzleVelocity: 305 },
+    specialEffects: ["50m부터 데미지 감소(감쇠) 시작"],
+  },
+
+  martinihenry_long: {
+    label: "Long",
+    category: "long",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_long_regular.png",
+    icon: "🟫",
+    description: "Long - 40m부터 데미지 감소(감쇠) 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6154],
+      [100, 0.6084],
+    ],
+    statOverrides: {  },
+  },
+
+  martinihenry_explosive: {
+    label: "폭발탄",
+    category: "long",
+    effect: "explosive",
+    image: "images/ui/ammo_effects/ammo_long_explosive.png",
+    icon: "💥",
+    description: "폭발탄 - 광범위 폭발 데미지. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [70, 0.7246],
+      [90, 0.5797],
+      [100, 0.5652],
+    ],
+    statOverrides: { damage: 138, dropRange: 95, muzzleVelocity: 300 },
+  },
+
+  martinihenry_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "long",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_long_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    cost: 30,
+    falloff: [
+      [0, 1.00],
+      [50, 1.00],
+      [100, 0.6154],
+    ],
+    statOverrides: { dropRange: 110, verticalRecoil: 16, muzzleVelocity: 320 },
+    specialEffects: ["50m부터 데미지 감소(감쇠) 시작"],
+  },
+
+  martinihenry_high_velocity: {
+    label: "고속탄",
+    category: "long",
+    effect: "high_velocity",
+    image: "images/ui/ammo_effects/ammo_long_high_velocity.png",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    cost: 35,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6176],
+      [100, 0.6103],
+    ],
+    statOverrides: { damage: 136, dropRange: 140, verticalRecoil: 16, muzzleVelocity: 500, ammoExtra: 7 },
+  },
+
+  martinihenry_incendiary: {
+    label: "소이탄",
+    category: "long",
+    effect: "incendiary",
+    image: "images/ui/ammo_effects/ammo_long_incendiary.png",
+    icon: "🔥",
+    description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
+    cost: 35,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6154],
+      [100, 0.6084],
+    ],
+    statOverrides: {  },
+    specialEffects: ["40m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
+    effectMaxRange: 40,
+  },
+
+  sparks_long: {
+    label: "Long",
+    category: "long",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_long_regular.png",
+    icon: "🟫",
+    description: "Long - 40m부터 데미지 감소(감쇠) 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6174],
+      [100, 0.6107],
+    ],
+    statOverrides: {  },
+  },
+
+  sparks_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "long",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_long_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    cost: 30,
+    falloff: [
+      [0, 1.00],
+      [50, 1.00],
+      [100, 0.6174],
+    ],
+    statOverrides: { dropRange: 125, verticalRecoil: 13, muzzleVelocity: 370 },
+    specialEffects: ["50m부터 데미지 감소(감쇠) 시작"],
+  },
+
+  sparks_incendiary: {
+    label: "소이탄",
+    category: "long",
+    effect: "incendiary",
+    image: "images/ui/ammo_effects/ammo_long_incendiary.png",
+    icon: "🔥",
+    description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
+    cost: 35,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6174],
+      [100, 0.6107],
+    ],
+    statOverrides: {  },
+    specialEffects: ["40m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
+    effectMaxRange: 40,
+  },
+
+  sparks_poison: {
+    label: "중독탄",
+    category: "long",
+    effect: "poison",
+    image: "images/ui/ammo_effects/ammo_long_poison.png",
+    icon: "🟢",
+    description: "중독탄 - 명중 시 강한 독 효과. 관통 불가.",
+    cost: 30,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6174],
+      [100, 0.6107],
+    ],
+    statOverrides: {  },
+    specialEffects: ["강한(intense) 중독 효과 발생"],
+  },
+
+  sparks_subsonic: {
+    label: "아음속탄",
+    category: "long",
+    effect: "subsonic",
+    image: "images/ui/ammo_effects/ammo_long_subsonic.png",
+    icon: "🔇",
+    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 낙하거리·탄속 감소.",
+    cost: 10,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6174],
+      [100, 0.6107],
+    ],
+    statOverrides: { dropRange: 115, muzzleVelocity: 309, ammoExtra: 9 },
+    specialEffects: ["발사음 감소"],
+  },  haymaker_long: {
+    label: "Long",
+    category: "long",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_long_regular.png",
+    icon: "🟫",
+    description: "Long - 40m부터 데미지 감소(감쇠) 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [70, 0.5902],
+      [90, 0.4754],
+      [100, 0.4754],
+    ],
+    statOverrides: {  },
+  },
+
+  haymaker_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "long",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_long_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [50, 1.00],
+      [80, 0.5902],
+      [90, 0.5000],
+      [100, 0.5000],
+    ],
+    statOverrides: { dropRange: 50, verticalRecoil: 25, muzzleVelocity: 375 },
+    specialEffects: ["50m부터 데미지 감소(감쇠) 시작"],
+  },
+
+  haymaker_poison: {
+    label: "중독탄",
+    category: "long",
+    effect: "poison",
+    image: "images/ui/ammo_effects/ammo_long_poison.png",
+    icon: "🟢",
+    description: "중독탄 - 명중 시 강한 독 효과. 관통 불가.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [70, 0.5902],
+      [90, 0.4754],
+      [100, 0.4754],
+    ],
+    statOverrides: {  },
+    specialEffects: ["강한(intense) 중독 효과 발생"],
+  },
+
+  uppercut_long: {
+    label: "Long",
+    category: "long",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_long_regular.png",
+    icon: "🟫",
+    description: "Long - 40m부터 데미지 감소(감쇠) 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [70, 0.5714],
+      [90, 0.4603],
+      [100, 0.4603],
+    ],
+    statOverrides: {  },
+  },
+
+  uppercut_explosive: {
+    label: "폭발탄",
+    category: "long",
+    effect: "explosive",
+    image: "images/ui/ammo_effects/ammo_long_explosive.png",
+    icon: "💥",
+    description: "폭발탄 - 광범위 폭발 데미지. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [50, 0.7255],
+      [90, 0.4608],
+      [100, 0.4412],
+    ],
+    statOverrides: { damage: 102, dropRange: 45, muzzleVelocity: 330 },
+  },
+
+  uppercut_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "long",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_long_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [50, 1.00],
+      [80, 0.5714],
+      [90, 0.4841],
+      [100, 0.4841],
+    ],
+    statOverrides: { dropRange: 60, verticalRecoil: 25, muzzleVelocity: 360 },
+    specialEffects: ["50m부터 데미지 감소(감쇠) 시작"],
+  },
+
+  uppercut_incendiary: {
+    label: "소이탄",
+    category: "long",
+    effect: "incendiary",
+    image: "images/ui/ammo_effects/ammo_long_incendiary.png",
+    icon: "🔥",
+    description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
+    cost: 70,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [70, 0.5714],
+      [90, 0.4603],
+      [100, 0.4603],
+    ],
+    statOverrides: {  },
+    specialEffects: ["40m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
+    effectMaxRange: 40,
+  },  krag_special_long: {
+    label: "Special Long",
+    category: "special_long",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_special_long_regular.png",
+    icon: "🟫",
+    description: "Special Long - 40m부터 데미지 감소(감쇠) 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6190],
+      [100, 0.6032],
+    ],
+    statOverrides: {  },
+  },
+
+  krag_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "special_long",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_special_long_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [50, 1.00],
+      [100, 0.6190],
+    ],
+    statOverrides: { dropRange: 125, verticalRecoil: 6, muzzleVelocity: 458 },
+    specialEffects: ["50m부터 데미지 감소(감쇠) 시작"],
+  },
+
+  krag_incendiary: {
+    label: "소이탄",
+    category: "special_long",
+    effect: "incendiary",
+    image: "images/ui/ammo_effects/ammo_special_long_incendiary.png",
+    icon: "🔥",
+    description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
+    cost: 70,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6190],
+      [100, 0.6032],
+    ],
+    statOverrides: {  },
+    specialEffects: ["40m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
+    effectMaxRange: 40,
+  },
+
+  krag_subsonic: {
+    label: "아음속탄",
+    category: "special_long",
+    effect: "subsonic",
+    image: "images/ui/ammo_effects/ammo_special_long_subsonic.png",
+    icon: "🔇",
+    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 낙하거리·탄속 감소.",
+    cost: 20,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6190],
+      [100, 0.6032],
+    ],
+    statOverrides: { dropRange: 110, muzzleVelocity: 336, ammoExtra: 12 },
+    specialEffects: ["발사음 감소"],
+  },
+
+  lebel1886_special_long: {
+    label: "Special Long",
+    category: "special_long",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_special_long_regular.png",
+    icon: "🟫",
+    description: "Special Long - 40m부터 데미지 감소(감쇠) 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6212],
+      [100, 0.6061],
+    ],
+    statOverrides: {  },
+  },
+
+  lebel1886_incendiary: {
+    label: "소이탄",
+    category: "special_long",
+    effect: "incendiary",
+    image: "images/ui/ammo_effects/ammo_special_long_incendiary.png",
+    icon: "🔥",
+    description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
+    cost: 70,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6212],
+      [100, 0.6061],
+    ],
+    statOverrides: {  },
+    specialEffects: ["40m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
+    effectMaxRange: 40,
+  },
+
+  lebel1886_spitzer: {
+    label: "스피처탄",
+    category: "special_long",
+    effect: "spitzer",
+    image: "images/ui/ammo_effects/ammo_special_long_spitzer.png",
+    icon: "🏹",
+    description: "스피처탄 - 탄속 매우 증가, 관통력 증가. 상점 구매 불가(월드 획득 전용). ※ 참고 소스코드에 수치 불확실 표시가 있어 다른 무기보다 신뢰도가 낮음.",
+    cost: null,
+    scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6195],
+      [100, 0.6018],
+    ],
+    statOverrides: { damage: 113, dropRange: 165, verticalRecoil: 13, muzzleVelocity: 850, ammoExtra: 3 },
+  },
+
+  mosinnagant_special_long: {
+    label: "Special Long",
+    category: "special_long",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_special_long_regular.png",
+    icon: "🟫",
+    description: "Special Long - 40m부터 데미지 감소(감쇠) 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6176],
+      [100, 0.6103],
+    ],
+    statOverrides: {  },
+  },
+
+  mosinnagant_incendiary: {
+    label: "소이탄",
+    category: "special_long",
+    effect: "incendiary",
+    image: "images/ui/ammo_effects/ammo_special_long_incendiary.png",
+    icon: "🔥",
+    description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
+    cost: 70,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6176],
+      [100, 0.6103],
+    ],
+    statOverrides: {  },
+    specialEffects: ["40m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
+    effectMaxRange: 40,
+  },
+
+  mosinnagant_spitzer: {
+    label: "스피처탄",
+    category: "special_long",
+    effect: "spitzer",
+    image: "images/ui/ammo_effects/ammo_special_long_spitzer.png",
+    icon: "🏹",
+    description: "스피처탄 - 탄속 매우 증가, 관통력 증가. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6154],
+      [100, 0.6068],
+    ],
+    statOverrides: { damage: 117, dropRange: 160, verticalRecoil: 15, muzzleVelocity: 820, ammoExtra: 7 },
+  },
+
+  berthier1892_special_long: {
+    label: "Special Long",
+    category: "special_long",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_special_long_regular.png",
+    icon: "🟫",
+    description: "Special Long - 40m부터 데미지 감소(감쇠) 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6484],
+      [100, 0.6328],
+    ],
+    statOverrides: {  },
+  },
+
+  berthier1892_incendiary: {
+    label: "소이탄",
+    category: "special_long",
+    effect: "incendiary",
+    image: "images/ui/ammo_effects/ammo_special_long_incendiary.png",
+    icon: "🔥",
+    description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
+    cost: 35,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6484],
+      [100, 0.6328],
+    ],
+    statOverrides: {  },
+    specialEffects: ["40m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
+    effectMaxRange: 40,
+  },
+
+  berthier1892_spitzer: {
+    label: "스피처탄",
+    category: "special_long",
+    effect: "spitzer",
+    image: "images/ui/ammo_effects/ammo_special_long_spitzer.png",
+    icon: "🏹",
+    description: "스피처탄 - 탄속 매우 증가, 관통력 증가. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6422],
+      [100, 0.6239],
+    ],
+    statOverrides: { damage: 109, dropRange: 140, verticalRecoil: 16, muzzleVelocity: 780, ammoExtra: 5 },
+  },
+
+  mosinobrez_special_long: {
+    label: "Special Long",
+    category: "special_long",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_special_long_regular.png",
+    icon: "🟫",
+    description: "Special Long - 40m부터 데미지 감소(감쇠) 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6190],
+      [100, 0.6032],
+    ],
+    statOverrides: {  },
+  },
+
+  mosinobrez_incendiary: {
+    label: "소이탄",
+    category: "special_long",
+    effect: "incendiary",
+    image: "images/ui/ammo_effects/ammo_special_long_incendiary.png",
+    icon: "🔥",
+    description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
+    cost: 70,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6190],
+      [100, 0.6032],
+    ],
+    statOverrides: {  },
+    specialEffects: ["40m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
+    effectMaxRange: 40,
+  },
+
+  mosinobrez_spitzer: {
+    label: "스피처탄",
+    category: "special_long",
+    effect: "spitzer",
+    image: "images/ui/ammo_effects/ammo_special_long_spitzer.png",
+    icon: "🏹",
+    description: "스피처탄 - 탄속 매우 증가, 관통력 증가. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6226],
+      [100, 0.6132],
+    ],
+    statOverrides: { damage: 106, dropRange: 120, verticalRecoil: 21, muzzleVelocity: 710, ammoExtra: 5 },
+  },
+
   // ─────────────────────────────────────────────────────────────
   // 아래는 아직 이 탄약을 쓰는 무기가 ITEMS에 없는 "참고용" 데이터입니다.
   // 사용자가 공식 최신 그래프를 보고 직접 불러준 낙하곡선(20/50/100m 등 구간점)이며,
@@ -3149,6 +3797,512 @@ const ITEMS = [
       meleeLight: 13,
       meleeHeavy: 31,
       staminaConsumption: 20,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_mako_1895",
+    category: "weapon",
+    name: "Mako 1895",
+    image: "images/weapons/mako_1895.png",
+
+    // 검색 필터용
+    slotSize: 4,
+    ammoCategory: "long",
+    ammoEffects: ["explosive", "full_metal"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "mako1895_long",
+      "mako1895_explosive",
+      "mako1895_fmj",
+    ],
+    defaultAmmo: "mako1895_long",
+
+    // 기본 정보
+    price: 360,
+    updateAdded: "Update 1.16",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "6+1",
+      extra: 10,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 128,
+      dropRange: 115,
+      rateOfFire: 24,
+      cycleTime: 1.3,
+      spread: 27.5,
+      sway: 77,
+      verticalRecoil: 11,
+      reloadSpeed: 11,
+      muzzleVelocity: 440,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_martini_henry",
+    category: "weapon",
+    name: "Martini-Henry",
+    image: "images/weapons/martini_henry.png",
+
+    // 검색 필터용
+    slotSize: 4,
+    ammoCategory: "long",
+    ammoEffects: ["explosive", "full_metal", "high_velocity", "incendiary"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "martinihenry_long",
+      "martinihenry_explosive",
+      "martinihenry_fmj",
+      "martinihenry_high_velocity",
+      "martinihenry_incendiary",
+    ],
+    defaultAmmo: "martinihenry_long",
+
+    // 기본 정보
+    price: 122,
+    updateAdded: "Update 1.1.3",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "1",
+      extra: 20,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 143,
+      dropRange: 125,
+      rateOfFire: 18,
+      cycleTime: 3.5,
+      spread: 40,
+      sway: 77,
+      verticalRecoil: 12,
+      reloadSpeed: 2.7,
+      muzzleVelocity: 400,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_sparks",
+    category: "weapon",
+    name: "Sparks",
+    image: "images/weapons/sparks.png",
+
+    // 검색 필터용
+    slotSize: 4,
+    ammoCategory: "long",
+    ammoEffects: ["full_metal", "incendiary", "poison", "subsonic"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "sparks_long",
+      "sparks_fmj",
+      "sparks_incendiary",
+      "sparks_poison",
+      "sparks_subsonic",
+    ],
+    defaultAmmo: "sparks_long",
+
+    // 기본 정보
+    price: 130,
+    updateAdded: "Update Early Access 0.1",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "1",
+      extra: 16,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 149,
+      dropRange: 145,
+      rateOfFire: 13,
+      cycleTime: 4.9,
+      spread: 30,
+      sway: 77,
+      verticalRecoil: 10,
+      reloadSpeed: 4,
+      muzzleVelocity: 533,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_haymaker",
+    category: "weapon",
+    name: "Haymaker",
+    image: "images/weapons/haymaker.png",
+
+    // 검색 필터용
+    slotSize: 2,
+    ammoCategory: "long",
+    ammoEffects: ["full_metal", "poison"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "haymaker_long",
+      "haymaker_fmj",
+      "haymaker_poison",
+    ],
+    defaultAmmo: "haymaker_long",
+
+    // 기본 정보
+    price: 279,
+    updateAdded: "Update 1.13",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "9/1",
+      extra: 9,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 122,
+      dropRange: 65,
+      rateOfFire: 18,
+      cycleTime: 1.3,
+      spread: 40,
+      sway: 100,
+      verticalRecoil: 23,
+      reloadSpeed: 18.2,
+      muzzleVelocity: 530,
+      meleeLight: 13,
+      meleeHeavy: 31,
+      staminaConsumption: 20,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_uppercut",
+    category: "weapon",
+    name: "Uppercut",
+    image: "images/weapons/uppercut.png",
+
+    // 검색 필터용
+    slotSize: 2,
+    ammoCategory: "long",
+    ammoEffects: ["explosive", "full_metal", "incendiary"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "uppercut_long",
+      "uppercut_explosive",
+      "uppercut_fmj",
+      "uppercut_incendiary",
+    ],
+    defaultAmmo: "uppercut_long",
+
+    // 기본 정보
+    price: 310,
+    updateAdded: "Update Early Access 0.1",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "6",
+      extra: 12,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 126,
+      dropRange: 65,
+      rateOfFire: 18,
+      cycleTime: 1.6,
+      spread: 40,
+      sway: 128,
+      verticalRecoil: 23,
+      reloadSpeed: 16,
+      muzzleVelocity: 410,
+      meleeLight: 13,
+      meleeHeavy: 31,
+      staminaConsumption: 20,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_krag",
+    category: "weapon",
+    name: "Krag",
+    image: "images/weapons/krag.png",
+
+    // 검색 필터용
+    slotSize: 4,
+    ammoCategory: "special",
+    ammoEffects: ["full_metal", "incendiary", "subsonic"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "krag_special_long",
+      "krag_fmj",
+      "krag_incendiary",
+      "krag_subsonic",
+    ],
+    defaultAmmo: "krag_special_long",
+
+    // 기본 정보
+    price: 450,
+    updateAdded: "Update 1.11",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "5+1",
+      extra: 10,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 126,
+      dropRange: 140,
+      rateOfFire: 23,
+      cycleTime: 1.4,
+      spread: 30,
+      sway: 77,
+      verticalRecoil: 3,
+      reloadSpeed: 11.1,
+      muzzleVelocity: 610,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_lebel_1886",
+    category: "weapon",
+    name: "Lebel 1886",
+    image: "images/weapons/lebel_1886.png",
+
+    // 검색 필터용
+    slotSize: 4,
+    ammoCategory: "special",
+    ammoEffects: ["incendiary", "spitzer"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "lebel1886_special_long",
+      "lebel1886_incendiary",
+      "lebel1886_spitzer",
+    ],
+    defaultAmmo: "lebel1886_special_long",
+
+    // 기본 정보
+    price: 397,
+    updateAdded: "Update Early Access 6.0",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "10",
+      extra: 5,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 132,
+      dropRange: 120,
+      rateOfFire: 20,
+      cycleTime: 1.8,
+      spread: 30,
+      sway: 77,
+      verticalRecoil: 9,
+      reloadSpeed: 18.7,
+      muzzleVelocity: 630,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_mosin_nagant",
+    category: "weapon",
+    name: "Mosin-Nagant",
+    image: "images/weapons/mosin_nagant.png",
+
+    // 검색 필터용
+    slotSize: 4,
+    ammoCategory: "special",
+    ammoEffects: ["incendiary", "spitzer"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "mosinnagant_special_long",
+      "mosinnagant_incendiary",
+      "mosinnagant_spitzer",
+    ],
+    defaultAmmo: "mosinnagant_special_long",
+
+    // 기본 정보
+    price: 620,
+    updateAdded: "Update Early Access 0.1",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "5",
+      extra: 10,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 136,
+      dropRange: 135,
+      rateOfFire: 26,
+      cycleTime: 1.9,
+      spread: 35,
+      sway: 77,
+      verticalRecoil: 10,
+      reloadSpeed: 3.7,
+      muzzleVelocity: 615,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_berthier_1892",
+    category: "weapon",
+    name: "Berthier 1892",
+    image: "images/weapons/berthier_1892.png",
+
+    // 검색 필터용
+    slotSize: 3,
+    ammoCategory: "special",
+    ammoEffects: ["incendiary", "spitzer"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "berthier1892_special_long",
+      "berthier1892_incendiary",
+      "berthier1892_spitzer",
+    ],
+    defaultAmmo: "berthier1892_special_long",
+
+    // 기본 정보
+    price: 380,
+    updateAdded: "Update 1.7",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "3",
+      extra: 12,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 128,
+      dropRange: 120,
+      rateOfFire: 27,
+      cycleTime: 1.7,
+      spread: 42.5,
+      sway: 77,
+      verticalRecoil: 12,
+      reloadSpeed: 2.7,
+      muzzleVelocity: 590,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_mosin_obrez",
+    category: "weapon",
+    name: "Mosin Obrez",
+    image: "images/weapons/mosin_obrez.png",
+
+    // 검색 필터용
+    slotSize: 2,
+    ammoCategory: "special",
+    ammoEffects: ["incendiary", "spitzer"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "mosinobrez_special_long",
+      "mosinobrez_incendiary",
+      "mosinobrez_spitzer",
+    ],
+    defaultAmmo: "mosinobrez_special_long",
+
+    // 기본 정보
+    price: 290,
+    updateAdded: "Update Early Access 0.1",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "5",
+      extra: 7,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 126,
+      dropRange: 100,
+      rateOfFire: 26,
+      cycleTime: 1.9,
+      spread: 55,
+      sway: 100,
+      verticalRecoil: 16,
+      reloadSpeed: 3.7,
+      muzzleVelocity: 520,
+      meleeLight: 13,
+      meleeHeavy: 31,
+      staminaConsumption: 25,
     },
 
     description: "",
