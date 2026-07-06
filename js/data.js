@@ -2317,7 +2317,7 @@ const AMMO_TYPES = {
     effect: "spitzer",
     image: "images/ui/ammo_effects/ammo_special_long_spitzer.png",
     icon: "🏹",
-    description: "스피처탄 - 탄속 증가, 관통력 증가. 상점 구매 불가(월드 획득 전용). ※ 참고 소스코드에 수치 불확실 표시가 있어 다른 무기보다 신뢰도가 낮음.",
+    description: "스피처탄 - 탄속 증가, 관통력 증가. 상점 구매 불가(월드 획득 전용).",
     cost: null,
     scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
     falloff: [

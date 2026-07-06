@@ -13,6 +13,13 @@ const state = {
     ammoEffect: new Set(),
   },
 
+  // 로드아웃 빌더 무기 선택 모달 전용 필터 (메인 검색 필터와 별개로 관리)
+  modalWeaponFilters: {
+    slotSize: new Set(),
+    ammoCategory: new Set(),
+    ammoEffect: new Set(),
+  },
+
   loadout: {},
   modal: { onSelect: null, categoryFilter: null },
 
@@ -59,6 +66,23 @@ function getSharedGroupUsage(sharedGroup) {
   return count;
 }
 
+// 현재 로드아웃에 장착된 무기들의 슬롯 사이즈(칸수) 합계.
+// excludeKey/excludeIndex를 주면 그 슬롯은 계산에서 제외 (그 자리를 교체하는 경우 중복 계산 방지)
+function getTotalWeaponSlotSize(excludeKey, excludeIndex) {
+  let total = 0;
+  CATEGORIES.weapon.loadoutSlots.forEach((slotDef) => {
+    const key = loadoutKey("weapon", slotDef.slotKey);
+    (state.loadout[key] || []).forEach((slotData, idx) => {
+      if (key === excludeKey && idx === excludeIndex) return;
+      if (slotData?.item?.slotSize != null) total += slotData.item.slotSize;
+    });
+  });
+  return total;
+}
+
+const WEAPON_SLOT_LIMIT = 6;
+
+
 // 아이템을 카테고리에 맞는 로드아웃 슬롯 중 "첫 번째 빈 자리"에 자동으로 채워넣는다.
 // (무기: 주무기 → 보조무기 순으로 탐색, 특성처럼 개수 제한이 없는 슬롯은 목록에 추가)
 function addToLoadoutQuick(item, ammoId = null) {
@@ -81,6 +105,13 @@ function addToLoadoutQuick(item, ammoId = null) {
       const arr = state.loadout[key];
       const emptyIdx = arr.findIndex((v) => v === null);
       if (emptyIdx !== -1) {
+        if (item.category === "weapon") {
+          const otherTotal = getTotalWeaponSlotSize(key, emptyIdx);
+          const newTotal = otherTotal + (item.slotSize || 0);
+          if (newTotal > WEAPON_SLOT_LIMIT) {
+            return { ok: false, message: `무기 칸수 합이 ${WEAPON_SLOT_LIMIT}칸을 초과합니다` };
+          }
+        }
         arr[emptyIdx] = { item, ammoId };
         return { ok: true, slotLabel: slotDef.max > 1 ? `${slotDef.label} ${emptyIdx + 1}` : slotDef.label };
       }
@@ -270,12 +301,13 @@ function getFilteredItems(extra = {}) {
   const category = extra.category !== undefined ? extra.category : state.filterCategory;
   const query = extra.query !== undefined ? extra.query : state.searchQuery;
   const useWeaponFilters = extra.useWeaponFilters !== false;
+  const filterSource = extra.filterSource || state.weaponFilters;
 
   return ITEMS.filter((item) => {
     if (category && category !== "all" && item.category !== category) return false;
     if (query && !item.name.toLowerCase().includes(query)) return false;
     if (useWeaponFilters && item.category === "weapon") {
-      const f = state.weaponFilters;
+      const f = filterSource;
       if (f.slotSize.size > 0 && !f.slotSize.has(item.slotSize)) return false;
       if (f.ammoCategory.size > 0 && !f.ammoCategory.has(item.ammoCategory)) return false;
       if (f.ammoEffect.size > 0) {
@@ -607,9 +639,10 @@ function openBodyPartView(parentItem, ammoId) {
         <!-- 탄약 효과 (특수탄 근처에 배치) -->
         <div class="status-effect-box">
           <h4>효과</h4>
+          ${ammo?.description ? `<p class="ammo-desc-text">${ammo.description}</p>` : ""}
           ${ammo?.specialEffects?.length
             ? `<ul class="status-effect-list">${ammo.specialEffects.map((e) => `<li>${e}</li>`).join("")}</ul>`
-            : `<p class="muted-text">이 탄약에는 특수 효과가 없습니다.</p>`}
+            : (ammo?.description ? "" : `<p class="muted-text">이 탄약에는 특수 효과가 없습니다.</p>`)}
           <p class="status-effect-note">※ 계산 결과는 반올림 등으로 인해 실제와 최대 1m까지 차이가 날 수 있습니다.</p>
         </div>
       </div>
@@ -690,7 +723,7 @@ function drawBodyPartChart(currentItem, ammoId, refRange, parentItem) {
   const maxDmg = Math.max(...ds.data.map((d) => d.y));
   const canOHK = maxDmg >= HUNTER_HP;
 
-  const opts = chartOptions("거리 (m)", "데미지", { showOHK: canOHK, refRange, xMax: 100 });
+  const opts = chartOptions("거리 (m)", "데미지", { showOHK: canOHK, refRange, xMax: 100, yStepSize: 25 });
   // 애니메이션 비활성화 — 클릭마다 그래프가 다시 올라오는 효과 제거
   opts.animation = false;
   opts.animations = { colors: false, x: false, y: false };
@@ -1071,7 +1104,7 @@ function chartOptions(xLabel, yLabel, opts = {}) {
            title: { display: true, text: xLabel, color: "#aba894" },
            ticks: { color: "#aba894" }, grid: { color: "rgba(77, 86, 64, 0.3)" } },
       y: { beginAtZero: true, max: 150, title: { display: true, text: yLabel, color: "#aba894" },
-           ticks: { color: "#aba894" }, grid: { color: "rgba(77, 86, 64, 0.3)" } },
+           ticks: { color: "#aba894", stepSize: opts.yStepSize ?? 30 }, grid: { color: "rgba(77, 86, 64, 0.3)" } },
     },
   };
 }
@@ -1175,12 +1208,70 @@ function openModal(categoryFilter, onSelect) {
     `${CATEGORIES[categoryFilter]?.label ?? categoryFilter} 선택`;
   document.getElementById("modal-search-input").hidden = false;
   document.getElementById("modal-search-input").value = "";
+
+  // 무기를 고르는 경우에만 필터 UI 표시 (매번 초기화해서 깨끗한 상태로 시작)
+  state.modalWeaponFilters = { slotSize: new Set(), ammoCategory: new Set(), ammoEffect: new Set() };
+  const filtersWrap = document.getElementById("modal-weapon-filters");
+  if (categoryFilter === "weapon") {
+    filtersWrap.hidden = false;
+    renderModalWeaponFilters();
+  } else {
+    filtersWrap.hidden = true;
+    filtersWrap.innerHTML = "";
+  }
+
   renderModalList("");
+}
+
+// 로드아웃 빌더의 무기 선택 모달 전용 필터 UI (메인 검색의 필터와 동일한 구성, 상태만 별도)
+function renderModalWeaponFilters() {
+  const wrap = document.getElementById("modal-weapon-filters");
+  wrap.innerHTML = "";
+  Object.entries(WEAPON_FILTERS).forEach(([filterKey, def]) => {
+    const group = document.createElement("div");
+    group.className = "weapon-filter-group";
+    const label = document.createElement("span");
+    label.className = "weapon-filter-label";
+    label.textContent = def.label;
+    group.appendChild(label);
+    const chips = document.createElement("div");
+    chips.className = "weapon-filter-chips";
+    def.options.forEach((opt) => {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "filter-chip";
+      if (state.modalWeaponFilters[filterKey].has(opt.value)) chip.classList.add("active");
+
+      if (opt.image) {
+        chip.classList.add("filter-chip-icon");
+        chip.title = opt.label;
+        const img = document.createElement("img");
+        img.src = opt.image;
+        img.alt = opt.label;
+        img.className = `filter-chip-img filter-chip-img--${filterKey}`;
+        img.onerror = () => { chip.classList.remove("filter-chip-icon"); chip.textContent = opt.label; };
+        chip.appendChild(img);
+      } else {
+        chip.textContent = opt.label;
+      }
+
+      chip.addEventListener("click", () => {
+        const set = state.modalWeaponFilters[filterKey];
+        if (set.has(opt.value)) { set.delete(opt.value); chip.classList.remove("active"); }
+        else { set.add(opt.value); chip.classList.add("active"); }
+        renderModalList(document.getElementById("modal-search-input").value.trim().toLowerCase());
+      });
+      chips.appendChild(chip);
+    });
+    group.appendChild(chips);
+    wrap.appendChild(group);
+  });
 }
 
 function closeModal() {
   document.getElementById("modal-overlay").hidden = true;
   document.getElementById("modal-search-input").hidden = false;
+  document.getElementById("modal-weapon-filters").hidden = true;
   state.modal.onSelect = null;
   state.modal.categoryFilter = null;
 }
@@ -1189,7 +1280,7 @@ function renderModalList(query) {
   const list = document.getElementById("modal-item-list");
   list.innerHTML = "";
   const items = getFilteredItems({
-    category: state.modal.categoryFilter, query, useWeaponFilters: false,
+    category: state.modal.categoryFilter, query, useWeaponFilters: true, filterSource: state.modalWeaponFilters,
   });
   if (items.length === 0) {
     list.innerHTML = `<p class="empty-msg">선택할 수 있는 아이템이 없습니다.</p>`;
@@ -1349,6 +1440,14 @@ function renderFixedSlot(catKey, slotDef, key, index) {
   slotEl.addEventListener("click", (e) => {
     if (e.target.closest(".slot-clear-btn")) return;
     openModal(catKey, (selectedItem, selectedAmmoId) => {
+      if (catKey === "weapon") {
+        const otherTotal = getTotalWeaponSlotSize(key, index);
+        const newTotal = otherTotal + (selectedItem.slotSize || 0);
+        if (newTotal > WEAPON_SLOT_LIMIT) {
+          alert(`무기 칸수 합이 ${WEAPON_SLOT_LIMIT}칸을 넘어서 장착할 수 없습니다.\n(다른 무기 ${otherTotal}칸 + 이 무기 ${selectedItem.slotSize}칸 = ${newTotal}칸)`);
+          return;
+        }
+      }
       state.loadout[key][index] = { item: selectedItem, ammoId: selectedAmmoId ?? null };
       renderLoadoutBoard();
       closeModal();

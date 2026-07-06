@@ -132,6 +132,15 @@ button { font-family: var(--font-body); cursor: pointer; }
 #search-input:focus, #modal-search-input:focus { border-color: var(--accent); }
 #search-input::placeholder, #modal-search-input::placeholder { color: var(--text-muted); }
 
+#modal-weapon-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+
 #category-filters { display: flex; flex-wrap: wrap; gap: 8px; }
 
 .cat-filter-btn {
@@ -720,6 +729,8 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 .muted-text { font-size: 12px; color: var(--text-muted); margin: 0; }
+
+.ammo-desc-text { font-size: 12px; color: var(--text-secondary); margin: 0 0 8px; line-height: 1.5; }
 
 .bp-weapon-img {
   width: 100%;
