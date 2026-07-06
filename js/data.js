@@ -171,7 +171,7 @@ const AMMO_TYPES = {
     isBase: true,                // 기본탄 (특수탄이 아님)
     image: "images/ui/ammo_effects/ammo_compact_regular.png",
     icon: "🟫",
-    description: "Compact - 20m부터 데미지 감소(감쇠) 시작. 관통력 낮음.",
+    description: "Compact - 20m부터 데미지 감소 시작. 관통력 낮음.",
     cost: 0,
     falloff: [
       [0,  1.00],
@@ -201,7 +201,7 @@ const AMMO_TYPES = {
       verticalRecoil: 8,
       muzzleVelocity: 330,
     },
-    specialEffects: ["30m부터 데미지 감소(감쇠) 시작"],
+    specialEffects: ["30m부터 데미지 감소 시작"],
   },
 
   compact_high_velocity: {
@@ -210,7 +210,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    description: "고속탄 - 탄속 증가, 반동 증가.",
     cost: 60,
     falloff: [
       [0,  1.00],
@@ -270,7 +270,7 @@ const AMMO_TYPES = {
     effect: "subsonic",
     image: "images/ui/ammo_effects/ammo_compact_subsonic.png",
     icon: "🔇",
-    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 낙하거리·탄속 감소 (데미지 감쇠 시작 거리는 기본탄과 동일).",
+    description: "아음속탄 - 탄속 감소, 낙하거리 감소, 예비 탄약 수 변동, 발사음 감소.",
     cost: 5,
     falloff: [
       [0,  1.00],
@@ -293,7 +293,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_compact_regular.png",
     icon: "🟫",
-    description: "Compact - 20m부터 데미지 감소(감쇠) 시작. 관통력 낮음.",
+    description: "Compact - 20m부터 데미지 감소 시작. 관통력 낮음.",
     cost: 0,
     falloff: [
       [0,  1.00],
@@ -323,7 +323,7 @@ const AMMO_TYPES = {
       verticalRecoil: 5,
       muzzleVelocity: 330,
     },
-    specialEffects: ["30m부터 데미지 감소(감쇠) 시작"],
+    specialEffects: ["30m부터 데미지 감소 시작"],
   },
 
   infantry73l_high_velocity: {
@@ -332,7 +332,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    description: "고속탄 - 탄속 증가, 반동 증가.",
     cost: 60,
     falloff: [
       [0,  1.00],
@@ -392,7 +392,7 @@ const AMMO_TYPES = {
     effect: "subsonic",
     image: "images/ui/ammo_effects/ammo_compact_subsonic.png",
     icon: "🔇",
-    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 낙하거리·탄속 감소 (데미지 감쇠 시작 거리는 기본탄과 동일).",
+    description: "아음속탄 - 탄속 감소, 낙하거리 감소, 예비 탄약 수 변동, 발사음 감소.",
     cost: 5,
     falloff: [
       [0,  1.00],
@@ -415,7 +415,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_compact_regular.png",
     icon: "🟫",
-    description: "Compact - 20m부터 데미지 감소(감쇠) 시작. 관통력 낮음.",
+    description: "Compact - 20m부터 데미지 감소 시작. 관통력 낮음.",
     cost: 0,
     falloff: [
       [0,  1.00],
@@ -445,7 +445,7 @@ const AMMO_TYPES = {
       verticalRecoil: 9,
       muzzleVelocity: 360,
     },
-    specialEffects: ["30m부터 데미지 감소(감쇠) 시작"],
+    specialEffects: ["30m부터 데미지 감소 시작"],
   },
 
   marathon_high_velocity: {
@@ -454,7 +454,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    description: "고속탄 - 탄속 증가, 반동 증가.",
     cost: 50,
     falloff: [
       [0,  1.00],
@@ -516,7 +516,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_compact_regular.png",
     icon: "🟫",
-    description: "Compact - 20m부터 데미지 감소(감쇠) 시작. 관통력 낮음.",
+    description: "Compact - 20m부터 데미지 감소 시작. 관통력 낮음.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -542,7 +542,7 @@ const AMMO_TYPES = {
       [100, 0.5273],
     ],
     statOverrides: { dropRange: 125, verticalRecoil: 6, muzzleVelocity: 330 },
-    specialEffects: ["30m부터 데미지 감소(감쇠) 시작"],
+    specialEffects: ["30m부터 데미지 감소 시작"],
   },
 
   ranger73_high_velocity: {
@@ -551,7 +551,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    description: "고속탄 - 탄속 증가, 반동 증가.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -605,7 +605,7 @@ const AMMO_TYPES = {
     effect: "subsonic",
     image: "images/ui/ammo_effects/ammo_compact_subsonic.png",
     icon: "🔇",
-    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 낙하거리·탄속 감소 (데미지 감쇠 시작 거리는 기본탄과 동일).",
+    description: "아음속탄 - 탄속 감소, 낙하거리 감소, 예비 탄약 수 변동, 발사음 감소.",
     cost: 5,
     falloff: [
       [0, 1.00],
@@ -623,7 +623,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_compact_regular.png",
     icon: "🟫",
-    description: "Compact - 20m부터 데미지 감소(감쇠) 시작. 관통력 낮음.",
+    description: "Compact - 20m부터 데미지 감소 시작. 관통력 낮음.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -649,7 +649,7 @@ const AMMO_TYPES = {
       [100, 0.5327],
     ],
     statOverrides: { dropRange: 110, verticalRecoil: 11, muzzleVelocity: 310 },
-    specialEffects: ["30m부터 데미지 감소(감쇠) 시작"],
+    specialEffects: ["30m부터 데미지 감소 시작"],
   },
 
   vandal73c_high_velocity: {
@@ -658,7 +658,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    description: "고속탄 - 탄속 증가, 반동 증가.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -712,7 +712,7 @@ const AMMO_TYPES = {
     effect: "subsonic",
     image: "images/ui/ammo_effects/ammo_compact_subsonic.png",
     icon: "🔇",
-    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 낙하거리·탄속 감소 (데미지 감쇠 시작 거리는 기본탄과 동일).",
+    description: "아음속탄 - 탄속 감소, 낙하거리 감소, 예비 탄약 수 변동, 발사음 감소.",
     cost: 5,
     falloff: [
       [0, 1.00],
@@ -728,7 +728,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_compact_regular.png",
     icon: "🟫",
-    description: "Compact - 20m부터 데미지 감소(감쇠) 시작. 관통력 낮음.",
+    description: "Compact - 20m부터 데미지 감소 시작. 관통력 낮음.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -746,7 +746,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    description: "고속탄 - 탄속 증가, 반동 증가.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -784,7 +784,7 @@ const AMMO_TYPES = {
     effect: "subsonic",
     image: "images/ui/ammo_effects/ammo_compact_subsonic.png",
     icon: "🔇",
-    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 낙하거리·탄속 감소 (데미지 감쇠 시작 거리는 기본탄과 동일).",
+    description: "아음속탄 - 탄속 감소, 낙하거리 감소, 예비 탄약 수 변동, 발사음 감소.",
     cost: 5,
     falloff: [
       [0, 1.00],
@@ -803,7 +803,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_compact_regular.png",
     icon: "🟫",
-    description: "Compact - 20m부터 데미지 감소(감쇠) 시작. 관통력 낮음.",
+    description: "Compact - 20m부터 데미지 감소 시작. 관통력 낮음.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -851,7 +851,7 @@ const AMMO_TYPES = {
       [100, 0.5000],
     ],
     statOverrides: { dropRange: 70, verticalRecoil: 6.5, muzzleVelocity: 270 },
-    specialEffects: ["30m부터 데미지 감소(감쇠) 시작"],
+    specialEffects: ["30m부터 데미지 감소 시작"],
   },
 
   lemat_compact: {
@@ -860,7 +860,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_compact_regular.png",
     icon: "🟫",
-    description: "Compact - 20m부터 데미지 감소(감쇠) 시작. 관통력 낮음.",
+    description: "Compact - 20m부터 데미지 감소 시작. 관통력 낮음.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -888,7 +888,7 @@ const AMMO_TYPES = {
       [100, 0.4948],
     ],
     statOverrides: { dropRange: 70, verticalRecoil: 8, muzzleVelocity: 335 },
-    specialEffects: ["30m부터 데미지 감소(감쇠) 시작"],
+    specialEffects: ["30m부터 데미지 감소 시작"],
   },
 
   lemat_incendiary: {
@@ -915,7 +915,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_compact_regular.png",
     icon: "🟫",
-    description: "Compact - 20m부터 데미지 감소(감쇠) 시작. 관통력 낮음.",
+    description: "Compact - 20m부터 데미지 감소 시작. 관통력 낮음.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -953,7 +953,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    description: "고속탄 - 탄속 증가, 반동 증가.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -990,7 +990,7 @@ const AMMO_TYPES = {
     effect: "subsonic",
     image: "images/ui/ammo_effects/ammo_compact_subsonic.png",
     icon: "🔇",
-    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 낙하거리·탄속 감소 (데미지 감쇠 시작 거리는 기본탄과 동일).",
+    description: "아음속탄 - 탄속 감소, 낙하거리 감소, 예비 탄약 수 변동, 발사음 감소.",
     cost: 5,
     falloff: [
       [0, 1.00],
@@ -1009,7 +1009,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_compact_regular.png",
     icon: "🟫",
-    description: "Compact - 20m부터 데미지 감소(감쇠) 시작. 관통력 낮음.",
+    description: "Compact - 20m부터 데미지 감소 시작. 관통력 낮음.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -1057,7 +1057,7 @@ const AMMO_TYPES = {
       [100, 0.4948],
     ],
     statOverrides: { dropRange: 70, verticalRecoil: 7, muzzleVelocity: 200 },
-    specialEffects: ["30m부터 데미지 감소(감쇠) 시작"],
+    specialEffects: ["30m부터 데미지 감소 시작"],
   },
 
   officer_compact: {
@@ -1066,7 +1066,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_compact_regular.png",
     icon: "🟫",
-    description: "Compact - 20m부터 데미지 감소(감쇠) 시작. 관통력 낮음.",
+    description: "Compact - 20m부터 데미지 감소 시작. 관통력 낮음.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -1084,7 +1084,7 @@ const AMMO_TYPES = {
     effect: "bleed",
     image: "images/ui/ammo_effects/ammo_compact_bleed.png",
     icon: "🩸",
-    description: "덤덤탄 - 명중 시 중급 출혈 효과. 상점 구매 불가(월드 획득 전용, 희귀도가 더 높음).",
+    description: "덤덤탄 - 명중 시 중급 출혈 효과. 상점 구매 불가(월드 획득 전용).",
     cost: null,
     scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
     falloff: [
@@ -1104,7 +1104,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    description: "고속탄 - 탄속 증가, 반동 증가.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -1141,7 +1141,7 @@ const AMMO_TYPES = {
     effect: "subsonic",
     image: "images/ui/ammo_effects/ammo_compact_subsonic.png",
     icon: "🔇",
-    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 낙하거리·탄속 감소 (데미지 감쇠 시작 거리는 기본탄과 동일).",
+    description: "아음속탄 - 탄속 감소, 낙하거리 감소, 예비 탄약 수 변동, 발사음 감소.",
     cost: 5,
     falloff: [
       [0, 1.00],
@@ -1162,7 +1162,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_medium_regular.png",
     icon: "🟫",
-    description: "Medium - 30m부터 데미지 감소(감쇠) 시작.",
+    description: "Medium - 30m부터 데미지 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -1207,7 +1207,7 @@ const AMMO_TYPES = {
       [100, 0.6098],
     ],
     statOverrides: { dropRange: 125, verticalRecoil: 14, muzzleVelocity: 480 },
-    specialEffects: ["40m부터 데미지 감소(감쇠) 시작"],
+    specialEffects: ["40m부터 데미지 감소 시작"],
   },
 
   centennial_high_velocity: {
@@ -1216,7 +1216,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    description: "고속탄 - 탄속 증가, 반동 증가.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -1251,7 +1251,7 @@ const AMMO_TYPES = {
     effect: "subsonic",
     image: "images/ui/ammo_effects/ammo_medium_subsonic.png",
     icon: "🔇",
-    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 낙하거리·탄속 감소 (데미지 감쇠 시작 거리는 기본탄과 동일).",
+    description: "아음속탄 - 탄속 감소, 낙하거리 감소, 예비 탄약 수 변동, 발사음 감소.",
     cost: 10,
     falloff: [
       [0, 1.00],
@@ -1271,7 +1271,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_medium_regular.png",
     icon: "🟫",
-    description: "Medium - 30m부터 데미지 감소(감쇠) 시작.",
+    description: "Medium - 30m부터 데미지 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -1315,7 +1315,7 @@ const AMMO_TYPES = {
       [100, 0.6167],
     ],
     statOverrides: { dropRange: 125, verticalRecoil: 16, muzzleVelocity: 371 },
-    specialEffects: ["40m부터 데미지 감소(감쇠) 시작"],
+    specialEffects: ["40m부터 데미지 감소 시작"],
   },
 
   drilling_high_velocity: {
@@ -1324,7 +1324,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    description: "고속탄 - 탄속 증가, 반동 증가.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -1341,7 +1341,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_medium_regular.png",
     icon: "🟫",
-    description: "Medium - 30m부터 데미지 감소(감쇠) 시작.",
+    description: "Medium - 30m부터 데미지 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -1377,7 +1377,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    description: "고속탄 - 탄속 증가, 반동 증가.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -1394,7 +1394,7 @@ const AMMO_TYPES = {
     effect: "subsonic",
     image: "images/ui/ammo_effects/ammo_medium_subsonic.png",
     icon: "🔇",
-    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 낙하거리·탄속 감소.",
+    description: "아음속탄 - 탄속 감소, 낙하거리 감소, 예비 탄약 수 변동, 발사음 감소.",
     cost: 5,
     falloff: [
       [0, 1.00],
@@ -1412,7 +1412,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_medium_regular.png",
     icon: "🟫",
-    description: "Medium - 30m부터 데미지 감소(감쇠) 시작.",
+    description: "Medium - 30m부터 데미지 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -1465,7 +1465,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    description: "고속탄 - 탄속 증가, 반동 증가.",
     cost: 30,
     falloff: [
       [0, 1.00],
@@ -1500,7 +1500,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_medium_regular.png",
     icon: "🟫",
-    description: "Medium - 30m부터 데미지 감소(감쇠) 시작.",
+    description: "Medium - 30m부터 데미지 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -1526,7 +1526,7 @@ const AMMO_TYPES = {
       [100, 0.6069],
     ],
     statOverrides: { dropRange: 105, verticalRecoil: 7, muzzleVelocity: 272 },
-    specialEffects: ["40m부터 데미지 감소(감쇠) 시작"],
+    specialEffects: ["40m부터 데미지 감소 시작"],
   },
 
   carbine1865_subsonic: {
@@ -1535,7 +1535,7 @@ const AMMO_TYPES = {
     effect: "subsonic",
     image: "images/ui/ammo_effects/ammo_medium_subsonic.png",
     icon: "🔇",
-    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 낙하거리·탄속 감소.",
+    description: "아음속탄 - 탄속 감소, 낙하거리 감소, 예비 탄약 수 변동, 발사음 감소.",
     cost: 10,
     falloff: [
       [0, 1.00],
@@ -1551,7 +1551,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_medium_regular.png",
     icon: "🟫",
-    description: "Medium - 30m부터 데미지 감소(감쇠) 시작.",
+    description: "Medium - 30m부터 데미지 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -1577,7 +1577,7 @@ const AMMO_TYPES = {
       [100, 0.6077],
     ],
     statOverrides: { dropRange: 115, verticalRecoil: 9, muzzleVelocity: 350 },
-    specialEffects: ["40m부터 데미지 감소(감쇠) 시작"],
+    specialEffects: ["40m부터 데미지 감소 시작"],
   },
 
   vetterli71_high_velocity: {
@@ -1586,7 +1586,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    description: "고속탄 - 탄속 증가, 반동 증가.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -1622,7 +1622,7 @@ const AMMO_TYPES = {
     effect: "subsonic",
     image: "images/ui/ammo_effects/ammo_medium_subsonic.png",
     icon: "🔇",
-    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 낙하거리·탄속 감소.",
+    description: "아음속탄 - 탄속 감소, 낙하거리 감소, 예비 탄약 수 변동, 발사음 감소.",
     cost: 10,
     falloff: [
       [0, 1.00],
@@ -1640,7 +1640,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_medium_regular.png",
     icon: "🟫",
-    description: "Medium - 30m부터 데미지 감소(감쇠) 시작.",
+    description: "Medium - 30m부터 데미지 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -1688,7 +1688,7 @@ const AMMO_TYPES = {
       [100, 0.4909],
     ],
     statOverrides: { dropRange: 60, verticalRecoil: 12, muzzleVelocity: 300 },
-    specialEffects: ["40m부터 데미지 감소(감쇠) 시작"],
+    specialEffects: ["40m부터 데미지 감소 시작"],
   },
 
   pax_high_velocity: {
@@ -1697,7 +1697,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    description: "고속탄 - 탄속 증가, 반동 증가.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -1754,7 +1754,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_medium_regular.png",
     icon: "🟫",
-    description: "Medium - 30m부터 데미지 감소(감쇠) 시작.",
+    description: "Medium - 30m부터 데미지 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -1802,7 +1802,7 @@ const AMMO_TYPES = {
       [100, 0.4953],
     ],
     statOverrides: { dropRange: 60, verticalRecoil: 12, muzzleVelocity: 250 },
-    specialEffects: ["40m부터 데미지 감소(감쇠) 시작"],
+    specialEffects: ["40m부터 데미지 감소 시작"],
   },
 
   scottfield_high_velocity: {
@@ -1811,7 +1811,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    description: "고속탄 - 탄속 증가, 반동 증가.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -1851,7 +1851,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_long_regular.png",
     icon: "🟫",
-    description: "Long - 40m부터 데미지 감소(감쇠) 시작.",
+    description: "Long - 40m부터 데미지 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -1895,7 +1895,7 @@ const AMMO_TYPES = {
       [100, 0.6172],
     ],
     statOverrides: { dropRange: 95, verticalRecoil: 14, muzzleVelocity: 305 },
-    specialEffects: ["50m부터 데미지 감소(감쇠) 시작"],
+    specialEffects: ["50m부터 데미지 감소 시작"],
   },
 
   martinihenry_long: {
@@ -1904,7 +1904,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_long_regular.png",
     icon: "🟫",
-    description: "Long - 40m부터 데미지 감소(감쇠) 시작.",
+    description: "Long - 40m부터 데미지 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -1948,7 +1948,7 @@ const AMMO_TYPES = {
       [100, 0.6154],
     ],
     statOverrides: { dropRange: 110, verticalRecoil: 16, muzzleVelocity: 320 },
-    specialEffects: ["50m부터 데미지 감소(감쇠) 시작"],
+    specialEffects: ["50m부터 데미지 감소 시작"],
   },
 
   martinihenry_high_velocity: {
@@ -1957,7 +1957,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_long_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    description: "고속탄 - 탄속 증가, 반동 증가.",
     cost: 35,
     falloff: [
       [0, 1.00],
@@ -1993,7 +1993,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_long_regular.png",
     icon: "🟫",
-    description: "Long - 40m부터 데미지 감소(감쇠) 시작.",
+    description: "Long - 40m부터 데미지 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -2018,7 +2018,7 @@ const AMMO_TYPES = {
       [100, 0.6174],
     ],
     statOverrides: { dropRange: 125, verticalRecoil: 13, muzzleVelocity: 370 },
-    specialEffects: ["50m부터 데미지 감소(감쇠) 시작"],
+    specialEffects: ["50m부터 데미지 감소 시작"],
   },
 
   sparks_incendiary: {
@@ -2064,7 +2064,7 @@ const AMMO_TYPES = {
     effect: "subsonic",
     image: "images/ui/ammo_effects/ammo_long_subsonic.png",
     icon: "🔇",
-    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 낙하거리·탄속 감소.",
+    description: "아음속탄 - 탄속 감소, 낙하거리 감소, 예비 탄약 수 변동, 발사음 감소.",
     cost: 10,
     falloff: [
       [0, 1.00],
@@ -2080,7 +2080,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_long_regular.png",
     icon: "🟫",
-    description: "Long - 40m부터 데미지 감소(감쇠) 시작.",
+    description: "Long - 40m부터 데미지 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -2108,7 +2108,7 @@ const AMMO_TYPES = {
       [100, 0.5000],
     ],
     statOverrides: { dropRange: 50, verticalRecoil: 25, muzzleVelocity: 375 },
-    specialEffects: ["50m부터 데미지 감소(감쇠) 시작"],
+    specialEffects: ["50m부터 데미지 감소 시작"],
   },
 
   haymaker_poison: {
@@ -2136,7 +2136,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_long_regular.png",
     icon: "🟫",
-    description: "Long - 40m부터 데미지 감소(감쇠) 시작.",
+    description: "Long - 40m부터 데미지 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -2183,7 +2183,7 @@ const AMMO_TYPES = {
       [100, 0.4841],
     ],
     statOverrides: { dropRange: 60, verticalRecoil: 25, muzzleVelocity: 360 },
-    specialEffects: ["50m부터 데미지 감소(감쇠) 시작"],
+    specialEffects: ["50m부터 데미지 감소 시작"],
   },
 
   uppercut_incendiary: {
@@ -2210,7 +2210,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_special_long_regular.png",
     icon: "🟫",
-    description: "Special Long - 40m부터 데미지 감소(감쇠) 시작.",
+    description: "Special Long - 40m부터 데미지 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -2235,7 +2235,7 @@ const AMMO_TYPES = {
       [100, 0.6190],
     ],
     statOverrides: { dropRange: 125, verticalRecoil: 6, muzzleVelocity: 458 },
-    specialEffects: ["50m부터 데미지 감소(감쇠) 시작"],
+    specialEffects: ["50m부터 데미지 감소 시작"],
   },
 
   krag_incendiary: {
@@ -2263,7 +2263,7 @@ const AMMO_TYPES = {
     effect: "subsonic",
     image: "images/ui/ammo_effects/ammo_special_long_subsonic.png",
     icon: "🔇",
-    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 낙하거리·탄속 감소.",
+    description: "아음속탄 - 탄속 감소, 낙하거리 감소, 예비 탄약 수 변동, 발사음 감소.",
     cost: 20,
     falloff: [
       [0, 1.00],
@@ -2281,7 +2281,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_special_long_regular.png",
     icon: "🟫",
-    description: "Special Long - 40m부터 데미지 감소(감쇠) 시작.",
+    description: "Special Long - 40m부터 데미지 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -2317,7 +2317,7 @@ const AMMO_TYPES = {
     effect: "spitzer",
     image: "images/ui/ammo_effects/ammo_special_long_spitzer.png",
     icon: "🏹",
-    description: "스피처탄 - 탄속 매우 증가, 관통력 증가. 상점 구매 불가(월드 획득 전용). ※ 참고 소스코드에 수치 불확실 표시가 있어 다른 무기보다 신뢰도가 낮음.",
+    description: "스피처탄 - 탄속 증가, 관통력 증가. 상점 구매 불가(월드 획득 전용). ※ 참고 소스코드에 수치 불확실 표시가 있어 다른 무기보다 신뢰도가 낮음.",
     cost: null,
     scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
     falloff: [
@@ -2335,7 +2335,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_special_long_regular.png",
     icon: "🟫",
-    description: "Special Long - 40m부터 데미지 감소(감쇠) 시작.",
+    description: "Special Long - 40m부터 데미지 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -2371,7 +2371,7 @@ const AMMO_TYPES = {
     effect: "spitzer",
     image: "images/ui/ammo_effects/ammo_special_long_spitzer.png",
     icon: "🏹",
-    description: "스피처탄 - 탄속 매우 증가, 관통력 증가. 상점 구매 불가(월드 획득 전용).",
+    description: "스피처탄 - 탄속 증가, 관통력 증가. 상점 구매 불가(월드 획득 전용).",
     cost: null,
     scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
     falloff: [
@@ -2389,7 +2389,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_special_long_regular.png",
     icon: "🟫",
-    description: "Special Long - 40m부터 데미지 감소(감쇠) 시작.",
+    description: "Special Long - 40m부터 데미지 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -2425,7 +2425,7 @@ const AMMO_TYPES = {
     effect: "spitzer",
     image: "images/ui/ammo_effects/ammo_special_long_spitzer.png",
     icon: "🏹",
-    description: "스피처탄 - 탄속 매우 증가, 관통력 증가. 상점 구매 불가(월드 획득 전용).",
+    description: "스피처탄 - 탄속 증가, 관통력 증가. 상점 구매 불가(월드 획득 전용).",
     cost: null,
     scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
     falloff: [
@@ -2443,7 +2443,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_special_long_regular.png",
     icon: "🟫",
-    description: "Special Long - 40m부터 데미지 감소(감쇠) 시작.",
+    description: "Special Long - 40m부터 데미지 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -2479,7 +2479,7 @@ const AMMO_TYPES = {
     effect: "spitzer",
     image: "images/ui/ammo_effects/ammo_special_long_spitzer.png",
     icon: "🏹",
-    description: "스피처탄 - 탄속 매우 증가, 관통력 증가. 상점 구매 불가(월드 획득 전용).",
+    description: "스피처탄 - 탄속 증가, 관통력 증가. 상점 구매 불가(월드 획득 전용).",
     cost: null,
     scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
     falloff: [

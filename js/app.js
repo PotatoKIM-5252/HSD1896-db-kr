@@ -1070,7 +1070,7 @@ function chartOptions(xLabel, yLabel, opts = {}) {
       x: { type: "linear", min: 0, max: opts.xMax ?? 100,
            title: { display: true, text: xLabel, color: "#aba894" },
            ticks: { color: "#aba894" }, grid: { color: "rgba(77, 86, 64, 0.3)" } },
-      y: { beginAtZero: true, title: { display: true, text: yLabel, color: "#aba894" },
+      y: { beginAtZero: true, max: 150, title: { display: true, text: yLabel, color: "#aba894" },
            ticks: { color: "#aba894" }, grid: { color: "rgba(77, 86, 64, 0.3)" } },
     },
   };
