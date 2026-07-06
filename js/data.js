@@ -176,7 +176,7 @@ const AMMO_TYPES = {
     falloff: [
       [0,  1.00],
       [20, 1.00],
-      [50, 0.6712],
+      [50, 0.6182],
       [100, 0.50],
     ],
     statOverrides: {},
@@ -238,7 +238,7 @@ const AMMO_TYPES = {
     falloff: [
       [0,  1.00],
       [20, 1.00],
-      [50, 0.6712],
+      [50, 0.6182],
       [100, 0.50],
     ],
     statOverrides: {},
@@ -257,7 +257,7 @@ const AMMO_TYPES = {
     falloff: [
       [0,  1.00],
       [20, 1.00],
-      [50, 0.6712],
+      [50, 0.6182],
       [100, 0.50],
     ],
     statOverrides: {},
@@ -275,7 +275,7 @@ const AMMO_TYPES = {
     falloff: [
       [0,  1.00],
       [20, 1.00],
-      [50, 0.6712],
+      [50, 0.6182],
       [100, 0.50],
     ],
     statOverrides: {
@@ -298,7 +298,7 @@ const AMMO_TYPES = {
     falloff: [
       [0,  1.00],
       [20, 1.00],
-      [50, 0.6712],
+      [50, 0.6182],
       [100, 0.50],
     ],
     statOverrides: {},
@@ -360,7 +360,7 @@ const AMMO_TYPES = {
     falloff: [
       [0,  1.00],
       [20, 1.00],
-      [50, 0.6712],
+      [50, 0.6182],
       [100, 0.50],
     ],
     statOverrides: {},
@@ -379,7 +379,7 @@ const AMMO_TYPES = {
     falloff: [
       [0,  1.00],
       [20, 1.00],
-      [50, 0.6712],
+      [50, 0.6182],
       [100, 0.50],
     ],
     statOverrides: {},
@@ -397,7 +397,7 @@ const AMMO_TYPES = {
     falloff: [
       [0,  1.00],
       [20, 1.00],
-      [50, 0.6712],
+      [50, 0.6182],
       [100, 0.50],
     ],
     statOverrides: {
@@ -1151,6 +1151,115 @@ const AMMO_TYPES = {
       [100, 0.4615],
     ],
     statOverrides: { dropRange: 55, muzzleVelocity: 238, ammoExtra: 16 },
+    specialEffects: ["발사음 감소"],
+  },
+
+
+  // ── Centennial 전용 탄약 (Medium 탄종 첫 실사용 무기) ──
+  centennial_medium: {
+    label: "Medium",
+    category: "medium",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_medium_regular.png",
+    icon: "🟫",
+    description: "Medium - 30m부터 데미지 감소(감쇠) 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6423],
+      [100, 0.5772],
+    ],
+    statOverrides: {  },
+  },
+
+  centennial_dumdum: {
+    label: "덤덤탄(출혈)",
+    category: "medium",
+    effect: "bleed",
+    image: "images/ui/ammo_effects/ammo_medium_bleed.png",
+    icon: "🩸",
+    description: "덤덤탄 - 명중 시 강한 출혈 효과. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6423],
+      [100, 0.5772],
+    ],
+    statOverrides: { dropRange: 125, muzzleVelocity: 480 },
+    specialEffects: ["강한 출혈 효과 발생"],
+  },
+
+  centennial_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "medium",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_medium_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6423],
+      [100, 0.6098],
+    ],
+    statOverrides: { dropRange: 125, verticalRecoil: 14, muzzleVelocity: 480 },
+    specialEffects: ["40m부터 데미지 감소(감쇠) 시작"],
+  },
+
+  centennial_high_velocity: {
+    label: "고속탄",
+    category: "medium",
+    effect: "high_velocity",
+    image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6379],
+      [100, 0.5776],
+    ],
+    statOverrides: { damage: 116, dropRange: 155, verticalRecoil: 14, muzzleVelocity: 725, ammoExtra: 8 },
+  },
+
+  centennial_poison: {
+    label: "중독탄",
+    category: "medium",
+    effect: "poison",
+    image: "images/ui/ammo_effects/ammo_medium_poison.png",
+    icon: "🟢",
+    description: "중독탄 - 명중 시 독 효과. 관통 불가.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6423],
+      [100, 0.5772],
+    ],
+    statOverrides: {  },
+    specialEffects: ["중급 중독 효과 발생"],
+  },
+
+  centennial_subsonic: {
+    label: "아음속탄",
+    category: "medium",
+    effect: "subsonic",
+    image: "images/ui/ammo_effects/ammo_medium_subsonic.png",
+    icon: "🔇",
+    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 낙하거리·탄속 감소 (데미지 감쇠 시작 거리는 기본탄과 동일).",
+    cost: 10,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6423],
+      [100, 0.5772],
+    ],
+    statOverrides: { dropRange: 105, muzzleVelocity: 333, ammoExtra: 14 },
     specialEffects: ["발사음 감소"],
   },
 
@@ -2046,6 +2155,59 @@ const ITEMS = [
       meleeLight: 13,
       meleeHeavy: 31,
       staminaConsumption: 20,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_centennial",
+    category: "weapon",
+    name: "Centennial",
+    image: "images/weapons/centennial.png",
+
+    // 검색 필터용
+    slotSize: 4,
+    ammoCategory: "medium",
+    ammoEffects: ["bleed", "full_metal", "high_velocity", "poison", "subsonic"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "centennial_medium",
+      "centennial_dumdum",
+      "centennial_fmj",
+      "centennial_high_velocity",
+      "centennial_poison",
+      "centennial_subsonic",
+    ],
+    defaultAmmo: "centennial_medium",
+
+    // 기본 정보
+    price: 157,
+    updateAdded: "Update 1.5",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "9+1",
+      extra: 12,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 123,
+      dropRange: 140,
+      rateOfFire: 23,
+      cycleTime: 1.6,
+      spread: 25,
+      sway: 77,
+      verticalRecoil: 11,
+      reloadSpeed: 15.5,
+      muzzleVelocity: 600,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
     },
 
     description: "",

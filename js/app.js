@@ -679,7 +679,7 @@ function drawBodyPartChart(currentItem, ammoId, refRange, parentItem) {
     state.charts.bodypart = null;
   }
 
-  const ds = buildFalloffDataset(currentItem, ammoId, "#ece6d3", 150);
+  const ds = buildFalloffDataset(currentItem, ammoId, "#ece6d3", 100);
   if (!ds) {
     canvas.outerHTML = `<p class="empty-msg">거리별 데이터 없음</p>`;
     return;
@@ -690,14 +690,14 @@ function drawBodyPartChart(currentItem, ammoId, refRange, parentItem) {
   const maxDmg = Math.max(...ds.data.map((d) => d.y));
   const canOHK = maxDmg >= HUNTER_HP;
 
-  const opts = chartOptions("거리 (m)", "데미지", { showOHK: canOHK, refRange, xMax: 150 });
+  const opts = chartOptions("거리 (m)", "데미지", { showOHK: canOHK, refRange, xMax: 100 });
   // 애니메이션 비활성화 — 클릭마다 그래프가 다시 올라오는 효과 제거
   opts.animation = false;
   opts.animations = { colors: false, x: false, y: false };
   opts.transitions = { active: { animation: { duration: 0 } } };
 
   // 어디를 맞춰도(가장 배율 낮은 부위 기준) N발컷이 보장되는 거리 계산 → 연한 세로 점선으로 표시
-  const { lines: killLines, partLabel: weakestPartLabel } = computeGuaranteedKillLines(currentItem, ammoId, 150);
+  const { lines: killLines, partLabel: weakestPartLabel } = computeGuaranteedKillLines(currentItem, ammoId, 100);
   opts.plugins.guaranteedKillLines = { lines: killLines };
 
   state.charts.bodypart = new Chart(canvas.getContext("2d"), {
@@ -714,7 +714,7 @@ function drawBodyPartChart(currentItem, ammoId, refRange, parentItem) {
     const rect = canvas.getBoundingClientRect();
     const xPixel = evt.clientX - rect.left;
     const xValue = Math.round(chart.scales.x.getValueForPixel(xPixel));
-    const clamped = Math.max(0, Math.min(150, xValue));
+    const clamped = Math.max(0, Math.min(100, xValue));
     state.refRange[parentItem.id] = clamped;
     refreshBodyPartDamage(currentItem, ammoId, parentItem);
   };
@@ -927,7 +927,7 @@ function renderGenericDetailHTML(item) {
 // -------------------------------------------------------------------------
 // Chart.js
 // -------------------------------------------------------------------------
-function buildFalloffDataset(item, ammoId, color, xMax = 200) {
+function buildFalloffDataset(item, ammoId, color, xMax = 100) {
   const { stats, ammo } = resolveWeaponWithAmmo(item, ammoId);
   if (!ammo || !ammo.falloff || ammo.falloff.length === 0) return null;
 
@@ -1035,7 +1035,7 @@ function drawWeaponChart(item, ammoId) {
     const rect = canvas.getBoundingClientRect();
     const xPixel = evt.clientX - rect.left;
     const xValue = Math.round(xScale.getValueForPixel(xPixel));
-    const clamped = Math.max(0, Math.min(200, xValue));
+    const clamped = Math.max(0, Math.min(100, xValue));
     state.refRange[item.id] = clamped;
 
     // 차트 옵션 갱신해서 즉시 다시 그림
@@ -1067,7 +1067,7 @@ function chartOptions(xLabel, yLabel, opts = {}) {
       },
     },
     scales: {
-      x: { type: "linear", min: 0, max: opts.xMax ?? 200,
+      x: { type: "linear", min: 0, max: opts.xMax ?? 100,
            title: { display: true, text: xLabel, color: "#aba894" },
            ticks: { color: "#aba894" }, grid: { color: "rgba(77, 86, 64, 0.3)" } },
       y: { beginAtZero: true, title: { display: true, text: yLabel, color: "#aba894" },
