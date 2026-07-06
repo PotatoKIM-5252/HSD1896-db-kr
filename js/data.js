@@ -174,11 +174,10 @@ const AMMO_TYPES = {
     description: "Compact - 20m부터 데미지 감소(감쇠) 시작. 관통력 낮음.",
     cost: 0,
     falloff: [
-      [0,   1.00],
-      [20,  1.00],
-      [80,  0.65],
-      [200, 0.40],
-      [300, 0.25],
+      [0,  1.00],
+      [20, 1.00],
+      [50, 0.6712],
+      [100, 0.50],
     ],
     statOverrides: {},
   },
@@ -192,11 +191,10 @@ const AMMO_TYPES = {
     description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
     cost: 50,
     falloff: [
-      [0,   1.00],
-      [30,  1.00],
-      [100, 0.65],
-      [220, 0.40],
-      [300, 0.25],
+      [0,  1.00],
+      [30, 1.00],
+      [60, 0.6182],
+      [100, 0.5273],
     ],
     statOverrides: {
       dropRange: 125,
@@ -215,11 +213,10 @@ const AMMO_TYPES = {
     description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
     cost: 60,
     falloff: [
-      [0,   1.00],
-      [20,  1.00],
-      [80,  0.65],
-      [200, 0.40],
-      [300, 0.25],
+      [0,  1.00],
+      [20, 1.00],
+      [50, 0.6058],
+      [100, 0.50],
     ],
     statOverrides: {
       damage: 104,
@@ -239,11 +236,10 @@ const AMMO_TYPES = {
     description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
     cost: 40,
     falloff: [
-      [0,   1.00],
-      [20,  1.00],
-      [80,  0.65],
-      [200, 0.40],
-      [300, 0.25],
+      [0,  1.00],
+      [20, 1.00],
+      [50, 0.6712],
+      [100, 0.50],
     ],
     statOverrides: {},
     specialEffects: ["20m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
@@ -259,11 +255,10 @@ const AMMO_TYPES = {
     description: "중독탄 - 명중 시 독 효과. 관통 불가.",
     cost: 50,
     falloff: [
-      [0,   1.00],
-      [20,  1.00],
-      [80,  0.65],
-      [200, 0.40],
-      [300, 0.25],
+      [0,  1.00],
+      [20, 1.00],
+      [50, 0.6712],
+      [100, 0.50],
     ],
     statOverrides: {},
     specialEffects: ["중급 중독 효과 발생"],
@@ -275,14 +270,13 @@ const AMMO_TYPES = {
     effect: "subsonic",
     image: "images/ui/ammo_effects/ammo_compact_subsonic.png",
     icon: "🔇",
-    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 사거리/탄속 감소.",
+    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 낙하거리·탄속 감소 (데미지 감쇠 시작 거리는 기본탄과 동일).",
     cost: 5,
     falloff: [
-      [0,   1.00],
-      [15,  1.00],
-      [60,  0.60],
-      [150, 0.35],
-      [250, 0.20],
+      [0,  1.00],
+      [20, 1.00],
+      [50, 0.6712],
+      [100, 0.50],
     ],
     statOverrides: {
       dropRange: 110,
@@ -302,11 +296,10 @@ const AMMO_TYPES = {
     description: "Compact - 20m부터 데미지 감소(감쇠) 시작. 관통력 낮음.",
     cost: 0,
     falloff: [
-      [0,   1.00],
-      [20,  1.00],
-      [80,  0.65],
-      [200, 0.40],
-      [300, 0.25],
+      [0,  1.00],
+      [20, 1.00],
+      [50, 0.6712],
+      [100, 0.50],
     ],
     statOverrides: {},
   },
@@ -320,11 +313,10 @@ const AMMO_TYPES = {
     description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
     cost: 50,
     falloff: [
-      [0,   1.00],
-      [30,  1.00],
-      [100, 0.65],
-      [220, 0.40],
-      [300, 0.25],
+      [0,  1.00],
+      [30, 1.00],
+      [60, 0.6182],
+      [100, 0.5273],
     ],
     statOverrides: {
       dropRange: 130,
@@ -343,11 +335,10 @@ const AMMO_TYPES = {
     description: "고속탄 - 탄속 증가, 약간의 반동 증가. 장거리 교전에 유리.",
     cost: 60,
     falloff: [
-      [0,   1.00],
-      [20,  1.00],
-      [80,  0.65],
-      [200, 0.40],
-      [300, 0.25],
+      [0,  1.00],
+      [20, 1.00],
+      [50, 0.6058],
+      [100, 0.50],
     ],
     statOverrides: {
       damage: 104,
@@ -367,11 +358,10 @@ const AMMO_TYPES = {
     description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
     cost: 40,
     falloff: [
-      [0,   1.00],
-      [20,  1.00],
-      [80,  0.65],
-      [200, 0.40],
-      [300, 0.25],
+      [0,  1.00],
+      [20, 1.00],
+      [50, 0.6712],
+      [100, 0.50],
     ],
     statOverrides: {},
     specialEffects: ["20m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
@@ -387,11 +377,10 @@ const AMMO_TYPES = {
     description: "중독탄 - 명중 시 독 효과. 관통 불가.",
     cost: 50,
     falloff: [
-      [0,   1.00],
-      [20,  1.00],
-      [80,  0.65],
-      [200, 0.40],
-      [300, 0.25],
+      [0,  1.00],
+      [20, 1.00],
+      [50, 0.6712],
+      [100, 0.50],
     ],
     statOverrides: {},
     specialEffects: ["중급 중독 효과 발생"],
@@ -403,14 +392,13 @@ const AMMO_TYPES = {
     effect: "subsonic",
     image: "images/ui/ammo_effects/ammo_compact_subsonic.png",
     icon: "🔇",
-    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 사거리/탄속 감소.",
+    description: "아음속탄 - 음속보다 느리게 비행, 발사음 감소. 낙하거리·탄속 감소 (데미지 감쇠 시작 거리는 기본탄과 동일).",
     cost: 5,
     falloff: [
-      [0,   1.00],
-      [15,  1.00],
-      [60,  0.60],
-      [150, 0.35],
-      [250, 0.20],
+      [0,  1.00],
+      [20, 1.00],
+      [50, 0.6712],
+      [100, 0.50],
     ],
     statOverrides: {
       dropRange: 115,
@@ -418,6 +406,325 @@ const AMMO_TYPES = {
       ammoExtra: 24,
     },
     specialEffects: ["발사음 감소"],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 아래는 아직 이 탄약을 쓰는 무기가 ITEMS에 없는 "참고용" 데이터입니다.
+  // 사용자가 공식 최신 그래프를 보고 직접 불러준 낙하곡선(20/50/100m 등 구간점)이며,
+  // 해당 무기가 추가되면 그 무기의 ammoTypes 배열에 이 id를 넣어서 바로 쓰면 됩니다.
+  // (지금은 어떤 무기의 ammoTypes에도 없어서 화면에는 표시되지 않습니다)
+  // ─────────────────────────────────────────────────────────────
+  compact_pistol: {
+    label: "소형권총탄",
+    category: "compact",
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.5481],
+      [60, 0.4712],
+      [100, 0.4712],
+    ],
+    statOverrides: { damage: 104 },
+    cost: null, // 아직 확인 안 됨
+  },
+
+  compact_pistol_fmj: {
+    label: "소형권총전피탄",
+    category: "compact",
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.5481],
+      [70, 0.5],
+      [100, 0.5],
+    ],
+    statOverrides: { damage: 104 },
+    cost: null, // 아직 확인 안 됨
+  },
+
+  compact_silencer: {
+    label: "소형소음기탄",
+    category: "compact",
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.4808],
+      [60, 0.4327],
+      [100, 0.4327],
+    ],
+    statOverrides: { damage: 104 },
+    cost: null, // 아직 확인 안 됨
+  },
+
+  compact_silencer_fmj: {
+    label: "소형소음기전피탄",
+    category: "compact",
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.4808],
+      [70, 0.4423],
+      [100, 0.4423],
+    ],
+    statOverrides: { damage: 104 },
+    cost: null, // 아직 확인 안 됨
+  },
+
+  medium: {
+    label: "중형탄",
+    category: "medium",
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6345],
+      [100, 0.5793],
+    ],
+    statOverrides: { damage: 145 },
+    cost: null, // 아직 확인 안 됨
+  },
+
+  medium_explosive: {
+    label: "중형폭발탄",
+    category: "medium",
+    // 부위 배율은 예외 없이 기존 공식 그대로 적용(사용자 확인)
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [100, 0.48],
+    ],
+    statOverrides: { damage: 125 },
+    cost: null, // 아직 확인 안 됨
+  },
+
+  medium_fmj: {
+    label: "중형전피탄",
+    category: "medium",
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6423],
+      [100, 0.6098],
+    ],
+    statOverrides: { damage: 123 },
+    cost: null, // 아직 확인 안 됨
+  },
+
+  medium_silencer: {
+    label: "중형소음기탄",
+    category: "medium",
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.4959],
+      [80, 0.4309],
+      [100, 0.4309],
+    ],
+    statOverrides: { damage: 123 },
+    cost: null, // 아직 확인 안 됨
+  },
+
+  medium_silencer_fmj: {
+    label: "중형소음기전피탄",
+    category: "medium",
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [70, 0.4797],
+      [86, 0.4472],
+      [100, 0.4472],
+    ],
+    statOverrides: { damage: 123 },
+    cost: null, // 아직 확인 안 됨
+  },
+
+  medium_pistol: {
+    label: "중형권총탄",
+    category: "medium",
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.5545],
+      [80, 0.4727],
+      [100, 0.4727],
+    ],
+    statOverrides: { damage: 110 },
+    cost: null, // 아직 확인 안 됨
+  },
+
+  medium_pistol_fmj: {
+    label: "중형권총전피탄",
+    category: "medium",
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [70, 0.5545],
+      [80, 0.4909],
+      [100, 0.4909],
+    ],
+    statOverrides: { damage: 110 },
+    cost: null, // 아직 확인 안 됨
+  },
+
+  long: {
+    label: "롱탄",
+    category: "long",
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6172],
+      [100, 0.6094],
+    ],
+    statOverrides: { damage: 128 },
+    cost: null, // 아직 확인 안 됨
+  },
+
+  long_explosive: {
+    label: "롱폭발탄",
+    category: "long",
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.5984],
+      [100, 0.5827],
+    ],
+    statOverrides: { damage: 127 },
+    cost: null, // 아직 확인 안 됨
+  },
+
+  long_fmj: {
+    label: "롱전피탄",
+    category: "long",
+    falloff: [
+      [0, 1.00],
+      [50, 1.00],
+      [100, 0.6172],
+    ],
+    statOverrides: { damage: 128 },
+    cost: null, // 아직 확인 안 됨
+  },
+
+  long_spitzer: {
+    label: "롱스피처탄",
+    category: "long",
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6147],
+      [100, 0.6055],
+    ],
+    statOverrides: { damage: 109 },
+    cost: null, // 아직 확인 안 됨
+  },
+
+  long_poison: {
+    label: "롱독탄",
+    category: "long",
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6174],
+      [100, 0.6107],
+    ],
+    statOverrides: { damage: 149 },
+    cost: null, // 아직 확인 안 됨
+  },
+
+  long_pistol_explosive: {
+    label: "롱권총폭발탄",
+    category: "long",
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [50, 0.7255],
+      [90, 0.4608],
+      [100, 0.4412],
+    ],
+    statOverrides: { damage: 102 },
+    cost: null, // 아직 확인 안 됨
+  },
+
+  long_pistol_fmj: {
+    label: "롱권총전피탄",
+    category: "long",
+    falloff: [
+      [0, 1.00],
+      [50, 1.00],
+      [80, 0.4744],
+      [90, 0.3974],
+      [100, 0.3974],
+    ],
+    statOverrides: { damage: 156 },
+    cost: null, // 아직 확인 안 됨
+  },
+
+  long_pistol_silencer: {
+    label: "롱권총소음기탄",
+    category: "long",
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [70, 0.4737],
+      [90, 0.4135],
+      [100, 0.4135],
+    ],
+    statOverrides: { damage: 133 },
+    cost: null, // 아직 확인 안 됨
+  },
+
+  long_pistol_silencer_fmj: {
+    label: "롱권총소음기전피탄",
+    category: "long",
+    falloff: [
+      [0, 1.00],
+      [50, 1.00],
+      [80, 0.4737],
+      [90, 0.4361],
+      [100, 0.4361],
+    ],
+    statOverrides: { damage: 133 },
+    cost: null, // 아직 확인 안 됨
+  },
+
+  long_silencer: {
+    label: "롱소음기탄",
+    category: "long",
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [70, 0.4962],
+      [90, 0.4361],
+      [100, 0.4361],
+    ],
+    statOverrides: { damage: 133 },
+    cost: null, // 아직 확인 안 됨
+  },
+
+  long_silencer_fmj: {
+    label: "롱소음기전피탄",
+    category: "long",
+    falloff: [
+      [0, 1.00],
+      [50, 1.00],
+      [80, 0.4962],
+      [90, 0.4586],
+      [100, 0.4586],
+    ],
+    statOverrides: { damage: 133 },
+    cost: null, // 아직 확인 안 됨
+  },
+
+  dolch: {
+    label: "돌치(Dolch)탄",
+    category: "special",
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.5464],
+      [80, 0.4742],
+      [100, 0.4742],
+    ],
+    statOverrides: { damage: 97 },
+    cost: null, // 아직 확인 안 됨
   },
 };
 

@@ -509,16 +509,18 @@ function openBodyPartView(parentItem, ammoId) {
   // 기준 거리: 무기별로 저장. 없으면 10m.
   const refRange = state.refRange[parentItem.id] ?? 10;
   const distMult = ammo?.falloff ? interpolateFalloff(ammo.falloff, refRange) : 1;
-  const dmgAtRange = baseDmg * distMult;
 
-  // 부위별 데미지 계산
-  //   표기 데미지(stats.damage)는 "10m, 가슴 맞춤" 기준이므로
-  //   가슴 배율(1.3)로 한 번 나눠서 순수값을 구한 뒤 다른 부위 배율을 곱함
-  //   == 표기데미지 × (부위배율 / 가슴배율)
+  // 데미지 계산식: 표기 데미지(baseDmg, 예: 110)는
+  //   "유저에게 안 보이는 무기 데미지(X)" × 가슴 배율(1.3) × 거리감쇠값(20m 이내 가슴 = 1)
+  //   로 이미 만들어진 값이므로, X = baseDmg / 가슴배율 로 역산한 뒤
+  //   부위별 데미지 = X × 부위 배율 × 거리감쇠값(distMult) 로 계산한다.
+  //   (※ 관통 시 추가되는 감쇠값은 아직 미반영 — 추후 여기에 곱셈으로 추가 예정)
+  const hiddenWeaponDamage = baseDmg / CHEST_MULTIPLIER; // X
+
   const partInfo = {};
   Object.entries(BODY_PART_MULTIPLIERS).forEach(([key, def]) => {
     if (def.multiplier == null) partInfo[key] = { dmg: null };
-    else partInfo[key] = { dmg: Math.round(dmgAtRange * def.multiplier / CHEST_MULTIPLIER) };
+    else partInfo[key] = { dmg: Math.round(hiddenWeaponDamage * def.multiplier * distMult) };
   });
 
   // 파생형 탭들
@@ -743,13 +745,15 @@ function refreshBodyPartDamage(currentItem, ammoId, parentItem) {
   const baseDmg = stats.damage ?? 0;
   const refRange = state.refRange[parentItem.id] ?? 10;
   const distMult = ammo?.falloff ? interpolateFalloff(ammo.falloff, refRange) : 1;
-  const dmgAtRange = baseDmg * distMult;
 
-  // 부위별 데미지 다시 계산 (가슴 기준 표기값을 변환)
+  // 데미지 계산식: X(숨겨진 무기 데미지) = 표기데미지 / 가슴배율
+  //   부위 데미지 = X × 부위 배율 × 거리감쇠값
+  const hiddenWeaponDamage = baseDmg / CHEST_MULTIPLIER; // X
+
   const partInfo = {};
   Object.entries(BODY_PART_MULTIPLIERS).forEach(([key, def]) => {
     if (def.multiplier == null) partInfo[key] = { dmg: null };
-    else partInfo[key] = { dmg: Math.round(dmgAtRange * def.multiplier / CHEST_MULTIPLIER) };
+    else partInfo[key] = { dmg: Math.round(hiddenWeaponDamage * def.multiplier * distMult) };
   });
 
   // 마네킹만 다시 그리기
