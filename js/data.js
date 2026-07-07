@@ -2500,7 +2500,7 @@ const AMMO_TYPES = {
   auto5_shells: {
     label: "Shells",
     category: "shotgun",
-    image: "images/ui/ammo_effect_icons/full_metal.png",
+    image: "images/ui/ammo_shotgun.webp",
     icon: "🔫",
     description: "Shells - 기본 샷건탄(벅샷).",
     cost: 0,
@@ -2548,7 +2548,7 @@ const AMMO_TYPES = {
   homestead78_shells: {
     label: "Shells",
     category: "shotgun",
-    image: "images/ui/ammo_effect_icons/full_metal.png",
+    image: "images/ui/ammo_shotgun.webp",
     icon: "🔫",
     description: "Shells - 기본 샷건탄(벅샷).",
     cost: null,
@@ -2608,7 +2608,7 @@ const AMMO_TYPES = {
   },  rival78_shells: {
     label: "Shells",
     category: "shotgun",
-    image: "images/ui/ammo_effect_icons/full_metal.png",
+    image: "images/ui/ammo_shotgun.webp",
     icon: "🔫",
     description: "Shells - 기본 샷건탄(벅샷).",
     cost: 0,
@@ -2669,7 +2669,7 @@ const AMMO_TYPES = {
   romero77_shells: {
     label: "Shells",
     category: "shotgun",
-    image: "images/ui/ammo_effect_icons/full_metal.png",
+    image: "images/ui/ammo_shotgun.webp",
     icon: "🔫",
     description: "Shells - 기본 샷건탄(벅샷).",
     cost: 0,
@@ -2728,7 +2728,7 @@ const AMMO_TYPES = {
   },  slate_shells: {
     label: "Shells",
     category: "shotgun",
-    image: "images/ui/ammo_effect_icons/full_metal.png",
+    image: "images/ui/ammo_shotgun.webp",
     icon: "🔫",
     description: "Shells - 기본 샷건탄(벅샷).",
     cost: 0,
@@ -2763,7 +2763,7 @@ const AMMO_TYPES = {
   specter1882_shells: {
     label: "Shells",
     category: "shotgun",
-    image: "images/ui/ammo_effect_icons/full_metal.png",
+    image: "images/ui/ammo_shotgun.webp",
     icon: "🔫",
     description: "Shells - 기본 샷건탄(벅샷).",
     cost: 0,
@@ -2824,7 +2824,7 @@ const AMMO_TYPES = {
   terminus_shells: {
     label: "Shells",
     category: "shotgun",
-    image: "images/ui/ammo_effect_icons/full_metal.png",
+    image: "images/ui/ammo_shotgun.webp",
     icon: "🔫",
     description: "Shells - 기본 샷건탄(벅샷).",
     cost: 0,
