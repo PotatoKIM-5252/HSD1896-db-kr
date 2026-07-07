@@ -119,6 +119,7 @@ const WEAPON_FILTERS = {
       { value: "chaos",         label: "혼돈탄",       image: "images/ui/ammo_effect_icons/chaos.png" },
       { value: "choke",         label: "질식탄",       image: "images/ui/ammo_effect_icons/choke.png" },
       { value: "wire",          label: "철조망",       image: "images/ui/ammo_effect_icons/wire.png" },
+      { value: "shot_bolt",     label: "샷볼트",       image: "images/ui/ammo_effect_icons/shot_bolt.png" },
     ],
   },
 };
@@ -3195,7 +3196,8 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 1,
     ammoCategory: "compact",
-    ammoEffects: ["full_metal", "incendiary"],
+    secondaryAmmoCategories: ["shotgun"], // 하부 총열 샷건 보유 (르맷)
+    ammoEffects: ["full_metal", "incendiary", "slug", "flare", "ball_shot"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
     ammoTypes: [
@@ -3967,7 +3969,8 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 2,
     ammoCategory: "long",
-    ammoEffects: ["full_metal", "poison"],
+    secondaryAmmoCategories: ["shotgun"], // 하부 총열 샷건 보유 (헤이메이커)
+    ammoEffects: ["full_metal", "poison", "slug", "incendiary", "flare", "ball_shot"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
     ammoTypes: [

@@ -309,7 +309,11 @@ function getFilteredItems(extra = {}) {
     if (useWeaponFilters && item.category === "weapon") {
       const f = filterSource;
       if (f.slotSize.size > 0 && !f.slotSize.has(item.slotSize)) return false;
-      if (f.ammoCategory.size > 0 && !f.ammoCategory.has(item.ammoCategory)) return false;
+      if (f.ammoCategory.size > 0) {
+        const cats = [item.ammoCategory, ...(item.secondaryAmmoCategories || [])];
+        const ok = [...f.ammoCategory].some((c) => cats.includes(c));
+        if (!ok) return false;
+      }
       if (f.ammoEffect.size > 0) {
         const effects = item.ammoEffects || [];
         const ok = [...f.ammoEffect].some((e) => effects.includes(e));
