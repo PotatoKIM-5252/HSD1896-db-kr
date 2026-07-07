@@ -3200,7 +3200,7 @@ const ITEMS = [
     slotSize: 1,
     ammoCategory: "compact",
     secondaryAmmoCategories: ["shotgun"], // 하부 총열 샷건 보유 (르맷)
-    ammoEffects: ["full_metal", "incendiary", "slug", "flare", "ball_shot"],
+    ammoEffects: ["full_metal", "incendiary", "slug", "flare"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
     ammoTypes: [
@@ -3457,7 +3457,8 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 4,
     ammoCategory: "medium",
-    ammoEffects: ["bleed", "full_metal", "high_velocity"],
+    secondaryAmmoCategories: ["shotgun"], // 하부 총열 샷건(플리셰트/페니샷/슬러그) 보유
+    ammoEffects: ["bleed", "full_metal", "high_velocity", "slug", "pennyshot"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
     ammoTypes: [
@@ -3973,7 +3974,7 @@ const ITEMS = [
     slotSize: 2,
     ammoCategory: "long",
     secondaryAmmoCategories: ["shotgun"], // 하부 총열 샷건 보유 (헤이메이커)
-    ammoEffects: ["full_metal", "poison", "slug", "incendiary", "flare", "ball_shot"],
+    ammoEffects: ["full_metal", "poison", "slug", "incendiary", "flare"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
     ammoTypes: [
