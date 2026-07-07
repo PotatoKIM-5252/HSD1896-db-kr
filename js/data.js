@@ -113,8 +113,8 @@ const WEAPON_FILTERS = {
       { value: "flare",         label: "신호탄",       image: "images/ui/ammo_effect_icons/flare.png" },
       { value: "slug",          label: "슬러그",       image: "images/ui/ammo_effect_icons/slug.png" },
       { value: "pennyshot",     label: "페니샷",       image: "images/ui/ammo_effect_icons/pennyshot.png" },
-      // 플리셰트(Flechette)는 별도 항목 없음 — "Causes bleeding on Hunters"라 출혈탄과 동일 효과.
-      // 해당 탄약을 쓰는 무기가 추가되면 ammoEffects에 "bleed"를 태그할 것.
+      { value: "flechette",     label: "플리셰트",     image: "images/ui/ammo_effect_icons/flechette.png" },
+      { value: "dragonbreath",  label: "드래곤브레스", image: "images/ui/ammo_effect_icons/dragonbreath_shell.png" },
       // 세열탄(Fragmentation)은 별도 항목 없음 — 실제 효과가 출혈+폭발+소이가 섞여있어서,
       // 해당 탄약을 쓰는 무기가 추가되면 ammoEffects에 "bleed","explosive","incendiary" 3개를 함께 태그할 것.
       { value: "ball_shot",     label: "철환탄",       image: "images/ui/ammo_effect_icons/ball_shot.png" },
@@ -3200,7 +3200,7 @@ const ITEMS = [
     slotSize: 1,
     ammoCategory: "compact",
     secondaryAmmoCategories: ["shotgun"], // 하부 총열 샷건 보유 (르맷)
-    ammoEffects: ["full_metal", "incendiary", "slug", "flare"],
+    ammoEffects: ["full_metal", "incendiary", "slug", "flare", "dragonbreath"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
     ammoTypes: [
@@ -3458,7 +3458,7 @@ const ITEMS = [
     slotSize: 4,
     ammoCategory: "medium",
     secondaryAmmoCategories: ["shotgun"], // 하부 총열 샷건(플리셰트/페니샷/슬러그) 보유
-    ammoEffects: ["bleed", "full_metal", "high_velocity", "slug", "pennyshot"],
+    ammoEffects: ["bleed", "full_metal", "high_velocity", "slug", "pennyshot", "flechette"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
     ammoTypes: [
@@ -3974,7 +3974,7 @@ const ITEMS = [
     slotSize: 2,
     ammoCategory: "long",
     secondaryAmmoCategories: ["shotgun"], // 하부 총열 샷건 보유 (헤이메이커)
-    ammoEffects: ["full_metal", "poison", "slug", "incendiary", "flare"],
+    ammoEffects: ["full_metal", "poison", "slug", "flare", "dragonbreath"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
     ammoTypes: [
