@@ -210,7 +210,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
     cost: 60,
     falloff: [
       [0,  1.00],
@@ -332,7 +332,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
     cost: 60,
     falloff: [
       [0,  1.00],
@@ -454,7 +454,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
     cost: 50,
     falloff: [
       [0,  1.00],
@@ -551,7 +551,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -658,7 +658,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -746,7 +746,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -953,7 +953,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -1104,7 +1104,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -1216,7 +1216,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -1324,7 +1324,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -1377,7 +1377,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -1465,7 +1465,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
     cost: 30,
     falloff: [
       [0, 1.00],
@@ -1586,7 +1586,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -1697,7 +1697,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -1811,7 +1811,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -1957,7 +1957,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_long_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
     cost: 35,
     falloff: [
       [0, 1.00],
@@ -2317,7 +2317,7 @@ const AMMO_TYPES = {
     effect: "spitzer",
     image: "images/ui/ammo_effects/ammo_special_long_spitzer.png",
     icon: "🏹",
-    description: "스피처탄 - 탄속 증가, 관통력 증가. 상점 구매 불가(월드 획득 전용).",
+    description: "스피처탄 - 탄속 증가, 관통력 증가, 데미지 감소. 상점 구매 불가(월드 획득 전용).",
     cost: null,
     scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
     falloff: [
@@ -2371,7 +2371,7 @@ const AMMO_TYPES = {
     effect: "spitzer",
     image: "images/ui/ammo_effects/ammo_special_long_spitzer.png",
     icon: "🏹",
-    description: "스피처탄 - 탄속 증가, 관통력 증가. 상점 구매 불가(월드 획득 전용).",
+    description: "스피처탄 - 탄속 증가, 관통력 증가, 데미지 감소. 상점 구매 불가(월드 획득 전용).",
     cost: null,
     scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
     falloff: [
@@ -2425,7 +2425,7 @@ const AMMO_TYPES = {
     effect: "spitzer",
     image: "images/ui/ammo_effects/ammo_special_long_spitzer.png",
     icon: "🏹",
-    description: "스피처탄 - 탄속 증가, 관통력 증가. 상점 구매 불가(월드 획득 전용).",
+    description: "스피처탄 - 탄속 증가, 관통력 증가, 데미지 감소. 상점 구매 불가(월드 획득 전용).",
     cost: null,
     scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
     falloff: [
@@ -2479,7 +2479,7 @@ const AMMO_TYPES = {
     effect: "spitzer",
     image: "images/ui/ammo_effects/ammo_special_long_spitzer.png",
     icon: "🏹",
-    description: "스피처탄 - 탄속 증가, 관통력 증가. 상점 구매 불가(월드 획득 전용).",
+    description: "스피처탄 - 탄속 증가, 관통력 증가, 데미지 감소. 상점 구매 불가(월드 획득 전용).",
     cost: null,
     scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
     falloff: [
