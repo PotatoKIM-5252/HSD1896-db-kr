@@ -43,6 +43,24 @@ const state = {
 
 function loadoutKey(c, s) { return `${c}__${s}`; }
 
+// 브라우저 기본 alert() 대신 사이트 디자인에 맞는 토스트 알림
+let toastTimer = null;
+function showToast(message, type = "error") {
+  const toast = document.getElementById("site-toast");
+  if (!toast) return;
+  clearTimeout(toastTimer);
+  toast.textContent = message;
+  toast.className = `site-toast site-toast-${type}`;
+  toast.hidden = false;
+  // 강제 리플로우 후 표시 클래스 적용 (트랜지션이 매번 다시 재생되도록)
+  void toast.offsetWidth;
+  toast.classList.add("show");
+  toastTimer = setTimeout(() => {
+    toast.classList.remove("show");
+    setTimeout(() => { toast.hidden = true; }, 250);
+  }, 3200);
+}
+
 // 한글 단어 받침 유무에 따라 "이/가" 조사를 자동으로 붙여준다 (예: "도구"+가, "소모품"+이)
 function withEulReulIga(word, withBatchim, withoutBatchim) {
   const lastChar = word[word.length - 1];
@@ -385,7 +403,9 @@ function createItemCard(item) {
       <div class="item-card-name">${item.name}</div>
       <div class="item-card-meta">
         <span class="item-card-slots"><img src="images/ui/slot_${item.slotSize || 1}.png" alt="${item.slotSize}칸" class="slot-icon"></span>
-        ${item.price != null ? `<span class="item-card-price"><img src="images/ui/hunt_dollars.png" alt="$" class="dollar-icon">${item.price}</span>` : ""}
+        ${item.scarce
+          ? `<span class="item-card-price"><img src="images/ui/scarce.png" alt="Scarce" class="dollar-icon" title="Scarce (상점 구매 불가, 월드에서만 획득)"></span>`
+          : item.price != null ? `<span class="item-card-price"><img src="images/ui/hunt_dollars.png" alt="$" class="dollar-icon">${item.price}</span>` : ""}
       </div>
       <button class="item-card-detail-btn" type="button">자세히 보기 ›</button>`;
 
@@ -642,7 +662,9 @@ function openBodyPartView(parentItem, ammoId) {
           ${ammo?.image ? `<img src="${ammo.image}" alt="${ammo.label}" class="ammo-status-icon">` : ""}
           <span class="ammo-status-count">${chamber.loaded ?? "-"}/${chamber.extra ?? "-"}</span>
           <img src="images/ui/slot_${currentItem.slotSize || 1}.png" alt="${currentItem.slotSize}칸" class="ammo-status-slots">
-          ${currentItem.price != null ? `<img src="images/ui/hunt_dollars.png" alt="$" class="ammo-status-dollar"><span class="ammo-status-price">${currentItem.price}</span>` : ""}
+          ${currentItem.scarce
+            ? `<img src="images/ui/scarce.png" alt="Scarce" class="ammo-status-dollar" title="Scarce (상점 구매 불가, 월드에서만 획득)">`
+            : currentItem.price != null ? `<img src="images/ui/hunt_dollars.png" alt="$" class="ammo-status-dollar"><span class="ammo-status-price">${currentItem.price}</span>` : ""}
         </div>
 
         <!-- 총기 스탯: 탄약 바꾸면 이 자리에서 바로 갱신됨 -->
@@ -942,7 +964,9 @@ function renderWeaponDetailHTML(item, selectedAmmoId) {
       ${ammo?.image ? `<img src="${ammo.image}" alt="${ammo.label}" class="ammo-status-icon">` : ""}
       <span class="ammo-status-count">${chamber.loaded ?? "-"}/${chamber.extra ?? "-"}</span>
       <img src="images/ui/slot_${item.slotSize || 1}.png" alt="${item.slotSize}칸" class="ammo-status-slots">
-      ${item.price != null ? `<img src="images/ui/hunt_dollars.png" alt="$" class="ammo-status-dollar"><span class="ammo-status-price">${item.price}</span>` : ""}
+      ${item.scarce
+        ? `<img src="images/ui/scarce.png" alt="Scarce" class="ammo-status-dollar" title="Scarce (상점 구매 불가, 월드에서만 획득)">`
+        : item.price != null ? `<img src="images/ui/hunt_dollars.png" alt="$" class="ammo-status-dollar"><span class="ammo-status-price">${item.price}</span>` : ""}
     </div>
 
     <h4>Ammo Types</h4>
@@ -1340,7 +1364,9 @@ function renderModalList(query) {
     row.innerHTML = `
       ${item.image ? `<img src="${item.image}" alt="" class="modal-item-thumb" onerror="this.style.display='none'">` : `<span class="modal-item-thumb-placeholder"></span>`}
       <span class="modal-item-name">${item.name}</span>
-      ${item.price != null ? `<span class="modal-item-price"><img src="images/ui/hunt_dollars.png" alt="$">${item.price}</span>` : ""}
+      ${item.scarce
+        ? `<span class="modal-item-price"><img src="images/ui/scarce.png" alt="Scarce" title="Scarce (상점 구매 불가, 월드에서만 획득)"></span>`
+        : item.price != null ? `<span class="modal-item-price"><img src="images/ui/hunt_dollars.png" alt="$">${item.price}</span>` : ""}
     `;
     row.addEventListener("click", () => {
       // 무기는 클릭하면 바로 확정하지 않고 탄약 선택 단계로 이동
@@ -1446,7 +1472,12 @@ function renderFixedSlot(catKey, slotDef, key, index) {
     nameSpan.textContent = item.name;
     contentEl.appendChild(nameSpan);
 
-    if (item.price != null) {
+    if (item.scarce) {
+      contentEl.insertAdjacentHTML(
+        "beforeend",
+        `<span class="slot-item-price"><img src="images/ui/scarce.png" alt="Scarce" title="Scarce (상점 구매 불가, 월드에서만 획득)"></span>`
+      );
+    } else if (item.price != null) {
       contentEl.insertAdjacentHTML(
         "beforeend",
         `<span class="slot-item-price"><img src="images/ui/hunt_dollars.png" alt="$">${item.price}</span>`
@@ -1492,7 +1523,7 @@ function renderFixedSlot(catKey, slotDef, key, index) {
         const otherTotal = getTotalWeaponSlotSize(key, index);
         const newTotal = otherTotal + (selectedItem.slotSize || 0);
         if (newTotal > WEAPON_SLOT_LIMIT) {
-          alert(`무기 칸수 합이 ${WEAPON_SLOT_LIMIT}칸을 넘어서 장착할 수 없습니다.\n(다른 무기 ${otherTotal}칸 + 이 무기 ${selectedItem.slotSize}칸 = ${newTotal}칸)`);
+          showToast(`무기 칸수 합이 ${WEAPON_SLOT_LIMIT}칸을 넘어서 장착할 수 없습니다. (다른 무기 ${otherTotal}칸 + 이 무기 ${selectedItem.slotSize}칸 = ${newTotal}칸)`);
           return;
         }
       }

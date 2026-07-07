@@ -2495,6 +2495,393 @@ const AMMO_TYPES = {
     statOverrides: { damage: 106, dropRange: 120, verticalRecoil: 21, muzzleVelocity: 710, ammoExtra: 5 },
   },
 
+
+  // ── Auto-5 / Homestead 78 / Rival 78 / Romero 77 / Slate / Specter 1882 / Terminus (샷건, 낙하곡선 없음) ──
+  auto5_shells: {
+    label: "Shells",
+    category: "shotgun",
+    image: "images/ui/ammo_effect_icons/full_metal.png",
+    icon: "🔫",
+    description: "Shells - 기본 샷건탄(벅샷).",
+    cost: 0,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: {  },
+  },
+
+  auto5_flechette: {
+    label: "플리셰트",
+    category: "shotgun",
+    effect: "flechette",
+    image: "images/ui/ammo_effect_icons/flechette.png",
+    icon: "➶",
+    description: "플리셰트 - 다수의 작은 다트형 투사체 발사. 명중 시 출혈 효과.",
+    cost: 40,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 135, spread: 25 },
+    specialEffects: ["중급 출혈 효과 발생"],
+  },
+
+  auto5_pennyshot: {
+    label: "페니샷",
+    category: "shotgun",
+    effect: "pennyshot",
+    image: "images/ui/ammo_effect_icons/pennyshot.png",
+    icon: "🪙",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    cost: 10,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 147, spread: 100, ammoExtra: 12 },
+  },
+
+  auto5_slug: {
+    label: "슬러그",
+    category: "shotgun",
+    effect: "slug",
+    image: "images/ui/ammo_effect_icons/slug.png",
+    icon: "●",
+    description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
+    cost: 130,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 179, spread: 95, ammoExtra: 5 },
+  },
+
+  homestead78_shells: {
+    label: "Shells",
+    category: "shotgun",
+    image: "images/ui/ammo_effect_icons/full_metal.png",
+    icon: "🔫",
+    description: "Shells - 기본 샷건탄(벅샷).",
+    cost: null,
+    scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: {  },
+  },
+
+  homestead78_dragonbreath: {
+    label: "드래곤브레스",
+    category: "shotgun",
+    effect: "dragonbreath",
+    image: "images/ui/ammo_effect_icons/dragonbreath_shell.png",
+    icon: "🔥",
+    description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
+    cost: 20,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 149, spread: 55, muzzleVelocity: 125 },
+    specialEffects: ["중급 화상 효과 발생"],
+  },
+
+  homestead78_flechette: {
+    label: "플리셰트",
+    category: "shotgun",
+    effect: "flechette",
+    image: "images/ui/ammo_effect_icons/flechette.png",
+    icon: "➶",
+    description: "플리셰트 - 다수의 작은 다트형 투사체 발사. 명중 시 출혈 효과.",
+    cost: 40,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 162, spread: 5 },
+    specialEffects: ["중급 출혈 효과 발생"],
+  },
+
+  homestead78_pennyshot: {
+    label: "페니샷",
+    category: "shotgun",
+    effect: "pennyshot",
+    image: "images/ui/ammo_effect_icons/pennyshot.png",
+    icon: "🪙",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    cost: 10,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 174, spread: 75, ammoExtra: 18 },
+  },
+
+  homestead78_slug: {
+    label: "슬러그",
+    category: "shotgun",
+    effect: "slug",
+    image: "images/ui/ammo_effect_icons/slug.png",
+    icon: "●",
+    description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
+    cost: 130,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 195, spread: 70, ammoExtra: 8 },
+  },  rival78_shells: {
+    label: "Shells",
+    category: "shotgun",
+    image: "images/ui/ammo_effect_icons/full_metal.png",
+    icon: "🔫",
+    description: "Shells - 기본 샷건탄(벅샷).",
+    cost: 0,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: {  },
+  },
+
+  rival78_dragonbreath: {
+    label: "드래곤브레스",
+    category: "shotgun",
+    effect: "dragonbreath",
+    image: "images/ui/ammo_effect_icons/dragonbreath_shell.png",
+    icon: "🔥",
+    description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
+    cost: 20,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 113, spread: 80, muzzleVelocity: 100 },
+    specialEffects: ["중급 화상 효과 발생"],
+  },
+
+  rival78_flechette: {
+    label: "플리셰트",
+    category: "shotgun",
+    effect: "flechette",
+    image: "images/ui/ammo_effect_icons/flechette.png",
+    icon: "➶",
+    description: "플리셰트 - 다수의 작은 다트형 투사체 발사. 명중 시 출혈 효과.",
+    cost: 40,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 126, spread: 30 },
+    specialEffects: ["중급 출혈 효과 발생"],
+  },
+
+  rival78_pennyshot: {
+    label: "페니샷",
+    category: "shotgun",
+    effect: "pennyshot",
+    image: "images/ui/ammo_effect_icons/pennyshot.png",
+    icon: "🪙",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    cost: 10,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 138, spread: 100, ammoExtra: 18 },
+  },
+
+  rival78_slug: {
+    label: "슬러그",
+    category: "shotgun",
+    effect: "slug",
+    image: "images/ui/ammo_effect_icons/slug.png",
+    icon: "●",
+    description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
+    cost: 130,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 165, spread: 95, ammoExtra: 8 },
+  },
+
+  romero77_shells: {
+    label: "Shells",
+    category: "shotgun",
+    image: "images/ui/ammo_effect_icons/full_metal.png",
+    icon: "🔫",
+    description: "Shells - 기본 샷건탄(벅샷).",
+    cost: 0,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: {  },
+  },
+
+  romero77_dragonbreath: {
+    label: "드래곤브레스",
+    category: "shotgun",
+    effect: "dragonbreath",
+    image: "images/ui/ammo_effect_icons/dragonbreath_shell.png",
+    icon: "🔥",
+    description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
+    cost: 10,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 144, spread: 50, muzzleVelocity: 100 },
+    specialEffects: ["중급 화상 효과 발생"],
+  },
+
+  romero77_pennyshot: {
+    label: "페니샷",
+    category: "shotgun",
+    effect: "pennyshot",
+    image: "images/ui/ammo_effect_icons/pennyshot.png",
+    icon: "🪙",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    cost: 5,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 192, spread: 75, ammoExtra: 4 },
+  },
+
+  romero77_slug: {
+    label: "슬러그",
+    category: "shotgun",
+    effect: "slug",
+    image: "images/ui/ammo_effect_icons/slug.png",
+    icon: "●",
+    description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
+    cost: 65,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 179, spread: 65, ammoExtra: 4 },
+  },
+
+  romero77_starshell: {
+    label: "신호탄",
+    category: "shotgun",
+    effect: "flare",
+    image: "images/ui/ammo_effect_icons/flare.png",
+    icon: "🌟",
+    description: "신호탄 - 조명탄 발사, 명중한 대상에 강한 화상 효과.",
+    cost: 5,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 3, spread: 50, verticalRecoil: 3, muzzleVelocity: 75, ammoExtra: 4 },
+    specialEffects: ["강한(intense) 화상 효과 발생"],
+  },  slate_shells: {
+    label: "Shells",
+    category: "shotgun",
+    image: "images/ui/ammo_effect_icons/full_metal.png",
+    icon: "🔫",
+    description: "Shells - 기본 샷건탄(벅샷).",
+    cost: 0,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: {  },
+  },
+
+  slate_pennyshot: {
+    label: "페니샷",
+    category: "shotgun",
+    effect: "pennyshot",
+    image: "images/ui/ammo_effect_icons/pennyshot.png",
+    icon: "🪙",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    cost: 10,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 182, spread: 80, ammoExtra: 18 },
+  },
+
+  slate_slug: {
+    label: "슬러그",
+    category: "shotgun",
+    effect: "slug",
+    image: "images/ui/ammo_effect_icons/slug.png",
+    icon: "●",
+    description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
+    cost: 130,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 165, spread: 80, ammoExtra: 8 },
+  },
+
+  specter1882_shells: {
+    label: "Shells",
+    category: "shotgun",
+    image: "images/ui/ammo_effect_icons/full_metal.png",
+    icon: "🔫",
+    description: "Shells - 기본 샷건탄(벅샷).",
+    cost: 0,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: {  },
+  },
+
+  specter1882_dragonbreath: {
+    label: "드래곤브레스",
+    category: "shotgun",
+    effect: "dragonbreath",
+    image: "images/ui/ammo_effect_icons/dragonbreath_shell.png",
+    icon: "🔥",
+    description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
+    cost: 20,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 141, spread: 60, muzzleVelocity: 100 },
+    specialEffects: ["중급 화상 효과 발생"],
+  },
+
+  specter1882_flechette: {
+    label: "플리셰트",
+    category: "shotgun",
+    effect: "flechette",
+    image: "images/ui/ammo_effect_icons/flechette.png",
+    icon: "➶",
+    description: "플리셰트 - 다수의 작은 다트형 투사체 발사. 명중 시 출혈 효과.",
+    cost: 40,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 138 },
+    specialEffects: ["중급 출혈 효과 발생"],
+  },
+
+  specter1882_pennyshot: {
+    label: "페니샷",
+    category: "shotgun",
+    effect: "pennyshot",
+    image: "images/ui/ammo_effect_icons/pennyshot.png",
+    icon: "🪙",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    cost: 10,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 193, spread: 75, ammoExtra: 18 },
+  },
+
+  specter1882_slug: {
+    label: "슬러그",
+    category: "shotgun",
+    effect: "slug",
+    image: "images/ui/ammo_effect_icons/slug.png",
+    icon: "●",
+    description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
+    cost: 130,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 179, spread: 75, ammoExtra: 8 },
+  },
+
+  terminus_shells: {
+    label: "Shells",
+    category: "shotgun",
+    image: "images/ui/ammo_effect_icons/full_metal.png",
+    icon: "🔫",
+    description: "Shells - 기본 샷건탄(벅샷).",
+    cost: 0,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: {  },
+  },
+
+  terminus_dragonbreath: {
+    label: "드래곤브레스",
+    category: "shotgun",
+    effect: "dragonbreath",
+    image: "images/ui/ammo_effect_icons/dragonbreath_shell.png",
+    icon: "🔥",
+    description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
+    cost: 20,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 118, spread: 85, muzzleVelocity: 100 },
+    specialEffects: ["중급 화상 효과 발생"],
+  },
+
+  terminus_flechette: {
+    label: "플리셰트",
+    category: "shotgun",
+    effect: "flechette",
+    image: "images/ui/ammo_effect_icons/flechette.png",
+    icon: "➶",
+    description: "플리셰트 - 다수의 작은 다트형 투사체 발사. 명중 시 출혈 효과.",
+    cost: 40,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 127, spread: 30 },
+    specialEffects: ["중급 출혈 효과 발생"],
+  },
+
+  terminus_pennyshot: {
+    label: "페니샷",
+    category: "shotgun",
+    effect: "pennyshot",
+    image: "images/ui/ammo_effect_icons/pennyshot.png",
+    icon: "🪙",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    cost: 10,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 183, spread: 80, ammoExtra: 18 },
+  },
+
+  terminus_slug: {
+    label: "슬러그",
+    category: "shotgun",
+    effect: "slug",
+    image: "images/ui/ammo_effect_icons/slug.png",
+    icon: "●",
+    description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
+    cost: 130,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 165, spread: 75, ammoExtra: 8 },
+  },
+
   // ─────────────────────────────────────────────────────────────
   // 아래는 아직 이 탄약을 쓰는 무기가 ITEMS에 없는 "참고용" 데이터입니다.
   // 사용자가 공식 최신 그래프를 보고 직접 불러준 낙하곡선(20/50/100m 등 구간점)이며,
@@ -4309,6 +4696,368 @@ const ITEMS = [
       muzzleVelocity: 520,
       meleeLight: 13,
       meleeHeavy: 31,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_auto5",
+    category: "weapon",
+    name: "Auto-5",
+    image: "images/weapons/auto5.png",
+
+    // 검색 필터용
+    slotSize: 5,
+    ammoCategory: "shotgun",
+    ammoEffects: ["bleed", "pennyshot", "slug"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "auto5_shells",
+      "auto5_flechette",
+      "auto5_pennyshot",
+      "auto5_slug",
+    ],
+    defaultAmmo: "auto5_shells",
+
+    // 기본 정보
+    price: 600,
+    updateAdded: "Update Early Access 0.1",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "4+1",
+      extra: 8,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 194,
+      dropRange: 30,
+      rateOfFire: 24,
+      cycleTime: 0.6,
+      spread: 35,
+      sway: 133,
+      verticalRecoil: 20,
+      reloadSpeed: 10.7,
+      muzzleVelocity: 425,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_homestead78",
+    category: "weapon",
+    name: "Homestead 78",
+    image: "images/weapons/homestead78.png",
+
+    // 검색 필터용
+    slotSize: 4,
+    ammoCategory: "shotgun",
+    ammoEffects: ["dragonbreath", "bleed", "pennyshot", "slug"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "homestead78_shells",
+      "homestead78_dragonbreath",
+      "homestead78_flechette",
+      "homestead78_pennyshot",
+      "homestead78_slug",
+    ],
+    defaultAmmo: "homestead78_shells",
+
+    // 기본 정보
+    price: null,
+    scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
+    updateAdded: "Update 2.5",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "2",
+      extra: 12,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 220,
+      dropRange: 30,
+      rateOfFire: 24,
+      cycleTime: 0.3,
+      spread: 20,
+      sway: 77,
+      verticalRecoil: 20,
+      reloadSpeed: 4.7,
+      muzzleVelocity: 450,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_rival78",
+    category: "weapon",
+    name: "Rival 78",
+    image: "images/weapons/rival78.png",
+
+    // 검색 필터용
+    slotSize: 4,
+    ammoCategory: "shotgun",
+    ammoEffects: ["dragonbreath", "bleed", "pennyshot", "slug"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "rival78_shells",
+      "rival78_dragonbreath",
+      "rival78_flechette",
+      "rival78_pennyshot",
+      "rival78_slug",
+    ],
+    defaultAmmo: "rival78_shells",
+
+    // 기본 정보
+    price: 170,
+    updateAdded: "Update Early Access 0.1",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "2",
+      extra: 12,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 184,
+      dropRange: 25,
+      rateOfFire: 24,
+      cycleTime: 0.3,
+      spread: 45,
+      sway: 77,
+      verticalRecoil: 20,
+      reloadSpeed: 4.7,
+      muzzleVelocity: 425,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_romero77",
+    category: "weapon",
+    name: "Romero 77",
+    image: "images/weapons/romero77.png",
+
+    // 검색 필터용
+    slotSize: 4,
+    ammoCategory: "shotgun",
+    ammoEffects: ["dragonbreath", "pennyshot", "slug", "flare"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "romero77_shells",
+      "romero77_dragonbreath",
+      "romero77_pennyshot",
+      "romero77_slug",
+      "romero77_starshell",
+    ],
+    defaultAmmo: "romero77_shells",
+
+    // 기본 정보
+    price: 66,
+    updateAdded: "Update Early Access 0.1",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "1",
+      extra: 12,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 220,
+      dropRange: 30,
+      rateOfFire: 16,
+      cycleTime: 4,
+      spread: 20,
+      sway: 77,
+      verticalRecoil: 20,
+      reloadSpeed: 3.4,
+      muzzleVelocity: 450,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_slate",
+    category: "weapon",
+    name: "Slate",
+    image: "images/weapons/slate.png",
+
+    // 검색 필터용
+    slotSize: 4,
+    ammoCategory: "shotgun",
+    ammoEffects: ["pennyshot", "slug"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "slate_shells",
+      "slate_pennyshot",
+      "slate_slug",
+    ],
+    defaultAmmo: "slate_shells",
+
+    // 기본 정보
+    price: 313,
+    updateAdded: "Update 1.8",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "5+1",
+      extra: 12,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 207,
+      dropRange: 25,
+      rateOfFire: 23,
+      cycleTime: 1,
+      spread: 30,
+      sway: 77,
+      verticalRecoil: 26,
+      reloadSpeed: 9.6,
+      muzzleVelocity: 425,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_specter1882",
+    category: "weapon",
+    name: "Specter 1882",
+    image: "images/weapons/specter1882.png",
+
+    // 검색 필터용
+    slotSize: 4,
+    ammoCategory: "shotgun",
+    ammoEffects: ["dragonbreath", "bleed", "pennyshot", "slug"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "specter1882_shells",
+      "specter1882_dragonbreath",
+      "specter1882_flechette",
+      "specter1882_pennyshot",
+      "specter1882_slug",
+    ],
+    defaultAmmo: "specter1882_shells",
+
+    // 기본 정보
+    price: 188,
+    updateAdded: "Update Early Access 0.1",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "4+1",
+      extra: 12,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 213,
+      dropRange: 30,
+      rateOfFire: 20,
+      cycleTime: 1,
+      spread: 25,
+      sway: 77,
+      verticalRecoil: 20,
+      reloadSpeed: 14.8,
+      muzzleVelocity: 425,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_terminus",
+    category: "weapon",
+    name: "Terminus",
+    image: "images/weapons/terminus.png",
+
+    // 검색 필터용
+    slotSize: 4,
+    ammoCategory: "shotgun",
+    ammoEffects: ["dragonbreath", "bleed", "pennyshot", "slug"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "terminus_shells",
+      "terminus_dragonbreath",
+      "terminus_flechette",
+      "terminus_pennyshot",
+      "terminus_slug",
+    ],
+    defaultAmmo: "terminus_shells",
+
+    // 기본 정보
+    price: 168,
+    updateAdded: "Update 1.5",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "6+1",
+      extra: 12,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 186,
+      dropRange: 25,
+      rateOfFire: 21,
+      cycleTime: 1.6,
+      spread: 40,
+      sway: 77,
+      verticalRecoil: 22,
+      reloadSpeed: 12.2,
+      muzzleVelocity: 425,
+      meleeLight: 27,
+      meleeHeavy: 54,
       staminaConsumption: 25,
     },
 
