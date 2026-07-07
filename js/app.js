@@ -256,10 +256,19 @@ function renderWeaponFilters() {
     group.appendChild(label);
     const chips = document.createElement("div");
     chips.className = "weapon-filter-chips";
-    def.options.forEach((opt) => {
+
+    // 탄약효과 그룹은 선택된 탄종(들)에 따라 옵션을 합집합으로 좁힘 (탄종 미선택 시 전체 표시)
+    let options = def.options;
+    if (filterKey === "ammoEffect") {
+      const available = getAvailableAmmoEffectValues(state.weaponFilters.ammoCategory);
+      if (available) options = def.options.filter((opt) => available.has(opt.value));
+    }
+
+    options.forEach((opt) => {
       const chip = document.createElement("button");
       chip.type = "button";
       chip.className = "filter-chip";
+      if (state.weaponFilters[filterKey].has(opt.value)) chip.classList.add("active");
 
       if (opt.image) {
         // 이미지가 있으면 텍스트 대신 아이콘으로 (이름은 title 툴팁으로)
@@ -277,8 +286,10 @@ function renderWeaponFilters() {
 
       chip.addEventListener("click", () => {
         const set = state.weaponFilters[filterKey];
-        if (set.has(opt.value)) { set.delete(opt.value); chip.classList.remove("active"); }
-        else { set.add(opt.value); chip.classList.add("active"); }
+        if (set.has(opt.value)) set.delete(opt.value);
+        else set.add(opt.value);
+        if (filterKey === "ammoCategory") pruneAmmoEffectFilter(state.weaponFilters);
+        renderWeaponFilters(); // 탄종이 바뀌었을 수 있으니 필터 UI 전체를 다시 그림
         renderItemGrid();
       });
       chips.appendChild(chip);
@@ -297,6 +308,30 @@ function updateWeaponFilterVisibility() {
 // -------------------------------------------------------------------------
 // 결과 그리드
 // -------------------------------------------------------------------------
+// 선택된 탄종(들)에서 실제로 쓰이는 탄약 효과들의 합집합을 구함.
+// 탄종을 하나도 선택 안 했으면 null(=전체 다 보여줌)을 반환.
+function getAvailableAmmoEffectValues(categorySet) {
+  if (!categorySet || categorySet.size === 0) return null;
+  const set = new Set();
+  ITEMS.forEach((item) => {
+    if (item.category !== "weapon") return;
+    const cats = [item.ammoCategory, ...(item.secondaryAmmoCategories || [])];
+    if (cats.some((c) => categorySet.has(c))) {
+      (item.ammoEffects || []).forEach((e) => set.add(e));
+    }
+  });
+  return set;
+}
+
+// 탄종 필터가 바뀐 뒤, 더 이상 유효하지 않은 탄약효과 선택은 정리(prune)함
+function pruneAmmoEffectFilter(filterState) {
+  const available = getAvailableAmmoEffectValues(filterState.ammoCategory);
+  if (available === null) return;
+  [...filterState.ammoEffect].forEach((v) => {
+    if (!available.has(v)) filterState.ammoEffect.delete(v);
+  });
+}
+
 function getFilteredItems(extra = {}) {
   const category = extra.category !== undefined ? extra.category : state.filterCategory;
   const query = extra.query !== undefined ? extra.query : state.searchQuery;
@@ -1240,7 +1275,14 @@ function renderModalWeaponFilters() {
     group.appendChild(label);
     const chips = document.createElement("div");
     chips.className = "weapon-filter-chips";
-    def.options.forEach((opt) => {
+
+    let options = def.options;
+    if (filterKey === "ammoEffect") {
+      const available = getAvailableAmmoEffectValues(state.modalWeaponFilters.ammoCategory);
+      if (available) options = def.options.filter((opt) => available.has(opt.value));
+    }
+
+    options.forEach((opt) => {
       const chip = document.createElement("button");
       chip.type = "button";
       chip.className = "filter-chip";
@@ -1261,8 +1303,10 @@ function renderModalWeaponFilters() {
 
       chip.addEventListener("click", () => {
         const set = state.modalWeaponFilters[filterKey];
-        if (set.has(opt.value)) { set.delete(opt.value); chip.classList.remove("active"); }
-        else { set.add(opt.value); chip.classList.add("active"); }
+        if (set.has(opt.value)) set.delete(opt.value);
+        else set.add(opt.value);
+        if (filterKey === "ammoCategory") pruneAmmoEffectFilter(state.modalWeaponFilters);
+        renderModalWeaponFilters();
         renderModalList(document.getElementById("modal-search-input").value.trim().toLowerCase());
       });
       chips.appendChild(chip);

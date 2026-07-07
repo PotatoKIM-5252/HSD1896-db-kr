@@ -113,12 +113,15 @@ const WEAPON_FILTERS = {
       { value: "flare",         label: "신호탄",       image: "images/ui/ammo_effect_icons/flare.png" },
       { value: "slug",          label: "슬러그",       image: "images/ui/ammo_effect_icons/slug.png" },
       { value: "pennyshot",     label: "페니샷",       image: "images/ui/ammo_effect_icons/pennyshot.png" },
-      { value: "flechette",     label: "플리셰트",     image: "images/ui/ammo_effect_icons/flechette.png" },
-      { value: "fragmentation", label: "세열탄",       image: "images/ui/ammo_effect_icons/fragmentation.png" },
+      // 플리셰트(Flechette)는 별도 항목 없음 — "Causes bleeding on Hunters"라 출혈탄과 동일 효과.
+      // 해당 탄약을 쓰는 무기가 추가되면 ammoEffects에 "bleed"를 태그할 것.
+      // 세열탄(Fragmentation)은 별도 항목 없음 — 실제 효과가 출혈+폭발+소이가 섞여있어서,
+      // 해당 탄약을 쓰는 무기가 추가되면 ammoEffects에 "bleed","explosive","incendiary" 3개를 함께 태그할 것.
       { value: "ball_shot",     label: "철환탄",       image: "images/ui/ammo_effect_icons/ball_shot.png" },
       { value: "chaos",         label: "혼돈탄",       image: "images/ui/ammo_effect_icons/chaos.png" },
       { value: "choke",         label: "질식탄",       image: "images/ui/ammo_effect_icons/choke.png" },
-      { value: "wire",          label: "철조망",       image: "images/ui/ammo_effect_icons/wire.png" },
+      // 철조망(Concertina Arrows)도 별도 항목 없음 — "Causes bleeding on Hunters"라 출혈탄과 동일 효과.
+      // 해당 탄약을 쓰는 무기가 추가되면 ammoEffects에 "bleed"를 태그할 것.
       { value: "shot_bolt",     label: "샷볼트",       image: "images/ui/ammo_effect_icons/shot_bolt.png" },
     ],
   },
