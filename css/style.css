@@ -728,6 +728,67 @@ button { font-family: var(--font-body); cursor: pointer; }
   color: var(--text-muted);
 }
 
+/* 샷건류: 거리별 데미지 그래프 대신 보이는 한방컷(OHK) 색상 막대 */
+.ohk-range-box {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 16px 14px;
+}
+
+.ohk-range-title {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0 0 14px;
+  font-weight: 500;
+}
+
+.ohk-range-bar {
+  height: 14px;
+  border-radius: 7px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.3);
+}
+
+.ohk-range-ticks {
+  position: relative;
+  height: 18px;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.ohk-range-ticks span {
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.ohk-range-ticks span:first-child { transform: translateX(0); }
+.ohk-range-ticks span:last-child { transform: translateX(-100%); }
+
+.ohk-range-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 14px 0 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.ohk-range-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ohk-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
 .muted-text { font-size: 12px; color: var(--text-muted); margin: 0; }
 
 .ammo-desc-text { font-size: 12px; color: var(--text-secondary); margin: 0 0 8px; line-height: 1.5; }

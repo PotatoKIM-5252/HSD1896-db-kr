@@ -763,6 +763,49 @@ function openBodyPartView(parentItem, ammoId) {
 }
 
 // 자세히 보기 화면 내 그래프 (클릭해도 그래프 자체는 다시 그려지지 않음)
+// 현재 선택된 탄약 기준으로 "가슴 정조준 한방컷(OHK) 거리" 데이터를 가져옴
+// (샷건 전용 무기는 기본탄 자체에, 르맷/헤이메이커처럼 하부 샷건이 있는 무기는 무기 객체에 들어있음)
+function getOhkRangeForCurrentAmmo(item, ammoId) {
+  const ammo = AMMO_TYPES[ammoId];
+  if (ammo?.ohkRange) return ammo.ohkRange;
+  if (item?.shotgunOhkRange && ["dragonbreath", "slug", "flechette", "pennyshot"].includes(ammo?.effect)) {
+    return item.shotgunOhkRange;
+  }
+  return null;
+}
+
+// 샷건류: 거리별 데미지 그래프 대신 초록(보장)→노랑(불안정)→빨강(불가) 막대로 표시
+function renderOhkRangeBar(ohkRange) {
+  const { guaranteed, unstableEnd, noneFrom } = ohkRange;
+  const maxDisplay = Math.max(noneFrom + 3, 15);
+  const gPct = (guaranteed / maxDisplay) * 100;
+  const nPct = (noneFrom / maxDisplay) * 100;
+  const maxLabel = Math.ceil(maxDisplay);
+
+  return `
+    <div class="ohk-range-box">
+      <h4 class="ohk-range-title">가슴 정조준 기준 한방컷(OHK) 거리</h4>
+      <div class="ohk-range-bar" style="background: linear-gradient(to right,
+        var(--success) 0%, var(--success) ${gPct}%,
+        #d4c25e ${gPct}%,
+        var(--danger-strong) ${nPct}%,
+        var(--danger-strong) 100%);"></div>
+      <div class="ohk-range-ticks">
+        <span style="left:0%">0m</span>
+        <span style="left:${gPct}%">${guaranteed}m</span>
+        <span style="left:${nPct}%">${noneFrom}m</span>
+        <span style="left:100%">${maxLabel}m</span>
+      </div>
+      <p class="ohk-range-legend">
+        <span><i class="ohk-swatch" style="background:var(--success)"></i>${guaranteed}m까지 보장</span>
+        <span><i class="ohk-swatch" style="background:#d4c25e"></i>${unstableEnd}m까지 불안정</span>
+        <span><i class="ohk-swatch" style="background:var(--danger-strong)"></i>${noneFrom}m부터 불가</span>
+      </p>
+      <p class="status-effect-note">※ 실측 기반 참고용 수치이며, 펠릿 분산 특성상 오차가 있을 수 있습니다.</p>
+    </div>
+  `;
+}
+
 function drawBodyPartChart(currentItem, ammoId, refRange, parentItem) {
   const canvas = document.getElementById("bp-chart");
   if (!canvas) return;
@@ -771,6 +814,13 @@ function drawBodyPartChart(currentItem, ammoId, refRange, parentItem) {
   if (state.charts.bodypart) {
     state.charts.bodypart.destroy();
     state.charts.bodypart = null;
+  }
+
+  // 샷건류(낙하곡선 없음): 한방컷 보장거리 데이터가 있으면 그래프 대신 색상 막대로 표시
+  const ohkRange = getOhkRangeForCurrentAmmo(currentItem, ammoId);
+  if (ohkRange) {
+    canvas.outerHTML = renderOhkRangeBar(ohkRange);
+    return;
   }
 
   const ds = buildFalloffDataset(currentItem, ammoId, "#ece6d3", 100);
@@ -1102,6 +1152,14 @@ function interpolateFalloff(keypoints, r) {
 function drawWeaponChart(item, ammoId) {
   const canvas = document.getElementById("detail-chart");
   if (!canvas) return;
+
+  // 샷건류(낙하곡선 없음): 한방컷 보장거리 데이터가 있으면 그래프 대신 색상 막대로 표시
+  const ohkRange = getOhkRangeForCurrentAmmo(item, ammoId);
+  if (ohkRange) {
+    canvas.outerHTML = renderOhkRangeBar(ohkRange);
+    return;
+  }
+
   const ds = buildFalloffDataset(item, ammoId, "#ece6d3");
   if (!ds) {
     canvas.outerHTML = `<p class="empty-msg">거리별 데이터 없음</p>`;

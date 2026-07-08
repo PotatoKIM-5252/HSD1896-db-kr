@@ -2505,6 +2505,8 @@ const AMMO_TYPES = {
     description: "Shells - 기본 샷건탄(벅샷).",
     cost: 0,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    ohkRange: { guaranteed: 11, unstableEnd: 12, noneFrom: 13 },
     statOverrides: {  },
   },
 
@@ -2554,6 +2556,8 @@ const AMMO_TYPES = {
     cost: null,
     scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    ohkRange: { guaranteed: 12, unstableEnd: 14, noneFrom: 15 },
     statOverrides: {  },
   },
 
@@ -2613,6 +2617,8 @@ const AMMO_TYPES = {
     description: "Shells - 기본 샷건탄(벅샷).",
     cost: 0,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    ohkRange: { guaranteed: 10, unstableEnd: 12, noneFrom: 13 },
     statOverrides: {  },
   },
 
@@ -2674,6 +2680,8 @@ const AMMO_TYPES = {
     description: "Shells - 기본 샷건탄(벅샷).",
     cost: 0,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    ohkRange: { guaranteed: 12, unstableEnd: 13, noneFrom: 14 },
     statOverrides: {  },
   },
 
@@ -2733,6 +2741,8 @@ const AMMO_TYPES = {
     description: "Shells - 기본 샷건탄(벅샷).",
     cost: 0,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    ohkRange: { guaranteed: 11, unstableEnd: 12, noneFrom: 13 },
     statOverrides: {  },
   },
 
@@ -2768,6 +2778,8 @@ const AMMO_TYPES = {
     description: "Shells - 기본 샷건탄(벅샷).",
     cost: 0,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    ohkRange: { guaranteed: 12, unstableEnd: 13, noneFrom: 14 },
     statOverrides: {  },
   },
 
@@ -2829,6 +2841,8 @@ const AMMO_TYPES = {
     description: "Shells - 기본 샷건탄(벅샷).",
     cost: 0,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    ohkRange: { guaranteed: 10, unstableEnd: 12, noneFrom: 13 },
     statOverrides: {  },
   },
 
@@ -3587,6 +3601,8 @@ const ITEMS = [
     slotSize: 1,
     ammoCategory: "compact",
     secondaryAmmoCategories: ["shotgun"], // 하부 총열 샷건 보유 (르맷)
+    // 하부 총열 샷건의 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    shotgunOhkRange: { guaranteed: 9, unstableEnd: 11, noneFrom: 12 },
     ammoEffects: ["full_metal", "incendiary", "slug", "flare", "dragonbreath"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -4361,6 +4377,8 @@ const ITEMS = [
     slotSize: 2,
     ammoCategory: "long",
     secondaryAmmoCategories: ["shotgun"], // 하부 총열 샷건 보유 (헤이메이커)
+    // 하부 총열 샷건의 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    shotgunOhkRange: { guaranteed: 9, unstableEnd: 11, noneFrom: 12 },
     ammoEffects: ["full_metal", "poison", "slug", "flare", "dragonbreath"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
