@@ -764,14 +764,10 @@ function openBodyPartView(parentItem, ammoId) {
 
 // 자세히 보기 화면 내 그래프 (클릭해도 그래프 자체는 다시 그려지지 않음)
 // 현재 선택된 탄약 기준으로 "가슴 정조준 한방컷(OHK) 거리" 데이터를 가져옴
-// (샷건 전용 무기는 기본탄 자체에, 르맷/헤이메이커처럼 하부 샷건이 있는 무기는 무기 객체에 들어있음)
+// (탄약 자체에 ohkRange가 있을 때만 표시 — 슬러그/드래곤브레스/신호탄 등 다른 탄약에는 적용 안 됨)
 function getOhkRangeForCurrentAmmo(item, ammoId) {
   const ammo = AMMO_TYPES[ammoId];
-  if (ammo?.ohkRange) return ammo.ohkRange;
-  if (item?.shotgunOhkRange && ["dragonbreath", "slug", "flechette", "pennyshot"].includes(ammo?.effect)) {
-    return item.shotgunOhkRange;
-  }
-  return null;
+  return ammo?.ohkRange ?? null;
 }
 
 // 샷건류: 거리별 데미지 그래프 대신 초록(보장)→노랑(불안정)→빨강(불가) 막대로 표시

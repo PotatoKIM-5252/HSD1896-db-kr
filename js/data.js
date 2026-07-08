@@ -3012,6 +3012,46 @@ const AMMO_TYPES = {
     specialEffects: ["강한(intense) 화상 효과 발생"],
   },
 
+
+  // ── Drilling / LeMat / Haymaker 하부 총열 기본 샷건쉘 ──
+  lemat_shells: {
+    label: "Shells",
+    category: "shotgun",
+    image: "images/ui/ammo_effects/ammo_shotgun_shells.png",
+    icon: "🔫",
+    description: "Shells - 하부 총열 기본 샷건탄(벅샷).",
+    cost: 0,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    ohkRange: { guaranteed: 9, unstableEnd: 11, noneFrom: 12 },
+    statOverrides: {  },
+  },
+
+  haymaker_shells: {
+    label: "Shells",
+    category: "shotgun",
+    image: "images/ui/ammo_effects/ammo_shotgun_shells.png",
+    icon: "🔫",
+    description: "Shells - 하부 총열 기본 샷건탄(벅샷).",
+    cost: 0,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    ohkRange: { guaranteed: 9, unstableEnd: 11, noneFrom: 12 },
+    statOverrides: {  },
+  },
+
+  drilling_shells: {
+    label: "Shells",
+    category: "shotgun",
+    image: "images/ui/ammo_effects/ammo_shotgun_shells.png",
+    icon: "🔫",
+    description: "Shells - 하부 총열 기본 샷건탄(벅샷). 정확한 데미지·분산도는 위키에도 불명확(다른 샷건 대비 추정치).",
+    cost: 0,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    // 정확한 수치가 위키에도 명시 안 돼 있어 다른 샷건(Romero 77) 대비 추정치 사용, 한방컷 거리는 미측정이라 없음
+    statOverrides: { damage: 220, spread: 20 },
+  },
+
   // ─────────────────────────────────────────────────────────────
   // 아래는 아직 이 탄약을 쓰는 무기가 ITEMS에 없는 "참고용" 데이터입니다.
   // 사용자가 공식 최신 그래프를 보고 직접 불러준 낙하곡선(20/50/100m 등 구간점)이며,
@@ -3717,8 +3757,6 @@ const ITEMS = [
     slotSize: 1,
     ammoCategory: "compact",
     secondaryAmmoCategories: ["shotgun"], // 하부 총열 샷건 보유 (르맷)
-    // 하부 총열 샷건의 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
-    shotgunOhkRange: { guaranteed: 9, unstableEnd: 11, noneFrom: 12 },
     ammoEffects: ["full_metal", "incendiary", "slug", "flare", "dragonbreath"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -3726,6 +3764,7 @@ const ITEMS = [
       "lemat_compact",
       "lemat_fmj",
       "lemat_incendiary",
+      "lemat_shells",
       "lemat_dragonbreath",
       "lemat_slug",
       "lemat_starshell",
@@ -3988,6 +4027,7 @@ const ITEMS = [
       "drilling_dumdum",
       "drilling_fmj",
       "drilling_high_velocity",
+      "drilling_shells",
       "drilling_flechette",
       "drilling_pennyshot",
       "drilling_slug",
@@ -4499,8 +4539,6 @@ const ITEMS = [
     slotSize: 2,
     ammoCategory: "long",
     secondaryAmmoCategories: ["shotgun"], // 하부 총열 샷건 보유 (헤이메이커)
-    // 하부 총열 샷건의 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
-    shotgunOhkRange: { guaranteed: 9, unstableEnd: 11, noneFrom: 12 },
     ammoEffects: ["full_metal", "poison", "slug", "flare", "dragonbreath"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -4508,6 +4546,7 @@ const ITEMS = [
       "haymaker_long",
       "haymaker_fmj",
       "haymaker_poison",
+      "haymaker_shells",
       "haymaker_dragonbreath",
       "haymaker_slug",
       "haymaker_starshell",
