@@ -2500,7 +2500,7 @@ const AMMO_TYPES = {
   auto5_shells: {
     label: "Shells",
     category: "shotgun",
-    image: "images/ui/ammo_shotgun.webp",
+    image: "images/ui/ammo_effects/ammo_shotgun_shells.png",
     icon: "🔫",
     description: "Shells - 기본 샷건탄(벅샷).",
     cost: 0,
@@ -2550,7 +2550,7 @@ const AMMO_TYPES = {
   homestead78_shells: {
     label: "Shells",
     category: "shotgun",
-    image: "images/ui/ammo_shotgun.webp",
+    image: "images/ui/ammo_effects/ammo_shotgun_shells.png",
     icon: "🔫",
     description: "Shells - 기본 샷건탄(벅샷).",
     cost: null,
@@ -2612,7 +2612,7 @@ const AMMO_TYPES = {
   },  rival78_shells: {
     label: "Shells",
     category: "shotgun",
-    image: "images/ui/ammo_shotgun.webp",
+    image: "images/ui/ammo_effects/ammo_shotgun_shells.png",
     icon: "🔫",
     description: "Shells - 기본 샷건탄(벅샷).",
     cost: 0,
@@ -2675,7 +2675,7 @@ const AMMO_TYPES = {
   romero77_shells: {
     label: "Shells",
     category: "shotgun",
-    image: "images/ui/ammo_shotgun.webp",
+    image: "images/ui/ammo_effects/ammo_shotgun_shells.png",
     icon: "🔫",
     description: "Shells - 기본 샷건탄(벅샷).",
     cost: 0,
@@ -2736,7 +2736,7 @@ const AMMO_TYPES = {
   },  slate_shells: {
     label: "Shells",
     category: "shotgun",
-    image: "images/ui/ammo_shotgun.webp",
+    image: "images/ui/ammo_effects/ammo_shotgun_shells.png",
     icon: "🔫",
     description: "Shells - 기본 샷건탄(벅샷).",
     cost: 0,
@@ -2773,7 +2773,7 @@ const AMMO_TYPES = {
   specter1882_shells: {
     label: "Shells",
     category: "shotgun",
-    image: "images/ui/ammo_shotgun.webp",
+    image: "images/ui/ammo_effects/ammo_shotgun_shells.png",
     icon: "🔫",
     description: "Shells - 기본 샷건탄(벅샷).",
     cost: 0,
@@ -2836,7 +2836,7 @@ const AMMO_TYPES = {
   terminus_shells: {
     label: "Shells",
     category: "shotgun",
-    image: "images/ui/ammo_shotgun.webp",
+    image: "images/ui/ammo_effects/ammo_shotgun_shells.png",
     icon: "🔫",
     description: "Shells - 기본 샷건탄(벅샷).",
     cost: 0,
@@ -2894,6 +2894,122 @@ const AMMO_TYPES = {
     cost: 130,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 165, spread: 75, ammoExtra: 8 },
+  },
+
+
+
+  // ── Drilling / LeMat / Haymaker 하부 총열 샷건 특수탄 (위키 오버라이드 값 기준) ──
+  drilling_flechette: {
+    label: "플리셰트",
+    category: "shotgun",
+    effect: "flechette",
+    image: "images/ui/ammo_effect_icons/flechette.png",
+    icon: "➶",
+    description: "플리셰트 - 다수의 작은 다트형 투사체 발사. 명중 시 출혈 효과.",
+    cost: 20,
+    // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
+    statOverrides: { damage: 132, spread: 21.2 },
+    specialEffects: ["중급 출혈 효과 발생"],
+  },
+
+  drilling_pennyshot: {
+    label: "페니샷",
+    category: "shotgun",
+    effect: "pennyshot",
+    image: "images/ui/ammo_effect_icons/pennyshot.png",
+    icon: "🪙",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    cost: 5,
+    // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
+    statOverrides: { damage: 190, spread: 75, ammoExtra: 8 },
+  },
+
+  drilling_slug: {
+    label: "슬러그",
+    category: "shotgun",
+    effect: "slug",
+    image: "images/ui/ammo_effect_icons/slug.png",
+    icon: "●",
+    description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
+    cost: 65,
+    // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
+    statOverrides: { damage: 179, spread: 65, ammoExtra: 3 },
+  },
+
+  lemat_dragonbreath: {
+    label: "드래곤브레스",
+    category: "shotgun",
+    effect: "dragonbreath",
+    image: "images/ui/ammo_effect_icons/dragonbreath_shell.png",
+    icon: "🔥",
+    description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
+    cost: 10,
+    // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
+    statOverrides: { damage: 40, spread: 150, muzzleVelocity: 100 },
+    specialEffects: ["중급 화상 효과 발생"],
+  },
+
+  lemat_slug: {
+    label: "슬러그",
+    category: "shotgun",
+    effect: "slug",
+    image: "images/ui/ammo_effect_icons/slug.png",
+    icon: "●",
+    description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
+    cost: 65,
+    // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
+    statOverrides: { damage: 157, spread: 115, ammoExtra: 2 },
+  },
+
+  lemat_starshell: {
+    label: "신호탄",
+    category: "shotgun",
+    effect: "flare",
+    image: "images/ui/ammo_effect_icons/flare.png",
+    icon: "🌟",
+    description: "신호탄 - 조명탄 발사, 명중한 대상에 강한 화상 효과.",
+    cost: 5,
+    // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
+    statOverrides: { damage: 1, spread: 50, verticalRecoil: 5, muzzleVelocity: 75 },
+    specialEffects: ["강한(intense) 화상 효과 발생"],
+  },
+
+  haymaker_dragonbreath: {
+    label: "드래곤브레스",
+    category: "shotgun",
+    effect: "dragonbreath",
+    image: "images/ui/ammo_effect_icons/dragonbreath_shell.png",
+    icon: "🔥",
+    description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
+    cost: 10,
+    // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
+    statOverrides: { damage: 45, spread: 150, muzzleVelocity: 100 },
+    specialEffects: ["중급 화상 효과 발생"],
+  },
+
+  haymaker_slug: {
+    label: "슬러그",
+    category: "shotgun",
+    effect: "slug",
+    image: "images/ui/ammo_effect_icons/slug.png",
+    icon: "●",
+    description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
+    cost: 65,
+    // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
+    statOverrides: { damage: 159, spread: 115, ammoExtra: 2 },
+  },
+
+  haymaker_starshell: {
+    label: "신호탄",
+    category: "shotgun",
+    effect: "flare",
+    image: "images/ui/ammo_effect_icons/flare.png",
+    icon: "🌟",
+    description: "신호탄 - 조명탄 발사, 명중한 대상에 강한 화상 효과.",
+    cost: 5,
+    // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
+    statOverrides: { damage: 3, spread: 50, verticalRecoil: 5, muzzleVelocity: 75 },
+    specialEffects: ["강한(intense) 화상 효과 발생"],
   },
 
   // ─────────────────────────────────────────────────────────────
@@ -3610,6 +3726,9 @@ const ITEMS = [
       "lemat_compact",
       "lemat_fmj",
       "lemat_incendiary",
+      "lemat_dragonbreath",
+      "lemat_slug",
+      "lemat_starshell",
     ],
     defaultAmmo: "lemat_compact",
 
@@ -3869,6 +3988,9 @@ const ITEMS = [
       "drilling_dumdum",
       "drilling_fmj",
       "drilling_high_velocity",
+      "drilling_flechette",
+      "drilling_pennyshot",
+      "drilling_slug",
     ],
     defaultAmmo: "drilling_medium",
 
@@ -4386,6 +4508,9 @@ const ITEMS = [
       "haymaker_long",
       "haymaker_fmj",
       "haymaker_poison",
+      "haymaker_dragonbreath",
+      "haymaker_slug",
+      "haymaker_starshell",
     ],
     defaultAmmo: "haymaker_long",
 
