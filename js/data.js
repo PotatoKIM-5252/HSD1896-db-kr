@@ -4731,7 +4731,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 5,
     ammoCategory: "shotgun",
-    ammoEffects: ["bleed", "pennyshot", "slug"],
+    ammoEffects: ["flechette", "pennyshot", "slug"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
     ammoTypes: [
@@ -4782,7 +4782,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 4,
     ammoCategory: "shotgun",
-    ammoEffects: ["dragonbreath", "bleed", "pennyshot", "slug"],
+    ammoEffects: ["dragonbreath", "flechette", "pennyshot", "slug"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
     ammoTypes: [
@@ -4835,7 +4835,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 4,
     ammoCategory: "shotgun",
-    ammoEffects: ["dragonbreath", "bleed", "pennyshot", "slug"],
+    ammoEffects: ["dragonbreath", "flechette", "pennyshot", "slug"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
     ammoTypes: [
@@ -4989,7 +4989,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 4,
     ammoCategory: "shotgun",
-    ammoEffects: ["dragonbreath", "bleed", "pennyshot", "slug"],
+    ammoEffects: ["dragonbreath", "flechette", "pennyshot", "slug"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
     ammoTypes: [
@@ -5041,7 +5041,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 4,
     ammoCategory: "shotgun",
-    ammoEffects: ["dragonbreath", "bleed", "pennyshot", "slug"],
+    ammoEffects: ["dragonbreath", "flechette", "pennyshot", "slug"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
     ammoTypes: [
