@@ -957,7 +957,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 .ammo-status-icon {
-  height: 20px;
+  height: 26px;
   width: auto;
   display: block;
 }
@@ -1296,8 +1296,8 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 .slot-ammo-icon {
-  width: 18px;
-  height: 18px;
+  width: 26px;
+  height: 26px;
   object-fit: contain;
   flex-shrink: 0;
 }
