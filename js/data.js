@@ -1267,6 +1267,118 @@ const AMMO_TYPES = {
     specialEffects: ["발사음 감소"],
   },
 
+  // ── Wildland 전용 탄약 ──
+  // ⚠ Wildland는 낙하곡선 소스 데이터가 없어서, 사용자 확인 하에
+  //    Centennial의 검증된 Medium 낙하곡선 값을 그대로 재사용함 (다른 스탯은 override 없음).
+  wildland_medium: {
+    label: "Medium",
+    category: "medium",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_medium_regular.png",
+    icon: "🟫",
+    description: "Medium - 30m부터 데미지 감소 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6423],
+      [100, 0.5772],
+    ],
+    statOverrides: {  },
+  },
+
+  // ⚠ Wildland 전용 탄약 — Hunt: Showdown 1896 Wiki 실제 "Ammo Types" 표 기준으로 검증 완료.
+  //    (낙하곡선 자체 수치는 여전히 소스 데이터 없어 Centennial 값 재사용, statOverrides는 위키 실측치로 교체)
+  wildland_dumdum: {
+    label: "덤덤탄(출혈)",
+    category: "medium",
+    effect: "bleed",
+    image: "images/ui/ammo_effects/ammo_medium_bleed.png",
+    icon: "🩸",
+    description: "덤덤탄 - 명중 시 강한 출혈 효과. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6423],
+      [100, 0.5772],
+    ],
+    statOverrides: { dropRange: 130, muzzleVelocity: 510 },
+    specialEffects: ["강한 출혈 효과 발생"],
+  },
+
+  wildland_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "medium",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_medium_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6423],
+      [100, 0.6098],
+    ],
+    statOverrides: { dropRange: 130, verticalRecoil: 14, muzzleVelocity: 510 },
+    specialEffects: ["40m부터 데미지 감소 시작"],
+  },
+
+  wildland_high_velocity: {
+    label: "고속탄",
+    category: "medium",
+    effect: "high_velocity",
+    image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6379],
+      [100, 0.5776],
+    ],
+    statOverrides: { damage: 119, dropRange: 170, verticalRecoil: 14, muzzleVelocity: 775, ammoExtra: 8 },
+  },
+
+  wildland_poison: {
+    label: "중독탄",
+    category: "medium",
+    effect: "poison",
+    image: "images/ui/ammo_effects/ammo_medium_poison.png",
+    icon: "🟢",
+    description: "중독탄 - 명중 시 독 효과. 관통 불가.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6423],
+      [100, 0.5772],
+    ],
+    statOverrides: {  },
+    specialEffects: ["중급 중독 효과 발생"],
+  },
+
+  wildland_subsonic: {
+    label: "아음속탄",
+    category: "medium",
+    effect: "subsonic",
+    image: "images/ui/ammo_effects/ammo_medium_subsonic.png",
+    icon: "🔇",
+    description: "아음속탄 - 탄속 감소, 낙하거리 감소, 예비 탄약 수 변동, 발사음 감소.",
+    cost: 10,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [80, 0.6423],
+      [100, 0.5772],
+    ],
+    statOverrides: { dropRange: 110, muzzleVelocity: 336, ammoExtra: 18 },
+    specialEffects: ["발사음 감소"],
+  },
+
 
   // ── Drilling / Maynard Sniper / Springfield 1866 / 1865 Carbine / Vetterli 71 / Pax / Scottfield 전용 탄약 ──
   drilling_medium: {
@@ -2208,7 +2320,66 @@ const AMMO_TYPES = {
     statOverrides: {  },
     specialEffects: ["40m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
     effectMaxRange: 40,
-  },  krag_special_long: {
+  },
+
+  // ── 1890 Cavalry 전용 탄약 ──
+  // ⚠ 1890 Cavalry는 낙하곡선 소스 데이터가 없어서, 사용자 확인 하에
+  //    공용 롱탄(long) 낙하곡선 값을 그대로 재사용함 (다른 스탯은 override 없음, 데미지 139는 무기 자체 스탯 사용).
+  cavalry_long: {
+    label: "Long",
+    category: "long",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_long_regular.png",
+    icon: "🟫",
+    description: "Long - 40m부터 데미지 감소 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6172],
+      [100, 0.6094],
+    ],
+    statOverrides: {  },
+  },
+
+  // ⚠ 1890 Cavalry 전용 탄약 — Hunt: Showdown 1896 Wiki 실제 "Ammo Types" 표 기준으로 검증 완료.
+  //    (낙하곡선 자체 수치는 여전히 소스 데이터 없어 공용 롱탄/Martini Henry 값 재사용, statOverrides는 위키 실측치로 교체)
+  cavalry_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "long",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_long_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    cost: 30,
+    falloff: [
+      [0, 1.00],
+      [50, 1.00],
+      [100, 0.6172],
+    ],
+    statOverrides: { dropRange: 100, verticalRecoil: 10, muzzleVelocity: 300 },
+    specialEffects: ["50m부터 데미지 감소 시작"],
+  },
+
+  cavalry_high_velocity: {
+    label: "고속탄",
+    category: "long",
+    effect: "high_velocity",
+    image: "images/ui/ammo_effects/ammo_long_high_velocity.png",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
+    cost: 30,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6176],
+      [100, 0.6103],
+    ],
+    // ammoExtra: 위키엔 "9 → 6 (1슬롯 기준)"으로 표기, 무기 전체 예비탄(18=9×2슬롯) 기준으로 환산해 12로 변환.
+    statOverrides: { damage: 132, dropRange: 130, verticalRecoil: 11, muzzleVelocity: 480, ammoExtra: 12 },
+  },
+
+  krag_special_long: {
     label: "Special Long",
     category: "special_long",
     isBase: true,
@@ -4010,6 +4181,61 @@ const ITEMS = [
   },
 
   {
+    id: "weapon_wildland",
+    category: "weapon",
+    name: "Wildland",
+    image: "images/weapons/wildland.png",
+
+    // 검색 필터용
+    slotSize: 4,
+    ammoCategory: "medium",
+    // Centennial과 동일한 탄종 라인업 (영상 리뷰에서 "모든 탄종·기능 유지" 확인됨)
+    ammoEffects: ["bleed", "full_metal", "high_velocity", "poison", "subsonic"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "wildland_medium",
+      "wildland_dumdum",
+      "wildland_fmj",
+      "wildland_high_velocity",
+      "wildland_poison",
+      "wildland_subsonic",
+    ],
+    defaultAmmo: "wildland_medium",
+
+    // 기본 정보
+    price: null,
+    scarce: true, // Scarce (상점 구매 불가) - Bileweaver's Nest 확률 상자로만 획득 (Homestead 78과 50/50 확률)
+    updateAdded: "Update 2.5",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "15+1",
+      extra: 16,
+    },
+
+    // 기본 스탯 (Hunt: Showdown 1896 Wiki 기준)
+    stats: {
+      damage: 126,
+      dropRange: 150,
+      rateOfFire: 31,
+      cycleTime: 1.6,
+      spread: 22.5,
+      sway: 77,
+      verticalRecoil: 11,
+      reloadSpeed: 9,
+      muzzleVelocity: 650,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
     id: "weapon_drilling",
     category: "weapon",
     name: "Drilling",
@@ -4628,6 +4854,57 @@ const ITEMS = [
       meleeLight: 13,
       meleeHeavy: 31,
       staminaConsumption: 20,
+    },
+
+    description: "",
+
+    variants: [],
+  },
+
+  {
+    id: "weapon_1890_cavalry",
+    category: "weapon",
+    name: "1890 Cavalry",
+    image: "images/weapons/cavalry_1890.png",
+
+    // 검색 필터용
+    slotSize: 3,
+    ammoCategory: "long",
+    // 패치노트(Update 2.8)에서 확인된 탄종: FMJ, High Velocity
+    ammoEffects: ["full_metal", "high_velocity"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "cavalry_long",
+      "cavalry_fmj",
+      "cavalry_high_velocity",
+    ],
+    defaultAmmo: "cavalry_long",
+
+    // 기본 정보
+    price: 56,
+    updateAdded: "Update 2.8",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "1",
+      extra: 18,
+    },
+
+    // 기본 스탯 (Hunt: Showdown 1896 Wiki 기준)
+    stats: {
+      damage: 139,
+      dropRange: 120,
+      rateOfFire: 18,
+      cycleTime: 3.2,
+      spread: 32.5,
+      sway: 77,
+      verticalRecoil: 7,
+      reloadSpeed: 3.5,
+      muzzleVelocity: 380,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
     },
 
     description: "",
