@@ -3599,11 +3599,34 @@ const ITEMS = [
 
     description: "",
 
-    // 파생형 (variants) — 같은 무기 계열의 변형들 (단축형/소음기/조준경/장총신 등)
-    // 각 파생형은 모무기의 필드를 일부 덮어쓰는 형식입니다.
-    // 입력하지 않은 필드는 모무기의 값을 그대로 따라갑니다.
-    // 작성 방법은 파일 맨 아래 "빠른 참조" 섹션의 예시를 참고하세요.
-    variants: [],
+    // 파생형 (위키 실측치 기준, 2종 - 본체와 다른 값만 표기)
+    variants: [
+      {
+        id: "frontier73c_silencer",
+        name: "Frontier 73C Silencer",
+        image: "",
+        description: "소음기 부착형. 데미지·낙하범위·탄속 감소, 분산도 증가(정숙성 확보).",
+        price: 55,
+        stats: {
+          damage: 104,
+          dropRange: 120,
+          spread: 25,
+          muzzleVelocity: 340,
+        },
+      },
+      {
+        id: "frontier73c_marksman",
+        name: "Frontier 73C Marksman",
+        image: "",
+        description: "중장거리 스코프 부착형. 흔들림 감소, 사이클 시간·분산도 소폭 증가.",
+        price: 45,
+        stats: {
+          cycleTime: 1.3,
+          spread: 25,
+          sway: 69,
+        },
+      },
+    ],
   },
 
   {
@@ -3656,7 +3679,29 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 2종 - 모무기와 다른 값만 표기)
+    variants: [
+      {
+        id: "infantry73l_sniper",
+        name: "Infantry 73L Sniper",
+        image: "",
+        description: "장거리 스코프 부착형. 흔들림(Sway) 감소.",
+        price: 90,
+        stats: {
+          sway: 69,
+        },
+      },
+      {
+        id: "infantry73l_bayonet",
+        name: "Infantry 73L Bayonet",
+        image: "",
+        description: "총검 부착형. 중형 근접 피해 대폭 증가.",
+        price: 88,
+        stats: {
+          meleeHeavy: 168,
+        },
+      },
+    ],
   },
 
   {
@@ -3708,7 +3753,20 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 1종 - 본체와 다른 값만 표기)
+    variants: [
+      {
+        id: "marathon_swift",
+        name: "Marathon Swift",
+        image: "",
+        description: "스피드 로더 부착형. 발사속도·재장전 속도 대폭 증가.",
+        price: 95,
+        stats: {
+          rateOfFire: 45,
+          reloadSpeed: 10,
+        },
+      },
+    ],
   },
 
   {
@@ -3761,7 +3819,41 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 3종 - 본체와 다른 값만 표기)
+    variants: [
+      {
+        id: "ranger73_swift",
+        name: "Ranger 73 Swift",
+        image: "",
+        description: "스피드 로더 부착형. 발사속도·재장전 속도 대폭 증가.",
+        price: 128,
+        stats: {
+          rateOfFire: 41,
+          reloadSpeed: 8.4,
+        },
+      },
+      {
+        id: "ranger73_talon",
+        name: "Ranger 73 Talon",
+        image: "",
+        description: "개머리판에 도검 부착형. 중형 근접 피해 대폭 증가, 기력 소모 증가.",
+        price: 85,
+        stats: {
+          meleeHeavy: 330,
+          staminaConsumption: 33,
+        },
+      },
+      {
+        id: "ranger73_aperture",
+        name: "Ranger 73 Aperture",
+        image: "",
+        description: "조리개 조준경(Aperture) 부착형. 흔들림 감소.",
+        price: 79,
+        stats: {
+          sway: 69,
+        },
+      },
+    ],
   },
 
   {
@@ -3814,7 +3906,33 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 2종 - 본체와 다른 값만 표기)
+    variants: [
+      {
+        id: "vandal73c_bullseye",
+        name: "Vandal 73C Bullseye",
+        image: "",
+        description: "개머리판 없이 Deadeye 스코프 부착형. 분산도 증가, 흔들림 감소.",
+        price: 37,
+        stats: {
+          spread: 35,
+          sway: 93,
+        },
+      },
+      {
+        id: "vandal73c_striker",
+        name: "Vandal 73C Striker",
+        image: "",
+        description: "총검 부착형. 근접 피해 대폭 증가, 사이클 시간 소폭 증가, 기력 소모 감소.",
+        price: 45,
+        stats: {
+          cycleTime: 1.3,
+          meleeLight: 52,
+          meleeHeavy: 105,
+          staminaConsumption: 21,
+        },
+      },
+    ],
   },
 
   {
@@ -3865,7 +3983,51 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 3종 - 본체와 다른 값만 표기)
+    variants: [
+      {
+        id: "bornheim_match",
+        name: "Bornheim No. 3 Match",
+        image: "",
+        description: "조준경·개머리판 강화형. 데미지·낙하범위·탄속 증가, 반동·흔들림·분산도 감소.",
+        price: 180,
+        stats: {
+          damage: 80,
+          dropRange: 85,
+          spread: 22.5,
+          sway: 87,
+          verticalRecoil: 3,
+          reloadSpeed: 7.6,
+          muzzleVelocity: 400,
+        },
+      },
+      {
+        id: "bornheim_silencer",
+        name: "Bornheim No. 3 Silencer",
+        image: "",
+        description: "소음기 부착형. 데미지·낙하범위·탄속 감소(정숙성 확보).",
+        price: 174,
+        stats: {
+          damage: 70,
+          dropRange: 70,
+          muzzleVelocity: 323,
+        },
+      },
+      {
+        id: "bornheim_extended",
+        name: "Bornheim No. 3 Extended",
+        image: "",
+        description: "확장 탄창형(클립 재장전 불가). 발사속도 감소, 재장전 속도 감소(느려짐).",
+        price: 203,
+        chamber: {
+          loaded: "8+1",
+        },
+        stats: {
+          rateOfFire: 44,
+          reloadSpeed: 9.6,
+        },
+      },
+    ],
   },
 
   {
@@ -3915,7 +4077,25 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 1종 - 본체와 다른 값만 표기)
+    variants: [
+      {
+        id: "conversion_chain_pistol",
+        name: "Conversion Chain Pistol",
+        image: "",
+        description: "17연발 체인 실린더 부착형. 장탄수 대폭 증가, 발사속도 증가, 반동 감소하나 재장전은 훨씬 오래 걸림.",
+        price: 84,
+        chamber: {
+          loaded: "17",
+        },
+        stats: {
+          rateOfFire: 24,
+          spread: 45,
+          verticalRecoil: 3.5,
+          reloadSpeed: 28.7,
+        },
+      },
+    ],
   },
 
   {
@@ -3970,7 +4150,45 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 2종 - 본체와 다른 값만 표기, 권총 총열 기준)
+    variants: [
+      {
+        id: "lemat_carbine",
+        name: "LeMat Carbine",
+        image: "",
+        description: "개머리판·연장 총열 부착형. 데미지·낙하범위·탄속 대폭 증가, 흔들림·반동 감소, 발사속도·분산도 소폭 감소.",
+        price: 115,
+        stats: {
+          damage: 107,
+          dropRange: 130,
+          rateOfFire: 21,
+          cycleTime: 1.2,
+          spread: 35,
+          sway: 77,
+          verticalRecoil: 2.5,
+          reloadSpeed: 18.7,
+          muzzleVelocity: 460,
+        },
+      },
+      {
+        id: "lemat_carbine_marksman",
+        name: "LeMat Carbine Marksman",
+        image: "",
+        description: "Carbine형에 마크스맨 스코프 추가 부착. 분산도 증가, 흔들림 추가 감소.",
+        price: 127,
+        stats: {
+          damage: 107,
+          dropRange: 130,
+          rateOfFire: 21,
+          cycleTime: 1.2,
+          spread: 55,
+          sway: 69,
+          verticalRecoil: 2.5,
+          reloadSpeed: 18.7,
+          muzzleVelocity: 460,
+        },
+      },
+    ],
   },
 
   {
@@ -4022,7 +4240,55 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 3종 - 본체와 다른 값만 표기)
+    variants: [
+      {
+        id: "nagant_precision",
+        name: "Nagant M1895 Precision",
+        image: "",
+        description: "권총 개머리판 부착형. 흔들림·반동 감소, 분산도 감소, 사이클 시간 감소(빨라짐).",
+        price: 29,
+        chamber: {
+          extra: 28,
+        },
+        stats: {
+          cycleTime: 1,
+          spread: 27.5,
+          sway: 87,
+          verticalRecoil: 1.5,
+          reloadSpeed: 13.4,
+        },
+      },
+      {
+        id: "nagant_silencer",
+        name: "Nagant M1895 Silencer",
+        image: "",
+        description: "소음기 부착형. 데미지·낙하범위·탄속 감소(정숙성 확보).",
+        price: 27,
+        stats: {
+          damage: 85,
+          dropRange: 60,
+          muzzleVelocity: 280,
+        },
+      },
+      {
+        id: "nagant_deadeye",
+        name: "Nagant M1895 Deadeye",
+        image: "",
+        description: "Deadeye 스코프·개머리판 부착형. 흔들림·반동 감소, 분산도 감소, 예비 탄약 증가.",
+        price: 30,
+        chamber: {
+          extra: 28,
+        },
+        stats: {
+          cycleTime: 1.2,
+          spread: 35,
+          sway: 87,
+          verticalRecoil: 1.5,
+          reloadSpeed: 13.4,
+        },
+      },
+    ],
   },
 
   {
@@ -4072,7 +4338,20 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 1종 - 본체와 다른 값만 표기)
+    variants: [
+      {
+        id: "newarmy_swift",
+        name: "New Army Swift",
+        image: "",
+        description: "스피드 로더 부착형. 발사속도·재장전 속도 증가.",
+        price: 108,
+        stats: {
+          rateOfFire: 40,
+          reloadSpeed: 5.6,
+        },
+      },
+    ],
   },
 
   {
@@ -4124,7 +4403,53 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 3종 - 본체와 다른 값만 표기)
+    variants: [
+      {
+        id: "officer_brawler",
+        name: "Officer Brawler",
+        image: "",
+        description: "너클더스터 부착형. 근접 피해 대폭 증가, 기력 소모 감소.",
+        price: 106,
+        stats: {
+          meleeLight: 31,
+          meleeHeavy: 72,
+          staminaConsumption: 10,
+        },
+      },
+      {
+        id: "officer_carbine",
+        name: "Officer Carbine",
+        image: "",
+        description: "개머리판·연장 총열 부착형. 데미지·낙하범위·탄속 대폭 증가, 흔들림·반동·분산도 감소.",
+        price: 183,
+        stats: {
+          damage: 104,
+          dropRange: 90,
+          spread: 25,
+          sway: 77,
+          verticalRecoil: 4,
+          reloadSpeed: 13.4,
+          muzzleVelocity: 360,
+        },
+      },
+      {
+        id: "officer_carbine_deadeye",
+        name: "Officer Carbine Deadeye",
+        image: "",
+        description: "Carbine형에 Deadeye 스코프 추가 부착. 분산도 증가, 흔들림 추가 감소.",
+        price: 192,
+        stats: {
+          damage: 104,
+          dropRange: 90,
+          spread: 40,
+          sway: 69,
+          verticalRecoil: 4,
+          reloadSpeed: 13.4,
+          muzzleVelocity: 360,
+        },
+      },
+    ],
   },
 
   {
