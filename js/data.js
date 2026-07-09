@@ -3604,8 +3604,8 @@ const ITEMS = [
       {
         id: "frontier73c_silencer",
         name: "Frontier 73C Silencer",
-        image: "",
-        description: "소음기 부착형. 데미지·낙하범위·탄속 감소, 분산도 증가(정숙성 확보).",
+        image: "images/weapons/variants/frontier73c_silencer.png",
+        description: "",
         price: 55,
         stats: {
           damage: 104,
@@ -3617,8 +3617,8 @@ const ITEMS = [
       {
         id: "frontier73c_marksman",
         name: "Frontier 73C Marksman",
-        image: "",
-        description: "중장거리 스코프 부착형. 흔들림 감소, 사이클 시간·분산도 소폭 증가.",
+        image: "images/weapons/variants/frontier73c_marksman.png",
+        description: "",
         price: 45,
         stats: {
           cycleTime: 1.3,
@@ -3685,7 +3685,7 @@ const ITEMS = [
         id: "infantry73l_sniper",
         name: "Infantry 73L Sniper",
         image: "",
-        description: "장거리 스코프 부착형. 흔들림(Sway) 감소.",
+        description: "",
         price: 90,
         stats: {
           sway: 69,
@@ -3695,7 +3695,7 @@ const ITEMS = [
         id: "infantry73l_bayonet",
         name: "Infantry 73L Bayonet",
         image: "",
-        description: "총검 부착형. 중형 근접 피해 대폭 증가.",
+        description: "",
         price: 88,
         stats: {
           meleeHeavy: 168,
@@ -3759,7 +3759,7 @@ const ITEMS = [
         id: "marathon_swift",
         name: "Marathon Swift",
         image: "",
-        description: "스피드 로더 부착형. 발사속도·재장전 속도 대폭 증가.",
+        description: "",
         price: 95,
         stats: {
           rateOfFire: 45,
@@ -3824,8 +3824,8 @@ const ITEMS = [
       {
         id: "ranger73_swift",
         name: "Ranger 73 Swift",
-        image: "",
-        description: "스피드 로더 부착형. 발사속도·재장전 속도 대폭 증가.",
+        image: "images/weapons/variants/ranger73_swift.png",
+        description: "",
         price: 128,
         stats: {
           rateOfFire: 41,
@@ -3835,8 +3835,8 @@ const ITEMS = [
       {
         id: "ranger73_talon",
         name: "Ranger 73 Talon",
-        image: "",
-        description: "개머리판에 도검 부착형. 중형 근접 피해 대폭 증가, 기력 소모 증가.",
+        image: "images/weapons/variants/ranger73_talon.png",
+        description: "",
         price: 85,
         stats: {
           meleeHeavy: 330,
@@ -3847,7 +3847,7 @@ const ITEMS = [
         id: "ranger73_aperture",
         name: "Ranger 73 Aperture",
         image: "",
-        description: "조리개 조준경(Aperture) 부착형. 흔들림 감소.",
+        description: "",
         price: 79,
         stats: {
           sway: 69,
@@ -3911,8 +3911,8 @@ const ITEMS = [
       {
         id: "vandal73c_bullseye",
         name: "Vandal 73C Bullseye",
-        image: "",
-        description: "개머리판 없이 Deadeye 스코프 부착형. 분산도 증가, 흔들림 감소.",
+        image: "images/weapons/variants/vandal73c_bullseye.png",
+        description: "",
         price: 37,
         stats: {
           spread: 35,
@@ -3922,8 +3922,8 @@ const ITEMS = [
       {
         id: "vandal73c_striker",
         name: "Vandal 73C Striker",
-        image: "",
-        description: "총검 부착형. 근접 피해 대폭 증가, 사이클 시간 소폭 증가, 기력 소모 감소.",
+        image: "images/weapons/variants/vandal73c_striker.png",
+        description: "",
         price: 45,
         stats: {
           cycleTime: 1.3,
@@ -3988,8 +3988,8 @@ const ITEMS = [
       {
         id: "bornheim_match",
         name: "Bornheim No. 3 Match",
-        image: "",
-        description: "조준경·개머리판 강화형. 데미지·낙하범위·탄속 증가, 반동·흔들림·분산도 감소.",
+        image: "images/weapons/variants/bornheim_match.png",
+        description: "",
         price: 180,
         stats: {
           damage: 80,
@@ -4004,8 +4004,8 @@ const ITEMS = [
       {
         id: "bornheim_silencer",
         name: "Bornheim No. 3 Silencer",
-        image: "",
-        description: "소음기 부착형. 데미지·낙하범위·탄속 감소(정숙성 확보).",
+        image: "images/weapons/variants/bornheim_silencer.png",
+        description: "",
         price: 174,
         stats: {
           damage: 70,
@@ -4016,8 +4016,8 @@ const ITEMS = [
       {
         id: "bornheim_extended",
         name: "Bornheim No. 3 Extended",
-        image: "",
-        description: "확장 탄창형(클립 재장전 불가). 발사속도 감소, 재장전 속도 감소(느려짐).",
+        image: "images/weapons/variants/bornheim_extended.png",
+        description: "",
         price: 203,
         chamber: {
           loaded: "8+1",
@@ -4082,8 +4082,8 @@ const ITEMS = [
       {
         id: "conversion_chain_pistol",
         name: "Conversion Chain Pistol",
-        image: "",
-        description: "17연발 체인 실린더 부착형. 장탄수 대폭 증가, 발사속도 증가, 반동 감소하나 재장전은 훨씬 오래 걸림.",
+        image: "images/weapons/variants/conversion_chain_pistol.png",
+        description: "",
         price: 84,
         chamber: {
           loaded: "17",
@@ -4155,8 +4155,8 @@ const ITEMS = [
       {
         id: "lemat_carbine",
         name: "LeMat Carbine",
-        image: "",
-        description: "개머리판·연장 총열 부착형. 데미지·낙하범위·탄속 대폭 증가, 흔들림·반동 감소, 발사속도·분산도 소폭 감소.",
+        image: "images/weapons/variants/lemat_carbine.png",
+        description: "",
         price: 115,
         stats: {
           damage: 107,
@@ -4173,8 +4173,8 @@ const ITEMS = [
       {
         id: "lemat_carbine_marksman",
         name: "LeMat Carbine Marksman",
-        image: "",
-        description: "Carbine형에 마크스맨 스코프 추가 부착. 분산도 증가, 흔들림 추가 감소.",
+        image: "images/weapons/variants/lemat_carbine_marksman.png",
+        description: "",
         price: 127,
         stats: {
           damage: 107,
@@ -4245,8 +4245,8 @@ const ITEMS = [
       {
         id: "nagant_precision",
         name: "Nagant M1895 Precision",
-        image: "",
-        description: "권총 개머리판 부착형. 흔들림·반동 감소, 분산도 감소, 사이클 시간 감소(빨라짐).",
+        image: "images/weapons/variants/nagant_precision.png",
+        description: "",
         price: 29,
         chamber: {
           extra: 28,
@@ -4262,8 +4262,8 @@ const ITEMS = [
       {
         id: "nagant_silencer",
         name: "Nagant M1895 Silencer",
-        image: "",
-        description: "소음기 부착형. 데미지·낙하범위·탄속 감소(정숙성 확보).",
+        image: "images/weapons/variants/nagant_silencer.png",
+        description: "",
         price: 27,
         stats: {
           damage: 85,
@@ -4274,8 +4274,8 @@ const ITEMS = [
       {
         id: "nagant_deadeye",
         name: "Nagant M1895 Deadeye",
-        image: "",
-        description: "Deadeye 스코프·개머리판 부착형. 흔들림·반동 감소, 분산도 감소, 예비 탄약 증가.",
+        image: "images/weapons/variants/nagant_deadeye.png",
+        description: "",
         price: 30,
         chamber: {
           extra: 28,
@@ -4343,8 +4343,8 @@ const ITEMS = [
       {
         id: "newarmy_swift",
         name: "New Army Swift",
-        image: "",
-        description: "스피드 로더 부착형. 발사속도·재장전 속도 증가.",
+        image: "images/weapons/variants/newarmy_swift.png",
+        description: "",
         price: 108,
         stats: {
           rateOfFire: 40,
@@ -4408,8 +4408,8 @@ const ITEMS = [
       {
         id: "officer_brawler",
         name: "Officer Brawler",
-        image: "",
-        description: "너클더스터 부착형. 근접 피해 대폭 증가, 기력 소모 감소.",
+        image: "images/weapons/variants/officer_brawler.png",
+        description: "",
         price: 106,
         stats: {
           meleeLight: 31,
@@ -4420,8 +4420,8 @@ const ITEMS = [
       {
         id: "officer_carbine",
         name: "Officer Carbine",
-        image: "",
-        description: "개머리판·연장 총열 부착형. 데미지·낙하범위·탄속 대폭 증가, 흔들림·반동·분산도 감소.",
+        image: "images/weapons/variants/officer_carbine.png",
+        description: "",
         price: 183,
         stats: {
           damage: 104,
@@ -4436,8 +4436,8 @@ const ITEMS = [
       {
         id: "officer_carbine_deadeye",
         name: "Officer Carbine Deadeye",
-        image: "",
-        description: "Carbine형에 Deadeye 스코프 추가 부착. 분산도 증가, 흔들림 추가 감소.",
+        image: "images/weapons/variants/officer_carbine_deadeye.png",
+        description: "",
         price: 192,
         stats: {
           damage: 104,
@@ -4502,7 +4502,105 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 5종 - 본체와 다른 값만 표기)
+    variants: [
+      {
+        id: "centennial_sniper",
+        name: "Centennial Sniper",
+        image: "",
+        description: "",
+        price: 181,
+        stats: {
+          spread: 37.5,
+          sway: 69,
+          reloadSpeed: 15.4,
+        },
+      },
+      {
+        id: "centennial_shorty",
+        name: "Centennial Shorty",
+        image: "",
+        description: "",
+        price: 103,
+        slotSize: 2,
+        chamber: {
+          loaded: "5+1",
+          extra: 9,
+        },
+        stats: {
+          damage: 120,
+          dropRange: 110,
+          rateOfFire: 24,
+          spread: 42.5,
+          sway: 100,
+          verticalRecoil: 15,
+          reloadSpeed: 10.9,
+          muzzleVelocity: 540,
+          meleeLight: 13,
+          meleeHeavy: 31,
+        },
+      },
+      {
+        id: "centennial_shorty_silencer",
+        name: "Centennial Shorty Silencer",
+        image: "",
+        // ⚠ 예비 탄약(9)은 Shorty와 동일 탄창을 공유한다는 전제로 추정 - 위키 직접 접속이 봇 차단되어 검색 스니펫(구버전 캐시, extra 12로 표기)으로 대체 확인함. 가격은 패치노트(Update 2.2.0.35)에서 확정된 118을 사용(스니펫 캐시엔 구가격 137로 표기).
+        description: "단축형+소음기 부착형. 데미지·낙하범위·탄속 감소, 분산도·흔들림·반동 증가(정숙성 확보).",
+        price: 118,
+        slotSize: 2,
+        chamber: {
+          loaded: "5+1",
+          extra: 9,
+        },
+        stats: {
+          damage: 120,
+          dropRange: 100,
+          rateOfFire: 24,
+          spread: 42.5,
+          sway: 100,
+          verticalRecoil: 15,
+          reloadSpeed: 10.9,
+          muzzleVelocity: 459,
+          meleeLight: 13,
+          meleeHeavy: 31,
+        },
+      },
+      {
+        id: "centennial_trauma",
+        name: "Centennial Trauma",
+        image: "",
+        description: "",
+        price: 167,
+        stats: {
+          verticalRecoil: 12.5,
+          meleeHeavy: 216,
+          staminaConsumption: 40,
+        },
+      },
+      {
+        id: "centennial_pointman",
+        name: "Centennial Pointman",
+        image: "",
+        description: "",
+        price: 114,
+        slotSize: 2,
+        chamber: {
+          loaded: "5+1",
+        },
+        stats: {
+          damage: 120,
+          dropRange: 110,
+          rateOfFire: 24,
+          spread: 55,
+          sway: 93,
+          verticalRecoil: 15,
+          reloadSpeed: 10.9,
+          muzzleVelocity: 540,
+          meleeLight: 13,
+          meleeHeavy: 31,
+        },
+      },
+    ],
   },
 
   {
@@ -4613,7 +4711,55 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 2종 - 본체와 다른 값만 표기. 라이플 총열 기준, 샷건 총열 별도 수치는 위키에도 일부 불명)
+    variants: [
+      {
+        id: "drilling_hatchet",
+        name: "Drilling Hatchet",
+        image: "",
+        description: "",
+        price: 340,
+        slotSize: 2,
+        chamber: {
+          extra: 16,
+        },
+        stats: {
+          damage: 118,
+          dropRange: 120,
+          rateOfFire: 18,
+          spread: 62.5,
+          sway: 100,
+          verticalRecoil: 16,
+          reloadSpeed: 5.6,
+          muzzleVelocity: 424,
+          meleeLight: 90,
+          meleeHeavy: 150,
+        },
+      },
+      {
+        id: "drilling_shorty",
+        name: "Drilling Shorty",
+        image: "",
+        description: "",
+        price: 330,
+        slotSize: 2,
+        chamber: {
+          extra: 16,
+        },
+        stats: {
+          damage: 118,
+          dropRange: 120,
+          spread: 62.5,
+          sway: 100,
+          verticalRecoil: 16,
+          reloadSpeed: 4.8,
+          muzzleVelocity: 424,
+          meleeLight: 13,
+          meleeHeavy: 31,
+          staminaConsumption: 20,
+        },
+      },
+    ],
   },
 
   {
