@@ -3604,7 +3604,7 @@ const ITEMS = [
       {
         id: "frontier73c_silencer",
         name: "Frontier 73C Silencer",
-        image: "images/weapons/variants/frontier73c_silencer.png",
+        image: "images/weapons/variants/frontier73c_silencer.jpg",
         description: "",
         price: 55,
         stats: {
@@ -3617,7 +3617,7 @@ const ITEMS = [
       {
         id: "frontier73c_marksman",
         name: "Frontier 73C Marksman",
-        image: "images/weapons/variants/frontier73c_marksman.png",
+        image: "images/weapons/variants/frontier73c_marksman.jpg",
         description: "",
         price: 45,
         stats: {
@@ -3684,7 +3684,7 @@ const ITEMS = [
       {
         id: "infantry73l_sniper",
         name: "Infantry 73L Sniper",
-        image: "",
+        image: "images/weapons/variants/infantry73l_sniper.jpg",
         description: "",
         price: 90,
         stats: {
@@ -3694,7 +3694,7 @@ const ITEMS = [
       {
         id: "infantry73l_bayonet",
         name: "Infantry 73L Bayonet",
-        image: "",
+        image: "images/weapons/variants/infantry73l_bayonet.jpg",
         description: "",
         price: 88,
         stats: {
@@ -3758,7 +3758,7 @@ const ITEMS = [
       {
         id: "marathon_swift",
         name: "Marathon Swift",
-        image: "",
+        image: "images/weapons/variants/marathon_swift.png",
         description: "",
         price: 95,
         stats: {
@@ -3835,7 +3835,7 @@ const ITEMS = [
       {
         id: "ranger73_talon",
         name: "Ranger 73 Talon",
-        image: "images/weapons/variants/ranger73_talon.png",
+        image: "images/weapons/variants/ranger73_talon.jpg",
         description: "",
         price: 85,
         stats: {
@@ -3846,7 +3846,7 @@ const ITEMS = [
       {
         id: "ranger73_aperture",
         name: "Ranger 73 Aperture",
-        image: "",
+        image: "images/weapons/variants/ranger73_aperture.jpg",
         description: "",
         price: 79,
         stats: {
@@ -3911,7 +3911,7 @@ const ITEMS = [
       {
         id: "vandal73c_bullseye",
         name: "Vandal 73C Bullseye",
-        image: "images/weapons/variants/vandal73c_bullseye.png",
+        image: "images/weapons/variants/vandal73c_bullseye.jpg",
         description: "",
         price: 37,
         stats: {
@@ -3922,7 +3922,7 @@ const ITEMS = [
       {
         id: "vandal73c_striker",
         name: "Vandal 73C Striker",
-        image: "images/weapons/variants/vandal73c_striker.png",
+        image: "images/weapons/variants/vandal73c_striker.jpg",
         description: "",
         price: 45,
         stats: {
@@ -3988,7 +3988,7 @@ const ITEMS = [
       {
         id: "bornheim_match",
         name: "Bornheim No. 3 Match",
-        image: "images/weapons/variants/bornheim_match.png",
+        image: "images/weapons/variants/bornheim_match.jpg",
         description: "",
         price: 180,
         stats: {
@@ -4004,7 +4004,7 @@ const ITEMS = [
       {
         id: "bornheim_silencer",
         name: "Bornheim No. 3 Silencer",
-        image: "images/weapons/variants/bornheim_silencer.png",
+        image: "images/weapons/variants/bornheim_silencer.jpg",
         description: "",
         price: 174,
         stats: {
@@ -4016,7 +4016,7 @@ const ITEMS = [
       {
         id: "bornheim_extended",
         name: "Bornheim No. 3 Extended",
-        image: "images/weapons/variants/bornheim_extended.png",
+        image: "images/weapons/variants/bornheim_extended.jpg",
         description: "",
         price: 203,
         chamber: {
@@ -4082,7 +4082,7 @@ const ITEMS = [
       {
         id: "conversion_chain_pistol",
         name: "Conversion Chain Pistol",
-        image: "images/weapons/variants/conversion_chain_pistol.png",
+        image: "images/weapons/variants/conversion_chain_pistol.jpg",
         description: "",
         price: 84,
         chamber: {
@@ -4155,7 +4155,7 @@ const ITEMS = [
       {
         id: "lemat_carbine",
         name: "LeMat Carbine",
-        image: "images/weapons/variants/lemat_carbine.png",
+        image: "images/weapons/variants/lemat_carbine.jpg",
         description: "",
         price: 115,
         stats: {
@@ -4173,7 +4173,7 @@ const ITEMS = [
       {
         id: "lemat_carbine_marksman",
         name: "LeMat Carbine Marksman",
-        image: "images/weapons/variants/lemat_carbine_marksman.png",
+        image: "images/weapons/variants/lemat_carbine_marksman.jpg",
         description: "",
         price: 127,
         stats: {
@@ -4245,7 +4245,7 @@ const ITEMS = [
       {
         id: "nagant_precision",
         name: "Nagant M1895 Precision",
-        image: "images/weapons/variants/nagant_precision.png",
+        image: "images/weapons/variants/nagant_precision.jpg",
         description: "",
         price: 29,
         chamber: {
@@ -4262,7 +4262,7 @@ const ITEMS = [
       {
         id: "nagant_silencer",
         name: "Nagant M1895 Silencer",
-        image: "images/weapons/variants/nagant_silencer.png",
+        image: "images/weapons/variants/nagant_silencer.jpg",
         description: "",
         price: 27,
         stats: {
@@ -4274,7 +4274,7 @@ const ITEMS = [
       {
         id: "nagant_deadeye",
         name: "Nagant M1895 Deadeye",
-        image: "images/weapons/variants/nagant_deadeye.png",
+        image: "images/weapons/variants/nagant_deadeye.jpg",
         description: "",
         price: 30,
         chamber: {
@@ -4408,7 +4408,7 @@ const ITEMS = [
       {
         id: "officer_brawler",
         name: "Officer Brawler",
-        image: "images/weapons/variants/officer_brawler.png",
+        image: "images/weapons/variants/officer_brawler.jpg",
         description: "",
         price: 106,
         stats: {
@@ -4420,7 +4420,7 @@ const ITEMS = [
       {
         id: "officer_carbine",
         name: "Officer Carbine",
-        image: "images/weapons/variants/officer_carbine.png",
+        image: "images/weapons/variants/officer_carbine.jpg",
         description: "",
         price: 183,
         stats: {
@@ -4436,7 +4436,7 @@ const ITEMS = [
       {
         id: "officer_carbine_deadeye",
         name: "Officer Carbine Deadeye",
-        image: "images/weapons/variants/officer_carbine_deadeye.png",
+        image: "images/weapons/variants/officer_carbine_deadeye.jpg",
         description: "",
         price: 192,
         stats: {
