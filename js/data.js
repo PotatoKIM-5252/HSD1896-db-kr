@@ -3558,6 +3558,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 3,
     ammoCategory: "compact",
+    weaponClass: "rifle", // handgun/rifle/shotgun
     ammoEffects: ["full_metal", "high_velocity", "incendiary", "poison", "subsonic"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -3638,6 +3639,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 4,
     ammoCategory: "compact",
+    weaponClass: "rifle", // handgun/rifle/shotgun
     ammoEffects: ["full_metal", "high_velocity", "incendiary", "poison", "subsonic"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -3713,6 +3715,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 4,
     ammoCategory: "compact",
+    weaponClass: "rifle", // handgun/rifle/shotgun
     ammoEffects: ["full_metal", "high_velocity", "incendiary", "poison"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id) — 아음속탄 없음
@@ -3778,6 +3781,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 4,
     ammoCategory: "compact",
+    weaponClass: "rifle", // handgun/rifle/shotgun
     ammoEffects: ["full_metal", "high_velocity", "incendiary", "poison", "subsonic"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -3865,6 +3869,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 2,
     ammoCategory: "compact",
+    weaponClass: "rifle", // handgun/rifle/shotgun
     ammoEffects: ["full_metal", "high_velocity", "incendiary", "poison", "subsonic"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -3944,6 +3949,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 1,
     ammoCategory: "compact",
+    weaponClass: "handgun", // handgun/rifle/shotgun
     ammoEffects: ["high_velocity", "incendiary", "subsonic"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -3990,6 +3996,7 @@ const ITEMS = [
         name: "Bornheim No. 3 Match",
         image: "images/weapons/variants/bornheim_match.jpg",
         description: "",
+        weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
         price: 180,
         stats: {
           damage: 80,
@@ -4039,6 +4046,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 1,
     ammoCategory: "compact",
+    weaponClass: "handgun", // handgun/rifle/shotgun
     ammoEffects: ["bleed", "full_metal"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -4107,6 +4115,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 1,
     ammoCategory: "compact",
+    weaponClass: "handgun", // handgun/rifle/shotgun
     secondaryAmmoCategories: ["shotgun"], // 하부 총열 샷건 보유 (르맷)
     ammoEffects: ["full_metal", "incendiary", "slug", "flare", "dragonbreath"],
 
@@ -4157,6 +4166,7 @@ const ITEMS = [
         name: "LeMat Carbine",
         image: "images/weapons/variants/lemat_carbine.jpg",
         description: "",
+        weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
         price: 115,
         stats: {
           damage: 107,
@@ -4175,6 +4185,7 @@ const ITEMS = [
         name: "LeMat Carbine Marksman",
         image: "images/weapons/variants/lemat_carbine_marksman.jpg",
         description: "",
+        weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
         price: 127,
         stats: {
           damage: 107,
@@ -4200,6 +4211,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 1,
     ammoCategory: "compact",
+    weaponClass: "handgun", // handgun/rifle/shotgun
     ammoEffects: ["bleed", "high_velocity", "poison", "subsonic"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -4300,6 +4312,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 1,
     ammoCategory: "compact",
+    weaponClass: "handgun", // handgun/rifle/shotgun
     ammoEffects: ["bleed", "full_metal"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -4363,6 +4376,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 1,
     ammoCategory: "compact",
+    weaponClass: "handgun", // handgun/rifle/shotgun
     ammoEffects: ["bleed", "high_velocity", "poison", "subsonic"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -4422,6 +4436,7 @@ const ITEMS = [
         name: "Officer Carbine",
         image: "images/weapons/variants/officer_carbine.jpg",
         description: "",
+        weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
         price: 183,
         stats: {
           damage: 104,
@@ -4438,6 +4453,7 @@ const ITEMS = [
         name: "Officer Carbine Deadeye",
         image: "images/weapons/variants/officer_carbine_deadeye.jpg",
         description: "",
+        weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
         price: 192,
         stats: {
           damage: 104,
@@ -4461,6 +4477,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 4,
     ammoCategory: "medium",
+    weaponClass: "rifle", // handgun/rifle/shotgun
     ammoEffects: ["bleed", "full_metal", "high_velocity", "poison", "subsonic"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -4612,6 +4629,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 4,
     ammoCategory: "medium",
+    weaponClass: "rifle", // handgun/rifle/shotgun
     // Centennial과 동일한 탄종 라인업 (영상 리뷰에서 "모든 탄종·기능 유지" 확인됨)
     ammoEffects: ["bleed", "full_metal", "high_velocity", "poison", "subsonic"],
 
@@ -4667,6 +4685,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 4,
     ammoCategory: "medium",
+    weaponClass: "rifle", // handgun/rifle/shotgun
     secondaryAmmoCategories: ["shotgun"], // 하부 총열 샷건(플리셰트/페니샷/슬러그) 보유
     ammoEffects: ["bleed", "full_metal", "high_velocity", "slug", "pennyshot", "flechette"],
 
@@ -4771,6 +4790,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 4,
     ammoCategory: "medium",
+    weaponClass: "rifle", // handgun/rifle/shotgun
     ammoEffects: ["bleed", "high_velocity", "subsonic"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -4822,6 +4842,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 4,
     ammoCategory: "medium",
+    weaponClass: "rifle", // handgun/rifle/shotgun
     ammoEffects: ["bleed", "explosive", "high_velocity", "poison"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -4874,6 +4895,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 3,
     ammoCategory: "medium",
+    weaponClass: "rifle", // handgun/rifle/shotgun
     ammoEffects: ["full_metal", "subsonic"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -4924,6 +4946,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 3,
     ammoCategory: "medium",
+    weaponClass: "rifle", // handgun/rifle/shotgun
     ammoEffects: ["full_metal", "high_velocity", "incendiary", "subsonic"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -4976,6 +4999,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 1,
     ammoCategory: "medium",
+    weaponClass: "handgun", // handgun/rifle/shotgun
     ammoEffects: ["bleed", "full_metal", "high_velocity", "incendiary", "poison"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -5029,6 +5053,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 1,
     ammoCategory: "medium",
+    weaponClass: "handgun", // handgun/rifle/shotgun
     ammoEffects: ["bleed", "full_metal", "high_velocity", "incendiary"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -5081,6 +5106,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 4,
     ammoCategory: "long",
+    weaponClass: "rifle", // handgun/rifle/shotgun
     ammoEffects: ["explosive", "full_metal"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -5131,6 +5157,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 4,
     ammoCategory: "long",
+    weaponClass: "rifle", // handgun/rifle/shotgun
     ammoEffects: ["explosive", "full_metal", "high_velocity", "incendiary"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -5183,6 +5210,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 4,
     ammoCategory: "long",
+    weaponClass: "rifle", // handgun/rifle/shotgun
     ammoEffects: ["full_metal", "incendiary", "poison", "subsonic"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -5235,6 +5263,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 2,
     ammoCategory: "long",
+    weaponClass: "handgun", // handgun/rifle/shotgun
     secondaryAmmoCategories: ["shotgun"], // 하부 총열 샷건 보유 (헤이메이커)
     ammoEffects: ["full_metal", "poison", "slug", "flare", "dragonbreath"],
 
@@ -5290,6 +5319,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 2,
     ammoCategory: "long",
+    weaponClass: "handgun", // handgun/rifle/shotgun
     ammoEffects: ["explosive", "full_metal", "incendiary"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -5341,6 +5371,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 3,
     ammoCategory: "long",
+    weaponClass: "rifle", // handgun/rifle/shotgun
     // 패치노트(Update 2.8)에서 확인된 탄종: FMJ, High Velocity
     ammoEffects: ["full_metal", "high_velocity"],
 
@@ -5392,6 +5423,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 4,
     ammoCategory: "special",
+    weaponClass: "rifle", // handgun/rifle/shotgun
     ammoEffects: ["full_metal", "incendiary", "subsonic"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -5443,6 +5475,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 4,
     ammoCategory: "special",
+    weaponClass: "rifle", // handgun/rifle/shotgun
     ammoEffects: ["incendiary", "spitzer"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -5493,6 +5526,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 4,
     ammoCategory: "special",
+    weaponClass: "rifle", // handgun/rifle/shotgun
     ammoEffects: ["incendiary", "spitzer"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -5543,6 +5577,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 3,
     ammoCategory: "special",
+    weaponClass: "rifle", // handgun/rifle/shotgun
     ammoEffects: ["incendiary", "spitzer"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -5593,6 +5628,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 2,
     ammoCategory: "special",
+    weaponClass: "rifle", // handgun/rifle/shotgun
     ammoEffects: ["incendiary", "spitzer"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -5643,6 +5679,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 5,
     ammoCategory: "shotgun",
+    weaponClass: "shotgun", // handgun/rifle/shotgun
     ammoEffects: ["flechette", "pennyshot", "slug"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -5694,6 +5731,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 4,
     ammoCategory: "shotgun",
+    weaponClass: "shotgun", // handgun/rifle/shotgun
     ammoEffects: ["dragonbreath", "flechette", "pennyshot", "slug"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -5747,6 +5785,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 4,
     ammoCategory: "shotgun",
+    weaponClass: "shotgun", // handgun/rifle/shotgun
     ammoEffects: ["dragonbreath", "flechette", "pennyshot", "slug"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -5799,6 +5838,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 4,
     ammoCategory: "shotgun",
+    weaponClass: "shotgun", // handgun/rifle/shotgun
     ammoEffects: ["dragonbreath", "pennyshot", "slug", "flare"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -5851,6 +5891,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 4,
     ammoCategory: "shotgun",
+    weaponClass: "shotgun", // handgun/rifle/shotgun
     ammoEffects: ["pennyshot", "slug"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -5901,6 +5942,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 4,
     ammoCategory: "shotgun",
+    weaponClass: "shotgun", // handgun/rifle/shotgun
     ammoEffects: ["dragonbreath", "flechette", "pennyshot", "slug"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -5953,6 +5995,7 @@ const ITEMS = [
     // 검색 필터용
     slotSize: 4,
     ammoCategory: "shotgun",
+    weaponClass: "shotgun", // handgun/rifle/shotgun
     ammoEffects: ["dragonbreath", "flechette", "pennyshot", "slug"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
