@@ -350,13 +350,56 @@ function pruneAmmoEffectFilter(filterState) {
   });
 }
 
+// 모무기 + 파생형 하나를 합쳐서 완전한 무기 객체로 만듦 (buildWeaponVariantsList와 동일한 병합 규칙)
+function mergeWeaponVariant(parentItem, v) {
+  return {
+    ...parentItem,
+    ...v,
+    stats: { ...parentItem.stats, ...(v.stats || {}) },
+    chamber: { ...(parentItem.chamber || {}), ...(v.chamber || {}) },
+    variants: undefined,
+    _trueParentId: parentItem.id,
+  };
+}
+
+// ITEMS를 "모무기 + 모든 파생형"이 각각 독립된 카드로 검색/필터링 되도록 평탄화한 리스트로 변환.
+// 파생형은 _trueParentId(원 무기 id), _variantIndex(자세히 보기 탭 인덱스, 0=모무기)를 함께 갖는다.
+function getFlattenedWeaponItems() {
+  const flat = [];
+  ITEMS.forEach((item) => {
+    if (item.category !== "weapon") {
+      flat.push(item);
+      return;
+    }
+    flat.push({ ...item, _trueParentId: item.id, _variantIndex: 0 });
+    (item.variants || []).forEach((v, idx) => {
+      flat.push({ ...mergeWeaponVariant(item, v), _variantIndex: idx + 1 });
+    });
+  });
+  return flat;
+}
+
+// id로 아이템을 찾되, 모무기뿐 아니라 파생형 id도 찾아서 병합된 완전한 객체로 반환.
+// (비교 목록/로드아웃 등에서 파생형 id가 저장돼 있어도 정상적으로 조회되도록)
+function findItemById(id) {
+  for (const item of ITEMS) {
+    if (item.id === id) return item;
+    if (item.category === "weapon" && Array.isArray(item.variants)) {
+      const v = item.variants.find((vv) => vv.id === id);
+      if (v) return mergeWeaponVariant(item, v);
+    }
+  }
+  return null;
+}
+
+
 function getFilteredItems(extra = {}) {
   const category = extra.category !== undefined ? extra.category : state.filterCategory;
   const query = extra.query !== undefined ? extra.query : state.searchQuery;
   const useWeaponFilters = extra.useWeaponFilters !== false;
   const filterSource = extra.filterSource || state.weaponFilters;
 
-  return ITEMS.filter((item) => {
+  return getFlattenedWeaponItems().filter((item) => {
     if (category && category !== "all" && item.category !== category) return false;
     if (query && !item.name.toLowerCase().includes(query)) return false;
     if (useWeaponFilters && item.category === "weapon") {
@@ -410,9 +453,12 @@ function createItemCard(item) {
       <button class="item-card-detail-btn" type="button">자세히 보기 ›</button>`;
 
     // 버튼은 자세히 보기 화면 열기 (이벤트 전파 차단)
+    // 파생형 카드라면(_trueParentId가 자기 자신 id와 다르면) 모무기를 찾아서, 그 파생형 탭이 바로 선택된 채로 열어줌
     card.querySelector(".item-card-detail-btn").addEventListener("click", (e) => {
       e.stopPropagation();
-      openBodyPartView(item, item.defaultAmmo || (item.ammoTypes && item.ammoTypes[0]));
+      const parent = ITEMS.find((i) => i.id === (item._trueParentId || item.id)) || item;
+      state.selectedVariantIdx[parent.id] = item._variantIndex || 0;
+      openBodyPartView(parent, item.defaultAmmo || (item.ammoTypes && item.ammoTypes[0]));
     });
   } else {
     card.innerHTML = `
@@ -636,7 +682,9 @@ function openBodyPartView(parentItem, ammoId) {
       </button>`;
   }).join("");
 
-  const isShotgun = currentItem.ammoCategory === "shotgun";
+  // 무기 자체가 샷건이거나(Auto-5 등), 지금 선택된 탄약 자체가 샷건탄인 경우
+  // (Drilling/LeMat/Haymaker 같은 언더배럴 샷건 기믹 무기가 샷건탄을 선택했을 때)도 마네킹을 숨김
+  const isShotgun = currentItem.ammoCategory === "shotgun" || ammo?.category === "shotgun";
 
   content.innerHTML = `
     <button id="bodypart-close-btn" type="button">✕</button>
@@ -1678,7 +1726,7 @@ function renderAnalysis() {
 
   listEl.innerHTML = "";
   state.compareEntries.forEach((entry, idx) => {
-    const item = ITEMS.find((i) => i.id === entry.weaponId);
+    const item = findItemById(entry.weaponId);
     const ammo = AMMO_TYPES[entry.ammoId];
     if (!item || !ammo) return;
     const color = COMPARE_COLORS[idx % COMPARE_COLORS.length];
@@ -1713,7 +1761,7 @@ function renderAnalysis() {
   chartWrap.innerHTML = `<canvas id="compare-chart"></canvas>`;
   const canvas = document.getElementById("compare-chart");
   const datasets = state.compareEntries.map((entry, idx) => {
-    const item = ITEMS.find((i) => i.id === entry.weaponId);
+    const item = findItemById(entry.weaponId);
     if (!item) return null;
     return buildFalloffDataset(item, entry.ammoId, COMPARE_COLORS[idx % COMPARE_COLORS.length]);
   }).filter(Boolean);
@@ -1758,7 +1806,7 @@ function renderCompareStatsSection() {
 
   const selected = state.statCompareSelection
     .map((s) => {
-      const item = ITEMS.find((i) => i.id === s.weaponId);
+      const item = findItemById(s.weaponId);
       const ammo = AMMO_TYPES[s.ammoId];
       if (!item || !ammo) return null;
       const { stats } = resolveWeaponWithAmmo(item, s.ammoId);
