@@ -1032,14 +1032,14 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 .ammo-tab {
-  width: 76px;
-  height: 76px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: transparent;
   border: 2px solid transparent;
-  padding: 4px;
+  padding: 3px;
   border-radius: 4px;
   transition: border-color 0.15s, background 0.15s, transform 0.1s;
 }
@@ -1054,7 +1054,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   border-color: var(--accent-strong);
 }
 
-.ammo-tab-icon { font-size: 30px; line-height: 1; }
+.ammo-tab-icon { font-size: 16px; line-height: 1; }
 
 .ammo-tab-img {
   width: 100%;
