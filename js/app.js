@@ -636,20 +636,23 @@ function openBodyPartView(parentItem, ammoId) {
       </button>`;
   }).join("");
 
+  const isShotgun = currentItem.ammoCategory === "shotgun";
+
   content.innerHTML = `
     <button id="bodypart-close-btn" type="button">✕</button>
     <h2>${parentItem.name} <span class="bodypart-ammo">${ammo?.label ?? ""}</span></h2>
     ${variantsList.length > 1 ? `<div class="variant-tabs variant-tabs-compact">${variantTabs}</div>` : ""}
     ${currentItem.description ? `<p class="variant-desc">${currentItem.description}</p>` : ""}
 
-    <!-- 본문: 좌측 마네킹 / 중앙 무기이미지+기본정보+스탯 / 우측 그래프+특수탄+효과 -->
-    <div class="bodypart-layout">
+    <!-- 본문: 좌측 마네킹(샷건 제외) / 중앙 무기이미지+기본정보+스탯 / 우측 그래프+특수탄+효과 -->
+    <div class="bodypart-layout ${isShotgun ? "bodypart-layout--no-figure" : ""}">
+      ${isShotgun ? "" : `
       <!-- 좌측: 마네킹 -->
       <div class="bodypart-figure-col">
         <div class="bodypart-figure">
           ${renderBodyFigureSVG(partInfo, refRange)}
         </div>
-      </div>
+      </div>`}
 
       <!-- 중앙: 무기 이미지 → 기본정보 → 총기 스탯 -->
       <div class="bodypart-weapon-col">
