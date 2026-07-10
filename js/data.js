@@ -4597,7 +4597,7 @@ const ITEMS = [
       {
         id: "centennial_sniper",
         name: "Centennial Sniper",
-        image: "",
+        image: "images/weapons/variants/centennial_sniper.jpg",
         description: "",
         price: 181,
         stats: {
@@ -4609,7 +4609,7 @@ const ITEMS = [
       {
         id: "centennial_shorty",
         name: "Centennial Shorty",
-        image: "",
+        image: "images/weapons/variants/centennial_shorty.jpg",
         description: "",
         price: 103,
         slotSize: 2,
@@ -4633,7 +4633,7 @@ const ITEMS = [
       {
         id: "centennial_shorty_silencer",
         name: "Centennial Shorty Silencer",
-        image: "",
+        image: "images/weapons/variants/centennial_shorty_silencer.jpg",
         // ⚠ 예비 탄약(9)은 Shorty와 동일 탄창을 공유한다는 전제로 추정 - 위키 직접 접속이 봇 차단되어 검색 스니펫(구버전 캐시, extra 12로 표기)으로 대체 확인함. 가격은 패치노트(Update 2.2.0.35)에서 확정된 118을 사용(스니펫 캐시엔 구가격 137로 표기).
         description: "단축형+소음기 부착형. 데미지·낙하범위·탄속 감소, 분산도·흔들림·반동 증가(정숙성 확보).",
         price: 118,
@@ -4658,7 +4658,7 @@ const ITEMS = [
       {
         id: "centennial_trauma",
         name: "Centennial Trauma",
-        image: "",
+        image: "images/weapons/variants/centennial_trauma.jpg",
         description: "",
         price: 167,
         stats: {
@@ -4670,7 +4670,7 @@ const ITEMS = [
       {
         id: "centennial_pointman",
         name: "Centennial Pointman",
-        image: "",
+        image: "images/weapons/variants/centennial_pointman.jpg",
         description: "",
         price: 114,
         slotSize: 2,
@@ -4808,7 +4808,7 @@ const ITEMS = [
       {
         id: "drilling_hatchet",
         name: "Drilling Hatchet",
-        image: "",
+        image: "images/weapons/variants/drilling_hatchet.jpg",
         description: "",
         price: 340,
         slotSize: 2,
@@ -4831,7 +4831,7 @@ const ITEMS = [
       {
         id: "drilling_shorty",
         name: "Drilling Shorty",
-        image: "",
+        image: "images/weapons/variants/drilling_shorty.jpg",
         description: "",
         price: 330,
         slotSize: 2,
