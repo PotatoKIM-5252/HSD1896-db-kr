@@ -4053,6 +4053,7 @@ const ITEMS = [
         image: "images/weapons/variants/bornheim_match.jpg",
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
+        slotSize: 2,
         ammoTypes: ["bornheim_match_compact", "bornheim_high_velocity", "bornheim_incendiary", "bornheim_subsonic"],
         defaultAmmo: "bornheim_match_compact",
         price: 180,
@@ -4225,6 +4226,7 @@ const ITEMS = [
         image: "images/weapons/variants/lemat_carbine.jpg",
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
+        slotSize: 3,
         ammoTypes: ["lemat_carbine_compact", "lemat_fmj", "lemat_incendiary", "lemat_shells", "lemat_dragonbreath", "lemat_slug", "lemat_starshell"],
         defaultAmmo: "lemat_carbine_compact",
         price: 115,
@@ -4246,6 +4248,7 @@ const ITEMS = [
         image: "images/weapons/variants/lemat_carbine_marksman.jpg",
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
+        slotSize: 3,
         ammoTypes: ["lemat_carbine_compact", "lemat_fmj", "lemat_incendiary", "lemat_shells", "lemat_dragonbreath", "lemat_slug", "lemat_starshell"],
         defaultAmmo: "lemat_carbine_compact",
         price: 127,
@@ -4321,6 +4324,7 @@ const ITEMS = [
         name: "Nagant M1895 Precision",
         image: "images/weapons/variants/nagant_precision.jpg",
         description: "",
+        slotSize: 2,
         price: 29,
         chamber: {
           extra: 28,
@@ -4350,6 +4354,7 @@ const ITEMS = [
         name: "Nagant M1895 Deadeye",
         image: "images/weapons/variants/nagant_deadeye.jpg",
         description: "",
+        slotSize: 2,
         price: 30,
         chamber: {
           extra: 28,
@@ -4499,6 +4504,7 @@ const ITEMS = [
         image: "images/weapons/variants/officer_carbine.jpg",
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
+        slotSize: 3,
         ammoTypes: ["officer_carbine_compact", "officer_dumdum", "officer_high_velocity", "officer_poison", "officer_subsonic"],
         defaultAmmo: "officer_carbine_compact",
         price: 183,
@@ -4518,6 +4524,7 @@ const ITEMS = [
         image: "images/weapons/variants/officer_carbine_deadeye.jpg",
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
+        slotSize: 3,
         ammoTypes: ["officer_carbine_compact", "officer_dumdum", "officer_high_velocity", "officer_poison", "officer_subsonic"],
         defaultAmmo: "officer_carbine_compact",
         price: 192,
