@@ -1032,8 +1032,8 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 .ammo-tab {
-  width: 40px;
-  height: 40px;
+  width: 56px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1054,7 +1054,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   border-color: var(--accent-strong);
 }
 
-.ammo-tab-icon { font-size: 16px; line-height: 1; }
+.ammo-tab-icon { font-size: 22px; line-height: 1; }
 
 .ammo-tab-img {
   width: 100%;
