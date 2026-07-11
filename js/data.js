@@ -2248,7 +2248,118 @@ const AMMO_TYPES = {
     ],
     statOverrides: { dropRange: 115, muzzleVelocity: 309, ammoExtra: 9 },
     specialEffects: ["발사음 감소"],
-  },  haymaker_long: {
+  },
+
+  // ⚠ Sparks Pistol 전용 탄약 (위키 실측치 기준, 사용자 확인) - 본체와 낙하범위/탄속 기준점이 달라 별도 필요.
+  //    기본 Long 낙하곡선은 롱탄 권총군 공용 곡선(haymaker_long/uppercut_long와 동일) 재사용.
+  sparkspistol_long: {
+    label: "Long",
+    category: "long",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_long_regular.png",
+    icon: "🟫",
+    description: "Long - 40m부터 데미지 감소 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [70, 0.5808],
+      [90, 0.4679],
+      [100, 0.4679],
+    ],
+    statOverrides: {  },
+  },
+
+  sparkspistol_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "long",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_long_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    cost: 30,
+    falloff: [
+      [0, 1.00],
+      [50, 1.00],
+      [100, 0.6169],
+    ],
+    statOverrides: { dropRange: 85, verticalRecoil: 27, muzzleVelocity: 362 },
+    specialEffects: ["50m부터 데미지 감소 시작"],
+  },
+
+  sparkspistol_subsonic: {
+    label: "아음속탄",
+    category: "long",
+    effect: "subsonic",
+    image: "images/ui/ammo_effects/ammo_long_subsonic.png",
+    icon: "🔇",
+    description: "아음속탄 - 탄속 감소, 낙하거리 감소, 예비 탄약 수 변동, 발사음 감소.",
+    cost: 10,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6174],
+      [100, 0.6107],
+    ],
+    statOverrides: { dropRange: 75, muzzleVelocity: 281, ammoExtra: 8 },
+    specialEffects: ["발사음 감소"],
+  },
+
+  // ⚠ Sparks Pistol Silencer 전용 탄약 (위키 실측치 기준, 사용자 확인)
+  sparkspistolsilencer_long: {
+    label: "Long",
+    category: "long",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_long_regular.png",
+    icon: "🟫",
+    description: "Long - 40m부터 데미지 감소 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [70, 0.5808],
+      [90, 0.4679],
+      [100, 0.4679],
+    ],
+    statOverrides: {  },
+  },
+
+  sparkspistolsilencer_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "long",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_long_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    cost: 30,
+    falloff: [
+      [0, 1.00],
+      [50, 1.00],
+      [100, 0.6169],
+    ],
+    statOverrides: { dropRange: 80, verticalRecoil: 28, muzzleVelocity: 308 },
+    specialEffects: ["50m부터 데미지 감소 시작"],
+  },
+
+  sparkspistolsilencer_subsonic: {
+    label: "아음속탄",
+    category: "long",
+    effect: "subsonic",
+    image: "images/ui/ammo_effects/ammo_long_subsonic.png",
+    icon: "🔇",
+    description: "아음속탄 - 탄속 감소, 낙하거리 감소, 예비 탄약 수 변동, 발사음 감소.",
+    cost: 10,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6174],
+      [100, 0.6107],
+    ],
+    statOverrides: { dropRange: 75, muzzleVelocity: 258, ammoExtra: 8 },
+    specialEffects: ["발사음 감소"],
+  },
+
+  haymaker_long: {
     label: "Long",
     category: "long",
     isBase: true,
@@ -3235,6 +3346,53 @@ const AMMO_TYPES = {
     statOverrides: { damage: 179, spread: 75, ammoExtra: 8 },
   },
 
+  // ⚠ Specter 1882 Bayonet 전용 탄약 (위키 실측치 기준, 사용자 확인) - 본체와 데미지 기준점이 달라 별도 탄약 필요
+  specter1882bayonet_dragonbreath: {
+    label: "드래곤브레스",
+    category: "shotgun",
+    effect: "dragonbreath",
+    image: "images/ui/ammo_effect_icons/dragonbreath_shell.png",
+    icon: "🔥",
+    description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
+    cost: 20,
+    statOverrides: { damage: 133, spread: 75, muzzleVelocity: 100 },
+    specialEffects: ["중급 화상 효과 발생"],
+  },
+
+  specter1882bayonet_flechette: {
+    label: "플리셰트",
+    category: "shotgun",
+    effect: "flechette",
+    image: "images/ui/ammo_effect_icons/flechette.png",
+    icon: "➶",
+    description: "플리셰트 - 다수의 작은 다트형 투사체 발사. 명중 시 출혈 효과.",
+    cost: 40,
+    statOverrides: { damage: 142, spread: 25 },
+    specialEffects: ["중급 출혈 효과 발생"],
+  },
+
+  specter1882bayonet_pennyshot: {
+    label: "페니샷",
+    category: "shotgun",
+    effect: "pennyshot",
+    image: "images/ui/ammo_effect_icons/pennyshot.png",
+    icon: "🪙",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    cost: 10,
+    statOverrides: { damage: 155, spread: 95, ammoExtra: 18 },
+  },
+
+  specter1882bayonet_slug: {
+    label: "슬러그",
+    category: "shotgun",
+    effect: "slug",
+    image: "images/ui/ammo_effect_icons/slug.png",
+    icon: "●",
+    description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
+    cost: 130,
+    statOverrides: { damage: 165, spread: 90, ammoExtra: 8 },
+  },
+
   // ⚠ Specter 1882 Shorty 전용 탄약 (위키 실측치 기준)
   specter1882shorty_shells: {
     label: "Shells",
@@ -3569,6 +3727,7 @@ const AMMO_TYPES = {
     cost: 0,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    // ✅ [확인됨] Drilling(콤보건)은 하부 샷건탄 데미지가 위키에 원래 명시 안 되는 게 정상 - damage 220 / spread 20은 다른 샷건 대비 추정치로 유지
     ohkRange: { guaranteed: 12, unstableEnd: 14, noneFrom: 15 },
     statOverrides: { damage: 220, spread: 20 },
   },
@@ -4939,7 +5098,7 @@ const ITEMS = [
         id: "centennial_shorty_silencer",
         name: "Centennial Shorty Silencer",
         image: "images/weapons/variants/centennial_shorty_silencer.jpg",
-        // ⚠ 예비 탄약(9)은 Shorty와 동일 탄창을 공유한다는 전제로 추정 - 위키 직접 접속이 봇 차단되어 검색 스니펫(구버전 캐시, extra 12로 표기)으로 대체 확인함. 가격은 패치노트(Update 2.2.0.35)에서 확정된 118을 사용(스니펫 캐시엔 구가격 137로 표기).
+        // ✅ [확인됨] 예비 탄약 9발 — 사용자 확인. 가격은 패치노트(Update 2.2.0.35)에서 확정된 118을 사용(위키 캐시엔 구가격 137로 표기돼 있었음).
         description: "",
         price: 118,
         slotSize: 2,
@@ -5849,7 +6008,30 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 2종 - 본체와 다른 값만 표기)
+    variants: [
+      {
+        id: "mako1895_aperture",
+        name: "Mako 1895 Aperture",
+        image: "images/weapons/variants/mako1895_aperture.jpg",
+        description: "",
+        price: 378,
+        stats: {
+          sway: 69,
+          verticalRecoil: 15,
+        },
+      },
+      {
+        id: "mako1895_claw",
+        name: "Mako 1895 Claw",
+        image: "images/weapons/variants/mako1895_claw.jpg",
+        description: "",
+        price: 370,
+        stats: {
+          meleeLight: 120,
+        },
+      },
+    ],
   },
 
   {
@@ -5902,7 +6084,57 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 4종 - 본체와 다른 값만 표기)
+    variants: [
+      {
+        id: "martinihenry_deadeye",
+        name: "Martini-Henry Deadeye",
+        image: "images/weapons/variants/martinihenry_deadeye.jpg",
+        description: "",
+        price: 128,
+        stats: {
+          spread: 50,
+          sway: 69,
+        },
+      },
+      {
+        id: "martinihenry_ironside",
+        name: "Martini-Henry Ironside",
+        image: "images/weapons/variants/martinihenry_ironside.jpg",
+        description: "",
+        price: 159,
+        chamber: {
+          loaded: "5+1",
+          extra: 15,
+        },
+        stats: {
+          cycleTime: 1.8,
+          reloadSpeed: 14.7,
+        },
+      },
+      {
+        id: "martinihenry_marksman",
+        name: "Martini-Henry Marksman",
+        image: "images/weapons/variants/martinihenry_marksman.jpg",
+        description: "",
+        price: 134,
+        stats: {
+          spread: 60,
+          sway: 69,
+        },
+      },
+      {
+        id: "martinihenry_riposte",
+        name: "Martini-Henry Riposte",
+        image: "images/weapons/variants/martinihenry_riposte.png",
+        // ✅ [확인됨] 가격 132 — 사용자 확인
+        description: "",
+        price: 132,
+        stats: {
+          meleeHeavy: 168,
+        },
+      },
+    ],
   },
 
   {
@@ -5955,7 +6187,104 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 4종 - 사용자 확인 완료)
+    variants: [
+      {
+        id: "sparks_silencer",
+        name: "Sparks Silencer",
+        image: "images/weapons/variants/sparks_silencer.jpg",
+        description: "",
+        price: 149,
+        stats: {
+          damage: 133,
+          dropRange: 110,
+          spread: 47.5,
+          sway: 87,
+          muzzleVelocity: 453,
+        },
+      },
+      {
+        id: "sparks_pistol_silencer",
+        name: "Sparks Pistol Silencer",
+        image: "images/weapons/variants/sparks_pistol_silencer.jpg",
+        description: "",
+        weaponClass: "handgun", // 절단형 권총이라 소총군이 아닌 권총군으로 override
+        price: 178,
+        slotSize: 1,
+        chamber: {
+          extra: 14,
+        },
+        // ⚠ 본체(Sparks)와 낙하범위/탄속 기준점이 달라 전용 탄약 필요
+        ammoTypes: [
+          "sparkspistolsilencer_long",
+          "sparkspistolsilencer_fmj",
+          "sparks_incendiary",
+          "sparks_poison",
+          "sparkspistolsilencer_subsonic",
+        ],
+        defaultAmmo: "sparkspistolsilencer_long",
+        stats: {
+          damage: 133,
+          dropRange: 85,
+          rateOfFire: 15,
+          cycleTime: 4.2,
+          spread: 42.5,
+          sway: 128,
+          verticalRecoil: 25,
+          reloadSpeed: 3.4,
+          muzzleVelocity: 385,
+          meleeLight: 13,
+          meleeHeavy: 31,
+          staminaConsumption: 20,
+        },
+      },
+      {
+        id: "sparks_pistol",
+        name: "Sparks Pistol",
+        image: "images/weapons/variants/sparks_pistol.jpg",
+        description: "",
+        weaponClass: "handgun", // 절단형 권총이라 소총군이 아닌 권총군으로 override
+        price: 155,
+        slotSize: 1,
+        chamber: {
+          extra: 14,
+        },
+        // ⚠ 본체(Sparks)와 낙하범위/탄속 기준점이 달라 전용 탄약 필요 (데미지는 본체와 동일해서 override 없음)
+        ammoTypes: [
+          "sparkspistol_long",
+          "sparkspistol_fmj",
+          "sparks_incendiary",
+          "sparks_poison",
+          "sparkspistol_subsonic",
+        ],
+        defaultAmmo: "sparkspistol_long",
+        stats: {
+          dropRange: 95,
+          rateOfFire: 15,
+          cycleTime: 4.2,
+          spread: 42.5,
+          sway: 128,
+          verticalRecoil: 25,
+          reloadSpeed: 3.4,
+          muzzleVelocity: 453,
+          meleeLight: 13,
+          meleeHeavy: 31,
+          staminaConsumption: 20,
+        },
+      },
+      {
+        id: "sparks_sniper",
+        name: "Sparks Sniper",
+        image: "images/weapons/variants/sparks_sniper.jpg",
+        // ⚠ 낙하범위/탄속 등 본체와 동일해서 탄약도 본체(sparks_long 등) 그대로 공유
+        description: "",
+        price: 150,
+        stats: {
+          spread: 55,
+          sway: 69,
+        },
+      },
+    ],
   },
 
   {
@@ -6824,6 +7153,28 @@ const ITEMS = [
           meleeLight: 13,
           meleeHeavy: 31,
           staminaConsumption: 20,
+        },
+      },
+      {
+        id: "specter1882_bayonet",
+        name: "Specter 1882 Bayonet",
+        image: "",
+        description: "",
+        price: 198,
+        ammoTypes: [
+          "specter1882_shells",
+          "specter1882bayonet_dragonbreath",
+          "specter1882bayonet_flechette",
+          "specter1882bayonet_pennyshot",
+          "specter1882bayonet_slug",
+        ],
+        defaultAmmo: "specter1882_shells",
+        stats: {
+          damage: 204,
+          dropRange: 25,
+          spread: 35,
+          muzzleVelocity: 400,
+          meleeHeavy: 168,
         },
       },
     ],
