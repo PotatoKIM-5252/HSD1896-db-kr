@@ -6643,7 +6643,7 @@ const ITEMS = [
       {
         id: "uppercut_precision",
         name: "Uppercut Precision",
-        image: "",
+        image: "images/weapons/variants/uppercut_precision.jpg",
         description: "",
         price: 321,
         slotSize: 3,
@@ -6671,7 +6671,7 @@ const ITEMS = [
       {
         id: "uppercut_deadeye",
         name: "Uppercut Deadeye",
-        image: "",
+        image: "images/weapons/variants/uppercut_deadeye.jpg",
         description: "",
         price: 337,
         slotSize: 3,
@@ -6804,7 +6804,7 @@ const ITEMS = [
       {
         id: "krag_bayonet",
         name: "Krag Bayonet",
-        image: "",
+        image: "images/weapons/variants/krag_bayonet.jpg",
         description: "",
         price: 460,
         stats: {
@@ -6814,7 +6814,7 @@ const ITEMS = [
       {
         id: "krag_sniper",
         name: "Krag Sniper",
-        image: "",
+        image: "images/weapons/variants/krag_sniper.jpg",
         description: "",
         price: 517,
         stats: {
@@ -6825,7 +6825,7 @@ const ITEMS = [
       {
         id: "krag_silencer",
         name: "Krag Silencer",
-        image: "",
+        image: "images/weapons/variants/krag_silencer.jpg",
         description: "",
         price: 517,
         ammoTypes: [
@@ -6898,7 +6898,7 @@ const ITEMS = [
       {
         id: "lebel1886_aperture",
         name: "Lebel 1886 Aperture",
-        image: "",
+        image: "images/weapons/variants/lebel1886_aperture.jpg",
         description: "",
         price: 417,
         stats: {
@@ -6908,7 +6908,7 @@ const ITEMS = [
       {
         id: "lebel1886_talon",
         name: "Lebel 1886 Talon",
-        image: "",
+        image: "images/weapons/variants/lebel1886_talon.jpg",
         description: "",
         price: 407,
         stats: {
@@ -6918,7 +6918,7 @@ const ITEMS = [
       {
         id: "lebel1886_marksman",
         name: "Lebel 1886 Marksman",
-        image: "",
+        image: "images/weapons/variants/lebel1886_marksman.jpg",
         description: "",
         price: 437,
         stats: {
@@ -6982,7 +6982,7 @@ const ITEMS = [
       {
         id: "mosinnagant_bayonet",
         name: "Mosin-Nagant Bayonet",
-        image: "",
+        image: "images/weapons/variants/mosinnagant_bayonet.jpg",
         description: "",
         price: 630,
         stats: {
@@ -6992,7 +6992,7 @@ const ITEMS = [
       {
         id: "mosinnagant_sniper",
         name: "Mosin-Nagant Sniper",
-        image: "",
+        image: "images/weapons/variants/mosinnagant_sniper.jpg",
         description: "",
         price: 713,
         stats: {
@@ -7005,7 +7005,7 @@ const ITEMS = [
       {
         id: "mosinnagant_avtomat",
         name: "Mosin-Nagant Avtomat",
-        image: "",
+        image: "images/weapons/variants/mosinnagant_avtomat.jpg",
         description: "",
         price: 1250,
         slotSize: 5,
@@ -7084,7 +7084,7 @@ const ITEMS = [
       {
         id: "berthier1892_riposte",
         name: "Berthier 1892 Riposte",
-        image: "",
+        image: "images/weapons/variants/berthier1892_riposte.jpg",
         description: "",
         price: 390,
         stats: {
@@ -7095,7 +7095,7 @@ const ITEMS = [
       {
         id: "berthier1892_deadeye",
         name: "Berthier 1892 Deadeye",
-        image: "",
+        image: "images/weapons/variants/berthier1892_deadeye.jpg",
         description: "",
         price: 397,
         stats: {
@@ -7106,7 +7106,7 @@ const ITEMS = [
       {
         id: "berthier1892_marksman",
         name: "Berthier 1892 Marksman",
-        image: "",
+        image: "images/weapons/variants/berthier1892_marksman.jpg",
         description: "",
         price: 413,
         stats: {
@@ -7170,7 +7170,7 @@ const ITEMS = [
       {
         id: "mosinobrez_mace",
         name: "Mosin Obrez Mace",
-        image: "",
+        image: "images/weapons/variants/mosinobrez_mace.jpg",
         description: "",
         price: 300,
         ammoTypes: [
@@ -7189,7 +7189,7 @@ const ITEMS = [
       {
         id: "mosinobrez_extended",
         name: "Mosin Obrez Extended",
-        image: "",
+        image: "images/weapons/variants/mosinobrez_extended.jpg",
         description: "",
         price: 350,
         chamber: {
@@ -7210,7 +7210,7 @@ const ITEMS = [
       {
         id: "mosinobrez_match",
         name: "Mosin Obrez Match",
-        image: "",
+        image: "images/weapons/variants/mosinobrez_match.jpg",
         description: "",
         price: 345,
         slotSize: 3,
@@ -7235,7 +7235,7 @@ const ITEMS = [
       {
         id: "mosinobrez_sharpeye",
         name: "Mosin Obrez Sharpeye",
-        image: "",
+        image: "images/weapons/variants/mosinobrez_sharpeye.jpg",
         description: "",
         price: 362,
         slotSize: 3,
