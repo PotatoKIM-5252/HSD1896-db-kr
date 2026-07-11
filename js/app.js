@@ -685,6 +685,13 @@ function openBodyPartView(parentItem, ammoId) {
   // 무기 자체가 샷건/근접무기이거나(거리 기반 데미지 개념이 없음), 지금 선택된 탄약 자체가 샷건탄인 경우 마네킹을 숨김
   const isShotgun = currentItem.ammoCategory === "shotgun" || currentItem.ammoCategory === "melee" || ammo?.category === "shotgun";
 
+  // 이 무기의 어떤 탄약도 거리별 데이터(낙하곡선/한방컷)를 안 가지고 있으면(예: 슈레더, 화염소총처럼 탄종이 하나뿐이고
+  // 그마저 거리 데이터가 없는 경우) "거리별 데미지" 그래프 섹션 자체를 숨기고 있는 스탯만 보여줌
+  const hasAnyGraphData = (currentItem.ammoTypes || []).some((aid) => {
+    const a = AMMO_TYPES[aid];
+    return a && (a.falloff || a.ohkRange);
+  });
+
   content.innerHTML = `
     <button id="bodypart-close-btn" type="button">✕</button>
     <h2>${parentItem.name} <span class="bodypart-ammo">${ammo?.label ?? ""}</span></h2>
@@ -736,8 +743,10 @@ function openBodyPartView(parentItem, ammoId) {
 
       <!-- 우측: 그래프 → 특수탄 탭 → 특수탄 효과 -->
       <div class="bodypart-graph-col">
+        ${hasAnyGraphData ? `
         <h4 class="bp-chart-heading">거리별 데미지 <span class="bodypart-hint">— 그래프를 클릭하여 거리 선택</span></h4>
         <div class="bp-chart-wrap"><canvas id="bp-chart"></canvas></div>
+        ` : ""}
 
         <div class="ammo-tabs-row">
           <div class="ammo-tabs">${ammoTabs}</div>
