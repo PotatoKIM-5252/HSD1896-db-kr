@@ -682,9 +682,8 @@ function openBodyPartView(parentItem, ammoId) {
       </button>`;
   }).join("");
 
-  // 무기 자체가 샷건이거나(Auto-5 등), 지금 선택된 탄약 자체가 샷건탄인 경우
-  // (Drilling/LeMat/Haymaker 같은 언더배럴 샷건 기믹 무기가 샷건탄을 선택했을 때)도 마네킹을 숨김
-  const isShotgun = currentItem.ammoCategory === "shotgun" || ammo?.category === "shotgun";
+  // 무기 자체가 샷건/근접무기이거나(거리 기반 데미지 개념이 없음), 지금 선택된 탄약 자체가 샷건탄인 경우 마네킹을 숨김
+  const isShotgun = currentItem.ammoCategory === "shotgun" || currentItem.ammoCategory === "melee" || ammo?.category === "shotgun";
 
   content.innerHTML = `
     <button id="bodypart-close-btn" type="button">✕</button>

@@ -97,6 +97,8 @@ const WEAPON_FILTERS = {
       { value: "long",    label: "롱탄",   image: "images/ui/ammo_long.webp" },
       { value: "shotgun", label: "샷건탄", image: "images/ui/ammo_shotgun.webp" },
       { value: "special", label: "특수탄", image: "images/ui/ammo_special.webp" },
+      { value: "oil",     label: "오일",   image: "" },
+      { value: "melee",   label: "근접무기", image: "" },
     ],
   },
   ammoEffect: {
@@ -4307,6 +4309,379 @@ const AMMO_TYPES = {
     statOverrides: { damage: 97 },
     cost: null, // 아직 확인 안 됨
   },
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // ── 특수탄(Special) 화기 전용 탄약 — 전부 무기 고유 곡선(공용 풀 없음), 위키 실측치+사용자 확인
+  // ═══════════════════════════════════════════════════════════════════════
+
+  // Nitro Express
+  nitroexpress_special: {
+    label: "Special",
+    category: "special",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_special_regular.png",
+    icon: "🟫",
+    description: "기본탄.",
+    cost: 0,
+    statOverrides: {  },
+  },
+  nitroexpress_explosive: {
+    label: "폭발탄",
+    category: "special",
+    effect: "explosive",
+    image: "images/ui/ammo_effects/ammo_long_explosive.png",
+    icon: "💥",
+    description: "폭발탄 - 광범위 폭발 데미지. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true,
+    statOverrides: { damage: 163, dropRange: 20, muzzleVelocity: 410 },
+  },
+  nitroexpress_shredder: {
+    label: "슈레더탄",
+    category: "special",
+    effect: "bleed",
+    image: "images/ui/ammo_effects/ammo_compact_bleed.png",
+    icon: "🩸",
+    description: "슈레더탄 - 명중 시 강한 출혈 효과. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true,
+    statOverrides: { dropRange: 40, muzzleVelocity: 495 },
+    specialEffects: ["강한 출혈 효과 발생"],
+  },
+
+  // Crossbow / Crossbow Deadeye 공용 (Deadeye는 흔들림만 다르고 탄약 델타는 완전히 동일)
+  crossbow_bolt: {
+    label: "Bolt",
+    category: "special",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_special_regular.png",
+    icon: "🟫",
+    description: "기본 볼트.",
+    cost: 0,
+    statOverrides: {  },
+  },
+  crossbow_explosive_bolt: {
+    label: "폭발 볼트",
+    category: "special",
+    effect: "explosive",
+    image: "images/ui/ammo_effects/ammo_long_explosive.png",
+    icon: "💥",
+    description: "폭발 볼트 - 광범위 폭발 데미지. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true,
+    statOverrides: { damage: 220, dropRange: 10, spread: 37.5, muzzleVelocity: 60, ammoExtra: 8 },
+  },
+  crossbow_shot_bolt: {
+    label: "샷 볼트",
+    category: "special",
+    image: "images/ui/ammo_effect_icons/shot_bolt.png",
+    icon: "🔫",
+    description: "샷 볼트 - 명중 시 산탄으로 확산.",
+    cost: 40,
+    statOverrides: { damage: 454, dropRange: 15, muzzleVelocity: 100, ammoExtra: 12 },
+  },
+  crossbow_steel_bolt: {
+    label: "강철 볼트",
+    category: "special",
+    image: "images/ui/ammo_effect_icons/shot_bolt.png",
+    icon: "🔩",
+    description: "강철 볼트 - 낙하범위·탄속 증가, 반동 증가. 회수 후 재사용 가능.",
+    cost: 40,
+    statOverrides: { dropRange: 35, verticalRecoil: 8, muzzleVelocity: 225, ammoExtra: 14 },
+    specialEffects: ["회수 후 재사용 가능"],
+  },
+
+  // Shredder (연사형, 전용 볼트 하나만 사용 — 위키에 별도 특수탄 목록 없음)
+  shredder_bolt: {
+    label: "Bolt",
+    category: "special",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_special_regular.png",
+    icon: "🟫",
+    description: "기본 볼트.",
+    cost: 0,
+    statOverrides: {  },
+  },
+
+  // Bomb Launcher
+  bomblauncher_charge: {
+    label: "기본 발사체",
+    category: "special",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_special_regular.png",
+    icon: "🟫",
+    description: "기본 발사체.",
+    cost: 0,
+    statOverrides: {  },
+  },
+  bomblauncher_dragonbreath: {
+    label: "드래곤브레스 충전물",
+    category: "special",
+    effect: "dragonbreath",
+    image: "images/ui/ammo_effect_icons/dragonbreath_shell.png",
+    icon: "🔥",
+    description: "드래곤브레스 충전물 - 화염 피해. 명중 시 발화.",
+    cost: 10,
+    statOverrides: { damage: 58, spread: 32.5, muzzleVelocity: 100 },
+    specialEffects: ["중급 화상 효과 발생"],
+  },
+  bomblauncher_harpoon: {
+    label: "작살",
+    category: "special",
+    effect: "bleed",
+    image: "images/ui/ammo_effects/ammo_compact_bleed.png",
+    icon: "🩸",
+    description: "작살 - 명중 시 강한 출혈. 회수 후 재사용 가능.",
+    cost: 5,
+    statOverrides: { damage: 260, spread: 9, muzzleVelocity: 80, ammoExtra: 12 },
+    specialEffects: ["강한 출혈 효과 발생", "회수 후 재사용 가능"],
+  },
+  bomblauncher_steelball: {
+    label: "강철탄",
+    category: "special",
+    image: "images/ui/ammo_effect_icons/shot_bolt.png",
+    icon: "🔩",
+    description: "강철탄 - 탄속 대폭 증가, 분산도 증가.",
+    cost: 5,
+    statOverrides: { damage: 239, spread: 62.5, muzzleVelocity: 450, ammoExtra: 8 },
+  },
+  bomblauncher_waxedfrag: {
+    label: "왁스 파편탄",
+    category: "special",
+    effect: "bleed",
+    image: "images/ui/ammo_effects/ammo_compact_bleed.png",
+    icon: "🩸",
+    description: "왁스 파편탄 - 착탄+폭발 데미지, 강한 출혈. (표기 데미지는 착탄25+최대폭발126의 합산치)",
+    cost: 50,
+    statOverrides: { damage: 174, ammoExtra: 8 },
+    specialEffects: ["강한 출혈 효과 발생"],
+  },
+
+  // Bomb Lance (동일 탄약군, 왁스파편탄만 데미지 수치 다름)
+  bomblance_charge: {
+    label: "기본 발사체",
+    category: "special",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_special_regular.png",
+    icon: "🟫",
+    description: "기본 발사체.",
+    cost: 0,
+    statOverrides: {  },
+  },
+  bomblance_dragonbreath: {
+    label: "드래곤브레스 충전물",
+    category: "special",
+    effect: "dragonbreath",
+    image: "images/ui/ammo_effect_icons/dragonbreath_shell.png",
+    icon: "🔥",
+    description: "드래곤브레스 충전물 - 화염 피해. 명중 시 발화.",
+    cost: 10,
+    statOverrides: { damage: 58, spread: 32.5, muzzleVelocity: 100 },
+    specialEffects: ["중급 화상 효과 발생"],
+  },
+  bomblance_harpoon: {
+    label: "작살",
+    category: "special",
+    effect: "bleed",
+    image: "images/ui/ammo_effects/ammo_compact_bleed.png",
+    icon: "🩸",
+    description: "작살 - 명중 시 강한 출혈. 회수 후 재사용 가능.",
+    cost: 5,
+    statOverrides: { damage: 260, spread: 9, muzzleVelocity: 80, ammoExtra: 12 },
+    specialEffects: ["강한 출혈 효과 발생", "회수 후 재사용 가능"],
+  },
+  bomblance_steelball: {
+    label: "강철탄",
+    category: "special",
+    image: "images/ui/ammo_effect_icons/shot_bolt.png",
+    icon: "🔩",
+    description: "강철탄 - 탄속 대폭 증가, 분산도 증가.",
+    cost: 5,
+    statOverrides: { damage: 239, spread: 62.5, muzzleVelocity: 450, ammoExtra: 8 },
+  },
+  bomblance_waxedfrag: {
+    label: "왁스 파편탄",
+    category: "special",
+    effect: "bleed",
+    image: "images/ui/ammo_effects/ammo_compact_bleed.png",
+    icon: "🩸",
+    description: "왁스 파편탄 - 강한 출혈 효과.",
+    cost: 50,
+    statOverrides: { damage: 126, ammoExtra: 8 },
+    specialEffects: ["강한 출혈 효과 발생"],
+  },
+
+  // Hunting Bow
+  huntingbow_arrow: {
+    label: "Arrow",
+    category: "special",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_special_regular.png",
+    icon: "🟫",
+    description: "기본 화살.",
+    cost: 0,
+    statOverrides: {  },
+  },
+  huntingbow_concertina: {
+    label: "철조망 화살",
+    category: "special",
+    effect: "bleed",
+    image: "images/ui/ammo_effects/ammo_compact_bleed.png",
+    icon: "🩸",
+    description: "철조망 화살 - 착탄 지점에 철조망 생성, 중급 출혈.",
+    cost: 30,
+    statOverrides: { damage: 152, dropRange: 10, spread: 40, muzzleVelocity: 80, ammoExtra: 10 },
+    specialEffects: ["중급 출혈 효과 발생", "착탄 지점에 철조망 생성"],
+  },
+  huntingbow_frag: {
+    label: "파편 화살",
+    category: "special",
+    effect: "bleed",
+    image: "images/ui/ammo_effects/ammo_compact_bleed.png",
+    icon: "🩸",
+    description: "파편 화살 - 2초 후 폭발, 중급 출혈. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true,
+    statOverrides: { damage: 134, dropRange: 10, muzzleVelocity: 80, ammoExtra: 10 },
+    specialEffects: ["중급 출혈 효과 발생", "2초 후 폭발"],
+  },
+  huntingbow_poison: {
+    label: "중독 화살",
+    category: "special",
+    effect: "poison",
+    image: "images/ui/ammo_effects/ammo_medium_poison.png",
+    icon: "🟢",
+    description: "중독 화살 - 강한 중독 효과. 회수 후 재사용 가능.",
+    cost: 25,
+    statOverrides: { spread: 30, ammoExtra: 10 },
+    specialEffects: ["강한 중독 효과 발생", "회수 후 재사용 가능"],
+  },
+
+  // Chu Ko Nu
+  chukonu_bolt: {
+    label: "Bolt",
+    category: "special",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_special_regular.png",
+    icon: "🟫",
+    description: "기본 볼트.",
+    cost: 0,
+    statOverrides: {  },
+  },
+  chukonu_explosive: {
+    label: "폭발 볼트",
+    category: "special",
+    effect: "explosive",
+    image: "images/ui/ammo_effects/ammo_long_explosive.png",
+    icon: "💥",
+    description: "폭발 볼트 - 짧은 시간 후 폭발, 약한 출혈. 발사속도 감소. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true,
+    // ⚠ 위키상 장전수(Loaded)도 10→5로 감소하는데, 현재 시스템은 탄약별 장전수 override를 지원 안 해서 예비탄(Extra)만 반영함
+    statOverrides: { damage: 99, rateOfFire: 25, spread: 17.5, muzzleVelocity: 80, ammoExtra: 5 },
+    specialEffects: ["약한 출혈 효과 발생", "짧은 시간 후 폭발"],
+  },
+  chukonu_incendiary: {
+    label: "소이 볼트",
+    category: "special",
+    effect: "incendiary",
+    image: "images/ui/ammo_effects/ammo_long_incendiary.png",
+    icon: "🔥",
+    description: "소이 볼트 - 명중 시 중급 화상 효과.",
+    cost: 25,
+    statOverrides: {  },
+    specialEffects: ["중급 화상 효과 발생"],
+  },
+
+  // Dolch 96
+  dolch96_special: {
+    label: "Special",
+    category: "special",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_special_regular.png",
+    icon: "🟫",
+    description: "기본탄.",
+    cost: 0,
+    statOverrides: {  },
+  },
+  dolch96_dumdum: {
+    label: "덤덤탄(출혈)",
+    category: "special",
+    effect: "bleed",
+    image: "images/ui/ammo_effects/ammo_medium_bleed.png",
+    icon: "🩸",
+    description: "덤덤탄 - 명중 시 중급 출혈 효과. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true,
+    statOverrides: { dropRange: 65, muzzleVelocity: 390 },
+    specialEffects: ["중급 출혈 효과 발생"],
+  },
+
+  // Hand Crossbow
+  handcrossbow_bolt: {
+    label: "Bolt",
+    category: "special",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_special_regular.png",
+    icon: "🟫",
+    description: "기본 볼트.",
+    cost: 0,
+    statOverrides: {  },
+  },
+  handcrossbow_chaos: {
+    label: "카오스 볼트",
+    category: "special",
+    image: "images/ui/ammo_effect_icons/chaos.png",
+    icon: "❓",
+    description: "카오스 볼트 - 착탄 지점에서 무작위 총성 발생.",
+    cost: 10,
+    statOverrides: { damage: 65, muzzleVelocity: 50, ammoExtra: 10 },
+    specialEffects: ["착탄 지점에서 무작위 총성 발생"],
+  },
+  handcrossbow_choke: {
+    label: "초크 볼트",
+    category: "special",
+    image: "images/ui/ammo_effect_icons/choke.png",
+    icon: "☁️",
+    description: "초크 볼트 - 착탄 지점에 소형 초크 구름 생성.",
+    cost: 10,
+    statOverrides: { damage: 1, ammoExtra: 10 },
+    specialEffects: ["착탄 지점에 소형 초크 구름 생성"],
+  },
+  handcrossbow_dragon: {
+    label: "드래곤 볼트",
+    category: "special",
+    effect: "dragonbreath",
+    image: "images/ui/ammo_effect_icons/dragonbreath_shell.png",
+    icon: "🔥",
+    description: "드래곤 볼트 - 중급 화상 효과, 착탄 지점에 소형 화염지대 생성. 초크 구름 접촉 시 즉시 소멸.",
+    cost: 40,
+    statOverrides: { damage: 11, ammoExtra: 4 },
+    specialEffects: ["중급 화상 효과 발생", "착탄 지점에 소형 화염지대 생성"],
+  },
+  handcrossbow_poison: {
+    label: "중독 볼트",
+    category: "special",
+    effect: "poison",
+    image: "images/ui/ammo_effects/ammo_medium_poison.png",
+    icon: "🟢",
+    description: "중독 볼트 - 약한 중독 효과, 착탄 지점에 소형 중독 구름 생성.",
+    cost: 25,
+    statOverrides: { damage: 110 },
+    specialEffects: ["약한 중독 효과 발생", "착탄 지점에 소형 중독 구름 생성"],
+  },
+
+  // Flame Rifle (전용 연료, 특수탄 없음)
+  flamerifle_oil: {
+    label: "Oil",
+    category: "oil",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_special_regular.png",
+    icon: "🟫",
+    description: "화염방사기 연료.",
+    cost: 0,
+    statOverrides: {  },
+  },
 };
 
 // -------------------------------------------------------------------------
@@ -7961,6 +8336,571 @@ const ITEMS = [
         },
       },
     ],
+  },
+
+  // ── 특수탄(Special) / 오일 화기 — 위키 실측치, 사용자 확인 ─────────────
+  {
+    id: "weapon_nitro_express",
+    category: "weapon",
+    name: "Nitro Express",
+    image: "images/weapons/nitro_express.jpg",
+
+    slotSize: 5,
+    ammoCategory: "special",
+    weaponClass: "rifle",
+    ammoEffects: ["explosive", "bleed"],
+
+    ammoTypes: ["nitroexpress_special", "nitroexpress_explosive", "nitroexpress_shredder"],
+    defaultAmmo: "nitroexpress_special",
+
+    price: 1015,
+    updateAdded: "Update Early Access 0.1",
+
+    chamber: { loaded: "2", extra: 6 },
+
+    stats: {
+      damage: 364,
+      dropRange: 45,
+      rateOfFire: 21,
+      cycleTime: 0.7,
+      spread: 62.5,
+      sway: 77,
+      verticalRecoil: 40,
+      reloadSpeed: 4.8,
+      muzzleVelocity: 550,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+    variants: [],
+  },
+
+  {
+    id: "weapon_crossbow",
+    category: "weapon",
+    name: "Crossbow",
+    image: "images/weapons/crossbow.jpg",
+
+    slotSize: 4,
+    ammoCategory: "special",
+    weaponClass: "rifle",
+    ammoEffects: ["explosive"],
+
+    ammoTypes: ["crossbow_bolt", "crossbow_explosive_bolt", "crossbow_shot_bolt", "crossbow_steel_bolt"],
+    defaultAmmo: "crossbow_bolt",
+
+    price: 50,
+    updateAdded: "Update Early Access 2.1",
+
+    chamber: { loaded: "1", extra: 18 },
+
+    stats: {
+      damage: 246,
+      dropRange: 20,
+      rateOfFire: 13,
+      cycleTime: 4.8,
+      spread: 30,
+      sway: 77,
+      verticalRecoil: 4,
+      reloadSpeed: 5.3,
+      muzzleVelocity: 150,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+
+    // 파생형 (위키 실측치, 사용자 확인, 1종 - 탄약 델타는 본체와 동일해서 공유)
+    variants: [
+      {
+        id: "crossbow_deadeye",
+        name: "Crossbow Deadeye",
+        image: "images/weapons/variants/crossbow_deadeye.jpg",
+        description: "",
+        price: 53,
+        stats: {
+          sway: 69,
+        },
+      },
+    ],
+  },
+
+  {
+    id: "weapon_shredder",
+    category: "weapon",
+    name: "Shredder",
+    image: "",
+
+    slotSize: 4,
+    ammoCategory: "special",
+    weaponClass: "rifle",
+    ammoEffects: [],
+
+    ammoTypes: ["shredder_bolt"],
+    defaultAmmo: "shredder_bolt",
+
+    price: null,
+    scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
+    updateAdded: "Update 2.2",
+
+    chamber: { loaded: "6", extra: 6 },
+
+    stats: {
+      damage: 300,
+      dropRange: 50,
+      rateOfFire: 48,
+      cycleTime: 0.35,
+      spread: 25,
+      sway: 77,
+      verticalRecoil: 2,
+      reloadSpeed: 4.5,
+      muzzleVelocity: 115,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+    variants: [],
+  },
+
+  {
+    id: "weapon_bomb_launcher",
+    category: "weapon",
+    name: "Bomb Launcher",
+    image: "images/weapons/bomb_launcher.jpg",
+
+    slotSize: 2,
+    ammoCategory: "special",
+    weaponClass: "handgun",
+    ammoEffects: ["dragonbreath", "bleed"],
+
+    ammoTypes: ["bomblauncher_charge", "bomblauncher_dragonbreath", "bomblauncher_harpoon", "bomblauncher_steelball", "bomblauncher_waxedfrag"],
+    defaultAmmo: "bomblauncher_charge",
+
+    price: 110,
+    updateAdded: "Update 2.1",
+
+    chamber: { loaded: "1", extra: 6 },
+
+    // ⚠ 위키에 Sway/Vertical Recoil 수치가 명시돼 있지 않음(단발 곡사 발사 방식이라 해당 없는 듯)
+    stats: {
+      damage: 150,
+      dropRange: 5,
+      rateOfFire: 13,
+      cycleTime: 5.3,
+      spread: 25,
+      reloadSpeed: 5.1,
+      muzzleVelocity: 60,
+      meleeLight: 13,
+      meleeHeavy: 31,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+    variants: [],
+  },
+
+  {
+    id: "weapon_bomb_lance",
+    category: "weapon",
+    name: "Bomb Lance",
+    image: "images/weapons/bomb_lance.jpg",
+
+    slotSize: 3,
+    ammoCategory: "special",
+    weaponClass: "rifle",
+    ammoEffects: ["dragonbreath", "bleed"],
+
+    ammoTypes: ["bomblance_charge", "bomblance_dragonbreath", "bomblance_harpoon", "bomblance_steelball", "bomblance_waxedfrag"],
+    defaultAmmo: "bomblance_charge",
+
+    price: 199,
+    updateAdded: "Update Early Access 6.0",
+
+    chamber: { loaded: "1", extra: 6 },
+
+    // ⚠ 위키에 Sway 수치 없음. staminaConsumption은 "Heavy Stamina Consumption"(50)을 사용 - 위키에 별도로 명시된 "Stamina Consumption"(11, 일반 근접)은 현재 스키마에 대응 필드가 없어 미반영
+    stats: {
+      damage: 150,
+      dropRange: 5,
+      rateOfFire: 9,
+      cycleTime: 7.3,
+      spread: 37.5,
+      reloadSpeed: 6.9,
+      muzzleVelocity: 60,
+      meleeLight: 180,
+      meleeHeavy: 360,
+      staminaConsumption: 50,
+    },
+
+    description: "",
+    variants: [],
+  },
+
+  {
+    id: "weapon_hunting_bow",
+    category: "weapon",
+    name: "Hunting Bow",
+    image: "images/weapons/hunting_bow.jpg",
+
+    slotSize: 3,
+    ammoCategory: "special",
+    weaponClass: "rifle",
+    ammoEffects: ["bleed", "poison"],
+
+    ammoTypes: ["huntingbow_arrow", "huntingbow_concertina", "huntingbow_frag", "huntingbow_poison"],
+    defaultAmmo: "huntingbow_arrow",
+
+    price: 57,
+    updateAdded: "Update 1.6.1",
+
+    chamber: { loaded: "1", extra: 16 },
+
+    stats: {
+      damage: 250,
+      dropRange: 30,
+      rateOfFire: 51,
+      cycleTime: 1.3,
+      spread: 12.5,
+      sway: 82,
+      verticalRecoil: 1,
+      reloadSpeed: 0.6,
+      muzzleVelocity: 150,
+      meleeLight: 13,
+      meleeHeavy: 31,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+    variants: [],
+  },
+
+  {
+    id: "weapon_chu_ko_nu",
+    category: "weapon",
+    name: "Chu Ko Nu",
+    image: "images/weapons/chu_ko_nu.jpg",
+
+    slotSize: 2,
+    ammoCategory: "special",
+    weaponClass: "rifle",
+    ammoEffects: ["explosive", "incendiary"],
+
+    ammoTypes: ["chukonu_bolt", "chukonu_explosive", "chukonu_incendiary"],
+    defaultAmmo: "chukonu_bolt",
+
+    price: 75,
+    updateAdded: "Update 2.2",
+
+    chamber: { loaded: "10", extra: 10 },
+
+    stats: {
+      damage: 150,
+      dropRange: 15,
+      rateOfFire: 40,
+      cycleTime: 0.7,
+      spread: 10,
+      sway: 100,
+      verticalRecoil: 2,
+      reloadSpeed: 8.5,
+      muzzleVelocity: 125,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+    variants: [],
+  },
+
+  {
+    id: "weapon_dolch_96",
+    category: "weapon",
+    name: "Dolch 96",
+    image: "images/weapons/dolch_96.jpg",
+
+    slotSize: 2,
+    ammoCategory: "special",
+    weaponClass: "handgun",
+    ammoEffects: ["bleed"],
+
+    ammoTypes: ["dolch96_special", "dolch96_dumdum"],
+    defaultAmmo: "dolch96_special",
+
+    price: 690,
+    updateAdded: "Update Early Access 0.1",
+
+    chamber: { loaded: "10", extra: 10 },
+
+    stats: {
+      damage: 97,
+      dropRange: 70,
+      rateOfFire: 64,
+      cycleTime: 0.4,
+      spread: 35,
+      sway: 128,
+      verticalRecoil: 14,
+      reloadSpeed: 6,
+      muzzleVelocity: 440,
+      meleeLight: 13,
+      meleeHeavy: 31,
+      staminaConsumption: 20,
+    },
+
+    description: "",
+    variants: [],
+  },
+
+  {
+    id: "weapon_flame_rifle",
+    category: "weapon",
+    name: "Flame Rifle",
+    image: "",
+
+    slotSize: 2,
+    ammoCategory: "oil",
+    weaponClass: "rifle",
+    ammoEffects: [],
+
+    ammoTypes: ["flamerifle_oil"],
+    defaultAmmo: "flamerifle_oil",
+
+    price: null,
+    scarce: true,
+    updateAdded: "Update 2.6",
+
+    // ⚠ 위키에 예비 탄약(Extra) 항목 자체가 없음 - 연료 탱크 방식이라 재장전 개념이 다른 것으로 추정
+    chamber: { loaded: "60", extra: 0 },
+
+    stats: {
+      damage: 25,
+      dropRange: 5,
+      rateOfFire: 75,
+      cycleTime: 0.1,
+      spread: 37.5,
+      sway: 77,
+      verticalRecoil: 0.1,
+      reloadSpeed: 4.5,
+      muzzleVelocity: 40,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+    variants: [],
+  },
+
+  {
+    id: "weapon_hand_crossbow",
+    category: "weapon",
+    name: "Hand Crossbow",
+    image: "images/weapons/hand_crossbow.jpg",
+
+    slotSize: 1,
+    ammoCategory: "special",
+    weaponClass: "handgun",
+    ammoEffects: ["dragonbreath", "poison"],
+
+    ammoTypes: ["handcrossbow_bolt", "handcrossbow_chaos", "handcrossbow_choke", "handcrossbow_dragon", "handcrossbow_poison"],
+    defaultAmmo: "handcrossbow_bolt",
+
+    price: 30,
+    updateAdded: "Update Early Access 2.1",
+
+    chamber: { loaded: "1", extra: 16 },
+
+    stats: {
+      damage: 210,
+      dropRange: 15,
+      rateOfFire: 14,
+      cycleTime: 4.5,
+      spread: 25,
+      sway: 82,
+      verticalRecoil: 1.2,
+      reloadSpeed: 4.3,
+      muzzleVelocity: 100,
+      meleeLight: 13,
+      meleeHeavy: 27,
+      staminaConsumption: 10,
+    },
+
+    description: "",
+    variants: [],
+  },
+
+  // ── 근접무기(Melee) — 원거리 탄약 없음, 위키 실측치+사용자 확인 ───────
+  {
+    id: "weapon_combat_axe",
+    category: "weapon",
+    name: "Combat Axe",
+    image: "images/weapons/combat_axe.jpg",
+
+    slotSize: 2,
+    ammoCategory: "melee",
+    weaponClass: "melee",
+    ammoEffects: [],
+    ammoTypes: [],
+    defaultAmmo: null,
+
+    price: 40,
+    updateAdded: "Update Early Access 2.1",
+
+    chamber: { loaded: "-", extra: 0 },
+
+    // ⚠ Stamina Consumption은 위키의 "Heavy Stamina Consumption" 값 사용 (다른 무기들의 staminaConsumption 필드와 동일 관례)
+    stats: {
+      meleeLight: 200,
+      meleeHeavy: 495,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+    variants: [],
+  },
+
+  {
+    id: "weapon_katana",
+    category: "weapon",
+    name: "Katana",
+    image: "images/weapons/katana.jpg",
+
+    slotSize: 2,
+    ammoCategory: "melee",
+    weaponClass: "melee",
+    ammoEffects: [],
+    ammoTypes: [],
+    defaultAmmo: null,
+
+    price: 115,
+    updateAdded: "Update 1.15",
+
+    chamber: { loaded: "-", extra: 0 },
+
+    stats: {
+      meleeLight: 165,
+      meleeHeavy: 280,
+      staminaConsumption: 35,
+    },
+
+    description: "",
+    variants: [],
+  },
+
+  {
+    id: "weapon_railroad_hammer",
+    category: "weapon",
+    name: "Railroad Hammer",
+    image: "images/weapons/railroad_hammer.jpg",
+
+    slotSize: 2,
+    ammoCategory: "melee",
+    weaponClass: "melee",
+    ammoEffects: [],
+    ammoTypes: [],
+    defaultAmmo: null,
+
+    price: 45,
+    updateAdded: "Update 1.13",
+
+    chamber: { loaded: "-", extra: 0 },
+
+    stats: {
+      meleeLight: 170,
+      meleeHeavy: 520,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+    variants: [],
+  },
+
+  {
+    id: "weapon_baseball_bat",
+    category: "weapon",
+    name: "Baseball Bat",
+    image: "images/weapons/baseball_bat.jpg",
+
+    slotSize: 1,
+    ammoCategory: "melee",
+    weaponClass: "melee",
+    ammoEffects: [],
+    ammoTypes: [],
+    defaultAmmo: null,
+
+    price: 40,
+    updateAdded: "Update 1.14",
+
+    chamber: { loaded: "-", extra: 0 },
+
+    stats: {
+      meleeLight: 90,
+      meleeHeavy: 200,
+      staminaConsumption: 10,
+    },
+
+    description: "",
+    variants: [],
+  },
+
+  {
+    id: "weapon_cavalry_saber",
+    category: "weapon",
+    name: "Cavalry Saber",
+    image: "images/weapons/cavalry_saber.jpg",
+
+    slotSize: 1,
+    ammoCategory: "melee",
+    weaponClass: "melee",
+    ammoEffects: [],
+    ammoTypes: [],
+    defaultAmmo: null,
+
+    price: 50,
+    updateAdded: "Update Early Access 0.1",
+
+    chamber: { loaded: "-", extra: 0 },
+
+    stats: {
+      meleeLight: 150,
+      meleeHeavy: 252,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+    variants: [],
+  },
+
+  {
+    id: "weapon_machete",
+    category: "weapon",
+    name: "Machete",
+    image: "images/weapons/machete.jpg",
+
+    slotSize: 1,
+    ammoCategory: "melee",
+    weaponClass: "melee",
+    ammoEffects: [],
+    ammoTypes: [],
+    defaultAmmo: null,
+
+    price: 30,
+    updateAdded: "Update Early Access 0.1",
+
+    chamber: { loaded: "-", extra: 0 },
+
+    stats: {
+      meleeLight: 175,
+      meleeHeavy: 220,
+      staminaConsumption: 20,
+    },
+
+    description: "",
+    variants: [],
   },
 
   // ── 도구 / 소모품 / 특성은 차후 채울 예정 ─────────────────────────────
