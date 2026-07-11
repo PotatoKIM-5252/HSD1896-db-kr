@@ -692,6 +692,9 @@ function openBodyPartView(parentItem, ammoId) {
     return a && (a.falloff || a.ohkRange);
   });
 
+  // 탄약 종류가 1개뿐이면(고를 게 없음) 탭 아이콘 목록은 숨김 (비교/로드아웃 버튼은 그대로 유지)
+  const hasMultipleAmmo = (currentItem.ammoTypes || []).length > 1;
+
   content.innerHTML = `
     <button id="bodypart-close-btn" type="button">✕</button>
     <h2>${parentItem.name} <span class="bodypart-ammo">${ammo?.label ?? ""}</span></h2>
@@ -749,7 +752,7 @@ function openBodyPartView(parentItem, ammoId) {
         ` : ""}
 
         <div class="ammo-tabs-row">
-          <div class="ammo-tabs">${ammoTabs}</div>
+          ${hasMultipleAmmo ? `<div class="ammo-tabs">${ammoTabs}</div>` : ""}
           <button id="bp-add-compare-btn" type="button" class="compare-btn-inline ${inBpCompare ? "added" : ""}">
             ${inBpCompare ? "✓ 비교 목록에 추가됨" : "+ 비교 목록에 추가"}
           </button>
@@ -1059,6 +1062,9 @@ function renderWeaponDetailHTML(item, selectedAmmoId) {
   // 탄약 효과 텍스트
   const effectsHTML = (ammo?.specialEffects || []).map((e) => `<li>${e}</li>`).join("");
 
+  // 탄약 종류가 1개뿐이면(예: 슈레더, 화염소총) 고를 게 없으니 "Ammo Types" 섹션 자체를 숨김
+  const hasMultipleAmmo = (item.ammoTypes || []).length > 1;
+
   return `
     <button id="detail-close-btn" type="button">✕</button>
     <h2>${item.name}</h2>
@@ -1075,8 +1081,10 @@ function renderWeaponDetailHTML(item, selectedAmmoId) {
         : item.price != null ? `<img src="images/ui/hunt_dollars.png" alt="$" class="ammo-status-dollar"><span class="ammo-status-price">${item.price}</span>` : ""}
     </div>
 
+    ${hasMultipleAmmo ? `
     <h4>Ammo Types</h4>
     <div class="ammo-tabs">${ammoTabs}</div>
+    ` : ""}
 
     ${ammo?.description ? `<p class="detail-desc">${ammo.description}</p>` : ""}
     ${effectsHTML ? `<ul class="ammo-effects">${effectsHTML}</ul>` : ""}
