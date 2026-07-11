@@ -3565,23 +3565,22 @@ const AMMO_TYPES = {
     category: "shotgun",
     image: "images/ui/ammo_effects/ammo_shotgun_shells.png",
     icon: "🔫",
-    description: "Shells - 하부 총열 기본 샷건탄(벅샷). 정확한 데미지·분산도는 위키에도 불명확(다른 샷건 대비 추정치).",
+    description: "Shells - 하부 총열 기본 샷건탄(벅샷).",
     cost: 0,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
-    // 정확한 데미지·분산도 수치는 위키에도 명시 안 돼 있어 다른 샷건(Romero 77) 대비 추정치 사용
     // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
     ohkRange: { guaranteed: 12, unstableEnd: 14, noneFrom: 15 },
     statOverrides: { damage: 220, spread: 20 },
   },
 
-  // ⚠ Drilling Shorty 전용 샷건쉘 — 위키에 "Romero 77 Shorty와 비슷할 것"이라고 명시돼 있어
-  //    그 실측치(데미지214/분산도25)를 그대로 사용. 한방컷(OHK)은 사용자 실측 데이터.
+  // ⚠ Drilling Shorty/Hatchet 공용 샷건쉘 — 두 파생형은 근접무기(도끼) 유무만 다를 뿐
+  //    총 자체(하부 총열 포함)는 완전히 같은 무기라 탄약도 공유.
   drilling_shorty_shells: {
     label: "Shells",
     category: "shotgun",
     image: "images/ui/ammo_effects/ammo_shotgun_shells.png",
     icon: "🔫",
-    description: "Shells - 하부 총열 기본 샷건탄(벅샷). 정확한 데미지·분산도는 위키에도 불명확(Romero 77 Shorty 대비 추정치).",
+    description: "Shells - 하부 총열 기본 샷건탄(벅샷).",
     cost: 0,
     ohkRange: { guaranteed: 12, unstableEnd: 13, noneFrom: 14 },
     statOverrides: { damage: 214, spread: 25 },
@@ -5121,6 +5120,18 @@ const ITEMS = [
         chamber: {
           extra: 16,
         },
+        // ⚠ Hatchet와 Shorty는 도끼(근접무기) 부착 유무만 다른 동일한 총이라 하부 총열 탄약도 공유
+        ammoTypes: [
+          "drilling_medium",
+          "drilling_dumdum",
+          "drilling_fmj",
+          "drilling_high_velocity",
+          "drilling_shorty_shells",
+          "drilling_flechette",
+          "drilling_pennyshot",
+          "drilling_slug",
+        ],
+        defaultAmmo: "drilling_medium",
         stats: {
           damage: 118,
           dropRange: 120,
