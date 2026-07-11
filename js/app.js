@@ -1034,6 +1034,7 @@ function resolveWeaponWithAmmo(item, ammoId) {
   const stats = { ...item.stats, ...overrides };
   const chamber = { ...(item.chamber || {}) };
   if (overrides.ammoExtra != null) chamber.extra = overrides.ammoExtra;
+  if (overrides.ammoLoaded != null) chamber.loaded = overrides.ammoLoaded;
   return { stats, chamber, ammo };
 }
 

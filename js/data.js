@@ -4577,8 +4577,8 @@ const AMMO_TYPES = {
     description: "폭발 볼트 - 짧은 시간 후 폭발, 약한 출혈. 발사속도 감소. 상점 구매 불가(월드 획득 전용).",
     cost: null,
     scarce: true,
-    // ⚠ 위키상 장전수(Loaded)도 10→5로 감소하는데, 현재 시스템은 탄약별 장전수 override를 지원 안 해서 예비탄(Extra)만 반영함
-    statOverrides: { damage: 99, rateOfFire: 25, spread: 17.5, muzzleVelocity: 80, ammoExtra: 5 },
+    // ✅ 장전수(Loaded) 10→5, 예비탄(Extra) 10→5 둘 다 반영
+    statOverrides: { damage: 99, rateOfFire: 25, spread: 17.5, muzzleVelocity: 80, ammoLoaded: "5", ammoExtra: 5 },
     specialEffects: ["약한 출혈 효과 발생", "짧은 시간 후 폭발"],
   },
   chukonu_incendiary: {
