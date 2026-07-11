@@ -2491,6 +2491,45 @@ const AMMO_TYPES = {
     effectMaxRange: 40,
   },
 
+  // ⚠ Uppercut Precision/Deadeye 전용 FMJ (위키 실측치, 사용자 확인) - 본체와 반동 기준점이 달라 별도 필요
+  uppercut_precision_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "long",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_long_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [50, 1.00],
+      [80, 0.5453],
+      [90, 0.4605],
+      [100, 0.4605],
+    ],
+    statOverrides: { dropRange: 55, verticalRecoil: 13, muzzleVelocity: 360 },
+    specialEffects: ["50m부터 데미지 감소 시작"],
+  },
+
+  uppercut_deadeye_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "long",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_long_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [50, 1.00],
+      [80, 0.5453],
+      [90, 0.4605],
+      [100, 0.4605],
+    ],
+    statOverrides: { dropRange: 55, verticalRecoil: 16, muzzleVelocity: 360 },
+    specialEffects: ["50m부터 데미지 감소 시작"],
+  },
+
   // ── 1890 Cavalry 전용 탄약 ──
   // ⚠ 1890 Cavalry는 낙하곡선 소스 데이터가 없어서, 사용자 확인 하에
   //    공용 롱탄(long) 낙하곡선 값을 그대로 재사용함 (다른 스탯은 override 없음, 데미지 139는 무기 자체 스탯 사용).
@@ -2619,6 +2658,42 @@ const AMMO_TYPES = {
     specialEffects: ["발사음 감소"],
   },
 
+  // ⚠ Krag Silencer 전용 탄약 (위키 실측치, 사용자 확인) - 본체와 데미지/탄속 기준점이 달라 별도 필요
+  krag_silencer_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "special_long",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_special_long_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [50, 1.00],
+      [100, 0.6190],
+    ],
+    statOverrides: { dropRange: 120, verticalRecoil: 6, muzzleVelocity: 414 },
+    specialEffects: ["50m부터 데미지 감소 시작"],
+  },
+
+  krag_silencer_subsonic: {
+    label: "아음속탄",
+    category: "special_long",
+    effect: "subsonic",
+    image: "images/ui/ammo_effects/ammo_special_long_subsonic.png",
+    icon: "🔇",
+    description: "아음속탄 - 탄속 감소, 낙하거리 감소, 예비 탄약 수 변동, 발사음 감소.",
+    cost: 20,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6190],
+      [100, 0.6032],
+    ],
+    statOverrides: { dropRange: 105, muzzleVelocity: 304, ammoExtra: 12 },
+    specialEffects: ["발사음 감소"],
+  },
+
   lebel1886_special_long: {
     label: "Special Long",
     category: "special_long",
@@ -2727,6 +2802,25 @@ const AMMO_TYPES = {
     statOverrides: { damage: 117, dropRange: 160, verticalRecoil: 15, muzzleVelocity: 820, ammoExtra: 7 },
   },
 
+  // ⚠ Mosin-Nagant Avtomat 전용 스피처탄 (위키 실측치, 사용자 확인) - 자동사격 개조라 반동 기준점이 다르고 예비탄이 0이라 별도 필요
+  mosinnagant_avtomat_spitzer: {
+    label: "스피처탄",
+    category: "special_long",
+    effect: "spitzer",
+    image: "images/ui/ammo_effects/ammo_special_long_spitzer.png",
+    icon: "🏹",
+    description: "스피처탄 - 탄속 증가, 관통력 증가, 데미지 감소. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6154],
+      [100, 0.6068],
+    ],
+    statOverrides: { damage: 117, dropRange: 160, verticalRecoil: 9, muzzleVelocity: 820 },
+  },
+
   berthier1892_special_long: {
     label: "Special Long",
     category: "special_long",
@@ -2833,6 +2927,62 @@ const AMMO_TYPES = {
       [100, 0.6132],
     ],
     statOverrides: { damage: 106, dropRange: 120, verticalRecoil: 21, muzzleVelocity: 710, ammoExtra: 5 },
+  },
+
+  // ⚠ Mosin Obrez 파생형별 전용 스피처탄 (위키 실측치, 사용자 확인) - 파생형마다 반동/낙하범위 기준점이 달라 별도 필요
+  mosinobrez_mace_spitzer: {
+    label: "스피처탄",
+    category: "special_long",
+    effect: "spitzer",
+    image: "images/ui/ammo_effects/ammo_special_long_spitzer.png",
+    icon: "🏹",
+    description: "스피처탄 - 탄속 증가, 관통력 증가, 데미지 감소. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6226],
+      [100, 0.6132],
+    ],
+    statOverrides: { damage: 106, dropRange: 125, verticalRecoil: 23, muzzleVelocity: 710, ammoExtra: 5 },
+  },
+
+  mosinobrez_extended_spitzer: {
+    label: "스피처탄",
+    category: "special_long",
+    effect: "spitzer",
+    image: "images/ui/ammo_effects/ammo_special_long_spitzer.png",
+    icon: "🏹",
+    description: "스피처탄 - 탄속 증가, 관통력 증가, 데미지 감소. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6226],
+      [100, 0.6132],
+    ],
+    statOverrides: { damage: 106, dropRange: 125, verticalRecoil: 24, muzzleVelocity: 710, ammoExtra: 5 },
+  },
+
+  // Match와 Sharpeye는 데미지/낙하범위/탄속/반동/예비탄 델타가 완전히 동일해서 공유
+  mosinobrez_match_spitzer: {
+    label: "스피처탄",
+    category: "special_long",
+    effect: "spitzer",
+    image: "images/ui/ammo_effects/ammo_special_long_spitzer.png",
+    icon: "🏹",
+    description: "스피처탄 - 탄속 증가, 관통력 증가, 데미지 감소. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [90, 0.6226],
+      [100, 0.6132],
+    ],
+    statOverrides: { damage: 110, dropRange: 130, verticalRecoil: 18, muzzleVelocity: 730, ammoExtra: 7 },
   },
 
 
@@ -3061,6 +3211,53 @@ const AMMO_TYPES = {
     statOverrides: { damage: 165, spread: 95, ammoExtra: 8 },
   },
 
+  // ⚠ Rival 78 Mace 전용 특수탄 4종 (위키 실측치, 사용자 확인) - 본체와 데미지/탄속 기준점이 달라 별도 필요
+  rival78mace_dragonbreath: {
+    label: "드래곤브레스",
+    category: "shotgun",
+    effect: "dragonbreath",
+    image: "images/ui/ammo_effect_icons/dragonbreath_shell.png",
+    icon: "🔥",
+    description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
+    cost: 20,
+    statOverrides: { damage: 89, spread: 160, muzzleVelocity: 100 },
+    specialEffects: ["중급 화상 효과 발생"],
+  },
+
+  rival78mace_flechette: {
+    label: "플리셰트",
+    category: "shotgun",
+    effect: "flechette",
+    image: "images/ui/ammo_effect_icons/flechette.png",
+    icon: "➶",
+    description: "플리셰트 - 다수의 작은 다트형 투사체 발사. 명중 시 출혈 효과.",
+    cost: 40,
+    statOverrides: { damage: 103, spread: 35 },
+    specialEffects: ["중급 출혈 효과 발생"],
+  },
+
+  rival78mace_pennyshot: {
+    label: "페니샷",
+    category: "shotgun",
+    effect: "pennyshot",
+    image: "images/ui/ammo_effect_icons/pennyshot.png",
+    icon: "🪙",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    cost: 10,
+    statOverrides: { damage: 62, spread: 125, ammoExtra: 6 },
+  },
+
+  rival78mace_slug: {
+    label: "슬러그",
+    category: "shotgun",
+    effect: "slug",
+    image: "images/ui/ammo_effect_icons/slug.png",
+    icon: "●",
+    description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
+    cost: 130,
+    statOverrides: { damage: 157, spread: 150, ammoExtra: 3 },
+  },
+
   // ⚠ Rival 78 Shorty 전용 탄약 (위키 실측치 기준. 가격/예비탄은 Update 2.8.1로 위키 페이지가 아직 안 바뀐 부분을 패치노트로 보정: 가격 125→145, 기본탄 예비 6→4)
   rival78shorty_shells: {
     label: "Shells",
@@ -3183,6 +3380,55 @@ const AMMO_TYPES = {
     cost: 5,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 3, spread: 50, verticalRecoil: 3, muzzleVelocity: 75, ammoExtra: 4 },
+    specialEffects: ["강한(intense) 화상 효과 발생"],
+  },
+
+  // ⚠ Romero 77 Talon 전용 — DragonBreath/Slug/Starshell은 본체와 델타 동일해서 공유, 페니샷만 예비탄이 달라 별도.
+  romero77talon_pennyshot: {
+    label: "페니샷",
+    category: "shotgun",
+    effect: "pennyshot",
+    image: "images/ui/ammo_effect_icons/pennyshot.png",
+    icon: "🪙",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    cost: 5,
+    statOverrides: { damage: 192, spread: 75, ammoExtra: 20 },
+  },
+
+  // ⚠ Romero 77 Hatchet — Shorty와 완전히 동일한 총(근접무기 유무만 차이)이라 romero77shorty_* 탄약을 그대로 재사용
+
+  // ⚠ Romero 77 Alamo 전용 — DragonBreath는 본체와 델타 동일해서 공유, 나머지는 예비탄 총량 표기 방식이 달라(2슬롯 아님) 별도.
+  romero77alamo_pennyshot: {
+    label: "페니샷",
+    category: "shotgun",
+    effect: "pennyshot",
+    image: "images/ui/ammo_effect_icons/pennyshot.png",
+    icon: "🪙",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    cost: 5,
+    statOverrides: { damage: 188, spread: 75, ammoExtra: 18 },
+  },
+
+  romero77alamo_slug: {
+    label: "슬러그",
+    category: "shotgun",
+    effect: "slug",
+    image: "images/ui/ammo_effect_icons/slug.png",
+    icon: "●",
+    description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
+    cost: 65,
+    statOverrides: { damage: 179, spread: 65, ammoExtra: 8 },
+  },
+
+  romero77alamo_starshell: {
+    label: "신호탄",
+    category: "shotgun",
+    effect: "flare",
+    image: "images/ui/ammo_effect_icons/flare.png",
+    icon: "🌟",
+    description: "신호탄 - 조명탄 발사, 명중한 대상에 강한 화상 효과.",
+    cost: 5,
+    statOverrides: { damage: 3, spread: 50, verticalRecoil: 3, muzzleVelocity: 75, ammoExtra: 8 },
     specialEffects: ["강한(intense) 화상 효과 발생"],
   },
 
@@ -6392,7 +6638,64 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 사용자 확인, 2종)
+    variants: [
+      {
+        id: "uppercut_precision",
+        name: "Uppercut Precision",
+        image: "",
+        description: "",
+        price: 321,
+        slotSize: 3,
+        chamber: {
+          extra: 18,
+        },
+        ammoTypes: [
+          "uppercut_long",
+          "uppercut_explosive",
+          "uppercut_precision_fmj",
+          "uppercut_incendiary",
+        ],
+        defaultAmmo: "uppercut_long",
+        stats: {
+          cycleTime: 1.4,
+          spread: 35,
+          sway: 87,
+          verticalRecoil: 11,
+          reloadSpeed: 18.3,
+          meleeLight: 27,
+          meleeHeavy: 54,
+          staminaConsumption: 25,
+        },
+      },
+      {
+        id: "uppercut_deadeye",
+        name: "Uppercut Deadeye",
+        image: "",
+        description: "",
+        price: 337,
+        slotSize: 3,
+        chamber: {
+          extra: 18,
+        },
+        ammoTypes: [
+          "uppercut_long",
+          "uppercut_explosive",
+          "uppercut_deadeye_fmj",
+          "uppercut_incendiary",
+        ],
+        defaultAmmo: "uppercut_long",
+        stats: {
+          cycleTime: 1.4,
+          sway: 87,
+          verticalRecoil: 14,
+          reloadSpeed: 18.3,
+          meleeLight: 27,
+          meleeHeavy: 54,
+          staminaConsumption: 25,
+        },
+      },
+    ],
   },
 
   {
@@ -6496,7 +6799,49 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 사용자 확인, 3종)
+    variants: [
+      {
+        id: "krag_bayonet",
+        name: "Krag Bayonet",
+        image: "",
+        description: "",
+        price: 460,
+        stats: {
+          meleeHeavy: 168,
+        },
+      },
+      {
+        id: "krag_sniper",
+        name: "Krag Sniper",
+        image: "",
+        description: "",
+        price: 517,
+        stats: {
+          spread: 60,
+          sway: 69,
+        },
+      },
+      {
+        id: "krag_silencer",
+        name: "Krag Silencer",
+        image: "",
+        description: "",
+        price: 517,
+        ammoTypes: [
+          "krag_special_long",
+          "krag_silencer_fmj",
+          "krag_incendiary",
+          "krag_silencer_subsonic",
+        ],
+        defaultAmmo: "krag_special_long",
+        stats: {
+          damage: 113,
+          dropRange: 130,
+          muzzleVelocity: 518,
+        },
+      },
+    ],
   },
 
   {
@@ -6530,9 +6875,10 @@ const ITEMS = [
     },
 
     // 기본 스탯
+    // ✅ [확인됨] dropRange 140 — 기존 120은 잘못된 값이었음, 파생형 3종 위키 데이터로 정정
     stats: {
       damage: 132,
-      dropRange: 120,
+      dropRange: 140,
       rateOfFire: 20,
       cycleTime: 1.8,
       spread: 30,
@@ -6547,7 +6893,40 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 사용자 확인, 3종)
+    variants: [
+      {
+        id: "lebel1886_aperture",
+        name: "Lebel 1886 Aperture",
+        image: "",
+        description: "",
+        price: 417,
+        stats: {
+          sway: 69,
+        },
+      },
+      {
+        id: "lebel1886_talon",
+        name: "Lebel 1886 Talon",
+        image: "",
+        description: "",
+        price: 407,
+        stats: {
+          verticalRecoil: 11,
+        },
+      },
+      {
+        id: "lebel1886_marksman",
+        name: "Lebel 1886 Marksman",
+        image: "",
+        description: "",
+        price: 437,
+        stats: {
+          spread: 50,
+          sway: 69,
+        },
+      },
+    ],
   },
 
   {
@@ -6598,7 +6977,58 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 사용자 확인, 3종)
+    variants: [
+      {
+        id: "mosinnagant_bayonet",
+        name: "Mosin-Nagant Bayonet",
+        image: "",
+        description: "",
+        price: 630,
+        stats: {
+          meleeHeavy: 168,
+        },
+      },
+      {
+        id: "mosinnagant_sniper",
+        name: "Mosin-Nagant Sniper",
+        image: "",
+        description: "",
+        price: 713,
+        stats: {
+          rateOfFire: 24,
+          spread: 70,
+          sway: 69,
+          reloadSpeed: 5.3,
+        },
+      },
+      {
+        id: "mosinnagant_avtomat",
+        name: "Mosin-Nagant Avtomat",
+        image: "",
+        description: "",
+        price: 1250,
+        slotSize: 5,
+        chamber: {
+          loaded: "15",
+          extra: 0,
+        },
+        ammoTypes: [
+          "mosinnagant_special_long",
+          "mosinnagant_incendiary",
+          "mosinnagant_avtomat_spitzer",
+        ],
+        defaultAmmo: "mosinnagant_special_long",
+        stats: {
+          rateOfFire: 75,
+          cycleTime: 0.1,
+          spread: 100,
+          sway: 133,
+          verticalRecoil: 8,
+          reloadSpeed: 11.4,
+        },
+      },
+    ],
   },
 
   {
@@ -6649,7 +7079,42 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 사용자 확인, 3종)
+    variants: [
+      {
+        id: "berthier1892_riposte",
+        name: "Berthier 1892 Riposte",
+        image: "",
+        description: "",
+        price: 390,
+        stats: {
+          meleeLight: 82,
+          meleeHeavy: 168,
+        },
+      },
+      {
+        id: "berthier1892_deadeye",
+        name: "Berthier 1892 Deadeye",
+        image: "",
+        description: "",
+        price: 397,
+        stats: {
+          spread: 52.5,
+          sway: 69,
+        },
+      },
+      {
+        id: "berthier1892_marksman",
+        name: "Berthier 1892 Marksman",
+        image: "",
+        description: "",
+        price: 413,
+        stats: {
+          spread: 62.5,
+          sway: 69,
+        },
+      },
+    ],
   },
 
   {
@@ -6700,7 +7165,100 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 사용자 확인, 4종)
+    variants: [
+      {
+        id: "mosinobrez_mace",
+        name: "Mosin Obrez Mace",
+        image: "",
+        description: "",
+        price: 300,
+        ammoTypes: [
+          "mosinobrez_special_long",
+          "mosinobrez_incendiary",
+          "mosinobrez_mace_spitzer",
+        ],
+        defaultAmmo: "mosinobrez_special_long",
+        stats: {
+          verticalRecoil: 19,
+          meleeLight: 54,
+          meleeHeavy: 90,
+          staminaConsumption: 10,
+        },
+      },
+      {
+        id: "mosinobrez_extended",
+        name: "Mosin Obrez Extended",
+        image: "",
+        description: "",
+        price: 350,
+        chamber: {
+          loaded: "15",
+        },
+        ammoTypes: [
+          "mosinobrez_special_long",
+          "mosinobrez_incendiary",
+          "mosinobrez_extended_spitzer",
+        ],
+        defaultAmmo: "mosinobrez_special_long",
+        stats: {
+          rateOfFire: 29,
+          verticalRecoil: 19,
+          reloadSpeed: 8,
+        },
+      },
+      {
+        id: "mosinobrez_match",
+        name: "Mosin Obrez Match",
+        image: "",
+        description: "",
+        price: 345,
+        slotSize: 3,
+        chamber: {
+          extra: 10,
+        },
+        ammoTypes: [
+          "mosinobrez_special_long",
+          "mosinobrez_incendiary",
+          "mosinobrez_match_spitzer",
+        ],
+        defaultAmmo: "mosinobrez_special_long",
+        stats: {
+          damage: 130,
+          dropRange: 105,
+          spread: 47.5,
+          sway: 77,
+          verticalRecoil: 14,
+          muzzleVelocity: 540,
+        },
+      },
+      {
+        id: "mosinobrez_sharpeye",
+        name: "Mosin Obrez Sharpeye",
+        image: "",
+        description: "",
+        price: 362,
+        slotSize: 3,
+        chamber: {
+          extra: 10,
+        },
+        // Match와 데미지/낙하범위/탄속/반동 델타가 완전히 동일해서 탄약 공유
+        ammoTypes: [
+          "mosinobrez_special_long",
+          "mosinobrez_incendiary",
+          "mosinobrez_match_spitzer",
+        ],
+        defaultAmmo: "mosinobrez_special_long",
+        stats: {
+          damage: 130,
+          dropRange: 105,
+          spread: 57.5,
+          sway: 87,
+          verticalRecoil: 14,
+          muzzleVelocity: 540,
+        },
+      },
+    ],
   },
 
   {
@@ -6757,7 +7315,7 @@ const ITEMS = [
       {
         id: "auto4_shorty",
         name: "Auto-4 Shorty",
-        image: "",
+        image: "images/weapons/variants/auto4_shorty.jpg",
         description: "",
         price: 300,
         slotSize: 3,
@@ -6898,7 +7456,7 @@ const ITEMS = [
       {
         id: "rival78_shorty",
         name: "Rival 78 Shorty",
-        image: "",
+        image: "images/weapons/variants/rival78_shorty.jpg",
         description: "",
         price: 145,
         slotSize: 2,
@@ -6923,6 +7481,49 @@ const ITEMS = [
           meleeLight: 13,
           meleeHeavy: 31,
           staminaConsumption: 20,
+        },
+      },
+      {
+        id: "rival78_trauma",
+        name: "Rival 78 Trauma",
+        image: "images/weapons/variants/rival78_trauma.jpg",
+        description: "",
+        price: 180,
+        stats: {
+          verticalRecoil: 22,
+          meleeHeavy: 216,
+          staminaConsumption: 40,
+        },
+      },
+      {
+        id: "rival78_mace",
+        name: "Rival 78 Mace",
+        image: "images/weapons/variants/rival78_mace.jpg",
+        description: "",
+        price: 155,
+        slotSize: 2,
+        chamber: {
+          extra: 4,
+        },
+        // Shorty와 데미지/낙하범위/탄속이 완전히 동일해서 기본 샷건쉘은 공유
+        ammoTypes: [
+          "rival78shorty_shells",
+          "rival78mace_dragonbreath",
+          "rival78mace_flechette",
+          "rival78mace_pennyshot",
+          "rival78mace_slug",
+        ],
+        defaultAmmo: "rival78shorty_shells",
+        stats: {
+          damage: 158,
+          dropRange: 20,
+          spread: 55,
+          sway: 133,
+          verticalRecoil: 34,
+          muzzleVelocity: 350,
+          meleeLight: 54,
+          meleeHeavy: 90,
+          staminaConsumption: 10,
         },
       },
     ],
@@ -6983,7 +7584,7 @@ const ITEMS = [
       {
         id: "romero77_shorty",
         name: "Romero 77 Shorty",
-        image: "",
+        image: "images/weapons/variants/romero77_shorty.jpg",
         description: "",
         price: 46,
         slotSize: 2,
@@ -7012,6 +7613,89 @@ const ITEMS = [
           meleeLight: 13,
           meleeHeavy: 31,
           staminaConsumption: 20,
+        },
+      },
+      {
+        id: "romero77_talon",
+        name: "Romero 77 Talon",
+        image: "images/weapons/variants/romero77_talon.jpg",
+        description: "",
+        price: 76,
+        chamber: {
+          extra: 12,
+        },
+        // DragonBreath/Slug/Starshell은 본체와 델타 동일해서 공유, 페니샷만 전용
+        ammoTypes: [
+          "romero77_shells",
+          "romero77_dragonbreath",
+          "romero77talon_pennyshot",
+          "romero77_slug",
+          "romero77_starshell",
+        ],
+        defaultAmmo: "romero77_shells",
+        stats: {
+          verticalRecoil: 25,
+          muzzleVelocity: 425,
+          meleeHeavy: 330,
+          staminaConsumption: 33,
+        },
+      },
+      {
+        id: "romero77_hatchet",
+        name: "Romero 77 Hatchet",
+        image: "images/weapons/variants/romero77_hatchet.jpg",
+        // Shorty와 완전히 동일한 총(근접무기 유무만 차이)이라 탄약 전부 공유
+        description: "",
+        price: 56,
+        slotSize: 2,
+        chamber: {
+          loaded: "1",
+          extra: 4,
+        },
+        ammoTypes: [
+          "romero77shorty_shells",
+          "romero77shorty_dragonbreath",
+          "romero77shorty_pennyshot",
+          "romero77shorty_slug",
+          "romero77shorty_starshell",
+        ],
+        defaultAmmo: "romero77shorty_shells",
+        stats: {
+          damage: 214,
+          dropRange: 20,
+          rateOfFire: 16,
+          cycleTime: 4,
+          spread: 25,
+          sway: 100,
+          verticalRecoil: 30,
+          reloadSpeed: 3.7,
+          muzzleVelocity: 375,
+          meleeLight: 90,
+          meleeHeavy: 150,
+        },
+      },
+      {
+        id: "romero77_alamo",
+        name: "Romero 77 Alamo",
+        image: "images/weapons/variants/romero77_alamo.jpg",
+        description: "",
+        price: 98,
+        chamber: {
+          loaded: "4+1",
+        },
+        // DragonBreath는 본체와 델타 동일해서 공유, 나머지는 예비탄 총량이 달라 전용
+        ammoTypes: [
+          "romero77_shells",
+          "romero77_dragonbreath",
+          "romero77alamo_pennyshot",
+          "romero77alamo_slug",
+          "romero77alamo_starshell",
+        ],
+        defaultAmmo: "romero77_shells",
+        stats: {
+          rateOfFire: 13,
+          cycleTime: 2.8,
+          reloadSpeed: 14,
         },
       },
     ],
@@ -7065,8 +7749,20 @@ const ITEMS = [
 
     description: "",
 
-    // 파생형 (위키 실측치 기준, 1종)
-    variants: [],
+    // 파생형 (위키 실측치 기준, 사용자 확인, 1종)
+    variants: [
+      {
+        id: "slate_riposte",
+        name: "Slate Riposte",
+        image: "images/weapons/variants/slate_riposte.jpg",
+        description: "",
+        price: 323,
+        stats: {
+          meleeLight: 82,
+          meleeHeavy: 168,
+        },
+      },
+    ],
   },
 
   {
@@ -7124,7 +7820,7 @@ const ITEMS = [
       {
         id: "specter1882_shorty",
         name: "Specter 1882 Shorty",
-        image: "",
+        image: "images/weapons/variants/specter1882_shorty.jpg",
         description: "",
         price: 164,
         slotSize: 2,
@@ -7158,7 +7854,7 @@ const ITEMS = [
       {
         id: "specter1882_bayonet",
         name: "Specter 1882 Bayonet",
-        image: "",
+        image: "images/weapons/variants/specter1882_bayonet.jpg",
         description: "",
         price: 198,
         ammoTypes: [
@@ -7235,7 +7931,7 @@ const ITEMS = [
       {
         id: "terminus_shorty",
         name: "Terminus Shorty",
-        image: "",
+        image: "images/weapons/variants/terminus_shorty.jpg",
         description: "",
         price: 148,
         slotSize: 2,
