@@ -8432,7 +8432,7 @@ const ITEMS = [
     id: "weapon_shredder",
     category: "weapon",
     name: "Shredder",
-    image: "",
+    image: "images/weapons/shredder.png",
 
     slotSize: 4,
     ammoCategory: "special",
@@ -8659,7 +8659,7 @@ const ITEMS = [
     id: "weapon_flame_rifle",
     category: "weapon",
     name: "Flame Rifle",
-    image: "",
+    image: "images/weapons/flame_rifle.png",
 
     slotSize: 2,
     ammoCategory: "oil",
