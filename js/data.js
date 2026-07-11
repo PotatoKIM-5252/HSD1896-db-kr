@@ -2739,6 +2739,7 @@ const AMMO_TYPES = {
     statOverrides: {  },
   },
 
+  // ⚠ Auto-4 Shorty(Auto-5 파생형) 전용 샷건쉘 — 위키 실측 데미지(154) 그대로 사용.
   auto5_flechette: {
     label: "플리셰트",
     category: "shotgun",
@@ -2774,6 +2775,53 @@ const AMMO_TYPES = {
     cost: 130,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 179, spread: 95, ammoExtra: 5 },
+  },
+
+  // ⚠ Auto-4 Shorty 전용 탄약 (Auto-5의 파생형, 위키 실측치 기준)
+  auto4shorty_shells: {
+    label: "Shells",
+    category: "shotgun",
+    image: "images/ui/ammo_effects/ammo_shotgun_shells.png",
+    icon: "🔫",
+    description: "Shells - 기본 샷건탄(벅샷).",
+    cost: 0,
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    ohkRange: { guaranteed: 8, unstableEnd: 10, noneFrom: 11 },
+    statOverrides: {  },
+  },
+
+  auto4shorty_flechette: {
+    label: "플리셰트",
+    category: "shotgun",
+    effect: "flechette",
+    image: "images/ui/ammo_effect_icons/flechette.png",
+    icon: "➶",
+    description: "플리셰트 - 다수의 작은 다트형 투사체 발사. 명중 시 출혈 효과.",
+    cost: 40,
+    statOverrides: { damage: 113, spread: 35 },
+    specialEffects: ["중급 출혈 효과 발생"],
+  },
+
+  auto4shorty_pennyshot: {
+    label: "페니샷",
+    category: "shotgun",
+    effect: "pennyshot",
+    image: "images/ui/ammo_effect_icons/pennyshot.png",
+    icon: "🪙",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    cost: 10,
+    statOverrides: { damage: 107, spread: 125, ammoExtra: 7 },
+  },
+
+  auto4shorty_slug: {
+    label: "슬러그",
+    category: "shotgun",
+    effect: "slug",
+    image: "images/ui/ammo_effect_icons/slug.png",
+    icon: "●",
+    description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소. (위키 표기는 167이나, 다른 2칸 샷건들과 동일하게 실제로는 157 적용)",
+    cost: 130,
+    statOverrides: { damage: 157, spread: 160, ammoExtra: 3 },
   },
 
   homestead78_shells: {
@@ -2851,6 +2899,7 @@ const AMMO_TYPES = {
     statOverrides: {  },
   },
 
+  // ⚠ Rival 78 Shorty 파생형 전용 샷건쉘 — 위키 실측 데미지(158) 그대로 사용.
   rival78_dragonbreath: {
     label: "드래곤브레스",
     category: "shotgun",
@@ -2901,6 +2950,67 @@ const AMMO_TYPES = {
     statOverrides: { damage: 165, spread: 95, ammoExtra: 8 },
   },
 
+  // ⚠ Rival 78 Shorty 전용 탄약 (위키 실측치 기준. 가격/예비탄은 Update 2.8.1로 위키 페이지가 아직 안 바뀐 부분을 패치노트로 보정: 가격 125→145, 기본탄 예비 6→4)
+  rival78shorty_shells: {
+    label: "Shells",
+    category: "shotgun",
+    image: "images/ui/ammo_effects/ammo_shotgun_shells.png",
+    icon: "🔫",
+    description: "Shells - 기본 샷건탄(벅샷).",
+    cost: 0,
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    ohkRange: { guaranteed: 9, unstableEnd: 11, noneFrom: 12 },
+    statOverrides: {  },
+  },
+
+  rival78shorty_dragonbreath: {
+    label: "드래곤브레스",
+    category: "shotgun",
+    effect: "dragonbreath",
+    image: "images/ui/ammo_effect_icons/dragonbreath_shell.png",
+    icon: "🔥",
+    description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
+    cost: 20,
+    statOverrides: { damage: 89, spread: 160, muzzleVelocity: 100 },
+    specialEffects: ["중급 화상 효과 발생"],
+  },
+
+  rival78shorty_flechette: {
+    label: "플리셰트",
+    category: "shotgun",
+    effect: "flechette",
+    image: "images/ui/ammo_effect_icons/flechette.png",
+    icon: "➶",
+    description: "플리셰트 - 다수의 작은 다트형 투사체 발사. 명중 시 출혈 효과.",
+    cost: 40,
+    statOverrides: { damage: 103, spread: 35 },
+    specialEffects: ["중급 출혈 효과 발생"],
+  },
+
+  rival78shorty_pennyshot: {
+    label: "페니샷",
+    category: "shotgun",
+    effect: "pennyshot",
+    image: "images/ui/ammo_effect_icons/pennyshot.png",
+    icon: "🪙",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    cost: 10,
+    // ⚠ 예비탄 6: Update 2.8.1 패치노트 기준 최신값(위키 페이지는 구버전 9로 표기돼 있어 패치노트로 보정)
+    statOverrides: { damage: 62, spread: 125, ammoExtra: 6 },
+  },
+
+  rival78shorty_slug: {
+    label: "슬러그",
+    category: "shotgun",
+    effect: "slug",
+    image: "images/ui/ammo_effect_icons/slug.png",
+    icon: "●",
+    description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
+    cost: 130,
+    // ⚠ 예비탄 3: Update 2.8.1 패치노트 기준 최신값(위키 페이지는 구버전 4로 표기돼 있어 패치노트로 보정)
+    statOverrides: { damage: 157, spread: 105, ammoExtra: 3 },
+  },
+
   romero77_shells: {
     label: "Shells",
     category: "shotgun",
@@ -2914,6 +3024,7 @@ const AMMO_TYPES = {
     statOverrides: {  },
   },
 
+  // ⚠ Romero 77 Shorty 파생형 전용 샷건쉘 — 위키 실측 데미지(214) 그대로 사용.
   romero77_dragonbreath: {
     label: "드래곤브레스",
     category: "shotgun",
@@ -2962,7 +3073,68 @@ const AMMO_TYPES = {
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 3, spread: 50, verticalRecoil: 3, muzzleVelocity: 75, ammoExtra: 4 },
     specialEffects: ["강한(intense) 화상 효과 발생"],
-  },  slate_shells: {
+  },
+
+  // ⚠ Romero 77 Shorty 전용 탄약 (위키 실측치 기준)
+  romero77shorty_shells: {
+    label: "Shells",
+    category: "shotgun",
+    image: "images/ui/ammo_effects/ammo_shotgun_shells.png",
+    icon: "🔫",
+    description: "Shells - 기본 샷건탄(벅샷).",
+    cost: 0,
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    ohkRange: { guaranteed: 12, unstableEnd: 13, noneFrom: 14 },
+    statOverrides: {  },
+  },
+
+  romero77shorty_dragonbreath: {
+    label: "드래곤브레스",
+    category: "shotgun",
+    effect: "dragonbreath",
+    image: "images/ui/ammo_effect_icons/dragonbreath_shell.png",
+    icon: "🔥",
+    description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
+    cost: 10,
+    statOverrides: { damage: 115, spread: 120, muzzleVelocity: 100 },
+    specialEffects: ["중급 화상 효과 발생"],
+  },
+
+  romero77shorty_pennyshot: {
+    label: "페니샷",
+    category: "shotgun",
+    effect: "pennyshot",
+    image: "images/ui/ammo_effect_icons/pennyshot.png",
+    icon: "🪙",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    cost: 5,
+    statOverrides: { damage: 97, spread: 100, ammoExtra: 6 },
+  },
+
+  romero77shorty_slug: {
+    label: "슬러그",
+    category: "shotgun",
+    effect: "slug",
+    image: "images/ui/ammo_effect_icons/slug.png",
+    icon: "●",
+    description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
+    cost: 65,
+    statOverrides: { damage: 157, spread: 125, ammoExtra: 2 },
+  },
+
+  romero77shorty_starshell: {
+    label: "신호탄",
+    category: "shotgun",
+    effect: "flare",
+    image: "images/ui/ammo_effect_icons/flare.png",
+    icon: "🌟",
+    description: "신호탄 - 조명탄 발사, 명중한 대상에 강한 화상 효과.",
+    cost: 5,
+    statOverrides: { damage: 2, spread: 50, verticalRecoil: 5, muzzleVelocity: 75, ammoExtra: 2 },
+    specialEffects: ["강한(intense) 화상 효과 발생"],
+  },
+
+  slate_shells: {
     label: "Shells",
     category: "shotgun",
     image: "images/ui/ammo_effects/ammo_shotgun_shells.png",
@@ -3012,6 +3184,7 @@ const AMMO_TYPES = {
     statOverrides: {  },
   },
 
+  // ⚠ Specter 1882 Shorty 파생형 전용 샷건쉘 — 위키 실측 데미지(178) 그대로 사용.
   specter1882_dragonbreath: {
     label: "드래곤브레스",
     category: "shotgun",
@@ -3060,6 +3233,65 @@ const AMMO_TYPES = {
     cost: 130,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 179, spread: 75, ammoExtra: 8 },
+  },
+
+  // ⚠ Specter 1882 Shorty 전용 탄약 (위키 실측치 기준)
+  specter1882shorty_shells: {
+    label: "Shells",
+    category: "shotgun",
+    image: "images/ui/ammo_effects/ammo_shotgun_shells.png",
+    icon: "🔫",
+    description: "Shells - 기본 샷건탄(벅샷).",
+    cost: 0,
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    ohkRange: { guaranteed: 10, unstableEnd: 12, noneFrom: 13 },
+    statOverrides: {  },
+  },
+
+  specter1882shorty_dragonbreath: {
+    label: "드래곤브레스",
+    category: "shotgun",
+    effect: "dragonbreath",
+    image: "images/ui/ammo_effect_icons/dragonbreath_shell.png",
+    icon: "🔥",
+    description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
+    cost: 20,
+    statOverrides: { damage: 92, spread: 145, muzzleVelocity: 100 },
+    specialEffects: ["중급 화상 효과 발생"],
+  },
+
+  specter1882shorty_flechette: {
+    label: "플리셰트",
+    category: "shotgun",
+    effect: "flechette",
+    image: "images/ui/ammo_effect_icons/flechette.png",
+    icon: "➶",
+    description: "플리셰트 - 다수의 작은 다트형 투사체 발사. 명중 시 출혈 효과.",
+    cost: 40,
+    statOverrides: { damage: 123, spread: 30 },
+    specialEffects: ["중급 출혈 효과 발생"],
+  },
+
+  specter1882shorty_pennyshot: {
+    label: "페니샷",
+    category: "shotgun",
+    effect: "pennyshot",
+    image: "images/ui/ammo_effect_icons/pennyshot.png",
+    icon: "🪙",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    cost: 10,
+    statOverrides: { damage: 81, spread: 120, ammoExtra: 6 },
+  },
+
+  specter1882shorty_slug: {
+    label: "슬러그",
+    category: "shotgun",
+    effect: "slug",
+    image: "images/ui/ammo_effect_icons/slug.png",
+    icon: "●",
+    description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
+    cost: 130,
+    statOverrides: { damage: 157, spread: 120, ammoExtra: 3 },
   },
 
   terminus_shells: {
@@ -3123,6 +3355,65 @@ const AMMO_TYPES = {
     cost: 130,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 165, spread: 75, ammoExtra: 8 },
+  },
+
+  // ⚠ Terminus Shorty 전용 탄약 (위키 실측치 기준)
+  terminusshorty_shells: {
+    label: "Shells",
+    category: "shotgun",
+    image: "images/ui/ammo_effects/ammo_shotgun_shells.png",
+    icon: "🔫",
+    description: "Shells - 기본 샷건탄(벅샷).",
+    cost: 0,
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    ohkRange: { guaranteed: 9, unstableEnd: 12, noneFrom: 13 },
+    statOverrides: {  },
+  },
+
+  terminusshorty_dragonbreath: {
+    label: "드래곤브레스",
+    category: "shotgun",
+    effect: "dragonbreath",
+    image: "images/ui/ammo_effect_icons/dragonbreath_shell.png",
+    icon: "🔥",
+    description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
+    cost: 20,
+    statOverrides: { damage: 77, spread: 150, muzzleVelocity: 100 },
+    specialEffects: ["중급 화상 효과 발생"],
+  },
+
+  terminusshorty_flechette: {
+    label: "플리셰트",
+    category: "shotgun",
+    effect: "flechette",
+    image: "images/ui/ammo_effect_icons/flechette.png",
+    icon: "➶",
+    description: "플리셰트 - 다수의 작은 다트형 투사체 발사. 명중 시 출혈 효과.",
+    cost: 40,
+    statOverrides: { damage: 114, spread: 35 },
+    specialEffects: ["중급 출혈 효과 발생"],
+  },
+
+  terminusshorty_pennyshot: {
+    label: "페니샷",
+    category: "shotgun",
+    effect: "pennyshot",
+    image: "images/ui/ammo_effect_icons/pennyshot.png",
+    icon: "🪙",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    cost: 10,
+    statOverrides: { damage: 75, spread: 115, ammoExtra: 6 },
+  },
+
+  terminusshorty_slug: {
+    label: "슬러그",
+    category: "shotgun",
+    effect: "slug",
+    image: "images/ui/ammo_effect_icons/slug.png",
+    icon: "●",
+    description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
+    cost: 130,
+    statOverrides: { damage: 157, spread: 125, ammoExtra: 3 },
   },
 
 
@@ -3277,8 +3568,23 @@ const AMMO_TYPES = {
     description: "Shells - 하부 총열 기본 샷건탄(벅샷). 정확한 데미지·분산도는 위키에도 불명확(다른 샷건 대비 추정치).",
     cost: 0,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
-    // 정확한 수치가 위키에도 명시 안 돼 있어 다른 샷건(Romero 77) 대비 추정치 사용, 한방컷 거리는 미측정이라 없음
+    // 정확한 데미지·분산도 수치는 위키에도 명시 안 돼 있어 다른 샷건(Romero 77) 대비 추정치 사용
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    ohkRange: { guaranteed: 12, unstableEnd: 14, noneFrom: 15 },
     statOverrides: { damage: 220, spread: 20 },
+  },
+
+  // ⚠ Drilling Shorty 전용 샷건쉘 — 위키에 "Romero 77 Shorty와 비슷할 것"이라고 명시돼 있어
+  //    그 실측치(데미지214/분산도25)를 그대로 사용. 한방컷(OHK)은 사용자 실측 데이터.
+  drilling_shorty_shells: {
+    label: "Shells",
+    category: "shotgun",
+    image: "images/ui/ammo_effects/ammo_shotgun_shells.png",
+    icon: "🔫",
+    description: "Shells - 하부 총열 기본 샷건탄(벅샷). 정확한 데미지·분산도는 위키에도 불명확(Romero 77 Shorty 대비 추정치).",
+    cost: 0,
+    ohkRange: { guaranteed: 12, unstableEnd: 13, noneFrom: 14 },
+    statOverrides: { damage: 214, spread: 25 },
   },
 
   // ─────────────────────────────────────────────────────────────
@@ -4635,7 +4941,7 @@ const ITEMS = [
         name: "Centennial Shorty Silencer",
         image: "images/weapons/variants/centennial_shorty_silencer.jpg",
         // ⚠ 예비 탄약(9)은 Shorty와 동일 탄창을 공유한다는 전제로 추정 - 위키 직접 접속이 봇 차단되어 검색 스니펫(구버전 캐시, extra 12로 표기)으로 대체 확인함. 가격은 패치노트(Update 2.2.0.35)에서 확정된 118을 사용(스니펫 캐시엔 구가격 137로 표기).
-        description: "단축형+소음기 부착형. 데미지·낙하범위·탄속 감소, 분산도·흔들림·반동 증가(정숙성 확보).",
+        description: "",
         price: 118,
         slotSize: 2,
         chamber: {
@@ -4838,6 +5144,18 @@ const ITEMS = [
         chamber: {
           extra: 16,
         },
+        // ⚠ 샷건쉘(하부 총열)만 전용 탄약으로 교체 - 나머지(라이플 총열 탄종)는 본체와 공유
+        ammoTypes: [
+          "drilling_medium",
+          "drilling_dumdum",
+          "drilling_fmj",
+          "drilling_high_velocity",
+          "drilling_shorty_shells",
+          "drilling_flechette",
+          "drilling_pennyshot",
+          "drilling_slug",
+        ],
+        defaultAmmo: "drilling_medium",
         stats: {
           damage: 118,
           dropRange: 120,
@@ -4903,7 +5221,23 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 1종 - 본체와 다른 값만 표기)
+    variants: [
+      {
+        id: "maynard_silencer",
+        name: "Maynard Sniper Silencer",
+        image: "images/weapons/variants/maynard_silencer.jpg",
+        description: "",
+        weaponClass: "rifle",
+        price: 159,
+        slotSize: 5,
+        stats: {
+          damage: 136,
+          dropRange: 150,
+          muzzleVelocity: 476,
+        },
+      },
+    ],
   },
 
   {
@@ -4956,7 +5290,99 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 5종 - 본체와 다른 값만 표기)
+    variants: [
+      {
+        id: "springfield1866_bayonet",
+        name: "Springfield 1866 Bayonet",
+        image: "images/weapons/variants/springfield1866_bayonet.jpg",
+        description: "",
+        weaponClass: "rifle",
+        price: 48,
+        stats: {
+          meleeHeavy: 168,
+        },
+      },
+      {
+        id: "springfield1866_bullseye",
+        name: "Springfield 1866 Bullseye",
+        image: "images/weapons/variants/springfield1866_bullseye.jpg",
+        description: "",
+        weaponClass: "rifle",
+        price: 35,
+        slotSize: 2,
+        chamber: {
+          extra: 20,
+        },
+        stats: {
+          damage: 135,
+          dropRange: 120,
+          spread: 55,
+          sway: 93,
+          verticalRecoil: 12,
+          muzzleVelocity: 440,
+          meleeLight: 13,
+          meleeHeavy: 31,
+        },
+      },
+      {
+        id: "springfield1866_marksman",
+        name: "Springfield 1866 Marksman",
+        image: "images/weapons/variants/springfield1866_marksman.jpg",
+        description: "",
+        weaponClass: "rifle",
+        price: 42,
+        stats: {
+          spread: 37.5,
+          sway: 69,
+        },
+      },
+      {
+        id: "springfield1866_shorty",
+        name: "Springfield 1866 Shorty",
+        image: "images/weapons/variants/springfield1866_shorty.jpg",
+        description: "",
+        weaponClass: "rifle",
+        price: 33,
+        slotSize: 2,
+        chamber: {
+          extra: 20,
+        },
+        stats: {
+          damage: 130,
+          dropRange: 120,
+          spread: 40,
+          sway: 100,
+          verticalRecoil: 12,
+          muzzleVelocity: 440,
+          meleeLight: 13,
+          meleeHeavy: 31,
+        },
+      },
+      {
+        id: "springfield1866_striker",
+        name: "Springfield 1866 Striker",
+        image: "images/weapons/variants/springfield1866_striker.jpg",
+        description: "",
+        weaponClass: "rifle",
+        price: 43,
+        slotSize: 2,
+        chamber: {
+          extra: 20,
+        },
+        stats: {
+          damage: 135,
+          dropRange: 120,
+          spread: 40,
+          sway: 100,
+          verticalRecoil: 12,
+          muzzleVelocity: 440,
+          meleeLight: 52,
+          meleeHeavy: 105,
+          staminaConsumption: 21,
+        },
+      },
+    ],
   },
 
   {
@@ -5007,7 +5433,33 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 2종 - 본체와 다른 값만 표기)
+    variants: [
+      {
+        id: "carbine1865_aperture",
+        name: "1865 Carbine Aperture",
+        image: "images/weapons/variants/carbine1865_aperture.jpg",
+        description: "",
+        weaponClass: "rifle",
+        price: 74,
+        stats: {
+          dropRange: 120,
+        },
+      },
+      {
+        id: "carbine1865_silencer",
+        name: "1865 Carbine Silencer",
+        image: "images/weapons/variants/carbine1865_silencer.jpg",
+        description: "",
+        weaponClass: "rifle",
+        price: 80,
+        stats: {
+          damage: 137,
+          dropRange: 105,
+          muzzleVelocity: 289,
+        },
+      },
+    ],
   },
 
   {
@@ -5060,7 +5512,78 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 5종 - 본체와 다른 값만 표기)
+    variants: [
+      {
+        id: "vetterli71_bayonet",
+        name: "Vetterli 71 Bayonet",
+        image: "images/weapons/variants/vetterli71_bayonet.jpg",
+        description: "",
+        weaponClass: "rifle",
+        price: 115,
+        stats: {
+          meleeHeavy: 168,
+        },
+      },
+      {
+        id: "vetterli71_cyclone",
+        name: "Vetterli 71 Cyclone",
+        image: "images/weapons/variants/vetterli71_cyclone.jpg",
+        description: "",
+        weaponClass: "rifle",
+        price: 280,
+        chamber: {
+          loaded: "3+1",
+        },
+        stats: {
+          damage: 120,
+          dropRange: 100,
+          rateOfFire: 27,
+          cycleTime: 0.6,
+          spread: 47.5,
+          verticalRecoil: 7,
+          reloadSpeed: 8.9,
+          muzzleVelocity: 370,
+        },
+      },
+      {
+        id: "vetterli71_deadeye",
+        name: "Vetterli 71 Deadeye",
+        image: "images/weapons/variants/vetterli71_deadeye.jpg",
+        description: "",
+        weaponClass: "rifle",
+        price: 110,
+        stats: {
+          spread: 32.5,
+          sway: 69,
+        },
+      },
+      {
+        id: "vetterli71_marksman",
+        name: "Vetterli 71 Marksman",
+        image: "images/weapons/variants/vetterli71_marksman.jpg",
+        description: "",
+        weaponClass: "rifle",
+        price: 116,
+        stats: {
+          spread: 42.5,
+          sway: 69,
+        },
+      },
+      {
+        id: "vetterli71_silencer",
+        name: "Vetterli 71 Silencer",
+        image: "images/weapons/variants/vetterli71_silencer.jpg",
+        description: "",
+        weaponClass: "rifle",
+        price: 150,
+        stats: {
+          damage: 123,
+          dropRange: 115,
+          muzzleVelocity: 348,
+        },
+      },
+    ],
   },
 
   {
@@ -5114,7 +5637,39 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 2종 - 본체와 다른 값만 표기)
+    variants: [
+      {
+        id: "pax_claw",
+        name: "Pax Claw",
+        image: "images/weapons/variants/pax_claw.jpg",
+        description: "",
+        weaponClass: "handgun",
+        price: 90,
+        stats: {
+          meleeLight: 52,
+          meleeHeavy: 105,
+        },
+      },
+      {
+        id: "pax_trueshot",
+        name: "Pax Trueshot",
+        image: "images/weapons/variants/pax_trueshot.jpg",
+        description: "",
+        weaponClass: "handgun",
+        price: 141,
+        stats: {
+          damage: 114,
+          dropRange: 80,
+          rateOfFire: 18,
+          cycleTime: 1.6,
+          spread: 27.5,
+          verticalRecoil: 16,
+          muzzleVelocity: 410,
+          staminaConsumption: 20,
+        },
+      },
+    ],
   },
 
   {
@@ -5167,7 +5722,72 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 4종 - 본체와 다른 값만 표기)
+    variants: [
+      {
+        id: "scottfield_brawler",
+        name: "Scottfield Brawler",
+        image: "images/weapons/variants/scottfield_brawler.jpg",
+        description: "",
+        weaponClass: "handgun",
+        price: 87,
+        stats: {
+          dropRange: 60,
+          spread: 36,
+          verticalRecoil: 12,
+          meleeLight: 31,
+          meleeHeavy: 72,
+          staminaConsumption: 10,
+        },
+      },
+      {
+        id: "scottfield_precision",
+        name: "Scottfield Precision",
+        image: "images/weapons/variants/scottfield_precision.jpg",
+        description: "",
+        weaponClass: "handgun",
+        price: 85,
+        slotSize: 2,
+        chamber: {
+          extra: 18,
+        },
+        stats: {
+          rateOfFire: 27,
+          cycleTime: 1,
+          sway: 87,
+          verticalRecoil: 3,
+        },
+      },
+      {
+        id: "scottfield_spitfire",
+        name: "Scottfield Spitfire",
+        image: "images/weapons/variants/scottfield_spitfire.jpg",
+        description: "",
+        weaponClass: "handgun",
+        price: 108,
+        stats: {
+          dropRange: 60,
+          rateOfFire: 30,
+          cycleTime: 0.8,
+          spread: 36,
+          verticalRecoil: 12,
+          staminaConsumption: 20,
+        },
+      },
+      {
+        id: "scottfield_swift",
+        name: "Scottfield Swift",
+        image: "images/weapons/variants/scottfield_swift.png",
+        description: "",
+        weaponClass: "handgun",
+        price: 95,
+        stats: {
+          rateOfFire: 30,
+          reloadSpeed: 4.3,
+          staminaConsumption: 20,
+        },
+      },
+    ],
   },
 
   {
@@ -5792,7 +6412,40 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 1종 - Update 2.1.1에서 Auto-5의 파생형으로 편입됨)
+    variants: [
+      {
+        id: "auto4_shorty",
+        name: "Auto-4 Shorty",
+        image: "",
+        description: "",
+        price: 300,
+        slotSize: 3,
+        chamber: {
+          loaded: "3+1",
+          extra: 4,
+        },
+        ammoTypes: [
+          "auto4shorty_shells",
+          "auto4shorty_flechette",
+          "auto4shorty_pennyshot",
+          "auto4shorty_slug",
+        ],
+        defaultAmmo: "auto4shorty_shells",
+        stats: {
+          damage: 154,
+          dropRange: 20,
+          spread: 64,
+          sway: 147,
+          verticalRecoil: 25,
+          reloadSpeed: 9.7,
+          muzzleVelocity: 350,
+          meleeLight: 13,
+          meleeHeavy: 31,
+          staminaConsumption: 20,
+        },
+      },
+    ],
   },
 
   {
@@ -5846,6 +6499,7 @@ const ITEMS = [
 
     description: "",
 
+    // 파생형 (위키 실측치 기준, 1종 - Update 2.1.1에서 Auto-5의 파생형으로 편입됨)
     variants: [],
   },
 
@@ -5899,7 +6553,39 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 1종 - 가격/예비탄은 Update 2.8.1 패치노트로 보정)
+    variants: [
+      {
+        id: "rival78_shorty",
+        name: "Rival 78 Shorty",
+        image: "",
+        description: "",
+        price: 145,
+        slotSize: 2,
+        chamber: {
+          extra: 4,
+        },
+        ammoTypes: [
+          "rival78shorty_shells",
+          "rival78shorty_dragonbreath",
+          "rival78shorty_flechette",
+          "rival78shorty_pennyshot",
+          "rival78shorty_slug",
+        ],
+        defaultAmmo: "rival78shorty_shells",
+        stats: {
+          damage: 158,
+          dropRange: 20,
+          spread: 55,
+          sway: 133,
+          verticalRecoil: 30,
+          muzzleVelocity: 350,
+          meleeLight: 13,
+          meleeHeavy: 31,
+          staminaConsumption: 20,
+        },
+      },
+    ],
   },
 
   {
@@ -5952,7 +6638,43 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 1종)
+    variants: [
+      {
+        id: "romero77_shorty",
+        name: "Romero 77 Shorty",
+        image: "",
+        description: "",
+        price: 46,
+        slotSize: 2,
+        chamber: {
+          loaded: "1",
+          extra: 4,
+        },
+        ammoTypes: [
+          "romero77shorty_shells",
+          "romero77shorty_dragonbreath",
+          "romero77shorty_pennyshot",
+          "romero77shorty_slug",
+          "romero77shorty_starshell",
+        ],
+        defaultAmmo: "romero77shorty_shells",
+        stats: {
+          damage: 214,
+          dropRange: 20,
+          rateOfFire: 16,
+          cycleTime: 3.8,
+          spread: 25,
+          sway: 100,
+          verticalRecoil: 30,
+          reloadSpeed: 3.2,
+          muzzleVelocity: 375,
+          meleeLight: 13,
+          meleeHeavy: 31,
+          staminaConsumption: 20,
+        },
+      },
+    ],
   },
 
   {
@@ -6003,6 +6725,7 @@ const ITEMS = [
 
     description: "",
 
+    // 파생형 (위키 실측치 기준, 1종)
     variants: [],
   },
 
@@ -6056,7 +6779,43 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 1종)
+    variants: [
+      {
+        id: "specter1882_shorty",
+        name: "Specter 1882 Shorty",
+        image: "",
+        description: "",
+        price: 164,
+        slotSize: 2,
+        chamber: {
+          loaded: "3+1",
+          extra: 4,
+        },
+        ammoTypes: [
+          "specter1882shorty_shells",
+          "specter1882shorty_dragonbreath",
+          "specter1882shorty_flechette",
+          "specter1882shorty_pennyshot",
+          "specter1882shorty_slug",
+        ],
+        defaultAmmo: "specter1882shorty_shells",
+        stats: {
+          damage: 178,
+          dropRange: 20,
+          rateOfFire: 19,
+          cycleTime: 1.2,
+          spread: 45,
+          sway: 87,
+          verticalRecoil: 25,
+          reloadSpeed: 11.1,
+          muzzleVelocity: 350,
+          meleeLight: 13,
+          meleeHeavy: 31,
+          staminaConsumption: 20,
+        },
+      },
+    ],
   },
 
   {
@@ -6109,7 +6868,41 @@ const ITEMS = [
 
     description: "",
 
-    variants: [],
+    // 파생형 (위키 실측치 기준, 1종)
+    variants: [
+      {
+        id: "terminus_shorty",
+        name: "Terminus Shorty",
+        image: "",
+        description: "",
+        price: 148,
+        slotSize: 2,
+        chamber: {
+          loaded: "5+1",
+          extra: 4,
+        },
+        ammoTypes: [
+          "terminusshorty_shells",
+          "terminusshorty_dragonbreath",
+          "terminusshorty_flechette",
+          "terminusshorty_pennyshot",
+          "terminusshorty_slug",
+        ],
+        defaultAmmo: "terminusshorty_shells",
+        stats: {
+          damage: 168,
+          dropRange: 20,
+          rateOfFire: 19,
+          spread: 50,
+          sway: 133,
+          verticalRecoil: 27,
+          reloadSpeed: 10.6,
+          muzzleVelocity: 350,
+          meleeLight: 13,
+          meleeHeavy: 31,
+        },
+      },
+    ],
   },
 
   // ── 도구 / 소모품 / 특성은 차후 채울 예정 ─────────────────────────────
