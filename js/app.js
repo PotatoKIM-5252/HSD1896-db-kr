@@ -626,6 +626,12 @@ function openBodyPartView(parentItem, ammoId) {
   const overlay = document.getElementById("bodypart-overlay");
   const content = document.getElementById("bodypart-content");
 
+  // 근접무기는 탄약/거리 개념이 아예 없어서 훨씬 단순한 전용 레이아웃 사용
+  if (parentItem.ammoCategory === "melee") {
+    renderMeleeBodyPartView(parentItem, overlay, content);
+    return;
+  }
+
   // 자세히 보기 화면에서 현재 보고 있는 파생형 인덱스 (기본은 모무기)
   if (state.selectedVariantIdx[parentItem.id] == null) {
     state.selectedVariantIdx[parentItem.id] = 0;
@@ -822,6 +828,79 @@ function openBodyPartView(parentItem, ammoId) {
 
   // 거리별 데미지 그래프 그리기
   drawBodyPartChart(currentItem, activeAmmoId, refRange, parentItem);
+}
+
+// 근접무기 전용 "자세히 보기" — 마네킹/그래프/탄약탭 없이 근접 스탯만 표시
+function renderMeleeBodyPartView(item, overlay, content) {
+  const stats = item.stats || {};
+  const inCompare = state.compareEntries.some((e) => e.weaponId === item.id && e.ammoId == null);
+
+  content.innerHTML = `
+    <button id="bodypart-close-btn" type="button">✕</button>
+    <h2>${item.name}</h2>
+    ${item.description ? `<p class="variant-desc">${item.description}</p>` : ""}
+
+    <div class="bodypart-layout bodypart-layout--no-figure">
+      <div class="bodypart-weapon-col">
+        ${item.image
+          ? `<img src="${item.image}" alt="${item.name}" class="bp-weapon-img" onerror="this.style.display='none'">`
+          : `<div class="bp-weapon-img-placeholder">무기 이미지 없음</div>`}
+
+        <!-- 근접무기는 탄약이 없어서 칸수/가격만 표시 -->
+        <div class="ammo-status-row">
+          <img src="images/ui/slot_${item.slotSize || 1}.png" alt="${item.slotSize}칸" class="ammo-status-slots">
+          ${item.scarce
+            ? `<img src="images/ui/scarce.png" alt="Scarce" class="ammo-status-dollar" title="Scarce (상점 구매 불가, 월드에서만 획득)">`
+            : item.price != null ? `<img src="images/ui/hunt_dollars.png" alt="$" class="ammo-status-dollar"><span class="ammo-status-price">${item.price}</span>` : ""}
+        </div>
+
+        <div class="detail-stats bp-stats-inline">
+          ${statRowSimple("근접 피해", stats.meleeLight, "meleeLight")}
+          ${statRowSimple("강공격 피해", stats.meleeHeavy, "meleeHeavy")}
+          ${statRowSimple("기력 비용(강공격)", stats.staminaConsumption, "staminaConsumption")}
+        </div>
+      </div>
+
+      <div class="bodypart-graph-col">
+        <div class="ammo-tabs-row">
+          <button id="bp-add-compare-btn" type="button" class="compare-btn-inline ${inCompare ? "added" : ""}">
+            ${inCompare ? "✓ 비교 목록에 추가됨" : "+ 비교 목록에 추가"}
+          </button>
+          <button id="bp-add-loadout-btn" type="button" class="compare-btn-inline">+ 로드아웃에 추가</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  overlay.hidden = false;
+
+  document.getElementById("bodypart-close-btn").addEventListener("click", closeBodyPartView);
+  overlay.addEventListener("click", (e) => {
+    if (e.target.id === "bodypart-overlay") closeBodyPartView();
+  });
+
+  document.getElementById("bp-add-compare-btn")?.addEventListener("click", () => {
+    const exists = state.compareEntries.some((e) => e.weaponId === item.id && e.ammoId == null);
+    if (exists) {
+      state.compareEntries = state.compareEntries.filter((e) => !(e.weaponId === item.id && e.ammoId == null));
+    } else {
+      state.compareEntries.push({ weaponId: item.id, ammoId: null });
+    }
+    renderMeleeBodyPartView(item, overlay, content);
+  });
+
+  document.getElementById("bp-add-loadout-btn")?.addEventListener("click", (e) => {
+    const btn = e.currentTarget;
+    const result = addToLoadoutQuick(item, null);
+    if (result.ok) renderLoadoutBoard();
+    const original = "+ 로드아웃에 추가";
+    btn.textContent = result.ok ? `✓ ${result.slotLabel}에 추가됨` : result.message;
+    btn.classList.toggle("added", result.ok);
+    setTimeout(() => {
+      btn.textContent = original;
+      btn.classList.remove("added");
+    }, 1600);
+  });
 }
 
 // 자세히 보기 화면 내 그래프 (클릭해도 그래프 자체는 다시 그려지지 않음)
@@ -1042,6 +1121,9 @@ function resolveWeaponWithAmmo(item, ammoId) {
 }
 
 function renderWeaponDetailHTML(item, selectedAmmoId) {
+  // 근접무기는 탄약/그래프 개념이 아예 없어서 훨씬 단순한 전용 레이아웃 사용
+  if (item.ammoCategory === "melee") return renderMeleeDetailHTML(item);
+
   const { stats, chamber, ammo } = resolveWeaponWithAmmo(item, selectedAmmoId);
   const inCompare = state.compareEntries.some((e) => e.weaponId === item.id && e.ammoId === selectedAmmoId);
 
@@ -1091,6 +1173,42 @@ function renderWeaponDetailHTML(item, selectedAmmoId) {
 
     <h4>거리별 데미지</h4>
     <div class="detail-chart-wrap"><canvas id="detail-chart"></canvas></div>
+
+    <div class="detail-action-row">
+      <button id="detail-add-compare-btn" type="button" class="compare-btn ${inCompare ? "added" : ""}">
+        ${inCompare ? "✓ 비교 목록에 추가됨 (클릭하여 제거)" : "+ 비교 목록에 추가"}
+      </button>
+      <button id="detail-add-loadout-btn" type="button" class="compare-btn">+ 로드아웃에 추가</button>
+    </div>
+  `;
+}
+
+// 근접무기 전용 간략히 보기 — 탄약/그래프 없이 근접 스탯만 표시
+function renderMeleeDetailHTML(item) {
+  const stats = item.stats || {};
+  const inCompare = state.compareEntries.some((e) => e.weaponId === item.id && e.ammoId == null);
+  return `
+    <button id="detail-close-btn" type="button">✕</button>
+    <h2>${item.name}</h2>
+
+    ${item.image ? `<img src="${item.image}" alt="${item.name}" class="detail-img" onerror="this.style.display='none'">` : ""}
+
+    <!-- 한 줄: 칸수 | 가격 (근접무기는 탄약이 없어서 장탄/예비탄 표시 없음) -->
+    <div class="ammo-status-row">
+      <img src="images/ui/slot_${item.slotSize || 1}.png" alt="${item.slotSize}칸" class="ammo-status-slots">
+      ${item.scarce
+        ? `<img src="images/ui/scarce.png" alt="Scarce" class="ammo-status-dollar" title="Scarce (상점 구매 불가, 월드에서만 획득)">`
+        : item.price != null ? `<img src="images/ui/hunt_dollars.png" alt="$" class="ammo-status-dollar"><span class="ammo-status-price">${item.price}</span>` : ""}
+    </div>
+
+    ${item.description ? `<p class="detail-desc">${item.description}</p>` : ""}
+
+    <h4>근접 스탯</h4>
+    <div class="bp-stats-inline">
+      ${statRowSimple("근접 피해", stats.meleeLight, "meleeLight")}
+      ${statRowSimple("강공격 피해", stats.meleeHeavy, "meleeHeavy")}
+      ${statRowSimple("기력 비용(강공격)", stats.staminaConsumption, "staminaConsumption")}
+    </div>
 
     <div class="detail-action-row">
       <button id="detail-add-compare-btn" type="button" class="compare-btn ${inCompare ? "added" : ""}">
