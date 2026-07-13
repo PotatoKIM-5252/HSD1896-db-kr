@@ -118,12 +118,10 @@ const WEAPON_FILTERS = {
       { value: "dragonbreath",  label: "드래곤브레스", image: "images/ui/ammo_effect_icons/dragonbreath_shell.png" },
       // 세열탄(Fragmentation)은 별도 항목 없음 — 실제 효과가 출혈+폭발+소이가 섞여있어서,
       // 해당 탄약을 쓰는 무기가 추가되면 ammoEffects에 "bleed","explosive","incendiary" 3개를 함께 태그할 것.
-      { value: "ball_shot",     label: "철환탄",       image: "images/ui/ammo_effect_icons/ball_shot.png" },
-      { value: "chaos",         label: "혼돈탄",       image: "images/ui/ammo_effect_icons/chaos.png" },
-      { value: "choke",         label: "질식탄",       image: "images/ui/ammo_effect_icons/choke.png" },
       // 철조망(Concertina Arrows)도 별도 항목 없음 — "Causes bleeding on Hunters"라 출혈탄과 동일 효과.
       // 해당 탄약을 쓰는 무기가 추가되면 ammoEffects에 "bleed"를 태그할 것.
-      { value: "shot_bolt",     label: "샷볼트",       image: "images/ui/ammo_effect_icons/shot_bolt.png" },
+      // ⚠ 철환탄(ball_shot)/혼돈탄(chaos)/질식탄(choke)/샷볼트(shot_bolt)는 샷건과 무관한 특수무기 1개씩만 쓰는
+      //    항목이라 필터 목록에서 제외함 (Bomb Launcher/Lance, Hand Crossbow, Crossbow). 데이터 자체의 effect 태그는 유지.
     ],
   },
 };
