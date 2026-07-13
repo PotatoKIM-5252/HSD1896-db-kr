@@ -90,7 +90,7 @@ const WEAPON_FILTERS = {
     ],
   },
   ammoCategory: {
-    label: "탄종",
+    label: "분류",
     options: [
       { value: "compact", label: "소형탄", image: "images/ui/ammo_compact.webp" },
       { value: "medium",  label: "중형탄", image: "images/ui/ammo_medium.webp" },
@@ -101,7 +101,7 @@ const WEAPON_FILTERS = {
     ],
   },
   ammoEffect: {
-    label: "탄약 효과",
+    label: "탄약 종류",
     options: [
       { value: "explosive",     label: "폭발탄",       image: "images/ui/ammo_effect_icons/explosive.png" },
       { value: "bleed",         label: "출혈탄",       image: "images/ui/ammo_effect_icons/bleed.png" },
