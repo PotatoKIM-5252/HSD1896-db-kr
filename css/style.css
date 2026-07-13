@@ -4,14 +4,16 @@
    ========================================================================= */
 
 :root {
-  --bg-page: #050505;
-  --bg-panel: #0e0e0e;
-  --bg-card: #161616;
-  --bg-card-hover: #1f1f1f;
-  --bg-input: #0a0a0a;
+  /* 무기 3D 렌더 이미지의 실제 배경색(약 #070a0d, 미세한 청색 톤)에 맞춰
+     전체 다크 팔레트를 중립 회색에서 살짝 푸른기가 도는 톤으로 통일함 */
+  --bg-page: #050608;
+  --bg-panel: #0b0d10;
+  --bg-card: #14171b;
+  --bg-card-hover: #1c2024;
+  --bg-input: #070a0d;
 
-  --border: #2a2a2a;
-  --border-strong: #3d3d3d;
+  --border: #262a2f;
+  --border-strong: #383d43;
 
   --text-primary: #ededea;
   --text-secondary: #a3a39e;
