@@ -4373,6 +4373,7 @@ const AMMO_TYPES = {
   crossbow_shot_bolt: {
     label: "샷 볼트",
     category: "special",
+    effect: "shot_bolt",
     image: "images/ui/ammo_effects/ammo_crossbow_shot_bolt.png",
     icon: "🔫",
     description: "샷 볼트 - 명중 시 산탄으로 확산.",
@@ -4438,6 +4439,7 @@ const AMMO_TYPES = {
   bomblauncher_steelball: {
     label: "강철탄",
     category: "special",
+    effect: "ball_shot",
     image: "images/ui/ammo_effects/ammo_bomb_lance_ball_shot.png",
     icon: "🔩",
     description: "강철탄 - 탄속 대폭 증가, 분산도 증가.",
@@ -4492,6 +4494,7 @@ const AMMO_TYPES = {
   bomblance_steelball: {
     label: "강철탄",
     category: "special",
+    effect: "ball_shot",
     image: "images/ui/ammo_effects/ammo_bomb_lance_ball_shot.png",
     icon: "🔩",
     description: "강철탄 - 탄속 대폭 증가, 분산도 증가.",
@@ -4630,6 +4633,7 @@ const AMMO_TYPES = {
   handcrossbow_chaos: {
     label: "카오스 볼트",
     category: "special",
+    effect: "chaos",
     image: "images/ui/ammo_effects/ammo_hand_crossbow_confusion.png",
     icon: "❓",
     description: "카오스 볼트 - 착탄 지점에서 무작위 총성 발생.",
@@ -4640,6 +4644,7 @@ const AMMO_TYPES = {
   handcrossbow_choke: {
     label: "초크 볼트",
     category: "special",
+    effect: "choke",
     image: "images/ui/ammo_effects/ammo_hand_crossbow_suffocation.png",
     icon: "☁️",
     description: "초크 볼트 - 착탄 지점에 소형 초크 구름 생성.",
@@ -8385,7 +8390,7 @@ const ITEMS = [
     slotSize: 4,
     ammoCategory: "special",
     weaponClass: "rifle",
-    ammoEffects: ["explosive"],
+    ammoEffects: ["explosive", "shot_bolt"],
 
     ammoTypes: ["crossbow_bolt", "crossbow_explosive_bolt", "crossbow_shot_bolt", "crossbow_steel_bolt"],
     defaultAmmo: "crossbow_bolt",
@@ -8475,7 +8480,7 @@ const ITEMS = [
     slotSize: 2,
     ammoCategory: "special",
     weaponClass: "handgun",
-    ammoEffects: ["dragonbreath", "bleed"],
+    ammoEffects: ["dragonbreath", "bleed", "ball_shot"],
 
     ammoTypes: ["bomblauncher_charge", "bomblauncher_dragonbreath", "bomblauncher_harpoon", "bomblauncher_steelball", "bomblauncher_waxedfrag"],
     defaultAmmo: "bomblauncher_charge",
@@ -8500,44 +8505,31 @@ const ITEMS = [
     },
 
     description: "",
-    variants: [],
-  },
 
-  {
-    id: "weapon_bomb_lance",
-    category: "weapon",
-    name: "Bomb Lance",
-    image: "images/weapons/bomb_lance.jpg",
-
-    slotSize: 3,
-    ammoCategory: "special",
-    weaponClass: "rifle",
-    ammoEffects: ["dragonbreath", "bleed"],
-
-    ammoTypes: ["bomblance_charge", "bomblance_dragonbreath", "bomblance_harpoon", "bomblance_steelball", "bomblance_waxedfrag"],
-    defaultAmmo: "bomblance_charge",
-
-    price: 199,
-    updateAdded: "Update Early Access 6.0",
-
-    chamber: { loaded: "1", extra: 6 },
-
-    // ⚠ 위키에 Sway 수치 없음. staminaConsumption은 "Heavy Stamina Consumption"(50)을 사용 - 위키에 별도로 명시된 "Stamina Consumption"(11, 일반 근접)은 현재 스키마에 대응 필드가 없어 미반영
-    stats: {
-      damage: 150,
-      dropRange: 5,
-      rateOfFire: 9,
-      cycleTime: 7.3,
-      spread: 37.5,
-      reloadSpeed: 6.9,
-      muzzleVelocity: 60,
-      meleeLight: 180,
-      meleeHeavy: 360,
-      staminaConsumption: 50,
-    },
-
-    description: "",
-    variants: [],
+    // 파생형 (위키 실측치, 사용자 확인, 1종 - Bomb Lance는 Bomb Launcher의 파생형)
+    variants: [
+      {
+        id: "bomb_lance",
+        name: "Bomb Lance",
+        image: "images/weapons/bomb_lance.jpg",
+        description: "",
+        weaponClass: "rifle",
+        price: 199,
+        slotSize: 3,
+        // ⚠ 위키에 Sway 수치 없음. staminaConsumption은 "Heavy Stamina Consumption"(50)을 사용 - 위키에 별도로 명시된 "Stamina Consumption"(11, 일반 근접)은 현재 스키마에 대응 필드가 없어 미반영
+        ammoTypes: ["bomblance_charge", "bomblance_dragonbreath", "bomblance_harpoon", "bomblance_steelball", "bomblance_waxedfrag"],
+        defaultAmmo: "bomblance_charge",
+        stats: {
+          rateOfFire: 9,
+          cycleTime: 7.3,
+          spread: 37.5,
+          reloadSpeed: 6.9,
+          meleeLight: 180,
+          meleeHeavy: 360,
+          staminaConsumption: 50,
+        },
+      },
+    ],
   },
 
   {
@@ -8703,7 +8695,7 @@ const ITEMS = [
     slotSize: 1,
     ammoCategory: "special",
     weaponClass: "handgun",
-    ammoEffects: ["dragonbreath", "poison"],
+    ammoEffects: ["dragonbreath", "poison", "chaos", "choke"],
 
     ammoTypes: ["handcrossbow_bolt", "handcrossbow_chaos", "handcrossbow_choke", "handcrossbow_dragon", "handcrossbow_poison"],
     defaultAmmo: "handcrossbow_bolt",

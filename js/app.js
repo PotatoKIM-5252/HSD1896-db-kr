@@ -766,7 +766,7 @@ function openBodyPartView(parentItem, ammoId) {
           ${ammo?.specialEffects?.length
             ? `<ul class="status-effect-list">${ammo.specialEffects.map((e) => `<li>${e}</li>`).join("")}</ul>`
             : (ammo?.description ? "" : `<p class="muted-text">이 탄약에는 특수 효과가 없습니다.</p>`)}
-          <p class="status-effect-note">※ 계산 결과는 반올림 등으로 인해 실제와 최대 1m까지 차이가 날 수 있습니다.</p>
+          ${hasAnyGraphData ? `<p class="status-effect-note">※ 계산 결과는 반올림 등으로 인해 실제와 최대 1m까지 차이가 날 수 있습니다.</p>` : ""}
         </div>
       </div>
     </div>
