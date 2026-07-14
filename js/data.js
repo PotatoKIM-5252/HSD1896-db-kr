@@ -4394,6 +4394,7 @@ const AMMO_TYPES = {
     label: "Bolt",
     category: "special",
     isBase: true,
+    // ✅ [확인됨] 탄약 아이콘 불필요 (사용자 확인 - 탄종 1개뿐이라 Ammo Types 섹션 자체가 안 보임)
     image: "",
     icon: "🏹",
     description: "기본 볼트.",
@@ -4678,6 +4679,7 @@ const AMMO_TYPES = {
     label: "Oil",
     category: "special",
     isBase: true,
+    // ✅ [확인됨] 탄약 아이콘 불필요 (사용자 확인 - 탄종 1개뿐이라 Ammo Types 섹션 자체가 안 보임)
     image: "",
     icon: "🔥",
     description: "화염방사기 연료.",
@@ -7774,7 +7776,7 @@ const ITEMS = [
 
     description: "",
 
-    // 파생형 (위키 실측치 기준, 1종 - Update 2.1.1에서 Auto-5의 파생형으로 편입됨)
+    // ✅ [확인됨] 파생형 없음 (사용자 확인)
     variants: [],
   },
 
