@@ -127,6 +127,53 @@ const WEAPON_FILTERS = {
 };
 
 // -------------------------------------------------------------------------
+// 2-1. TOOL_FILTERS — 도구(category:"tool") 전용 검색 필터
+//
+//   출처: huntshowdown.wiki.gg/wiki/Tools ✅ [확인됨]
+//
+//   toolClass(분류): 위키의 "List of Tools" 섹션 분류(Distraction/Healing/Fire·Light/
+//     Melee/Throwable Melee/Pocket pistols/Traps/Others)를 그대로 옮김. 아이템당 1개만 배정
+//     (weaponClass처럼 단일 값 — 아이템 필드명은 toolClass).
+//     ⚠ 이 8분류는 위키가 "실제 인게임 분류와는 다르고, 더 나은 그룹핑을 위한 것"이라고
+//     명시한 자체 편집 분류입니다(인게임 Arsenal 분류는 아래 toolTags 11종).
+//
+//   toolTags(태그): 위키가 실제로 "Tool Types"(인게임 Arsenal 필터)로 쓰는 11종.
+//     한 아이템이 여러 태그를 동시에 가질 수 있음(ammoEffects처럼 배열, 아이템 필드명은 toolTags).
+//     아이콘은 위키의 실제 Icon_Filter_*.png 원본을 그대로 사용.
+// -------------------------------------------------------------------------
+const TOOL_FILTERS = {
+  toolClass: {
+    label: "분류",
+    options: [
+      { value: "distraction",     label: "교란" },
+      { value: "healing",         label: "치유" },
+      { value: "fire_light",      label: "불/광원" },
+      { value: "melee",           label: "근접무기" },
+      { value: "throwable_melee", label: "투척무기" },
+      { value: "pocket_pistol",   label: "포켓피스톨" },
+      { value: "trap",            label: "함정" },
+      { value: "other",           label: "기타" },
+    ],
+  },
+  toolTags: {
+    label: "태그",
+    options: [
+      { value: "throwable", label: "투척",   image: "images/ui/tool_effect_icons/throwable.png" },
+      { value: "placeable", label: "설치",   image: "images/ui/tool_effect_icons/placeable.png" },
+      { value: "rending",   label: "열상",   image: "images/ui/tool_effect_icons/rending.png" },
+      { value: "healing",   label: "치유",   image: "images/ui/tool_effect_icons/healing.png" },
+      { value: "noise",     label: "소음",   image: "images/ui/tool_effect_icons/noise.png" },
+      { value: "explosive", label: "폭발",   image: "images/ui/tool_effect_icons/explosive.png" },
+      { value: "fire",      label: "화염",   image: "images/ui/tool_effect_icons/fire.png" },
+      { value: "poison",    label: "중독",   image: "images/ui/tool_effect_icons/poison.png" },
+      { value: "vision",    label: "시야",   image: "images/ui/tool_effect_icons/vision.png" },
+      { value: "light",     label: "광원",   image: "images/ui/tool_effect_icons/light.png" },
+      { value: "melee",     label: "근접",   image: "images/ui/tool_effect_icons/melee.png" },
+    ],
+  },
+};
+
+// -------------------------------------------------------------------------
 // 3. AMMO_TYPES — 탄약 객체
 //
 //   스키마:
@@ -8894,7 +8941,12 @@ const ITEMS = [
     variants: [],
   },
 
-  // ── 도구 / 소모품 / 특성은 차후 채울 예정 ─────────────────────────────
+  // ── 도구(Tools) ──────────────────────────────────────────────────────
+  // 스키마는 파일 맨 끝 "빠른 참조: 도구 객체 스키마" 주석 참고.
+  // 분류(toolClass) 8종 / 태그(toolTags) 11종은 TOOL_FILTERS 정의 참고.
+  // 아직 항목 없음 — 사용자가 알려주는 대로 하나씩 추가.
+
+  // ── 소모품 / 특성은 차후 채울 예정 ─────────────────────────────
 ];
 
 /* =========================================================================
@@ -8966,5 +9018,55 @@ const ITEMS = [
        },
        // ... 더 많은 파생형
      ],
+   }
+========================================================================= */
+
+/* =========================================================================
+   ── 빠른 참조: 도구(Tool) 객체 스키마 ──
+
+   출처: huntshowdown.wiki.gg/wiki/Tools "Tool Statistics" 섹션 ✅ [확인됨]
+   (스탯 종류는 무기와 달리 아이템마다 쓰는 스탯이 다름 — 해당 없는 스탯은 그냥 생략)
+
+   {
+     id: "tool_고유아이디",
+     category: "tool",
+     name: "표시 이름",
+     image: "images/tools/파일명.png" (없으면 "")
+
+     // 필터용
+     toolClass: "distraction" | "healing" | "fire_light" | "melee"
+              | "throwable_melee" | "pocket_pistol" | "trap" | "other",
+     toolTags: ["throwable", "placeable", "rending", "healing", "noise",
+                "explosive", "fire", "poison", "vision", "light", "melee"],
+                // 해당하는 것만 배열로 (여러 개 가능, ammoEffects와 동일한 방식)
+
+     // 기본 정보
+     price: 0,
+     updateAdded: "Update Early Access 0.1",
+     uses: null,        // 사용 가능 횟수 제한이 있으면 숫자로 (Frontiersman 특성으로 늘어남), 무제한이면 null
+     scarce: false,     // 희귀 아이템(상점 구매 불가) 여부
+
+     // 도구 스탯 — 위키 "Tool Statistics" 정의 기준, 해당 아이템에 있는 필드만 채우기
+     stats: {
+       damage:              // Damage — 전체 효과가 적중했을 때 데미지
+       damagePerTick:        // Damage per Tick — 효과 지속 중 틱당 데미지
+       dropRange:            // Drop Range — 조준점 대비 머리 높이(20cm)만큼 떨어지는 거리(m)
+       effectDuration:       // Effect Duration — 효과 지속 시간(초)
+       effectRadius:         // Effect Radius — 효과 반경(m)
+       fuseTimer:            // Fuse Timer — 기폭까지 걸리는 시간(초)
+       muzzleVelocity:       // Muzzle Velocity — 투사체 속도(m/s)
+       spread:               // Spread — 조준 상태 분산도
+       throwRange:           // Throw Range — 던질 수 있는 최대 거리(m)
+       meleeLight:           // Melee Damage(약공격) — 근접무기류만
+       meleeHeavy:           // Melee Damage(강공격) — 근접무기류만
+       staminaConsumption:   // Stamina Consumption — 약공격/강공격/투척 시 소모 기력(100 기준)
+       // Flare Pistol/Quad Derringer처럼 무기 스탯 체계를 쓰는 예외 항목은
+       // 대신 무기 stats 스키마(damage/rateOfFire/reloadSpeed 등)를 그대로 사용.
+     },
+
+     description: "",
+
+     // 파생형이 있는 도구는 무기와 동일한 variants 배열 방식 사용(현재 확인된 파생형 없음).
+     variants: [],
    }
 ========================================================================= */

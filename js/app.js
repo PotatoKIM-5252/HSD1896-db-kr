@@ -13,6 +13,12 @@ const state = {
     ammoEffect: new Set(),
   },
 
+  // 도구(category:"tool") 전용 필터 — 분류(toolClass)/태그(toolTags)
+  toolFilters: {
+    toolClass: new Set(),
+    toolTags: new Set(),
+  },
+
   // 로드아웃 빌더 무기 선택 모달 전용 필터 (메인 검색 필터와 별개로 관리)
   modalWeaponFilters: {
     slotSize: new Set(),
@@ -191,6 +197,7 @@ function init() {
 
   renderCategoryFilters();
   renderWeaponFilters();
+  renderToolFilters();
   renderItemGrid();
   renderLoadoutBoard();
 }
@@ -257,6 +264,7 @@ function createCategoryFilterButton(categoryKey, labelText, imageSrc) {
     document.querySelectorAll(".cat-filter-btn").forEach((b) => b.classList.remove("active"));
     btn.classList.add("active");
     updateWeaponFilterVisibility();
+    updateToolFilterVisibility();
     renderItemGrid();
   });
   return btn;
@@ -321,6 +329,59 @@ function renderWeaponFilters() {
 function updateWeaponFilterVisibility() {
   const show = state.filterCategory === "weapon" || state.filterCategory === "all";
   document.getElementById("weapon-filters").hidden = !show;
+}
+
+// 도구(TOOL_FILTERS: toolClass/toolTags) 검색 필터 UI — 무기 필터와 동일한 구성 요소 재사용
+function renderToolFilters() {
+  const wrap = document.getElementById("tool-filters");
+  wrap.innerHTML = "";
+  Object.entries(TOOL_FILTERS).forEach(([filterKey, def]) => {
+    const group = document.createElement("div");
+    group.className = "weapon-filter-group";
+    const label = document.createElement("span");
+    label.className = "weapon-filter-label";
+    label.textContent = def.label;
+    group.appendChild(label);
+    const chips = document.createElement("div");
+    chips.className = "weapon-filter-chips";
+
+    def.options.forEach((opt) => {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "filter-chip";
+      if (state.toolFilters[filterKey].has(opt.value)) chip.classList.add("active");
+
+      if (opt.image) {
+        chip.classList.add("filter-chip-icon");
+        chip.title = opt.label;
+        const img = document.createElement("img");
+        img.src = opt.image;
+        img.alt = opt.label;
+        img.className = `filter-chip-img filter-chip-img--${filterKey}`;
+        img.onerror = () => { chip.classList.remove("filter-chip-icon"); chip.textContent = opt.label; };
+        chip.appendChild(img);
+      } else {
+        chip.textContent = opt.label;
+      }
+
+      chip.addEventListener("click", () => {
+        const set = state.toolFilters[filterKey];
+        if (set.has(opt.value)) set.delete(opt.value);
+        else set.add(opt.value);
+        renderToolFilters();
+        renderItemGrid();
+      });
+      chips.appendChild(chip);
+    });
+    group.appendChild(chips);
+    wrap.appendChild(group);
+  });
+  updateToolFilterVisibility();
+}
+
+function updateToolFilterVisibility() {
+  const show = state.filterCategory === "tool" || state.filterCategory === "all";
+  document.getElementById("tool-filters").hidden = !show;
 }
 
 // -------------------------------------------------------------------------
@@ -398,6 +459,8 @@ function getFilteredItems(extra = {}) {
   const query = extra.query !== undefined ? extra.query : state.searchQuery;
   const useWeaponFilters = extra.useWeaponFilters !== false;
   const filterSource = extra.filterSource || state.weaponFilters;
+  const useToolFilters = extra.useToolFilters !== false;
+  const toolFilterSource = extra.toolFilterSource || state.toolFilters;
 
   return getFlattenedWeaponItems().filter((item) => {
     if (category && category !== "all" && item.category !== category) return false;
@@ -413,6 +476,15 @@ function getFilteredItems(extra = {}) {
       if (f.ammoEffect.size > 0) {
         const effects = item.ammoEffects || [];
         const ok = [...f.ammoEffect].some((e) => effects.includes(e));
+        if (!ok) return false;
+      }
+    }
+    if (useToolFilters && item.category === "tool") {
+      const f = toolFilterSource;
+      if (f.toolClass.size > 0 && !f.toolClass.has(item.toolClass)) return false;
+      if (f.toolTags.size > 0) {
+        const tags = item.toolTags || [];
+        const ok = [...f.toolTags].some((t) => tags.includes(t));
         if (!ok) return false;
       }
     }

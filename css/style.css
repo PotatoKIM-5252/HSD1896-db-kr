@@ -196,6 +196,19 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 #weapon-filters[hidden] { display: none; }
 
+/* 도구 전용 필터 (#weapon-filters와 동일한 박스 스타일 공유) */
+#tool-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+
+#tool-filters[hidden] { display: none; }
+
 .weapon-filter-group {
   display: grid;
   grid-template-columns: 90px 1fr;
@@ -265,6 +278,17 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 .filter-chip:has(.filter-chip-img--ammoEffect) {
+  padding: 4px 14px;
+}
+
+/* 도구 태그(toolTags) 아이콘도 ammoEffect와 동일한 톤으로 표시 */
+.filter-chip-img--toolTags {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.filter-chip:has(.filter-chip-img--toolTags) {
   padding: 4px 14px;
 }
 
