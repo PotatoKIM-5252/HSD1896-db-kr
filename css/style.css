@@ -458,6 +458,15 @@ button { font-family: var(--font-body); cursor: pointer; }
   margin: 8px 0;
 }
 
+/* 도구 아이콘은 128x128 정사각형이라 100% 폭으로 키우면 지나치게 커짐 — 작게 고정 */
+.detail-img--tool {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  margin: 8px auto;
+  display: block;
+}
+
 .detail-category {
   display: inline-block;
   font-size: 11px;

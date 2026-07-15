@@ -231,10 +231,15 @@ function switchTab(tabName) {
 function renderCategoryFilters() {
   const wrap = document.getElementById("category-filters");
   wrap.innerHTML = "";
-  wrap.appendChild(createCategoryFilterButton("all", "전체"));
   Object.entries(CATEGORIES).forEach(([key, def]) => {
     wrap.appendChild(createCategoryFilterButton(key, def.label, def.image));
   });
+  // 첫 번째 카테고리를 기본 선택 상태로 (기존에는 "전체" 버튼이 기본 선택이었음)
+  const firstBtn = wrap.querySelector(".cat-filter-btn");
+  if (firstBtn && state.filterCategory === "all") {
+    state.filterCategory = firstBtn.dataset.category;
+    firstBtn.classList.add("active");
+  }
 }
 
 function createCategoryFilterButton(categoryKey, labelText, imageSrc) {
@@ -1344,7 +1349,7 @@ function renderToolDetailHTML(item) {
     <button id="detail-close-btn" type="button">✕</button>
     <h2>${item.name}</h2>
 
-    ${item.image ? `<img src="${item.image}" alt="${item.name}" class="detail-img" onerror="this.style.display='none'">` : ""}
+    ${item.image ? `<img src="${item.image}" alt="${item.name}" class="detail-img detail-img--tool" onerror="this.style.display='none'">` : ""}
 
     <!-- 한 줄: 수량(또는 탄약) | 가격 -->
     <div class="ammo-status-row">
@@ -1353,8 +1358,6 @@ function renderToolDetailHTML(item) {
         ? `<img src="images/ui/scarce.png" alt="Scarce" class="ammo-status-dollar" title="Scarce (상점 구매 불가, 월드에서만 획득)">`
         : item.price != null ? `<img src="images/ui/hunt_dollars.png" alt="$" class="ammo-status-dollar"><span class="ammo-status-price">${item.price}</span>` : ""}
     </div>
-
-    ${item.description ? `<p class="detail-desc">${item.description}</p>` : ""}
 
     <h4>도구 스탯</h4>
     <div class="detail-stats bp-stats-inline">
