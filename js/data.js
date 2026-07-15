@@ -8944,7 +8944,429 @@ const ITEMS = [
   // ── 도구(Tools) ──────────────────────────────────────────────────────
   // 스키마는 파일 맨 끝 "빠른 참조: 도구 객체 스키마" 주석 참고.
   // 분류(toolClass) 8종 / 태그(toolTags) 11종은 TOOL_FILTERS 정의 참고.
-  // 아직 항목 없음 — 사용자가 알려주는 대로 하나씩 추가.
+  // ✅ [확인됨] 위키 실측치 + 사용자 재확인(2026-07-15) — 전 항목.
+  // 도구/소모품은 무기와 달리 "자세히 보기"(마네킹/그래프) 화면이 필요 없음
+  // (사용자 확인) — 카드 클릭 시 뜨는 요약 패널(renderGenericDetailHTML)만 사용.
+  // 태그가 없는 항목(Derringer Pennyshot/Quad Derringer/Spyglass)은 위키
+  // 자체에 해당 태그 카테고리가 없는 것으로 확인됨(추측 아님).
+
+  // ── 교란 ──
+  {
+    id: "tool_blank_fire_decoys",
+    category: "tool",
+    name: "Blank Fire Decoys",
+    image: "", // ⚠ [미확인] 이미지 없음
+    toolClass: "distraction",
+    toolTags: ["throwable", "noise"],
+    price: 45,
+    updateAdded: "Update Early Access 2.2",
+    unlockRank: 52,
+    uses: 6,
+    stats: { damage: 20, throwRange: 22, meleeLight: 13, meleeHeavy: 27 },
+    description: "총성을 흉내 내는 디코이. 착탄 지점에서 총소리를 내 적을 위협·교란한다.",
+    meta: {
+      "분류": "교란", "태그": "투척, 소음", "가격": "45", "잠금 계급": "52", "수량": "6",
+      "피해": "20", "투척 사거리": "22m", "약공격 피해": "13", "강공격 피해": "27",
+    },
+  },
+  {
+    id: "tool_decoys",
+    category: "tool",
+    name: "Decoys",
+    image: "",
+    toolClass: "distraction",
+    toolTags: ["throwable", "noise"],
+    price: 6,
+    updateAdded: "Update Early Access 0.1",
+    unlockRank: 1,
+    uses: 12,
+    stats: { damage: 20, throwRange: 22, meleeLight: 13, meleeHeavy: 27 },
+    description: "고철과 유리 조각이 든 주머니. 던지면 소음을 내 적의 시선을 돌린다.",
+    meta: {
+      "분류": "교란", "태그": "투척, 소음", "가격": "6", "잠금 계급": "1", "수량": "12",
+      "피해": "20", "투척 사거리": "22m", "약공격 피해": "13", "강공격 피해": "27",
+    },
+  },
+  {
+    id: "tool_decoy_fuses",
+    category: "tool",
+    name: "Decoy Fuses",
+    image: "",
+    toolClass: "distraction",
+    toolTags: ["throwable", "noise"],
+    price: 30,
+    updateAdded: "Update 1.3",
+    unlockRank: 52,
+    uses: 5,
+    stats: { damage: 40, throwRange: 22, fuseTimer: 6, meleeLight: 13, meleeHeavy: 27 },
+    description: "점화하면 폭발음을 내는 퓨즈. 닫힌 문/창문 셔터를 부수는 데도 쓸 수 있다.",
+    meta: {
+      "분류": "교란", "태그": "투척, 소음", "가격": "30", "잠금 계급": "52", "수량": "5",
+      "피해": "40", "투척 사거리": "22m", "기폭 시간": "6초", "약공격 피해": "13", "강공격 피해": "27",
+    },
+  },
+
+  // ── 치유 ──
+  {
+    id: "tool_first_aid_kit",
+    category: "tool",
+    name: "First Aid Kit",
+    image: "",
+    toolClass: "healing",
+    toolTags: ["healing"],
+    price: 30,
+    updateAdded: "Update Early Access 0.1",
+    unlockRank: 1,
+    uses: 3,
+    stats: { meleeLight: 13, meleeHeavy: 27 },
+    description: "붕대 키트. 체력 50을 회복하고 출혈을 멈춘다(치유 특성 적용 시 100 회복). 3회 사용 가능.",
+    meta: {
+      "분류": "치유", "태그": "치유", "가격": "30", "잠금 계급": "1", "수량": "3(사용 횟수)",
+      "회복량": "50 (Doctor 특성 적용 시 100)", "약공격 피해": "13", "강공격 피해": "27",
+    },
+  },
+
+  // ── 불/광원 ──
+  {
+    id: "tool_flare_pistol",
+    category: "tool",
+    name: "Flare Pistol",
+    image: "",
+    toolClass: "fire_light",
+    toolTags: ["fire", "light", "vision"],
+    price: 36,
+    updateAdded: "Update Early Access 2.0",
+    unlockRank: 23,
+    // ⚠ 위키 표기상 무기와 동일한 스탯 체계 사용 (Weapon Stats)
+    chamber: { loaded: 1, extra: 1 }, // Starshell 탄약
+    stats: {
+      damage: 26, dropRange: 10, rateOfFire: 12, spread: 52.8, sway: 113,
+      verticalRecoil: 5, reloadSpeed: 4.4, muzzleVelocity: 75, effectDuration: 60,
+      meleeLight: 13, meleeHeavy: 27,
+    },
+    description: "조명탄을 쏘는 권총형 도구. 인화성 물질에 불을 붙일 수 있다.",
+    meta: {
+      "분류": "불/광원", "태그": "화염, 광원, 시야", "가격": "36", "잠금 계급": "23",
+      "탄약": "Starshell (장전 1 / 예비 1)", "피해": "26", "효과 지속": "60초",
+      "약공격 피해": "13", "강공격 피해": "27",
+    },
+  },
+  {
+    id: "tool_fusees",
+    category: "tool",
+    name: "Fusees",
+    image: "",
+    toolClass: "fire_light",
+    toolTags: ["throwable", "fire", "light", "vision"],
+    price: 10,
+    updateAdded: "Update Early Access 0.1",
+    unlockRank: 1,
+    uses: 5,
+    stats: { damage: 11, effectDuration: 300, throwRange: 22, meleeLight: 13, meleeHeavy: 27 },
+    description: "손에 쥐고 던지는 신호탄. 어두운 곳을 밝히고 인화성 물질에 불을 붙인다.",
+    meta: {
+      "분류": "불/광원", "태그": "투척, 화염, 광원, 시야", "가격": "10", "잠금 계급": "1", "수량": "5",
+      "피해": "11", "효과 지속": "300초", "투척 사거리": "22m", "약공격 피해": "13", "강공격 피해": "27",
+    },
+  },
+
+  // ── 근접무기 ──
+  {
+    id: "tool_dusters",
+    category: "tool",
+    name: "Dusters",
+    image: "",
+    toolClass: "melee",
+    toolTags: ["melee"],
+    price: 30,
+    updateAdded: "Update Early Access 0.1",
+    unlockRank: 1,
+    stats: { meleeLight: 31, meleeHeavy: 72, staminaConsumption: 5, staminaConsumptionHeavy: 10 },
+    description: "손에 끼우는 황동 너클. 둔기 계열 근접 피해를 입힌다.",
+    meta: {
+      "분류": "근접무기", "태그": "근접", "가격": "30", "잠금 계급": "1",
+      "약공격 피해": "31", "강공격 피해": "72", "기력 소모(약/강)": "5 / 10",
+    },
+  },
+  {
+    id: "tool_heavy_knife",
+    category: "tool",
+    name: "Heavy Knife",
+    image: "",
+    toolClass: "melee",
+    toolTags: ["rending", "melee"],
+    price: 20,
+    updateAdded: "Update 1.2",
+    unlockRank: 5,
+    stats: { meleeLight: 72, meleeHeavy: 120, staminaConsumption: 9, staminaConsumptionHeavy: 25 },
+    description: "근접전에 특화된 대형 나이프. 기본 나이프보다 강한 열상 피해를 입힌다.",
+    meta: {
+      "분류": "근접무기", "태그": "열상, 근접", "가격": "20", "잠금 계급": "5",
+      "약공격 피해": "72", "강공격 피해": "120", "기력 소모(약/강)": "9 / 25",
+    },
+  },
+  {
+    id: "tool_knife",
+    category: "tool",
+    name: "Knife",
+    image: "",
+    toolClass: "melee",
+    toolTags: ["rending", "melee"],
+    price: 40,
+    updateAdded: "Update Early Access 0.1",
+    unlockRank: 1,
+    stats: { meleeLight: 52, meleeHeavy: 105, staminaConsumption: 20, staminaConsumptionHeavy: 25 },
+    description: "다목적으로 쓰이는 기본형 나이프.",
+    meta: {
+      "분류": "근접무기", "태그": "열상, 근접", "가격": "40", "잠금 계급": "1",
+      "약공격 피해": "52", "강공격 피해": "105", "기력 소모(약/강)": "20 / 25",
+    },
+  },
+  {
+    id: "tool_knuckle_knife",
+    category: "tool",
+    name: "Knuckle Knife",
+    image: "",
+    toolClass: "melee",
+    toolTags: ["melee"],
+    price: 50,
+    updateAdded: "Update 1.2",
+    unlockRank: 25,
+    stats: { meleeLight: 58, meleeHeavy: 92, staminaConsumption: 8, staminaConsumptionHeavy: 21 },
+    description: "너클과 나이프를 결합한 근접무기. 약공격은 둔기, 강공격은 관통 피해를 입힌다.",
+    meta: {
+      "분류": "근접무기", "태그": "근접", "가격": "50", "잠금 계급": "25",
+      "약공격 피해": "58", "강공격 피해": "92", "기력 소모(약/강)": "8 / 21",
+    },
+  },
+
+  // ── 투척무기 ──
+  {
+    id: "tool_throwing_axes",
+    category: "tool",
+    name: "Throwing Axes",
+    image: "images/tools/throwing_axes.png",
+    toolClass: "throwable_melee",
+    toolTags: ["throwable", "rending"],
+    price: 50,
+    updateAdded: "Update 1.6.1",
+    unlockRank: 8,
+    uses: 3,
+    stats: {
+      damage: 162, dropRange: 5, spread: 15, muzzleVelocity: 30, throwRange: 85,
+      meleeLight: 75, meleeHeavy: 142,
+      staminaConsumption: 40, staminaConsumptionHeavy: 55, staminaConsumptionThrow: 20,
+    },
+    description: "던지고 회수할 수 있는 손도끼. 근접무기로도 사용할 수 있다.",
+    meta: {
+      "분류": "투척무기", "태그": "투척, 열상", "가격": "50", "잠금 계급": "8", "수량": "3",
+      "피해": "162", "투척 사거리": "85m", "약공격 피해": "75", "강공격 피해": "142",
+      "기력 소모(약/강/투척)": "40 / 55 / 20",
+    },
+  },
+  {
+    id: "tool_throwing_knives",
+    category: "tool",
+    name: "Throwing Knives",
+    image: "images/tools/throwing_knives.png",
+    toolClass: "throwable_melee",
+    toolTags: ["throwable", "rending"],
+    price: 30,
+    updateAdded: "Update Early Access 2.1",
+    unlockRank: 2,
+    uses: 8,
+    stats: {
+      damage: 150, dropRange: 5, spread: 15, muzzleVelocity: 30, throwRange: 115,
+      meleeLight: 30, meleeHeavy: 59,
+      staminaConsumption: 10, staminaConsumptionHeavy: 25, staminaConsumptionThrow: 15,
+    },
+    description: "조용히 던질 수 있는 나이프. 던진 뒤 회수해서 재사용할 수 있다.",
+    meta: {
+      "분류": "투척무기", "태그": "투척, 열상", "가격": "30", "잠금 계급": "2", "수량": "8",
+      "피해": "150", "투척 사거리": "115m", "약공격 피해": "30", "강공격 피해": "59",
+      "기력 소모(약/강/투척)": "10 / 25 / 15",
+    },
+  },
+  {
+    id: "tool_throwing_spear",
+    category: "tool",
+    name: "Throwing Spear",
+    image: "images/tools/throwing_spear.png",
+    toolClass: "throwable_melee",
+    toolTags: ["throwable", "rending"],
+    price: 80,
+    updateAdded: "Update 1.16.2",
+    unlockRank: 33,
+    uses: 1,
+    stats: {
+      damage: 200, dropRange: 10, spread: 5, muzzleVelocity: 40, throwRange: 160,
+      meleeLight: 70, meleeHeavy: 147,
+      staminaConsumption: 34, staminaConsumptionHeavy: 55, staminaConsumptionThrow: 34,
+    },
+    description: "양손으로 다루는 창. 던지거나 근접무기로 사용할 수 있다.",
+    meta: {
+      "분류": "투척무기", "태그": "투척, 열상", "가격": "80", "잠금 계급": "33", "수량": "1",
+      "피해": "200", "투척 사거리": "160m", "약공격 피해": "70", "강공격 피해": "147",
+      "기력 소모(약/강/투척)": "34 / 55 / 34",
+    },
+  },
+
+  // ── 포켓피스톨 (무기와 동일한 스탯 체계 사용) ──
+  {
+    id: "tool_derringer_pennyshot",
+    category: "tool",
+    name: "Derringer Pennyshot",
+    image: "images/tools/derringer_pennyshot.png",
+    toolClass: "pocket_pistol",
+    toolTags: [], // ✅ [확인됨] 위키 자체에 해당 태그 카테고리 없음
+    price: 63,
+    updateAdded: "Update 1.14",
+    unlockRank: 17,
+    chamber: { loaded: 2, extra: 2 }, // Penny Shot 탄약
+    stats: {
+      damage: 21, dropRange: 10, rateOfFire: 12, cycleTime: 0.6, spread: 140, sway: 113,
+      verticalRecoil: 35, reloadSpeed: 8.1, muzzleVelocity: 250, meleeLight: 13, meleeHeavy: 27,
+    },
+    description: "페니샷 탄 2발을 장전하는 소형 권총. 비상용으로 적합하다.",
+    meta: {
+      "분류": "포켓피스톨", "가격": "63", "잠금 계급": "17",
+      "탄약": "Penny Shot (장전 2 / 예비 2)", "피해": "21",
+      "약공격 피해": "13", "강공격 피해": "27",
+    },
+  },
+  {
+    id: "tool_quad_derringer",
+    category: "tool",
+    name: "Quad Derringer",
+    image: "images/tools/quad_derringer.png",
+    toolClass: "pocket_pistol",
+    toolTags: [],
+    price: 30,
+    updateAdded: "Update Early Access 0.1",
+    unlockRank: 1,
+    chamber: { loaded: 4, extra: 16 }, // Derringer 탄약
+    stats: {
+      damage: 74, dropRange: 35, rateOfFire: 40, cycleTime: 0.4, spread: 40, sway: 113,
+      verticalRecoil: 4, reloadSpeed: 3.6, muzzleVelocity: 130, meleeLight: 13, meleeHeavy: 27,
+    },
+    description: "네 발을 연속 발사할 수 있는 소형 권총. 예비탄 16발을 휴대한다.",
+    meta: {
+      "분류": "포켓피스톨", "가격": "30", "잠금 계급": "1",
+      "탄약": "Derringer (장전 4 / 예비 16)", "피해": "74",
+      "약공격 피해": "13", "강공격 피해": "27",
+    },
+  },
+
+  // ── 함정 ──
+  {
+    id: "tool_alert_trip_mines",
+    category: "tool",
+    name: "Alert Trip Mines",
+    image: "images/tools/alert_trip_mines.png",
+    toolClass: "trap",
+    toolTags: ["placeable", "noise", "fire", "light"],
+    price: 30,
+    updateAdded: "Update Early Access 6.0",
+    unlockRank: 29,
+    uses: 2,
+    stats: { damage: 25, meleeLight: 13, meleeHeavy: 27 },
+    description: "설치형 인계철선 트랩. 걸리면 폭죽과 조명탄이 터져 위치를 알린다.",
+    meta: {
+      "분류": "함정", "태그": "설치, 소음, 화염, 광원", "가격": "30", "잠금 계급": "29", "수량": "2",
+      "피해": "25", "약공격 피해": "13", "강공격 피해": "27",
+    },
+  },
+  {
+    id: "tool_concertina_trip_mines",
+    category: "tool",
+    name: "Concertina Trip Mines",
+    image: "images/tools/concertina_trip_mines.png",
+    toolClass: "trap",
+    toolTags: ["placeable", "rending"],
+    price: 90,
+    updateAdded: "Update Early Access 6.0",
+    unlockRank: 29,
+    uses: 2,
+    stats: { damage: 32, effectRadius: 2, meleeLight: 13, meleeHeavy: 27 },
+    description: "설치형 인계철선 트랩. 걸리면 철조망 다발이 펼쳐져 문/창문을 막는다.",
+    meta: {
+      "분류": "함정", "태그": "설치, 열상", "가격": "90", "잠금 계급": "29", "수량": "2",
+      "피해": "32", "효과 반경": "2m", "약공격 피해": "13", "강공격 피해": "27",
+    },
+  },
+  {
+    id: "tool_poison_trip_mines",
+    category: "tool",
+    name: "Poison Trip Mines",
+    image: "images/tools/poison_trip_mines.png",
+    toolClass: "trap",
+    toolTags: ["placeable", "poison"],
+    price: 30,
+    updateAdded: "Update 1.4",
+    unlockRank: 29,
+    uses: 2,
+    stats: { damagePerTick: 5, effectRadius: 1, effectDuration: 20, meleeLight: 13, meleeHeavy: 27 },
+    description: "설치형 인계철선 트랩. 걸리면 중독 구름이 퍼진다.",
+    meta: {
+      "분류": "함정", "태그": "설치, 중독", "가격": "30", "잠금 계급": "29", "수량": "2",
+      "틱당 피해": "5", "효과 반경": "1m", "효과 지속": "20초", "약공격 피해": "13", "강공격 피해": "27",
+    },
+  },
+  {
+    id: "tool_bear_traps",
+    category: "tool",
+    name: "Bear Traps",
+    image: "images/tools/bear_traps.png",
+    toolClass: "trap",
+    toolTags: ["placeable", "rending"],
+    price: 70,
+    updateAdded: "Update 2.0",
+    unlockRank: 35,
+    uses: 2,
+    stats: { damage: 62, effectRadius: 0.5, meleeLight: 31, meleeHeavy: 67 },
+    description: "발판을 밟으면 물리는 곰덫. 큰 소리와 함께 출혈성 피해를 입힌다.",
+    meta: {
+      "분류": "함정", "태그": "설치, 열상", "가격": "70", "잠금 계급": "35", "수량": "2",
+      "피해": "62", "효과 반경": "0.5m", "약공격 피해": "31", "강공격 피해": "67",
+    },
+  },
+
+  // ── 기타 ──
+  {
+    id: "tool_choke_bombs",
+    category: "tool",
+    name: "Choke Bombs",
+    image: "images/tools/choke_bombs.png",
+    toolClass: "other",
+    toolTags: ["throwable"],
+    price: 25,
+    updateAdded: "Update 1.1",
+    unlockRank: 1,
+    uses: 2,
+    stats: { damage: 1, effectRadius: 3, effectDuration: 60, throwRange: 22, meleeLight: 13, meleeHeavy: 27 },
+    description: "던지면 4초 후 터져 질식 구름을 만든다. 화염을 꺼뜨리고 새 발화도 막는다.",
+    meta: {
+      "분류": "기타", "태그": "투척", "가격": "25", "잠금 계급": "1", "수량": "2",
+      "효과 반경": "3m", "효과 지속": "60초", "투척 사거리": "22m", "약공격 피해": "13", "강공격 피해": "27",
+    },
+  },
+  {
+    id: "tool_spyglass",
+    category: "tool",
+    name: "Spyglass",
+    image: "images/tools/spyglass.png",
+    toolClass: "other",
+    toolTags: [], // ✅ [확인됨] 위키 자체에 해당 태그 카테고리 없음
+    price: 8,
+    updateAdded: "Update Early Access 1.0",
+    unlockRank: 1,
+    stats: { sway: 69, meleeLight: 13, meleeHeavy: 27 },
+    description: "먼 곳을 볼 수 있는 망원경. 핑 마커 사용 중 조준하면 목표까지의 거리도 표시된다.",
+    meta: {
+      "분류": "기타", "가격": "8", "잠금 계급": "1",
+      "약공격 피해": "13", "강공격 피해": "27",
+    },
+  },
 
   // ── 소모품 / 특성은 차후 채울 예정 ─────────────────────────────
 ];
@@ -9043,28 +9465,41 @@ const ITEMS = [
      // 기본 정보
      price: 0,
      updateAdded: "Update Early Access 0.1",
-     uses: null,        // 사용 가능 횟수 제한이 있으면 숫자로 (Frontiersman 특성으로 늘어남), 무제한이면 null
-     scarce: false,     // 희귀 아이템(상점 구매 불가) 여부
+     unlockRank: 1,     // 위키의 "Unlock: Bloodline Rank N"
+     uses: null,        // 소모/설치형만: 장착 시 휴대하는 개수(위키의 "Quantity"). 근접무기류는 생략.
+     scarce: false,     // 희귀 아이템(상점 구매 불가) 여부 — 필요할 때만 추가
 
      // 도구 스탯 — 위키 "Tool Statistics" 정의 기준, 해당 아이템에 있는 필드만 채우기
      stats: {
-       damage:              // Damage — 전체 효과가 적중했을 때 데미지
-       damagePerTick:        // Damage per Tick — 효과 지속 중 틱당 데미지
-       dropRange:            // Drop Range — 조준점 대비 머리 높이(20cm)만큼 떨어지는 거리(m)
-       effectDuration:       // Effect Duration — 효과 지속 시간(초)
-       effectRadius:         // Effect Radius — 효과 반경(m)
-       fuseTimer:            // Fuse Timer — 기폭까지 걸리는 시간(초)
-       muzzleVelocity:       // Muzzle Velocity — 투사체 속도(m/s)
-       spread:               // Spread — 조준 상태 분산도
-       throwRange:           // Throw Range — 던질 수 있는 최대 거리(m)
-       meleeLight:           // Melee Damage(약공격) — 근접무기류만
-       meleeHeavy:           // Melee Damage(강공격) — 근접무기류만
-       staminaConsumption:   // Stamina Consumption — 약공격/강공격/투척 시 소모 기력(100 기준)
-       // Flare Pistol/Quad Derringer처럼 무기 스탯 체계를 쓰는 예외 항목은
-       // 대신 무기 stats 스키마(damage/rateOfFire/reloadSpeed 등)를 그대로 사용.
+       damage:                    // Damage — 전체 효과가 적중했을 때 데미지
+       damagePerTick:             // Damage per Tick — 효과 지속 중 틱당 데미지
+       dropRange:                 // Drop Range — 조준점 대비 머리 높이(20cm)만큼 떨어지는 거리(m)
+       effectDuration:            // Effect Duration — 효과 지속 시간(초)
+       effectRadius:              // Effect Radius — 효과 반경(m)
+       fuseTimer:                 // Fuse Timer — 기폭까지 걸리는 시간(초)
+       muzzleVelocity:            // Muzzle Velocity — 투사체 속도(m/s)
+       spread:                    // Spread — 조준 상태 분산도
+       throwRange:                // Throw Range — 던질 수 있는 최대 거리(m)
+       meleeLight:                // Melee Damage(약공격)
+       meleeHeavy:                // Heavy Melee Damage(강공격)
+       staminaConsumption:        // Stamina Consumption — 약공격 소모 기력(100 기준)
+       staminaConsumptionHeavy:   // Heavy Stamina Consumption — 강공격 소모 기력
+       staminaConsumptionThrow:   // Throw Stamina Consumption — 투척 시 소모 기력(투척무기류만)
+       // Flare Pistol/Derringer Pennyshot/Quad Derringer처럼 위키가 "무기 스탯 체계를
+       // 쓴다"고 명시한 예외 항목은 대신 무기 stats 스키마(rateOfFire/cycleTime/sway/
+       // verticalRecoil/reloadSpeed 등)를 그대로 사용하고, ammoTypes 대신 아래
+       // chamber 필드로 장전/예비 수를 표기.
      },
 
+     // Flare Pistol/Derringer Pennyshot/Quad Derringer 등 자체 탄약을 쓰는 도구만 사용
+     chamber: { loaded: 1, extra: 1 },
+
      description: "",
+
+     // 카드 클릭 시 뜨는 요약 패널(renderGenericDetailHTML)에 그대로 표시되는
+     // key-value 목록. stats에 있는 값도 사람이 읽기 좋은 라벨로 다시 적어준다
+     // (도구는 무기처럼 전용 렌더러가 없어서 이 meta가 사실상 유일한 스탯 표시 수단).
+     meta: { "분류": "...", "태그": "...", "가격": "...", "잠금 계급": "..." },
 
      // 파생형이 있는 도구는 무기와 동일한 variants 배열 방식 사용(현재 확인된 파생형 없음).
      variants: [],
