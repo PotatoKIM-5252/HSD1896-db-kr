@@ -278,6 +278,12 @@ function createCategoryFilterButton(categoryKey, labelText, imageSrc) {
     updateWeaponFilterVisibility();
     updateToolFilterVisibility();
     updateConsumableFilterVisibility();
+    // 카테고리를 바꿀 때 이전에 열려있던 상세 패널을 닫음 — 안 닫으면 예를 들어
+    // 무기를 보다가 "도구" 탭을 눌러도 이전 무기의 상세 패널이 그대로 남아있어서
+    // 마치 탭 전환이 안 되는 것처럼 보임(그리드 자체는 바뀌지만 화면상 안 보일 수 있음).
+    const detailPanel = document.getElementById("item-detail-panel");
+    if (detailPanel) detailPanel.hidden = true;
+    if (state.charts.detail) { state.charts.detail.destroy(); state.charts.detail = null; }
     renderItemGrid();
   });
   return btn;
