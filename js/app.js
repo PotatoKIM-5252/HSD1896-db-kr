@@ -612,6 +612,10 @@ function renderItemDetail(item) {
     bindCompareButton(item, selectedAmmoId);
     bindLoadoutQuickAddButton(item, selectedAmmoId);
     drawWeaponChart(item, selectedAmmoId);
+  } else if (item.category === "tool") {
+    panel.innerHTML = renderToolDetailHTML(item);
+    bindDetailClose(panel);
+    bindLoadoutQuickAddButton(item);
   } else {
     panel.innerHTML = renderGenericDetailHTML(item);
     bindDetailClose(panel);
@@ -1134,6 +1138,14 @@ const STAT_DESCRIPTIONS = {
   meleeLight: "라이트 근접 공격이 상체에 명중했을 때의 데미지 값입니다.",
   meleeHeavy: "헤비 근접 공격이 상체에 명중했을 때의 데미지 값입니다.",
   staminaConsumption: "라이트 또는 헤비 근접 공격 시 소모되는 기력(100 기준)입니다.",
+  // 도구(Tool) 전용 스탯 — huntshowdown.wiki.gg/wiki/Tools "Tool Statistics" 섹션 기준
+  damagePerTick: "효과가 지속되는 동안 틱마다 들어가는 데미지입니다.",
+  effectRadius: "효과가 적용되는 반경(m)입니다.",
+  effectDuration: "효과가 지속되는 시간(초)입니다.",
+  fuseTimer: "기폭(폭발)까지 걸리는 시간(초)입니다.",
+  throwRange: "던질 수 있는 최대 거리(m)입니다.",
+  staminaConsumptionHeavy: "헤비 근접 공격 시 소모되는 기력(100 기준)입니다.",
+  staminaConsumptionThrow: "투척 시 소모되는 기력(100 기준)입니다.",
 };
 
 function closeBodyPartView() {
@@ -1286,6 +1298,70 @@ function renderMeleeDetailHTML(item) {
       <button id="detail-add-compare-btn" type="button" class="compare-btn ${inCompare ? "added" : ""}">
         ${inCompare ? "✓ 비교 목록에 추가됨 (클릭하여 제거)" : "+ 비교 목록에 추가"}
       </button>
+      <button id="detail-add-loadout-btn" type="button" class="compare-btn">+ 로드아웃에 추가</button>
+    </div>
+  `;
+}
+
+// 도구(Tool) 스탯 표시 순서/라벨 — 무기 스탯란(STAT_DEFS)과 동일한 스타일로,
+// 도구 전용 스탯(effectRadius 등)과 무기 스탯 체계를 쓰는 도구(Flare Pistol 등)의
+// 스탯을 하나의 표에서 함께 다룰 수 있도록 키를 합쳐놓음. item.stats에 없는 키는
+// statRowSimple이 알아서 건너뜀.
+const TOOL_STAT_DEFS = [
+  { key: "damage", label: "피해" },
+  { key: "damagePerTick", label: "틱당 피해" },
+  { key: "dropRange", label: "낙하 범위" },
+  { key: "effectRadius", label: "효과 반경" },
+  { key: "effectDuration", label: "효과 지속" },
+  { key: "fuseTimer", label: "기폭 시간" },
+  { key: "throwRange", label: "투척 사거리" },
+  { key: "rateOfFire", label: "발사속도" },
+  { key: "cycleTime", label: "사이클 시간" },
+  { key: "spread", label: "분산도" },
+  { key: "sway", label: "흔들림" },
+  { key: "verticalRecoil", label: "수직 반동" },
+  { key: "reloadSpeed", label: "재장전 속도" },
+  { key: "muzzleVelocity", label: "총구속도" },
+  { key: "meleeLight", label: "약공격 피해" },
+  { key: "meleeHeavy", label: "강공격 피해" },
+  { key: "staminaConsumption", label: "기력 소모(약공격)" },
+  { key: "staminaConsumptionHeavy", label: "기력 소모(강공격)" },
+  { key: "staminaConsumptionThrow", label: "기력 소모(투척)" },
+];
+
+// 도구(category:"tool") 전용 요약 패널 — 무기 자세히보기의 스탯란(detail-stats/bp-stats-inline)과
+// 동일한 스타일 재사용. 잠금 계급 등 부가 텍스트는 표시하지 않고, 탄약 대신 수량(uses)을 표시.
+// (사용자 확인 — 도구/소모품은 마네킹/그래프가 있는 전용 "자세히 보기" 화면 자체가 필요 없음)
+function renderToolDetailHTML(item) {
+  const stats = item.stats || {};
+  const countHTML = item.chamber
+    ? `<span class="ammo-status-count">${item.chamber.loaded ?? "-"}/${item.chamber.extra ?? "-"}</span>`
+    : item.uses != null
+      ? `<span class="ammo-status-count">수량 ${item.uses}</span>`
+      : "";
+
+  return `
+    <button id="detail-close-btn" type="button">✕</button>
+    <h2>${item.name}</h2>
+
+    ${item.image ? `<img src="${item.image}" alt="${item.name}" class="detail-img" onerror="this.style.display='none'">` : ""}
+
+    <!-- 한 줄: 수량(또는 탄약) | 가격 -->
+    <div class="ammo-status-row">
+      ${countHTML}
+      ${item.scarce
+        ? `<img src="images/ui/scarce.png" alt="Scarce" class="ammo-status-dollar" title="Scarce (상점 구매 불가, 월드에서만 획득)">`
+        : item.price != null ? `<img src="images/ui/hunt_dollars.png" alt="$" class="ammo-status-dollar"><span class="ammo-status-price">${item.price}</span>` : ""}
+    </div>
+
+    ${item.description ? `<p class="detail-desc">${item.description}</p>` : ""}
+
+    <h4>도구 스탯</h4>
+    <div class="detail-stats bp-stats-inline">
+      ${TOOL_STAT_DEFS.map((d) => statRowSimple(d.label, stats[d.key], d.key)).join("")}
+    </div>
+
+    <div class="detail-action-row">
       <button id="detail-add-loadout-btn" type="button" class="compare-btn">+ 로드아웃에 추가</button>
     </div>
   `;
