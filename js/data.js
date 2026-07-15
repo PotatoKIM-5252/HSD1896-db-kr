@@ -174,6 +174,56 @@ const TOOL_FILTERS = {
 };
 
 // -------------------------------------------------------------------------
+// 2-2. CONSUMABLE_FILTERS — 소모품(category:"consumable") 전용 검색 필터
+//
+//   출처: huntshowdown.wiki.gg/wiki/Consumables ✅ [확인됨]
+//
+//   consumableClass(분류): 위키의 "List of Consumables" 섹션 분류(Resupply/Fire·Light/
+//     Explosion/Poison/Distraction/Effects over time/Healing/Beetle/Others)를 그대로 옮김.
+//     아이템당 1개만 배정. ⚠ 이 9분류도 도구와 마찬가지로 위키가 "실제 인게임 분류와는
+//     다르고 더 나은 그룹핑을 위한 것"이라고 명시한 자체 편집 분류입니다.
+//
+//   consumableTags(태그): 위키가 실제로 "Consumable Types"(인게임 Arsenal 필터)로 쓰는 10종.
+//     도구(Tool)와 태그 자체는 완전히 동일(아이콘도 동일 파일 재사용) — 다만 "근접(Melee)"
+//     태그만 위키가 명시적으로 "도구 전용, 소모품에는 없음"이라고 밝혀서 제외함.
+// -------------------------------------------------------------------------
+const CONSUMABLE_FILTERS = {
+  consumableClass: {
+    label: "분류",
+    options: [
+      { value: "resupply",   label: "재보급" },
+      { value: "fire_light", label: "불/광원" },
+      { value: "explosive",  label: "폭발" },
+      { value: "poison",     label: "독" },
+      { value: "distraction", label: "교란" },
+      { value: "over_time",  label: "지속효과" },
+      { value: "healing",    label: "치유" },
+      { value: "beetle",     label: "딱정벌레" },
+      { value: "other",      label: "기타" },
+      // ⚠ 타로 카드는 위키에서 9분류와 별개인 독립 섹션("2.2 Tarot Cards")으로 다룸 —
+      // 그 구조를 그대로 반영해 10번째 값으로 추가함(사용자에게 확인받은 9분류 자체를 바꾼 것은 아님).
+      { value: "tarot",      label: "타로 카드" },
+    ],
+  },
+  consumableTags: {
+    label: "태그",
+    options: [
+      { value: "throwable", label: "투척", image: "images/ui/tool_effect_icons/throwable.png" },
+      { value: "placeable", label: "설치", image: "images/ui/tool_effect_icons/placeable.png" },
+      { value: "rending",   label: "열상", image: "images/ui/tool_effect_icons/rending.png" },
+      { value: "healing",   label: "치유", image: "images/ui/tool_effect_icons/healing.png" },
+      { value: "noise",     label: "소음", image: "images/ui/tool_effect_icons/noise.png" },
+      { value: "explosive", label: "폭발", image: "images/ui/tool_effect_icons/explosive.png" },
+      { value: "fire",      label: "화염", image: "images/ui/tool_effect_icons/fire.png" },
+      { value: "poison",    label: "중독", image: "images/ui/tool_effect_icons/poison.png" },
+      { value: "vision",    label: "시야", image: "images/ui/tool_effect_icons/vision.png" },
+      { value: "light",     label: "광원", image: "images/ui/tool_effect_icons/light.png" },
+      // ⚠ "melee" 태그는 위키에 "도구 전용"이라고 명시되어 있어 제외함.
+    ],
+  },
+};
+
+// -------------------------------------------------------------------------
 // 3. AMMO_TYPES — 탄약 객체
 //
 //   스키마:
@@ -9278,7 +9328,598 @@ const ITEMS = [
     description: "먼 곳을 볼 수 있는 망원경. 핑 마커 사용 중 조준하면 목표까지의 거리도 표시된다.",
   },
 
-  // ── 소모품 / 특성은 차후 채울 예정 ─────────────────────────────
+  // ── 소모품(Consumables) ────────────────────────────────────────────
+  // 스키마는 파일 맨 끝 "빠른 참조: 소모품 객체 스키마" 주석 참고.
+  // 분류(consumableClass) 9종 / 태그(consumableTags) 10종은 CONSUMABLE_FILTERS 정의 참고.
+  // ✅ [확인됨] 위키 실측치 + 사용자 재확인(2026-07-15) — 전 항목.
+  // 태그는 위키 각 항목의 Categories 푸터를 개별 확인함(추측 아님). 타로 카드(14종)와
+  // 이벤트 전용 소모품(Wormseed Shot류, Reliquary류, Proof Vapours류, 총 10종)은 조사 결과
+  // ⚠ 전부 특정 이벤트 기간에만 판매되고 이벤트 종료 후 환불/제거되는 한시적 아이템으로 확인됨
+  // (Silver Reliquary는 Update 1.5.1에서 실제로 게임에서 제거됨 — 위키 자체 기록).
+  // 도구(Tool)의 "Removed Tools"(Multitool/Electric Lamp)를 데이터에서 제외한 것과 동일한
+  // 기준으로 이번에도 제외함 — "현재 상시 획득 가능한" 항목만 반영한다는 원칙 유지.
+
+  // ── 재보급 ──
+  {
+    id: "consumable_ammo_box",
+    category: "consumable",
+    name: "Ammo Box",
+    image: "images/consumables/ammo_box.png",
+    consumableClass: "resupply",
+    consumableTags: ["placeable"],
+    price: 65,
+    updateAdded: "Update Early Access 6.0",
+    unlockRank: 1,
+    stats: { meleeLight: 31, meleeHeavy: 90 },
+    description: "휴대용 탄약 상자. 놓아두면 특수탄을 포함한 예비탄을 일부 보충해준다.",
+  },
+  {
+    id: "consumable_tool_box",
+    category: "consumable",
+    name: "Tool Box",
+    image: "images/consumables/tool_box.png",
+    consumableClass: "resupply",
+    consumableTags: ["placeable"],
+    price: 70,
+    updateAdded: "Update 1.13",
+    unlockRank: 55,
+    stats: { meleeLight: 31, meleeHeavy: 90 },
+    description: "휴대용 도구 상자. 놓아두면 도구 하나를 보충해준다.",
+  },
+
+  // ── 불/광원 ──
+  {
+    id: "consumable_fire_bomb",
+    category: "consumable",
+    name: "Fire Bomb",
+    image: "images/consumables/fire_bomb.png",
+    consumableClass: "fire_light",
+    consumableTags: ["throwable", "fire"],
+    price: 30,
+    updateAdded: "Update Early Access 0.1",
+    unlockRank: 1,
+    stats: { damage: 11, effectRadius: 3, effectDuration: 120, throwRange: 22, meleeLight: 13, meleeHeavy: 27 },
+    description: "던지면 터지는 유리병 화염병. 넓은 범위에 불붙은 액체를 흩뿌린다.",
+  },
+  {
+    id: "consumable_hellfire_bomb",
+    category: "consumable",
+    name: "Hellfire Bomb",
+    image: "images/consumables/hellfire_bomb.png",
+    consumableClass: "fire_light",
+    consumableTags: ["throwable", "fire"],
+    price: 70,
+    updateAdded: "Update Early Access 2.2",
+    unlockRank: 43,
+    stats: { damage: 49, effectRadius: 6, throwRange: 22, meleeLight: 13, meleeHeavy: 27 },
+    description: "파이어 봄의 강화형. 착탄 시 더 크고 집중된 화염 폭발을 일으킨다.",
+  },
+  {
+    id: "consumable_liquid_fire_bomb",
+    category: "consumable",
+    name: "Liquid Fire Bomb",
+    image: "images/consumables/liquid_fire_bomb.png",
+    consumableClass: "fire_light",
+    consumableTags: ["throwable", "fire"],
+    price: 35,
+    updateAdded: "Update Early Access 2.3",
+    unlockRank: 43,
+    stats: { damage: 11, effectRadius: 3, effectDuration: 120, throwRange: 22, meleeLight: 13, meleeHeavy: 27 },
+    description: "물 위에서도 타는 화염병. 내부 쇠구슬 덕분에 착탄 시 확실하게 깨진다.",
+  },
+
+  // ── 폭발 ──
+  {
+    id: "consumable_dynamite_stick",
+    category: "consumable",
+    name: "Dynamite Stick",
+    image: "images/consumables/dynamite_stick.png",
+    consumableClass: "explosive",
+    consumableTags: ["throwable", "explosive"],
+    price: 18,
+    updateAdded: "Update Early Access 0.1",
+    unlockRank: 1,
+    stats: { damage: 750, effectRadius: 8, fuseTimer: 4, throwRange: 22, meleeLight: 13, meleeHeavy: 27 },
+    description: "다이너마이트 한 개비. 던져서 점화 후 몇 초 뒤 폭발한다.",
+  },
+  {
+    id: "consumable_dynamite_bundle",
+    category: "consumable",
+    name: "Dynamite Bundle",
+    image: "images/consumables/dynamite_bundle.png",
+    consumableClass: "explosive",
+    consumableTags: ["throwable", "explosive"],
+    price: 75,
+    updateAdded: "Update Early Access 0.1",
+    unlockRank: 15,
+    stats: { damage: 1500, effectRadius: 10, fuseTimer: 4, throwRange: 22, meleeLight: 13, meleeHeavy: 27 },
+    description: "다이너마이트 여러 개를 묶은 다발. 단일 다이너마이트보다 훨씬 강력하다.",
+  },
+  {
+    id: "consumable_waxed_dynamite_stick",
+    category: "consumable",
+    name: "Waxed Dynamite Stick",
+    image: "images/consumables/waxed_dynamite_stick.png",
+    consumableClass: "explosive",
+    consumableTags: ["throwable", "explosive"],
+    price: 24,
+    updateAdded: "Update Early Access 2.3",
+    unlockRank: 19,
+    stats: { damage: 750, effectRadius: 8, fuseTimer: 4, throwRange: 22, meleeLight: 13, meleeHeavy: 27 },
+    description: "밀랍으로 코팅된 다이너마이트. 물속이나 초크 구름 안에서도 기폭된다.",
+  },
+  {
+    id: "consumable_big_dynamite_bundle",
+    category: "consumable",
+    name: "Big Dynamite Bundle",
+    image: "images/consumables/big_dynamite_bundle.png",
+    consumableClass: "explosive",
+    consumableTags: ["throwable", "explosive"],
+    price: 110,
+    updateAdded: "Update Early Access 0.1",
+    unlockRank: 58,
+    stats: { damage: 3000, effectRadius: 11, fuseTimer: 4, throwRange: 15, meleeLight: 13, meleeHeavy: 27 },
+    description: "다이너마이트 일곱 개비를 묶은 대형 다발. 정말로 크게 부술 때 쓴다.",
+  },
+  {
+    id: "consumable_sticky_bomb",
+    category: "consumable",
+    name: "Sticky Bomb",
+    image: "images/consumables/sticky_bomb.png",
+    consumableClass: "explosive",
+    consumableTags: ["throwable", "rending"],
+    price: 64,
+    updateAdded: "Update Early Access 2.2",
+    unlockRank: 1,
+    stats: { damage: 800, effectRadius: 8, fuseTimer: 8, throwRange: 22, meleeLight: 13, meleeHeavy: 27 },
+    description: "물체나 적에게 달라붙는 다이너마이트. 8초 뒤 폭발한다.",
+  },
+  {
+    id: "consumable_frag_bomb",
+    category: "consumable",
+    name: "Frag Bomb",
+    image: "images/consumables/frag_bomb.png",
+    consumableClass: "explosive",
+    consumableTags: ["throwable", "rending"],
+    price: 103,
+    updateAdded: "Update Early Access 0.1",
+    unlockRank: 41,
+    stats: { damage: 250, effectRadius: 11, fuseTimer: 4, throwRange: 22, meleeLight: 13, meleeHeavy: 27 },
+    description: "넓은 범위에 파편을 흩뿌리는 폭탄. 문이나 철조망을 부술 만큼 강하지는 않다.",
+  },
+  {
+    id: "consumable_dark_dynamite_satchel",
+    category: "consumable",
+    name: "Dark Dynamite Satchel",
+    image: "images/consumables/dark_dynamite_satchel.png",
+    consumableClass: "explosive",
+    consumableTags: ["placeable", "explosive"],
+    price: 100,
+    updateAdded: "Update 2.1",
+    unlockRank: 46,
+    stats: { damage: 3000, effectRadius: 11, fuseTimer: 1, meleeLight: 13, meleeHeavy: 27 },
+    description: "벽이나 바닥에 설치하고 다크사이트로 원격 기폭하는 다이너마이트 뭉치.",
+  },
+
+  // ── 독 ──
+  {
+    id: "consumable_hive_bomb",
+    category: "consumable",
+    name: "Hive Bomb",
+    image: "images/consumables/hive_bomb.png",
+    consumableClass: "poison",
+    consumableTags: ["throwable", "poison", "vision"],
+    price: 40,
+    updateAdded: "Update Early Access 2.0",
+    unlockRank: 48,
+    stats: { damagePerTick: 4, effectDuration: 30, throwRange: 22, meleeLight: 13, meleeHeavy: 27 },
+    description: "터지면 독을 가진 말벌 떼가 나와 주변을 공격한다. 몬스터에게는 효과가 없다.",
+  },
+  {
+    id: "consumable_poison_bomb",
+    category: "consumable",
+    name: "Poison Bomb",
+    image: "images/consumables/poison_bomb.png",
+    consumableClass: "poison",
+    consumableTags: ["throwable", "poison"],
+    price: 25,
+    updateAdded: "Update Early Access 1.0",
+    unlockRank: 39,
+    stats: { damagePerTick: 6, effectRadius: 3, effectDuration: 510, throwRange: 22, meleeLight: 13, meleeHeavy: 27 },
+    description: "착탄 시 오래 지속되는 중독 구름을 만드는 폭탄.",
+  },
+
+  // ── 교란 ──
+  {
+    id: "consumable_chaos_bomb",
+    category: "consumable",
+    name: "Chaos Bomb",
+    image: "images/consumables/chaos_bomb.png",
+    consumableClass: "distraction",
+    consumableTags: ["throwable", "noise"],
+    price: 15,
+    updateAdded: "Update Early Access 2.2",
+    unlockRank: 31,
+    stats: { damage: 13, fuseTimer: 8, throwRange: 22, meleeLight: 13, meleeHeavy: 27 },
+    description: "여러 총성을 흉내 내는 폭죽 뭉치. 약 30초간 적을 교란한다.",
+  },
+
+  // ── 지속효과 ──
+  {
+    id: "consumable_antidote_shot",
+    category: "consumable",
+    name: "Antidote Shot",
+    image: "images/consumables/antidote_shot.png",
+    consumableClass: "over_time",
+    consumableTags: ["healing"],
+    price: 55,
+    updateAdded: "Update Early Access 0.1",
+    unlockRank: 21,
+    stats: { effectDuration: 600, meleeLight: 13, meleeHeavy: 27 },
+    description: "일정 시간 동안 중독 효과에 면역이 되는 주사.",
+  },
+  {
+    id: "consumable_antidote_shot_weak",
+    category: "consumable",
+    name: "Antidote Shot (Weak)",
+    image: "images/consumables/antidote_shot_weak.png",
+    consumableClass: "over_time",
+    consumableTags: ["healing"],
+    price: 30,
+    updateAdded: "Update 1.0",
+    unlockRank: 1,
+    stats: { effectDuration: 300, meleeLight: 13, meleeHeavy: 27 },
+    description: "Antidote Shot의 하위 버전. 면역 지속 시간이 더 짧다.",
+  },
+  {
+    id: "consumable_regeneration_shot",
+    category: "consumable",
+    name: "Regeneration Shot",
+    image: "images/consumables/regeneration_shot.png",
+    consumableClass: "over_time",
+    consumableTags: ["healing"],
+    price: 105,
+    updateAdded: "Update 1.6.2",
+    unlockRank: 13,
+    stats: { effectDuration: 420, meleeLight: 13, meleeHeavy: 27 },
+    description: "일정 시간 동안 소진된 체력 칸을 서서히 재생시키는 주사.",
+  },
+  {
+    id: "consumable_regeneration_shot_weak",
+    category: "consumable",
+    name: "Regeneration Shot (Weak)",
+    image: "images/consumables/regeneration_shot_weak.png",
+    consumableClass: "over_time",
+    consumableTags: ["healing"],
+    price: 40,
+    updateAdded: "Update 1.6.2",
+    unlockRank: 1,
+    stats: { effectDuration: 240, meleeLight: 13, meleeHeavy: 27 },
+    description: "Regeneration Shot의 하위 버전. 지속 시간이 더 짧다.",
+  },
+  {
+    id: "consumable_stamina_shot",
+    category: "consumable",
+    name: "Stamina Shot",
+    image: "images/consumables/stamina_shot.png",
+    consumableClass: "over_time",
+    consumableTags: ["healing"],
+    price: 100,
+    updateAdded: "Update Early Access 0.1",
+    unlockRank: 10,
+    stats: { effectDuration: 420, meleeLight: 13, meleeHeavy: 27 },
+    description: "일정 시간 동안 기력을 회복시키고 소모를 막아주는 주사.",
+  },
+  {
+    id: "consumable_stamina_shot_weak",
+    category: "consumable",
+    name: "Stamina Shot (Weak)",
+    image: "images/consumables/stamina_shot_weak.png",
+    consumableClass: "over_time",
+    consumableTags: ["healing"],
+    price: 60,
+    updateAdded: "Update 1.0",
+    unlockRank: 1,
+    stats: { effectDuration: 240, meleeLight: 13, meleeHeavy: 27 },
+    description: "Stamina Shot의 하위 버전. 지속 시간이 더 짧다.",
+  },
+
+  // ── 치유 ──
+  {
+    id: "consumable_medical_pack",
+    category: "consumable",
+    name: "Medical Pack",
+    image: "images/consumables/medical_pack.png",
+    consumableClass: "healing",
+    consumableTags: ["healing", "placeable"],
+    price: 35,
+    updateAdded: "Update 1.13",
+    unlockRank: 1,
+    stats: { meleeLight: 13, meleeHeavy: 31 },
+    description: "놓아두고 상호작용하면 체력을 회복할 수 있는 휴대용 의료 키트.",
+  },
+  {
+    id: "consumable_vitality_shot",
+    category: "consumable",
+    name: "Vitality Shot",
+    image: "images/consumables/vitality_shot.png",
+    consumableClass: "healing",
+    consumableTags: ["healing"],
+    price: 85,
+    updateAdded: "Update Early Access 0.1",
+    unlockRank: 7,
+    stats: { meleeLight: 13, meleeHeavy: 27 },
+    description: "체력을 즉시 전부 회복시키는 주사.",
+  },
+  {
+    id: "consumable_vitality_shot_weak",
+    category: "consumable",
+    name: "Vitality Shot (Weak)",
+    image: "images/consumables/vitality_shot_weak.png",
+    consumableClass: "healing",
+    consumableTags: ["healing"],
+    price: 20,
+    updateAdded: "Update Early Access 2.1",
+    unlockRank: 1,
+    stats: { meleeLight: 13, meleeHeavy: 27 },
+    description: "Vitality Shot의 하위 버전. 회복량이 더 적다.",
+  },
+  {
+    id: "consumable_recovery_shot",
+    category: "consumable",
+    name: "Recovery Shot",
+    image: "images/consumables/recovery_shot.png",
+    consumableClass: "healing",
+    consumableTags: ["healing"],
+    price: 140,
+    updateAdded: "Update 2.2",
+    unlockRank: 1,
+    stats: { meleeLight: 13, meleeHeavy: 27 },
+    description: "체력을 회복시키는 고급 주사.",
+  },
+
+  // ── 딱정벌레 ──
+  {
+    id: "consumable_stalker_beetle",
+    category: "consumable",
+    name: "Stalker Beetle",
+    image: "images/consumables/stalker_beetle.png",
+    consumableClass: "beetle",
+    consumableTags: ["throwable", "rending", "noise", "poison"],
+    price: 45,
+    updateAdded: "Update 1.10",
+    unlockRank: 27,
+    stats: { damage: 50, effectRadius: 5, throwRange: 15, controlRange: 150, meleeLight: 13, meleeHeavy: 27 },
+    description: "날려서 정찰용으로 조종하는 딱정벌레. 최후의 수단으로 자폭할 수 있다.",
+  },
+  {
+    id: "consumable_choke_beetle",
+    category: "consumable",
+    name: "Choke Beetle",
+    image: "images/consumables/choke_beetle.png",
+    consumableClass: "beetle",
+    consumableTags: ["throwable", "noise"],
+    price: 22,
+    updateAdded: "Update 1.13",
+    unlockRank: 27,
+    stats: { damage: 1, effectRadius: 3, effectDuration: 60, throwRange: 15, controlRange: 150, meleeLight: 13, meleeHeavy: 27 },
+    description: "정찰용 딱정벌레. 죽거나 명령을 받으면 질식 구름을 터뜨린다.",
+  },
+  {
+    id: "consumable_fire_beetle",
+    category: "consumable",
+    name: "Fire Beetle",
+    image: "images/consumables/fire_beetle.png",
+    consumableClass: "beetle",
+    consumableTags: ["throwable", "noise", "fire"],
+    price: 57,
+    updateAdded: "Update 1.14",
+    unlockRank: 27,
+    stats: { damage: 25, effectRadius: 2, throwRange: 15, controlRange: 150, meleeLight: 13, meleeHeavy: 27 },
+    description: "정찰용 딱정벌레. 죽거나 명령을 받으면 불이 붙어 주변을 태운다.",
+  },
+
+  // ── 기타 ──
+  {
+    id: "consumable_concertina_bomb",
+    category: "consumable",
+    name: "Concertina Bomb",
+    image: "images/consumables/concertina_bomb.png",
+    consumableClass: "other",
+    consumableTags: ["throwable", "rending"],
+    price: 38,
+    updateAdded: "Update Early Access 0.1",
+    unlockRank: 37,
+    stats: { damage: 158, effectRadius: 7, throwRange: 15, meleeLight: 52, meleeHeavy: 112 },
+    description: "던지면 넓은 범위에 철조망을 펼쳐 통로를 막는 폭탄.",
+  },
+  {
+    id: "consumable_flash_bomb",
+    category: "consumable",
+    name: "Flash Bomb",
+    image: "images/consumables/flash_bomb.png",
+    consumableClass: "other",
+    consumableTags: ["throwable", "light", "vision"],
+    price: 25,
+    updateAdded: "Update Early Access 1.0",
+    unlockRank: 50,
+    stats: { damage: 1, effectRadius: 8, throwRange: 22, meleeLight: 13, meleeHeavy: 27 },
+    description: "터지면 강한 섬광으로 주변 시야를 일시적으로 마비시키는 폭탄.",
+  },
+
+  // ── 타로 카드 (Update 2.5 "Web of the Empress" 이벤트에서 최초 도입, 전부 Scarce) ──
+  // ✅ [확인됨] 위키 실측치 + 사용자 재확인(2026-07-15). 위키 자체 카테고리 푸터에 태그(투척/설치 등)가
+  // 없어 consumableTags는 전부 빈 배열로 둠(추측 아님 — 물리적 투척/설치 아이템이 아닌 순수 효과 카드).
+  {
+    id: "consumable_tarot_the_chariot",
+    category: "consumable",
+    name: "The Chariot",
+    image: "images/consumables/tarot/the_chariot.png",
+    consumableClass: "tarot",
+    consumableTags: [],
+    scarce: true,
+    updateAdded: "Update 2.5",
+    stats: { meleeLight: 13, meleeHeavy: 27 },
+    description: "바운티 헌트에서 팀별 개방/봉쇄 추출구를 서로 뒤바꾸고 숨겨진 추출구를 팀에 공개한다. 체력 칸 1개를 소모하며, 재사용까지 5분 쿨다운이 있고 미션 종료 5분 전에는 사용할 수 없다.",
+  },
+  {
+    id: "consumable_tarot_the_devil",
+    category: "consumable",
+    name: "The Devil",
+    image: "images/consumables/tarot/the_devil.png",
+    consumableClass: "tarot",
+    consumableTags: [],
+    scarce: true,
+    updateAdded: "Update 2.5",
+    stats: { meleeLight: 13, meleeHeavy: 27 },
+    description: "다운되기 전까지 무기의 흔들림과 분산도를 줄여준다(샷건 제외). 다운되면 체력 칸을 하나 더 잃는다.",
+  },
+  {
+    id: "consumable_tarot_the_empress",
+    category: "consumable",
+    name: "The Empress",
+    image: "images/consumables/tarot/the_empress.png",
+    consumableClass: "tarot",
+    consumableTags: [],
+    scarce: true,
+    updateAdded: "Update 2.5",
+    stats: { meleeLight: 13, meleeHeavy: 27 },
+    description: "Catalyst 특성, Necromancer 특성, 그리고 무작위 소모/희귀 특성 하나를 순서대로 부여한다(헌터의 특성 한도 내에서만).",
+  },
+  {
+    id: "consumable_tarot_the_fool",
+    category: "consumable",
+    name: "The Fool",
+    image: "images/consumables/tarot/the_fool.png",
+    consumableClass: "tarot",
+    consumableTags: [],
+    scarce: true,
+    updateAdded: "Update 2.5",
+    stats: { meleeLight: 13, meleeHeavy: 27 },
+    description: "이번 미션에서 마지막으로 사용한 타로 카드를 그대로 한 번 더 복사해서 사용한다.",
+  },
+  {
+    id: "consumable_tarot_the_garden",
+    category: "consumable",
+    name: "The Garden",
+    image: "images/consumables/tarot/the_garden.png",
+    consumableClass: "tarot",
+    consumableTags: [],
+    scarce: true,
+    updateAdded: "Update 2.5",
+    stats: { meleeLight: 13, meleeHeavy: 27 },
+    description: "자신과 팀원의 체력을 완전히 회복시키고 출혈·화상·중독 상태를 모두 제거한다.",
+  },
+  {
+    id: "consumable_tarot_the_hanged_man",
+    category: "consumable",
+    name: "The Hanged Man",
+    image: "images/consumables/tarot/the_hanged_man.png",
+    consumableClass: "tarot",
+    consumableTags: [],
+    scarce: true,
+    updateAdded: "Update 2.5",
+    stats: { effectDuration: 15, meleeLight: 13, meleeHeavy: 27 },
+    description: "가장 가까운 적 헌터를 일정 시간 동안 관전할 수 있다. 이후 관전당한 헌터에게 경고음이 들린다.",
+  },
+  {
+    id: "consumable_tarot_the_high_priestess",
+    category: "consumable",
+    name: "The High Priestess",
+    image: "images/consumables/tarot/the_high_priestess.png",
+    consumableClass: "tarot",
+    consumableTags: [],
+    scarce: true,
+    updateAdded: "Update 2.7",
+    stats: { effectDuration: 30, meleeLight: 13, meleeHeavy: 27 },
+    description: "30초 동안 가장 가까운 적 헌터가 있는 방향을 알려준다.",
+  },
+  {
+    id: "consumable_tarot_the_judgement",
+    category: "consumable",
+    name: "The Judgement",
+    image: "images/consumables/tarot/the_judgement.png",
+    consumableClass: "tarot",
+    consumableTags: [],
+    scarce: true,
+    updateAdded: "Update 2.5",
+    stats: { meleeLight: 13, meleeHeavy: 27 },
+    description: "현재 걸려 있는 모든 버프의 지속 시간을 두 배로 늘리지만, 대신 체력을 1까지 떨어뜨린다.",
+  },
+  {
+    id: "consumable_tarot_the_magician",
+    category: "consumable",
+    name: "The Magician",
+    image: "images/consumables/tarot/the_magician.png",
+    consumableClass: "tarot",
+    consumableTags: [],
+    scarce: true,
+    updateAdded: "Update 2.5",
+    stats: { meleeLight: 13, meleeHeavy: 27 },
+    description: "자신의 위치에 다크사이트 디코이를 설치하고 사거리 내 단서를 붉게 표시한다. 사용 시 심각한 출혈이 발생한다.",
+  },
+  {
+    id: "consumable_tarot_the_moon",
+    category: "consumable",
+    name: "The Moon",
+    image: "images/consumables/tarot/the_moon.png",
+    consumableClass: "tarot",
+    consumableTags: [],
+    scarce: true,
+    updateAdded: "Update 2.5",
+    stats: { meleeLight: 13, meleeHeavy: 27 },
+    description: "다크사이트 부스트를 2초간 부여한다.",
+  },
+  {
+    id: "consumable_tarot_the_pathfinder",
+    category: "consumable",
+    name: "The Pathfinder",
+    image: "images/consumables/tarot/the_pathfinder.png",
+    consumableClass: "tarot",
+    consumableTags: [],
+    scarce: true,
+    updateAdded: "Update 2.7",
+    stats: { effectDuration: 30, meleeLight: 13, meleeHeavy: 27 },
+    description: "맵에서 다른 헌터들이 이미 발견한 모든 단서를 잠시 동안 표시해준다.",
+  },
+  {
+    id: "consumable_tarot_the_sun",
+    category: "consumable",
+    name: "The Sun",
+    image: "images/consumables/tarot/the_sun.png",
+    consumableClass: "tarot",
+    consumableTags: [],
+    scarce: true,
+    updateAdded: "Update 2.5",
+    stats: { effectDuration: 90, meleeLight: 13, meleeHeavy: 27 },
+    description: "90초 동안 강화된 재생 버프를 부여한다.",
+  },
+  {
+    id: "consumable_tarot_the_tower",
+    category: "consumable",
+    name: "The Tower",
+    image: "images/consumables/tarot/the_tower.png",
+    consumableClass: "tarot",
+    consumableTags: [],
+    scarce: true,
+    updateAdded: "Update 2.5",
+    stats: { meleeLight: 13, meleeHeavy: 27 },
+    description: "반경 65m 내의 몬스터와 야생 표적을 처치하고 보스 표적에게 피해를 준다. 대신 자신의 헌터가 불이 붙는다.",
+  },
+  {
+    id: "consumable_tarot_the_world",
+    category: "consumable",
+    name: "The World",
+    image: "images/consumables/tarot/the_world.png",
+    consumableClass: "tarot",
+    consumableTags: [],
+    scarce: true,
+    updateAdded: "Update 2.5",
+    stats: { meleeLight: 13, meleeHeavy: 27 },
+    description: "모든 보스 표적의 위치를 드러내고, 표적당 단서 1개 분량의 보상과 효과(이벤트 포인트, 바운티, Conduit 버프, 바운티 토큰 소지 시 다크사이트 부스트 등)를 준다.",
+  },
+
+  // ── 특성은 차후 채울 예정 ─────────────────────────────
 ];
 
 /* =========================================================================
@@ -9411,6 +10052,55 @@ const ITEMS = [
      // (도구는 무기처럼 전용 렌더러가 없어서 이 meta가 사실상 유일한 스탯 표시 수단).
 
      // 파생형이 있는 도구는 무기와 동일한 variants 배열 방식 사용(현재 확인된 파생형 없음).
+     variants: [],
+   }
+========================================================================= */
+
+/* =========================================================================
+   ── 빠른 참조: 소모품(Consumable) 객체 스키마 ──
+
+   출처: huntshowdown.wiki.gg/wiki/Consumables "Consumable Statistics" 섹션 ✅ [확인됨]
+   도구(Tool)와 거의 동일한 구조 — 다른 점만 아래에 적음.
+
+   {
+     id: "consumable_고유아이디",
+     category: "consumable",
+     name: "표시 이름",
+     image: "images/consumables/파일명.png" (없으면 "")
+
+     // 필터용
+     consumableClass: "resupply" | "fire_light" | "explosive" | "poison" | "distraction"
+                     | "over_time" | "healing" | "beetle" | "other",
+     consumableTags: ["throwable", "placeable", "rending", "healing", "noise",
+                      "explosive", "fire", "poison", "vision", "light"],
+                      // "melee" 태그는 소모품에 없음(위키 확인)
+
+     price: 0,
+     updateAdded: "Update Early Access 0.1",
+     unlockRank: 1,
+     scarce: false,     // Tarot Card처럼 상점 구매 불가(월드/이벤트 획득 전용)면 true
+
+     // ⚠ 소모품은 1회용이라 도구의 uses(수량)/chamber 개념이 보통 없음.
+     // (한 슬롯에 여러 개를 따로 장착하는 것은 가능하지만, 아이템 자체는 항상 1회용)
+
+     stats: {
+       damage:                  // Damage
+       damagePerTick:           // Damage per Tick
+       effectDuration:          // Effect Duration
+       effectRadius:            // Effect Radius
+       fuseTimer:               // Fuse Timer
+       throwRange:              // Throw Range
+       controlRange:            // Control Range — Stalker Beetle류 조종 가능 거리(m)
+       meleeLight:              // Melee Damage
+       meleeHeavy:              // Heavy Melee Damage
+       staminaConsumption:      // Stamina Consumption
+       // dropRange/muzzleVelocity 등은 위키에 언급 없음 — 필요해지면 그때 추가.
+     },
+
+     description: "",
+
+     // 카드 클릭 시 뜨는 요약 패널은 renderConsumableDetailHTML이 전담 —
+     // 도구와 마찬가지로 "자세히 보기"(마네킹/그래프) 전용 화면은 없음.
      variants: [],
    }
 ========================================================================= */

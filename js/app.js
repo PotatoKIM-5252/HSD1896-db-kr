@@ -19,6 +19,12 @@ const state = {
     toolTags: new Set(),
   },
 
+  // 소모품(category:"consumable") 전용 필터 — 분류(consumableClass)/태그(consumableTags)
+  consumableFilters: {
+    consumableClass: new Set(),
+    consumableTags: new Set(),
+  },
+
   // 로드아웃 빌더 무기 선택 모달 전용 필터 (메인 검색 필터와 별개로 관리)
   modalWeaponFilters: {
     slotSize: new Set(),
@@ -198,6 +204,7 @@ function init() {
   renderCategoryFilters();
   renderWeaponFilters();
   renderToolFilters();
+  renderConsumableFilters();
   renderItemGrid();
   renderLoadoutBoard();
 }
@@ -270,6 +277,7 @@ function createCategoryFilterButton(categoryKey, labelText, imageSrc) {
     btn.classList.add("active");
     updateWeaponFilterVisibility();
     updateToolFilterVisibility();
+    updateConsumableFilterVisibility();
     renderItemGrid();
   });
   return btn;
@@ -389,6 +397,59 @@ function updateToolFilterVisibility() {
   document.getElementById("tool-filters").hidden = !show;
 }
 
+// 소모품(CONSUMABLE_FILTERS: consumableClass/consumableTags) 검색 필터 UI — 도구 필터와 동일한 구성 요소 재사용
+function renderConsumableFilters() {
+  const wrap = document.getElementById("consumable-filters");
+  wrap.innerHTML = "";
+  Object.entries(CONSUMABLE_FILTERS).forEach(([filterKey, def]) => {
+    const group = document.createElement("div");
+    group.className = "weapon-filter-group";
+    const label = document.createElement("span");
+    label.className = "weapon-filter-label";
+    label.textContent = def.label;
+    group.appendChild(label);
+    const chips = document.createElement("div");
+    chips.className = "weapon-filter-chips";
+
+    def.options.forEach((opt) => {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "filter-chip";
+      if (state.consumableFilters[filterKey].has(opt.value)) chip.classList.add("active");
+
+      if (opt.image) {
+        chip.classList.add("filter-chip-icon");
+        chip.title = opt.label;
+        const img = document.createElement("img");
+        img.src = opt.image;
+        img.alt = opt.label;
+        img.className = `filter-chip-img filter-chip-img--${filterKey}`;
+        img.onerror = () => { chip.classList.remove("filter-chip-icon"); chip.textContent = opt.label; };
+        chip.appendChild(img);
+      } else {
+        chip.textContent = opt.label;
+      }
+
+      chip.addEventListener("click", () => {
+        const set = state.consumableFilters[filterKey];
+        if (set.has(opt.value)) set.delete(opt.value);
+        else set.add(opt.value);
+        renderConsumableFilters();
+        renderItemGrid();
+      });
+      chips.appendChild(chip);
+    });
+    group.appendChild(chips);
+    wrap.appendChild(group);
+  });
+  updateConsumableFilterVisibility();
+}
+
+function updateConsumableFilterVisibility() {
+  const show = state.filterCategory === "consumable" || state.filterCategory === "all";
+  document.getElementById("consumable-filters").hidden = !show;
+}
+
 // -------------------------------------------------------------------------
 // 결과 그리드
 // -------------------------------------------------------------------------
@@ -466,6 +527,8 @@ function getFilteredItems(extra = {}) {
   const filterSource = extra.filterSource || state.weaponFilters;
   const useToolFilters = extra.useToolFilters !== false;
   const toolFilterSource = extra.toolFilterSource || state.toolFilters;
+  const useConsumableFilters = extra.useConsumableFilters !== false;
+  const consumableFilterSource = extra.consumableFilterSource || state.consumableFilters;
 
   return getFlattenedWeaponItems().filter((item) => {
     if (category && category !== "all" && item.category !== category) return false;
@@ -490,6 +553,15 @@ function getFilteredItems(extra = {}) {
       if (f.toolTags.size > 0) {
         const tags = item.toolTags || [];
         const ok = [...f.toolTags].some((t) => tags.includes(t));
+        if (!ok) return false;
+      }
+    }
+    if (useConsumableFilters && item.category === "consumable") {
+      const f = consumableFilterSource;
+      if (f.consumableClass.size > 0 && !f.consumableClass.has(item.consumableClass)) return false;
+      if (f.consumableTags.size > 0) {
+        const tags = item.consumableTags || [];
+        const ok = [...f.consumableTags].some((t) => tags.includes(t));
         if (!ok) return false;
       }
     }
@@ -619,6 +691,10 @@ function renderItemDetail(item) {
     drawWeaponChart(item, selectedAmmoId);
   } else if (item.category === "tool") {
     panel.innerHTML = renderToolDetailHTML(item);
+    bindDetailClose(panel);
+    bindLoadoutQuickAddButton(item);
+  } else if (item.category === "consumable") {
+    panel.innerHTML = renderConsumableDetailHTML(item);
     bindDetailClose(panel);
     bindLoadoutQuickAddButton(item);
   } else {
@@ -1151,6 +1227,7 @@ const STAT_DESCRIPTIONS = {
   throwRange: "던질 수 있는 최대 거리(m)입니다.",
   staminaConsumptionHeavy: "헤비 근접 공격 시 소모되는 기력(100 기준)입니다.",
   staminaConsumptionThrow: "투척 시 소모되는 기력(100 기준)입니다.",
+  controlRange: "Stalker Beetle 등을 조종할 수 있는 최대 거리(m)입니다.",
 };
 
 function closeBodyPartView() {
@@ -1320,6 +1397,7 @@ const TOOL_STAT_DEFS = [
   { key: "effectDuration", label: "효과 지속" },
   { key: "fuseTimer", label: "기폭 시간" },
   { key: "throwRange", label: "투척 사거리" },
+  { key: "controlRange", label: "조종 거리" },
   { key: "rateOfFire", label: "발사속도" },
   { key: "cycleTime", label: "사이클 시간" },
   { key: "spread", label: "분산도" },
@@ -1360,6 +1438,33 @@ function renderToolDetailHTML(item) {
     </div>
 
     <h4>도구 스탯</h4>
+    <div class="detail-stats bp-stats-inline">
+      ${TOOL_STAT_DEFS.map((d) => statRowSimple(d.label, stats[d.key], d.key)).join("")}
+    </div>
+
+    <div class="detail-action-row">
+      <button id="detail-add-loadout-btn" type="button" class="compare-btn">+ 로드아웃에 추가</button>
+    </div>
+  `;
+}
+
+// 소모품(category:"consumable") 전용 요약 패널 — 도구와 동일한 스탯란 스타일 재사용.
+// 소모품은 1회용이라 도구처럼 수량/탄약 표시가 없고, 가격만 표시.
+function renderConsumableDetailHTML(item) {
+  const stats = item.stats || {};
+  return `
+    <button id="detail-close-btn" type="button">✕</button>
+    <h2>${item.name}</h2>
+
+    ${item.image ? `<img src="${item.image}" alt="${item.name}" class="detail-img detail-img--tool" onerror="this.style.display='none'">` : ""}
+
+    <div class="ammo-status-row">
+      ${item.scarce
+        ? `<img src="images/ui/scarce.png" alt="Scarce" class="ammo-status-dollar" title="Scarce (상점 구매 불가, 월드에서만 획득)">`
+        : item.price != null ? `<img src="images/ui/hunt_dollars.png" alt="$" class="ammo-status-dollar"><span class="ammo-status-price">${item.price}</span>` : ""}
+    </div>
+
+    <h4>소모품 스탯</h4>
     <div class="detail-stats bp-stats-inline">
       ${TOOL_STAT_DEFS.map((d) => statRowSimple(d.label, stats[d.key], d.key)).join("")}
     </div>
