@@ -1456,8 +1456,13 @@ function renderToolDetailHTML(item) {
 
 // 소모품(category:"consumable") 전용 요약 패널 — 도구와 동일한 스탯란 스타일 재사용.
 // 소모품은 1회용이라 도구처럼 수량/탄약 표시가 없고, 가격만 표시.
+// 설명 문단은 "스탯만 봐서는 뭘 하는 아이템인지 알기 어려운" 종류만 표시함
+// (주사기류=지속효과/치유, 박스류=재보급, 타로 카드) — 폭탄류는 피해/범위 스탯으로
+// 충분히 설명되니 생략(사용자 확인 2026-07-16).
+const CONSUMABLE_DESC_CLASSES = ["resupply", "over_time", "healing", "tarot"];
 function renderConsumableDetailHTML(item) {
   const stats = item.stats || {};
+  const showDesc = CONSUMABLE_DESC_CLASSES.includes(item.consumableClass);
   return `
     <button id="detail-close-btn" type="button">✕</button>
     <h2>${item.name}</h2>
@@ -1469,6 +1474,8 @@ function renderConsumableDetailHTML(item) {
         ? `<img src="images/ui/scarce.png" alt="Scarce" class="ammo-status-dollar" title="Scarce (상점 구매 불가, 월드에서만 획득)">`
         : item.price != null ? `<img src="images/ui/hunt_dollars.png" alt="$" class="ammo-status-dollar"><span class="ammo-status-price">${item.price}</span>` : ""}
     </div>
+
+    ${showDesc && item.description ? `<p class="detail-desc">${item.description}</p>` : ""}
 
     <h4>소모품 스탯</h4>
     <div class="detail-stats bp-stats-inline">
