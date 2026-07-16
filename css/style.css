@@ -1578,12 +1578,12 @@ button { font-family: var(--font-body); cursor: pointer; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 18px;
-  padding-bottom: 12px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
   border-bottom: 1px solid var(--border);
 }
 
-.equip-header h2 { font-size: 17px; }
+.equip-header h2 { font-size: 16px; }
 
 .equip-total-price {
   display: flex;
@@ -1596,37 +1596,40 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 .equip-total-price img { width: 16px; height: 16px; }
 
-.equip-section { margin-bottom: 20px; }
+.equip-section { margin-bottom: 14px; }
 .equip-section:last-child { margin-bottom: 0; }
 
 .equip-section-title {
-  font-size: 12px;
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--text-secondary);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .equip-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .equip-row-boxes {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 3px;
   flex-wrap: wrap;
-  flex: 1;
 }
 
-.equip-field-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+/* 도구&소모품/특성처럼 칸이 여러 줄로 감싸질 수 있는 경우, 가격을 그 블록 전체 높이에 맞춰
+   상하 중앙 정렬하기 위해 이 wrap도 equip-row 안에서 flex 아이템으로 취급 */
+.equip-row > .equip-field-grid { flex: 1; }
+
+.equip-field-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; }
 
 .equip-box {
   position: relative;
-  width: 64px;
-  height: 64px;
+  width: 52px;
+  height: 52px;
   flex-shrink: 0;
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -1643,27 +1646,28 @@ button { font-family: var(--font-body); cursor: pointer; }
 .equip-box:hover { border-color: var(--accent); background: var(--bg-card-hover); }
 
 .equip-box img {
-  max-width: 78%;
-  max-height: 78%;
+  max-width: 82%;
+  max-height: 82%;
   object-fit: contain;
 }
 
 .equip-box-small {
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
   cursor: default;
 }
 
 .equip-box-small:hover { border-color: var(--border); background: var(--bg-card); }
 
 .equip-box-wide {
-  width: 100%;
-  height: 72px;
+  width: 190px;
+  height: 56px;
+  flex-shrink: 0;
   justify-content: flex-start;
-  padding-left: 16px;
+  padding-left: 10px;
 }
 
-.equip-box-wide img { max-width: 56px; max-height: 56px; }
+.equip-box-wide img { max-width: 68px; max-height: 48px; }
 
 .equip-box-empty { cursor: pointer; }
 .equip-box-empty::after {
@@ -1730,21 +1734,18 @@ button { font-family: var(--font-body); cursor: pointer; }
   clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
 }
 
-.equip-row-price,
-.equip-row-price-standalone {
+.equip-row-price {
   display: flex;
   align-items: center;
   gap: 4px;
   flex-shrink: 0;
+  margin-left: auto;
   font-family: var(--font-mono);
   font-size: 13px;
   color: var(--text-secondary);
 }
 
-.equip-row-price-standalone { justify-content: flex-end; margin-top: 8px; }
-
-.equip-row-price img,
-.equip-row-price-standalone img { width: 14px; height: 14px; }
+.equip-row-price img { width: 14px; height: 14px; }
 
 @media (max-width: 900px) {
   #loadout-layout { flex-direction: column; }

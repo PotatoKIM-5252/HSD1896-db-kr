@@ -2370,6 +2370,10 @@ function renderWeaponSlotsRow(slotDef) {
 
     if (item && ammo) {
       boxesWrap.appendChild(createEquipBox({ image: ammo.image, title: ammo.label, small: true }));
+      // 하부 총열 등 이중 탄약 무기(르맷/헤이메이커류)는 탄약 칸을 2개 보여줌
+      if (item.secondaryAmmoCategories && item.secondaryAmmoCategories.length > 0) {
+        boxesWrap.appendChild(createEquipBox({ image: ammo.image, title: ammo.label, small: true }));
+      }
     }
 
     rowEl.appendChild(boxesWrap);
@@ -2457,21 +2461,26 @@ function renderFieldEquipmentSection() {
   for (let i = merged.length; i < capacity; i++) {
     boxesWrap.appendChild(createEquipBox({ empty: true, onClick: () => openFieldPicker() }));
   }
-  section.appendChild(boxesWrap);
 
+  // 그리드(여러 줄로 감싸질 수 있음)와 가격을 같은 줄(equip-row)에 묶어서
+  // 가격이 그리드 전체 높이 기준으로 상하 중앙에 오도록 함
+  const rowEl = document.createElement("div");
+  rowEl.className = "equip-row";
+  rowEl.appendChild(boxesWrap);
   if (merged.length > 0) {
-    const priceEl = document.createElement("div");
-    priceEl.className = "equip-row-price-standalone";
+    const priceEl = document.createElement("span");
+    priceEl.className = "equip-row-price";
     priceEl.innerHTML = anyScarce
       ? `<img src="images/ui/scarce.png" alt="Scarce" title="Scarce 아이템 포함">${total > 0 ? total : ""}`
       : `<img src="images/ui/hunt_dollars.png" alt="$">${total}`;
-    section.appendChild(priceEl);
+    rowEl.appendChild(priceEl);
   }
+  section.appendChild(rowEl);
 
   return section;
 }
 
-// 특성 섹션 — 도구/소모품과 같은 칸 스타일이지만 최대 TRAIT_MAX_COUNT(15)개까지 자유롭게 추가/삭제.
+// 특성 섹션 — 도구/소모품처럼 항상 고정 TRAIT_MAX_COUNT(15)칸을 그대로 보여줌(채워진 칸/빈 칸 공존).
 // 헤더 오른쪽에 현재 담은 특성들의 업그레이드 포인트 비용 총합을 배지로 표시(헌트 달러와는 다른 재화).
 function renderTraitSection() {
   const section = document.createElement("div");
@@ -2495,6 +2504,20 @@ function renderTraitSection() {
   const boxesWrap = document.createElement("div");
   boxesWrap.className = "equip-row-boxes equip-field-grid";
 
+  function openAddTraitPicker() {
+    openPicker("trait", (selectedItem) => {
+      if (state.loadout[key].length >= TRAIT_MAX_COUNT) {
+        showToast(`특성은 최대 ${TRAIT_MAX_COUNT}개까지만 담을 수 있습니다.`);
+        renderLoadoutBoard();
+        closePicker();
+        return;
+      }
+      state.loadout[key].push(selectedItem.id);
+      renderLoadoutBoard();
+      closePicker();
+    });
+  }
+
   ids.forEach((id, idx) => {
     const item = ITEMS.find((i) => i.id === id);
     if (!item) return;
@@ -2505,23 +2528,9 @@ function renderTraitSection() {
     }));
   });
 
-  if (ids.length < TRAIT_MAX_COUNT) {
-    boxesWrap.appendChild(createEquipBox({
-      empty: true,
-      onClick: () => {
-        openPicker("trait", (selectedItem) => {
-          if (state.loadout[key].length >= TRAIT_MAX_COUNT) {
-            showToast(`특성은 최대 ${TRAIT_MAX_COUNT}개까지만 담을 수 있습니다.`);
-            renderLoadoutBoard();
-            closePicker();
-            return;
-          }
-          state.loadout[key].push(selectedItem.id);
-          renderLoadoutBoard();
-          closePicker();
-        });
-      },
-    }));
+  // 도구&소모품 칸과 동일하게, 채워진 칸 수와 무관하게 항상 15칸을 다 보여줌
+  for (let i = ids.length; i < TRAIT_MAX_COUNT; i++) {
+    boxesWrap.appendChild(createEquipBox({ empty: true, onClick: openAddTraitPicker }));
   }
 
   section.appendChild(boxesWrap);
