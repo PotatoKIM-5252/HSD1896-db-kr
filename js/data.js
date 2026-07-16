@@ -9364,7 +9364,7 @@ const ITEMS = [
     updateAdded: "Update 1.13",
     unlockRank: 55,
     stats: { meleeLight: 31, meleeHeavy: 90 },
-    description: "소모한 도구 중 랜덤하게 1개를 채워줌.",
+    description: "소모한 도구 중 랜덤하게 1개를 채워준다.",
   },
 
   // ── 불/광원 ──
@@ -9662,7 +9662,7 @@ const ITEMS = [
     updateAdded: "Update Early Access 2.1",
     unlockRank: 1,
     stats: { meleeLight: 13, meleeHeavy: 27 },
-    description: "체력을 즉시 75 회복시키는 주사(Vitality Shot의 절반).",
+    description: "체력을 즉시 75회복시키는 주사.",
   },
   {
     id: "consumable_recovery_shot",
@@ -9796,7 +9796,7 @@ const ITEMS = [
     scarce: true,
     updateAdded: "Update 2.5",
     stats: { meleeLight: 13, meleeHeavy: 27 },
-    description: "이번 미션에서 마지막으로 사용한 타로 카드를 하나 더 복사해서 얻는다(즉시 사용되는 것은 아님).",
+    description: "이번 미션에서 마지막으로 사용한 타로 카드를 하나 더 복사해서 얻는다.",
   },
   {
     id: "consumable_tarot_the_garden",
