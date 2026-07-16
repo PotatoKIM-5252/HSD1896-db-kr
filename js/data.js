@@ -6108,6 +6108,7 @@ const ITEMS = [
     slotSize: 4,
     ammoCategory: "medium",
     weaponClass: "rifle", // handgun/rifle/shotgun
+    dualAmmoSlot: true, // 단발식이라 탄종 2개를 동시에 넣고 교체 가능(사용자 확인)
     ammoEffects: ["bleed", "high_velocity", "subsonic"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -6176,6 +6177,7 @@ const ITEMS = [
     slotSize: 4,
     ammoCategory: "medium",
     weaponClass: "rifle", // handgun/rifle/shotgun
+    dualAmmoSlot: true, // 단발식이라 탄종 2개를 동시에 넣고 교체 가능(사용자 확인)
     ammoEffects: ["bleed", "explosive", "high_velocity", "poison"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -6800,6 +6802,7 @@ const ITEMS = [
     slotSize: 4,
     ammoCategory: "long",
     weaponClass: "rifle", // handgun/rifle/shotgun
+    dualAmmoSlot: true, // 단발/볼트액션이라 탄종 2개를 동시에 넣고 교체 가능(위키 확인)
     ammoEffects: ["explosive", "full_metal", "high_velocity", "incendiary"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -6903,6 +6906,7 @@ const ITEMS = [
     slotSize: 4,
     ammoCategory: "long",
     weaponClass: "rifle", // handgun/rifle/shotgun
+    dualAmmoSlot: true, // 단발/볼트액션이라 탄종 2개를 동시에 넣고 교체 가능(위키 확인)
     ammoEffects: ["full_metal", "incendiary", "poison", "subsonic"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -7218,6 +7222,7 @@ const ITEMS = [
     slotSize: 3,
     ammoCategory: "long",
     weaponClass: "rifle", // handgun/rifle/shotgun
+    dualAmmoSlot: true, // 단발/볼트액션이라 탄종 2개를 동시에 넣고 교체 가능(위키 확인)
     // 패치노트(Update 2.8)에서 확인된 탄종: FMJ, High Velocity
     ammoEffects: ["full_metal", "high_velocity"],
 
@@ -7551,6 +7556,7 @@ const ITEMS = [
     slotSize: 3,
     ammoCategory: "special",
     weaponClass: "rifle", // handgun/rifle/shotgun
+    dualAmmoSlot: true, // 단발/볼트액션이라 탄종 2개를 동시에 넣고 교체 가능(위키 확인)
     ammoEffects: ["incendiary", "spitzer"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -8049,6 +8055,7 @@ const ITEMS = [
     slotSize: 4,
     ammoCategory: "shotgun",
     weaponClass: "shotgun", // handgun/rifle/shotgun
+    dualAmmoSlot: true, // 단발/볼트액션이라 탄종 2개를 동시에 넣고 교체 가능(위키 확인)
     ammoEffects: ["dragonbreath", "pennyshot", "slug", "flare"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
@@ -8521,6 +8528,7 @@ const ITEMS = [
     slotSize: 4,
     ammoCategory: "special",
     weaponClass: "rifle",
+    dualAmmoSlot: true, // 단발식이라 탄종 2개를 동시에 넣고 교체 가능(위키 확인)
     ammoEffects: ["explosive", "shot_bolt"],
 
     ammoTypes: ["crossbow_bolt", "crossbow_explosive_bolt", "crossbow_shot_bolt", "crossbow_steel_bolt"],
@@ -8611,6 +8619,7 @@ const ITEMS = [
     slotSize: 2,
     ammoCategory: "special",
     weaponClass: "handgun",
+    dualAmmoSlot: true, // 단발식이라 탄종 2개를 동시에 넣고 교체 가능(위키 확인)
     ammoEffects: ["dragonbreath", "bleed", "ball_shot"],
 
     ammoTypes: ["bomblauncher_charge", "bomblauncher_dragonbreath", "bomblauncher_harpoon", "bomblauncher_steelball", "bomblauncher_waxedfrag"],
@@ -8672,6 +8681,7 @@ const ITEMS = [
     slotSize: 3,
     ammoCategory: "special",
     weaponClass: "rifle",
+    dualAmmoSlot: true, // 단발식이라 탄종 2개를 동시에 넣고 교체 가능(사용자 확인)
     ammoEffects: ["bleed", "poison"],
 
     ammoTypes: ["huntingbow_arrow", "huntingbow_concertina", "huntingbow_frag", "huntingbow_poison"],
@@ -8826,6 +8836,7 @@ const ITEMS = [
     slotSize: 1,
     ammoCategory: "special",
     weaponClass: "handgun",
+    dualAmmoSlot: true, // 단발식이라 탄종 2개를 동시에 넣고 교체 가능(위키 확인)
     ammoEffects: ["dragonbreath", "poison", "chaos", "choke"],
 
     ammoTypes: ["handcrossbow_bolt", "handcrossbow_chaos", "handcrossbow_choke", "handcrossbow_dragon", "handcrossbow_poison"],
