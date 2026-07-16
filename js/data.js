@@ -224,6 +224,40 @@ const CONSUMABLE_FILTERS = {
 };
 
 // -------------------------------------------------------------------------
+// 2-3. TRAIT_FILTERS — 특성(category:"trait") 전용 검색 필터
+//
+//   출처: huntshowdown.wiki.gg/wiki/Traits ✅ [확인됨]
+//
+//   traitClass(분류): 위키가 실제 인게임 특성 메뉴에서 쓰는 4대 분류(Offensive/Defensive/
+//     Movement/Supportive) 그대로. 아이템당 1개만 배정.
+//
+//   traitTags(태그): 위키의 "Type"(부가 특성 종류) 4종 — Burn(1회용: 발동 즉시 소모되어
+//     사라짐)/Scarce(희소: 상점 구매 불가, 월드에서만 획득)/Solo(1인: 팀 없이 솔로로 플레이할 때만
+//     추가 효과 발동)/Catalyst(촉매제: Catalyst 특성을 함께 보유했을 때만 추가 효과 발동).
+//     한 특성이 여러 태그를 동시에 가질 수 있음(예: Remedy = Burn+Scarce).
+// -------------------------------------------------------------------------
+const TRAIT_FILTERS = {
+  traitClass: {
+    label: "분류",
+    options: [
+      { value: "attack",   label: "공격" },
+      { value: "defense",  label: "방어" },
+      { value: "movement", label: "이동" },
+      { value: "support",  label: "보조" },
+    ],
+  },
+  traitTags: {
+    label: "태그",
+    options: [
+      { value: "burn",     label: "1회용" },
+      { value: "scarce",   label: "희소" },
+      { value: "solo",     label: "1인" },
+      { value: "catalyst", label: "촉매제" },
+    ],
+  },
+};
+
+// -------------------------------------------------------------------------
 // 3. AMMO_TYPES — 탄약 객체
 //
 //   스키마:
@@ -9919,7 +9953,10 @@ const ITEMS = [
     description: "모든 보스 표적의 위치를 드러내고, 표적당 단서 1개 분량의 보상과 효과(이벤트 포인트, 바운티, Conduit 버프, 바운티 토큰 소지 시 다크사이트 부스트 등)를 준다.",
   },
 
-  // ── 특성은 차후 채울 예정 ─────────────────────────────
+  // ── 특성(Traits) ────────────────────────────────────────────────────
+  // 스키마는 파일 맨 끝 "빠른 참조: 특성 객체 스키마" 주석 참고.
+  // 분류(traitClass) 4종 / 태그(traitTags) 4종은 TRAIT_FILTERS 정의 참고.
+  // 아직 항목 없음 — 위키(Traits 페이지) 기준으로 하나씩 추가 예정.
 ];
 
 /* =========================================================================
@@ -10102,5 +10139,35 @@ const ITEMS = [
      // 카드 클릭 시 뜨는 요약 패널은 renderConsumableDetailHTML이 전담 —
      // 도구와 마찬가지로 "자세히 보기"(마네킹/그래프) 전용 화면은 없음.
      variants: [],
+   }
+========================================================================= */
+
+/* =========================================================================
+   ── 빠른 참조: 특성(Trait) 객체 스키마 ──
+
+   출처: huntshowdown.wiki.gg/wiki/Traits ✅ [확인됨]
+   무기/도구/소모품과 달리 특성은 "탄약"이나 "던지기/설치" 같은 물리적 스탯이 없고,
+   대부분 텍스트로 된 패시브 효과라서 stats 객체 구조가 다름(숫자가 있는 경우만 채움).
+
+   {
+     id: "trait_고유아이디",
+     category: "trait",
+     name: "표시 이름",
+     image: "images/traits/파일명.png" (없으면 "")
+
+     // 필터용
+     traitClass: "attack" | "defense" | "movement" | "support",   // 위키 Category, 1개만
+     traitTags: ["burn", "scarce", "solo", "catalyst"],           // 위키 Type, 0개 이상 중복 가능
+
+     price: 0,          // Upgrade Point 비용(Hunt Dollars 아님) — 없으면 null
+     updateAdded: "Update Early Access 0.1",
+
+     stats: {},         // 특성 대부분은 숫자 스탯이 없음 — 있는 경우만 개별적으로 채움
+                          // (예: 지속시간·범위·수치가 명시된 특성 한정. 도구/소모품처럼
+                          //  범용 TOOL_STAT_DEFS를 그대로 재사용해도 무방함)
+
+     description: "",   // 효과 설명(위키 원문 그대로 옮기지 말고 풀어서 재작성)
+
+     variants: [],       // 파생형 없음 — 항상 빈 배열
    }
 ========================================================================= */

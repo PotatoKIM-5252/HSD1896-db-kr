@@ -136,7 +136,8 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 #modal-weapon-filters,
 #modal-tool-filters,
-#modal-consumable-filters {
+#modal-consumable-filters,
+#modal-trait-filters {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -223,6 +224,29 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 #consumable-filters[hidden] { display: none; }
+
+/* 특성 전용 필터 (#tool-filters/#consumable-filters와 동일한 박스 스타일 공유) */
+#trait-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+
+#trait-filters[hidden] { display: none; }
+
+.trait-tag-badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 8px; }
+.trait-tag-badge {
+  font-size: 11px;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px 10px;
+  background: var(--bg-card);
+}
 
 .weapon-filter-group {
   display: grid;

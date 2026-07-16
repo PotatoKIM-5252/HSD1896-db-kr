@@ -25,6 +25,12 @@ const state = {
     consumableTags: new Set(),
   },
 
+  // 특성(category:"trait") 전용 필터 — 분류(traitClass)/태그(traitTags)
+  traitFilters: {
+    traitClass: new Set(),
+    traitTags: new Set(),
+  },
+
   // 로드아웃 빌더 무기 선택 모달 전용 필터 (메인 검색 필터와 별개로 관리)
   modalWeaponFilters: {
     slotSize: new Set(),
@@ -40,6 +46,10 @@ const state = {
   modalConsumableFilters: {
     consumableClass: new Set(),
     consumableTags: new Set(),
+  },
+  modalTraitFilters: {
+    traitClass: new Set(),
+    traitTags: new Set(),
   },
 
   loadout: {},
@@ -215,6 +225,7 @@ function init() {
   renderWeaponFilters();
   renderToolFilters();
   renderConsumableFilters();
+  renderTraitFilters();
   renderItemGrid();
   renderLoadoutBoard();
 }
@@ -288,6 +299,7 @@ function createCategoryFilterButton(categoryKey, labelText, imageSrc) {
     updateWeaponFilterVisibility();
     updateToolFilterVisibility();
     updateConsumableFilterVisibility();
+    updateTraitFilterVisibility();
     // 카테고리를 바꿀 때 이전에 열려있던 상세 패널을 닫음 — 안 닫으면 예를 들어
     // 무기를 보다가 "도구" 탭을 눌러도 이전 무기의 상세 패널이 그대로 남아있어서
     // 마치 탭 전환이 안 되는 것처럼 보임(그리드 자체는 바뀌지만 화면상 안 보일 수 있음).
@@ -466,6 +478,47 @@ function updateConsumableFilterVisibility() {
   document.getElementById("consumable-filters").hidden = !show;
 }
 
+// 특성(TRAIT_FILTERS: traitClass/traitTags) 검색 필터 UI — 도구/소모품 필터와 동일한 구성 요소 재사용
+function renderTraitFilters() {
+  const wrap = document.getElementById("trait-filters");
+  wrap.innerHTML = "";
+  Object.entries(TRAIT_FILTERS).forEach(([filterKey, def]) => {
+    const group = document.createElement("div");
+    group.className = "weapon-filter-group";
+    const label = document.createElement("span");
+    label.className = "weapon-filter-label";
+    label.textContent = def.label;
+    group.appendChild(label);
+    const chips = document.createElement("div");
+    chips.className = "weapon-filter-chips";
+
+    def.options.forEach((opt) => {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "filter-chip";
+      if (state.traitFilters[filterKey].has(opt.value)) chip.classList.add("active");
+      chip.textContent = opt.label;
+
+      chip.addEventListener("click", () => {
+        const set = state.traitFilters[filterKey];
+        if (set.has(opt.value)) set.delete(opt.value);
+        else set.add(opt.value);
+        renderTraitFilters();
+        renderItemGrid();
+      });
+      chips.appendChild(chip);
+    });
+    group.appendChild(chips);
+    wrap.appendChild(group);
+  });
+  updateTraitFilterVisibility();
+}
+
+function updateTraitFilterVisibility() {
+  const show = state.filterCategory === "trait" || state.filterCategory === "all";
+  document.getElementById("trait-filters").hidden = !show;
+}
+
 // -------------------------------------------------------------------------
 // 결과 그리드
 // -------------------------------------------------------------------------
@@ -545,6 +598,8 @@ function getFilteredItems(extra = {}) {
   const toolFilterSource = extra.toolFilterSource || state.toolFilters;
   const useConsumableFilters = extra.useConsumableFilters !== false;
   const consumableFilterSource = extra.consumableFilterSource || state.consumableFilters;
+  const useTraitFilters = extra.useTraitFilters !== false;
+  const traitFilterSource = extra.traitFilterSource || state.traitFilters;
 
   return getFlattenedWeaponItems().filter((item) => {
     if (category && category !== "all" && item.category !== category) return false;
@@ -578,6 +633,15 @@ function getFilteredItems(extra = {}) {
       if (f.consumableTags.size > 0) {
         const tags = item.consumableTags || [];
         const ok = [...f.consumableTags].some((t) => tags.includes(t));
+        if (!ok) return false;
+      }
+    }
+    if (useTraitFilters && item.category === "trait") {
+      const f = traitFilterSource;
+      if (f.traitClass.size > 0 && !f.traitClass.has(item.traitClass)) return false;
+      if (f.traitTags.size > 0) {
+        const tags = item.traitTags || [];
+        const ok = [...f.traitTags].some((t) => tags.includes(t));
         if (!ok) return false;
       }
     }
@@ -711,6 +775,10 @@ function renderItemDetail(item) {
     bindLoadoutQuickAddButton(item);
   } else if (item.category === "consumable") {
     panel.innerHTML = renderConsumableDetailHTML(item);
+    bindDetailClose(panel);
+    bindLoadoutQuickAddButton(item);
+  } else if (item.category === "trait") {
+    panel.innerHTML = renderTraitDetailHTML(item);
     bindDetailClose(panel);
     bindLoadoutQuickAddButton(item);
   } else {
@@ -1498,6 +1566,39 @@ function renderConsumableDetailHTML(item) {
   `;
 }
 
+// 특성(category:"trait") 전용 요약 패널 — 대부분 텍스트 효과라 스탯란은 값이 있을 때만 표시.
+function renderTraitDetailHTML(item) {
+  const stats = item.stats || {};
+  const hasNumericStats = TOOL_STAT_DEFS.some((d) => stats[d.key] != null);
+  const tagLabels = (item.traitTags || [])
+    .map((t) => TRAIT_FILTERS.traitTags.options.find((o) => o.value === t)?.label)
+    .filter(Boolean);
+  return `
+    <button id="detail-close-btn" type="button">✕</button>
+    <h2>${item.name}</h2>
+
+    ${item.image ? `<img src="${item.image}" alt="${item.name}" class="detail-img detail-img--tool" onerror="this.style.display='none'">` : ""}
+
+    <div class="ammo-status-row">
+      ${item.price != null ? `<span class="ammo-status-price">업그레이드 포인트 ${item.price}</span>` : ""}
+    </div>
+
+    ${tagLabels.length ? `<div class="trait-tag-badges">${tagLabels.map((l) => `<span class="trait-tag-badge">${l}</span>`).join("")}</div>` : ""}
+
+    ${item.description ? `<p class="detail-desc">${item.description}</p>` : ""}
+
+    ${hasNumericStats ? `
+    <h4>스탯</h4>
+    <div class="detail-stats bp-stats-inline">
+      ${TOOL_STAT_DEFS.map((d) => statRowSimple(d.label, stats[d.key], d.key)).join("")}
+    </div>` : ""}
+
+    <div class="detail-action-row">
+      <button id="detail-add-loadout-btn" type="button" class="compare-btn">+ 로드아웃에 추가</button>
+    </div>
+  `;
+}
+
 // 탄약이 기본값에서 바뀐 스탯은 화살표 표기
 function statRow(label, value, baseValue) {
   if (value == null) return "";
@@ -1824,6 +1925,17 @@ function openModal(categoryFilter, onSelect) {
     consumableFiltersWrap.innerHTML = "";
   }
 
+  // 특성을 고르는 경우 특성 필터 UI 표시 (역시 매번 초기화)
+  state.modalTraitFilters = { traitClass: new Set(), traitTags: new Set() };
+  const traitFiltersWrap = document.getElementById("modal-trait-filters");
+  if (categoryFilter === "trait") {
+    traitFiltersWrap.hidden = false;
+    renderModalTraitFilters();
+  } else {
+    traitFiltersWrap.hidden = true;
+    traitFiltersWrap.innerHTML = "";
+  }
+
   renderModalList("");
 }
 
@@ -1975,12 +2087,48 @@ function renderModalConsumableFilters() {
   });
 }
 
+// 로드아웃 빌더의 특성 선택 모달 전용 필터 UI (메인 검색의 특성 필터와 동일한 구성, 상태만 별도)
+function renderModalTraitFilters() {
+  const wrap = document.getElementById("modal-trait-filters");
+  wrap.innerHTML = "";
+  Object.entries(TRAIT_FILTERS).forEach(([filterKey, def]) => {
+    const group = document.createElement("div");
+    group.className = "weapon-filter-group";
+    const label = document.createElement("span");
+    label.className = "weapon-filter-label";
+    label.textContent = def.label;
+    group.appendChild(label);
+    const chips = document.createElement("div");
+    chips.className = "weapon-filter-chips";
+
+    def.options.forEach((opt) => {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "filter-chip";
+      if (state.modalTraitFilters[filterKey].has(opt.value)) chip.classList.add("active");
+      chip.textContent = opt.label;
+
+      chip.addEventListener("click", () => {
+        const set = state.modalTraitFilters[filterKey];
+        if (set.has(opt.value)) set.delete(opt.value);
+        else set.add(opt.value);
+        renderModalTraitFilters();
+        renderModalList(document.getElementById("modal-search-input").value.trim().toLowerCase());
+      });
+      chips.appendChild(chip);
+    });
+    group.appendChild(chips);
+    wrap.appendChild(group);
+  });
+}
+
 function closeModal() {
   document.getElementById("modal-overlay").hidden = true;
   document.getElementById("modal-search-input").hidden = false;
   document.getElementById("modal-weapon-filters").hidden = true;
   document.getElementById("modal-tool-filters").hidden = true;
   document.getElementById("modal-consumable-filters").hidden = true;
+  document.getElementById("modal-trait-filters").hidden = true;
   state.modal.onSelect = null;
   state.modal.categoryFilter = null;
 }
@@ -1993,6 +2141,7 @@ function renderModalList(query) {
     useWeaponFilters: true, filterSource: state.modalWeaponFilters,
     useToolFilters: true, toolFilterSource: state.modalToolFilters,
     useConsumableFilters: true, consumableFilterSource: state.modalConsumableFilters,
+    useTraitFilters: true, traitFilterSource: state.modalTraitFilters,
   });
   if (items.length === 0) {
     list.innerHTML = `<p class="empty-msg">선택할 수 있는 아이템이 없습니다.</p>`;
