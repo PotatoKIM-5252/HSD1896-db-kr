@@ -9351,7 +9351,7 @@ const ITEMS = [
     updateAdded: "Update Early Access 6.0",
     unlockRank: 1,
     stats: { meleeLight: 31, meleeHeavy: 90 },
-    description: "휴대용 탄약 상자. 놓아두면 특수탄을 포함한 예비탄을 일부 보충해준다.",
+    description: "탄약 상자의 2배수를 채워준다.",
   },
   {
     id: "consumable_tool_box",
@@ -9364,7 +9364,7 @@ const ITEMS = [
     updateAdded: "Update 1.13",
     unlockRank: 55,
     stats: { meleeLight: 31, meleeHeavy: 90 },
-    description: "휴대용 도구 상자. 놓아두면 도구 하나를 보충해준다.",
+    description: "소모한 도구 중 랜덤하게 1개를 채워줌.",
   },
 
   // ── 불/광원 ──
@@ -9636,7 +9636,7 @@ const ITEMS = [
     updateAdded: "Update 1.13",
     unlockRank: 1,
     stats: { meleeLight: 13, meleeHeavy: 31 },
-    description: "놓아두고 상호작용하면 체력을 회복할 수 있는 휴대용 의료 키트.",
+    description: "",
   },
   {
     id: "consumable_vitality_shot",
@@ -9649,7 +9649,7 @@ const ITEMS = [
     updateAdded: "Update Early Access 0.1",
     unlockRank: 7,
     stats: { meleeLight: 13, meleeHeavy: 27 },
-    description: "체력을 즉시 전부 회복시키는 주사.",
+    description: "체력을 즉시 150(전체) 회복시키는 주사.",
   },
   {
     id: "consumable_vitality_shot_weak",
@@ -9662,7 +9662,7 @@ const ITEMS = [
     updateAdded: "Update Early Access 2.1",
     unlockRank: 1,
     stats: { meleeLight: 13, meleeHeavy: 27 },
-    description: "Vitality Shot의 하위 버전. 회복량이 더 적다.",
+    description: "체력을 즉시 75 회복시키는 주사(Vitality Shot의 절반).",
   },
   {
     id: "consumable_recovery_shot",
@@ -9675,7 +9675,7 @@ const ITEMS = [
     updateAdded: "Update 2.2",
     unlockRank: 1,
     stats: { meleeLight: 13, meleeHeavy: 27 },
-    description: "체력을 회복시키는 고급 주사.",
+    description: "다운 등으로 영구히 사라진 체력 칸을 1개 복구해주는 주사.",
   },
 
   // ── 딱정벌레 ──
@@ -9796,7 +9796,7 @@ const ITEMS = [
     scarce: true,
     updateAdded: "Update 2.5",
     stats: { meleeLight: 13, meleeHeavy: 27 },
-    description: "이번 미션에서 마지막으로 사용한 타로 카드를 그대로 한 번 더 복사해서 사용한다.",
+    description: "이번 미션에서 마지막으로 사용한 타로 카드를 하나 더 복사해서 얻는다(즉시 사용되는 것은 아님).",
   },
   {
     id: "consumable_tarot_the_garden",
@@ -9868,7 +9868,7 @@ const ITEMS = [
     scarce: true,
     updateAdded: "Update 2.5",
     stats: { meleeLight: 13, meleeHeavy: 27 },
-    description: "다크사이트 부스트를 2초간 부여한다.",
+    description: "다크 사이트 부스트를 2초 부여한다.",
   },
   {
     id: "consumable_tarot_the_pathfinder",
