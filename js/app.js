@@ -2370,8 +2370,9 @@ function renderWeaponSlotsRow(slotDef) {
 
     if (item && ammo) {
       boxesWrap.appendChild(createEquipBox({ image: ammo.image, title: ammo.label, small: true }));
-      // 하부 총열 등 이중 탄약 무기(르맷/헤이메이커류)는 탄약 칸을 2개 보여줌
-      if (item.secondaryAmmoCategories && item.secondaryAmmoCategories.length > 0) {
+      // 이중 탄약 무기 — (1) 하부 총열 등 별도 총열 보유(르맷/헤이메이커/드릴링류)
+      // (2) 단발/볼트액션이라 탄종 2개를 동시에 넣고 교체 가능(스팍스/베르티에류, dualAmmoSlot)
+      if ((item.secondaryAmmoCategories && item.secondaryAmmoCategories.length > 0) || item.dualAmmoSlot) {
         boxesWrap.appendChild(createEquipBox({ image: ammo.image, title: ammo.label, small: true }));
       }
     }
