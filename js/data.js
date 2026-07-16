@@ -240,19 +240,19 @@ const TRAIT_FILTERS = {
   traitClass: {
     label: "분류",
     options: [
-      { value: "attack",   label: "공격" },
-      { value: "defense",  label: "방어" },
-      { value: "movement", label: "이동" },
-      { value: "support",  label: "보조" },
+      { value: "attack",   label: "공격", image: "images/ui/trait_icons/attack.png" },
+      { value: "defense",  label: "방어", image: "images/ui/trait_icons/defense.png" },
+      { value: "movement", label: "이동", image: "images/ui/trait_icons/movement.png" },
+      { value: "support",  label: "보조", image: "images/ui/trait_icons/support.png" },
     ],
   },
   traitTags: {
     label: "태그",
     options: [
-      { value: "burn",     label: "1회용" },
-      { value: "scarce",   label: "희소" },
-      { value: "solo",     label: "1인" },
-      { value: "catalyst", label: "촉매제" },
+      { value: "burn",     label: "1회용", image: "images/ui/trait_icons/burn.png" },
+      { value: "scarce",   label: "희소", image: "images/ui/trait_icons/scarce.png" },
+      { value: "solo",     label: "1인", image: "images/ui/trait_icons/solo.png" },
+      { value: "catalyst", label: "촉매제", image: "images/ui/trait_icons/catalyst.png" },
     ],
   },
 };

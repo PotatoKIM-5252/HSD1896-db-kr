@@ -497,7 +497,19 @@ function renderTraitFilters() {
       chip.type = "button";
       chip.className = "filter-chip";
       if (state.traitFilters[filterKey].has(opt.value)) chip.classList.add("active");
-      chip.textContent = opt.label;
+
+      if (opt.image) {
+        chip.classList.add("filter-chip-icon");
+        chip.title = opt.label;
+        const img = document.createElement("img");
+        img.src = opt.image;
+        img.alt = opt.label;
+        img.className = `filter-chip-img filter-chip-img--${filterKey}`;
+        img.onerror = () => { chip.classList.remove("filter-chip-icon"); chip.textContent = opt.label; };
+        chip.appendChild(img);
+      } else {
+        chip.textContent = opt.label;
+      }
 
       chip.addEventListener("click", () => {
         const set = state.traitFilters[filterKey];
@@ -2106,7 +2118,19 @@ function renderModalTraitFilters() {
       chip.type = "button";
       chip.className = "filter-chip";
       if (state.modalTraitFilters[filterKey].has(opt.value)) chip.classList.add("active");
-      chip.textContent = opt.label;
+
+      if (opt.image) {
+        chip.classList.add("filter-chip-icon");
+        chip.title = opt.label;
+        const img = document.createElement("img");
+        img.src = opt.image;
+        img.alt = opt.label;
+        img.className = `filter-chip-img filter-chip-img--${filterKey}`;
+        img.onerror = () => { chip.classList.remove("filter-chip-icon"); chip.textContent = opt.label; };
+        chip.appendChild(img);
+      } else {
+        chip.textContent = opt.label;
+      }
 
       chip.addEventListener("click", () => {
         const set = state.modalTraitFilters[filterKey];

@@ -342,6 +342,19 @@ button { font-family: var(--font-body); cursor: pointer; }
   padding: 4px 14px;
 }
 
+/* 특성 분류(traitClass)/태그(traitTags) 아이콘 — 원본이 32px라 살짝 작게 표시 */
+.filter-chip-img--traitClass,
+.filter-chip-img--traitTags {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.filter-chip:has(.filter-chip-img--traitClass),
+.filter-chip:has(.filter-chip-img--traitTags) {
+  padding: 4px 14px;
+}
+
 .filter-chip-icon:hover .filter-chip-img { opacity: 0.95; }
 .filter-chip-icon.active .filter-chip-img { opacity: 1; }
 .filter-chip-icon.active {
