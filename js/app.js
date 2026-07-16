@@ -32,6 +32,16 @@ const state = {
     ammoEffect: new Set(),
   },
 
+  // 로드아웃 빌더 도구/소모품 선택 모달 전용 필터 (역시 메인 검색 필터와 별개)
+  modalToolFilters: {
+    toolClass: new Set(),
+    toolTags: new Set(),
+  },
+  modalConsumableFilters: {
+    consumableClass: new Set(),
+    consumableTags: new Set(),
+  },
+
   loadout: {},
   modal: { onSelect: null, categoryFilter: null },
 
@@ -1792,6 +1802,28 @@ function openModal(categoryFilter, onSelect) {
     filtersWrap.innerHTML = "";
   }
 
+  // 도구를 고르는 경우 도구 필터 UI 표시 (역시 매번 초기화)
+  state.modalToolFilters = { toolClass: new Set(), toolTags: new Set() };
+  const toolFiltersWrap = document.getElementById("modal-tool-filters");
+  if (categoryFilter === "tool") {
+    toolFiltersWrap.hidden = false;
+    renderModalToolFilters();
+  } else {
+    toolFiltersWrap.hidden = true;
+    toolFiltersWrap.innerHTML = "";
+  }
+
+  // 소모품을 고르는 경우 소모품 필터 UI 표시 (역시 매번 초기화)
+  state.modalConsumableFilters = { consumableClass: new Set(), consumableTags: new Set() };
+  const consumableFiltersWrap = document.getElementById("modal-consumable-filters");
+  if (categoryFilter === "consumable") {
+    consumableFiltersWrap.hidden = false;
+    renderModalConsumableFilters();
+  } else {
+    consumableFiltersWrap.hidden = true;
+    consumableFiltersWrap.innerHTML = "";
+  }
+
   renderModalList("");
 }
 
@@ -1849,10 +1881,106 @@ function renderModalWeaponFilters() {
   });
 }
 
+// 로드아웃 빌더의 도구 선택 모달 전용 필터 UI (메인 검색의 도구 필터와 동일한 구성, 상태만 별도)
+function renderModalToolFilters() {
+  const wrap = document.getElementById("modal-tool-filters");
+  wrap.innerHTML = "";
+  Object.entries(TOOL_FILTERS).forEach(([filterKey, def]) => {
+    const group = document.createElement("div");
+    group.className = "weapon-filter-group";
+    const label = document.createElement("span");
+    label.className = "weapon-filter-label";
+    label.textContent = def.label;
+    group.appendChild(label);
+    const chips = document.createElement("div");
+    chips.className = "weapon-filter-chips";
+
+    def.options.forEach((opt) => {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "filter-chip";
+      if (state.modalToolFilters[filterKey].has(opt.value)) chip.classList.add("active");
+
+      if (opt.image) {
+        chip.classList.add("filter-chip-icon");
+        chip.title = opt.label;
+        const img = document.createElement("img");
+        img.src = opt.image;
+        img.alt = opt.label;
+        img.className = `filter-chip-img filter-chip-img--${filterKey}`;
+        img.onerror = () => { chip.classList.remove("filter-chip-icon"); chip.textContent = opt.label; };
+        chip.appendChild(img);
+      } else {
+        chip.textContent = opt.label;
+      }
+
+      chip.addEventListener("click", () => {
+        const set = state.modalToolFilters[filterKey];
+        if (set.has(opt.value)) set.delete(opt.value);
+        else set.add(opt.value);
+        renderModalToolFilters();
+        renderModalList(document.getElementById("modal-search-input").value.trim().toLowerCase());
+      });
+      chips.appendChild(chip);
+    });
+    group.appendChild(chips);
+    wrap.appendChild(group);
+  });
+}
+
+// 로드아웃 빌더의 소모품 선택 모달 전용 필터 UI (메인 검색의 소모품 필터와 동일한 구성, 상태만 별도)
+function renderModalConsumableFilters() {
+  const wrap = document.getElementById("modal-consumable-filters");
+  wrap.innerHTML = "";
+  Object.entries(CONSUMABLE_FILTERS).forEach(([filterKey, def]) => {
+    const group = document.createElement("div");
+    group.className = "weapon-filter-group";
+    const label = document.createElement("span");
+    label.className = "weapon-filter-label";
+    label.textContent = def.label;
+    group.appendChild(label);
+    const chips = document.createElement("div");
+    chips.className = "weapon-filter-chips";
+
+    def.options.forEach((opt) => {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "filter-chip";
+      if (state.modalConsumableFilters[filterKey].has(opt.value)) chip.classList.add("active");
+
+      if (opt.image) {
+        chip.classList.add("filter-chip-icon");
+        chip.title = opt.label;
+        const img = document.createElement("img");
+        img.src = opt.image;
+        img.alt = opt.label;
+        img.className = `filter-chip-img filter-chip-img--${filterKey}`;
+        img.onerror = () => { chip.classList.remove("filter-chip-icon"); chip.textContent = opt.label; };
+        chip.appendChild(img);
+      } else {
+        chip.textContent = opt.label;
+      }
+
+      chip.addEventListener("click", () => {
+        const set = state.modalConsumableFilters[filterKey];
+        if (set.has(opt.value)) set.delete(opt.value);
+        else set.add(opt.value);
+        renderModalConsumableFilters();
+        renderModalList(document.getElementById("modal-search-input").value.trim().toLowerCase());
+      });
+      chips.appendChild(chip);
+    });
+    group.appendChild(chips);
+    wrap.appendChild(group);
+  });
+}
+
 function closeModal() {
   document.getElementById("modal-overlay").hidden = true;
   document.getElementById("modal-search-input").hidden = false;
   document.getElementById("modal-weapon-filters").hidden = true;
+  document.getElementById("modal-tool-filters").hidden = true;
+  document.getElementById("modal-consumable-filters").hidden = true;
   state.modal.onSelect = null;
   state.modal.categoryFilter = null;
 }
@@ -1861,7 +1989,10 @@ function renderModalList(query) {
   const list = document.getElementById("modal-item-list");
   list.innerHTML = "";
   const items = getFilteredItems({
-    category: state.modal.categoryFilter, query, useWeaponFilters: true, filterSource: state.modalWeaponFilters,
+    category: state.modal.categoryFilter, query,
+    useWeaponFilters: true, filterSource: state.modalWeaponFilters,
+    useToolFilters: true, toolFilterSource: state.modalToolFilters,
+    useConsumableFilters: true, consumableFilterSource: state.modalConsumableFilters,
   });
   if (items.length === 0) {
     list.innerHTML = `<p class="empty-msg">선택할 수 있는 아이템이 없습니다.</p>`;

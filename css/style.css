@@ -134,7 +134,9 @@ button { font-family: var(--font-body); cursor: pointer; }
 #search-input:focus, #modal-search-input:focus { border-color: var(--accent); }
 #search-input::placeholder, #modal-search-input::placeholder { color: var(--text-muted); }
 
-#modal-weapon-filters {
+#modal-weapon-filters,
+#modal-tool-filters,
+#modal-consumable-filters {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -1611,8 +1613,8 @@ button { font-family: var(--font-body); cursor: pointer; }
   border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   width: 100%;
-  max-width: 460px;
-  max-height: 80vh;
+  max-width: 640px;
+  max-height: 88vh;
   display: flex;
   flex-direction: column;
   padding: 20px;
@@ -1633,7 +1635,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 #modal-close-btn:hover { color: var(--text-primary); border-color: var(--text-secondary); }
 
-#modal-item-list { overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+#modal-item-list { overflow-y: auto; display: flex; flex-direction: column; gap: 6px; flex: 1; min-height: 0; }
 
 .modal-item-row {
   display: flex;
