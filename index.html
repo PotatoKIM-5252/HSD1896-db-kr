@@ -53,7 +53,32 @@
 
     <!-- ===================== 2. 로드아웃 빌더 탭 ===================== -->
     <section id="tab-loadout" class="tab-panel" hidden>
-      <div id="loadout-board"></div>
+      <div id="loadout-layout">
+
+        <!-- 왼쪽: 칸을 클릭하면 여기서 검색·필터로 아이템을 고름 (기존 팝업 모달을 인라인으로 전환) -->
+        <div id="loadout-picker-panel">
+          <div id="picker-empty-state">
+            <p>오른쪽에서 칸을 클릭하면<br>여기서 검색하고 필터로 골라 담을 수 있습니다.</p>
+          </div>
+          <div id="picker-content" hidden>
+            <header id="picker-header">
+              <h3 id="picker-title">아이템 선택</h3>
+              <button id="picker-close-btn" type="button">닫기</button>
+            </header>
+            <div id="picker-subtabs" hidden></div>
+            <input type="text" id="picker-search-input" placeholder="이름으로 검색...">
+            <div id="picker-weapon-filters" hidden></div>
+            <div id="picker-tool-filters" hidden></div>
+            <div id="picker-consumable-filters" hidden></div>
+            <div id="picker-trait-filters" hidden></div>
+            <div id="picker-item-list"></div>
+          </div>
+        </div>
+
+        <!-- 오른쪽: 실제 게임 로드아웃 장비창 스타일의 장비 요약판 -->
+        <div id="loadout-equipment-panel"></div>
+
+      </div>
       <div id="loadout-actions">
         <button id="clear-loadout-btn" type="button">로드아웃 초기화</button>
         <button id="goto-analysis-btn" type="button">무기 비교 탭으로 이동</button>
@@ -77,22 +102,6 @@
     </section>
 
   </main>
-
-  <!-- ===================== 아이템 선택 모달 ===================== -->
-  <div id="modal-overlay" hidden>
-    <div id="modal-box">
-      <header id="modal-header">
-        <h3 id="modal-title">아이템 선택</h3>
-        <button id="modal-close-btn" type="button">닫기</button>
-      </header>
-      <input type="text" id="modal-search-input" placeholder="이름으로 검색...">
-      <div id="modal-weapon-filters" hidden></div>
-      <div id="modal-tool-filters" hidden></div>
-      <div id="modal-consumable-filters" hidden></div>
-      <div id="modal-trait-filters" hidden></div>
-      <div id="modal-item-list"></div>
-    </div>
-  </div>
 
   <!-- ===================== 부위별 데미지 자세히 보기 오버레이 ===================== -->
   <div id="bodypart-overlay" hidden>

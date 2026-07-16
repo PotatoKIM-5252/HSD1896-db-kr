@@ -45,8 +45,8 @@ const CATEGORIES = {
     icon: "🔫",
     image: "images/ui/categories/weapon.png",
     loadoutSlots: [
-      { slotKey: "primary", label: "주무기", max: 1 },
-      { slotKey: "secondary", label: "보조무기", max: 1 },
+      { slotKey: "primary", label: "주슬롯", max: 1 },
+      { slotKey: "secondary", label: "보조 슬롯", max: 1 },
     ],
   },
   tool: {

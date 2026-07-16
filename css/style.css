@@ -119,7 +119,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   margin-bottom: 24px;
 }
 
-#search-input, #modal-search-input {
+#search-input, #picker-search-input {
   width: 100%;
   background: var(--bg-input);
   border: 1px solid var(--border);
@@ -131,13 +131,13 @@ button { font-family: var(--font-body); cursor: pointer; }
   transition: border-color 0.15s;
 }
 
-#search-input:focus, #modal-search-input:focus { border-color: var(--accent); }
-#search-input::placeholder, #modal-search-input::placeholder { color: var(--text-muted); }
+#search-input:focus, #picker-search-input:focus { border-color: var(--accent); }
+#search-input::placeholder, #picker-search-input::placeholder { color: var(--text-muted); }
 
-#modal-weapon-filters,
-#modal-tool-filters,
-#modal-consumable-filters,
-#modal-trait-filters {
+#picker-weapon-filters,
+#picker-tool-filters,
+#picker-consumable-filters,
+#picker-trait-filters {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -1258,205 +1258,6 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 /* ===================== 로드아웃 빌더 ===================== */
 
-#loadout-board {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px;
-}
-
-.loadout-group {
-  background: var(--bg-panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 18px;
-}
-
-.loadout-group h2 {
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-secondary);
-  margin-bottom: 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.loadout-group-icon {
-  width: 18px;
-  height: 18px;
-  object-fit: contain;
-  opacity: 0.85;
-}
-
-.loadout-group-capacity {
-  margin-left: auto;
-  font-size: 11px;
-  text-transform: none;
-  letter-spacing: normal;
-  font-weight: 500;
-  color: var(--text-muted);
-  font-family: var(--font-mono);
-}
-
-.slot {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 6px;
-  background: var(--bg-input);
-  border: 1px dashed var(--border-strong);
-  border-radius: var(--radius);
-  padding: 12px 14px;
-  margin-bottom: 10px;
-  cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
-}
-
-.slot:last-child { margin-bottom: 0; }
-.slot:hover { border-color: var(--accent); }
-.slot.filled {
-  border-style: solid;
-  border-color: var(--success);
-  background: rgba(92, 138, 99, 0.08);
-}
-
-.slot-label {
-  font-size: 11px;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  flex-shrink: 0;
-}
-
-.slot-content {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-
-.slot.filled .slot-content { color: var(--text-primary); font-weight: 500; }
-
-.slot-thumb {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  flex-shrink: 0;
-}
-
-.slot-item-name {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.slot-item-price {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  flex-shrink: 0;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-secondary);
-}
-
-.slot-item-price img { width: 14px; height: 14px; }
-
-.slot-empty-icon {
-  width: 18px;
-  height: 18px;
-  object-fit: contain;
-  opacity: 0.35;
-}
-
-.slot-empty-text { color: var(--text-muted); }
-
-.slot-clear-btn {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  font-size: 13px;
-  padding: 2px 4px;
-  flex-shrink: 0;
-}
-
-.slot-clear-btn:hover { color: var(--danger-strong); }
-
-/* 무기 슬롯에서 선택된 탄약 표시 줄 (무기 썸네일 너비만큼 들여쓰기) */
-.slot-ammo-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding-left: 40px;
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.slot-ammo-icon {
-  width: 26px;
-  height: 26px;
-  object-fit: contain;
-  flex-shrink: 0;
-}
-
-.slot-ammo-name { flex: 1; }
-
-.loadout-dynamic-group .dynamic-list-items { margin-bottom: 10px; }
-
-.trait-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--bg-input);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 10px 14px;
-  margin-bottom: 8px;
-  font-size: 13px;
-  color: var(--text-primary);
-}
-
-.trait-row-main {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.trait-thumb {
-  width: 28px;
-  height: 28px;
-  object-fit: contain;
-  flex-shrink: 0;
-}
-
-.add-item-btn {
-  width: 100%;
-  background: transparent;
-  border: 1px dashed var(--border-strong);
-  color: var(--accent-strong);
-  font-size: 13px;
-  font-weight: 500;
-  padding: 10px;
-  border-radius: var(--radius);
-  transition: border-color 0.15s, background 0.15s;
-}
-
-.add-item-btn:hover { border-color: var(--accent); background: rgba(236, 230, 211, 0.07); }
-
-.add-item-btn-disabled {
-  color: var(--text-muted);
-  cursor: not-allowed;
-  border-color: var(--border);
-}
-
-.add-item-btn-disabled:hover { border-color: var(--border); background: transparent; }
-
 #loadout-actions {
   display: flex;
   justify-content: flex-end;
@@ -1630,38 +1431,56 @@ button { font-family: var(--font-body); cursor: pointer; }
   color: var(--text-primary);
 }
 
-/* ===================== 모달 ===================== */
+/* ===================== 로드아웃 빌더: 좌(피커)/우(장비판) 2단 레이아웃 ===================== */
 
-#modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(10, 12, 7, 0.7);
+#loadout-layout {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  z-index: 50;
+  gap: 16px;
+  align-items: flex-start;
 }
 
-#modal-overlay[hidden] { display: none; }
-
-#modal-box {
+#loadout-picker-panel,
+#loadout-equipment-panel {
+  flex: 1 1 50%;
+  min-width: 0;
   background: var(--bg-panel);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius);
-  width: 100%;
-  max-width: 640px;
-  max-height: 88vh;
-  display: flex;
-  flex-direction: column;
   padding: 20px;
-  gap: 12px;
 }
 
-#modal-header { display: flex; align-items: center; justify-content: space-between; }
-#modal-title { font-size: 16px; }
+#loadout-picker-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 480px;
+  max-height: 78vh;
+}
 
-#modal-close-btn {
+#picker-empty-state {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+#picker-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  flex: 1;
+}
+
+#picker-content[hidden] { display: none; }
+
+#picker-header { display: flex; align-items: center; justify-content: space-between; }
+#picker-title { font-size: 16px; }
+
+#picker-close-btn {
   background: transparent;
   border: 1px solid var(--border-strong);
   color: var(--text-secondary);
@@ -1670,11 +1489,29 @@ button { font-family: var(--font-body); cursor: pointer; }
   border-radius: var(--radius);
 }
 
-#modal-close-btn:hover { color: var(--text-primary); border-color: var(--text-secondary); }
+#picker-close-btn:hover { color: var(--text-primary); border-color: var(--text-secondary); }
 
-#modal-item-list { overflow-y: auto; display: flex; flex-direction: column; gap: 6px; flex: 1; min-height: 0; }
+#picker-subtabs { display: flex; gap: 8px; }
+#picker-subtabs[hidden] { display: none; }
 
-.modal-item-row {
+.picker-subtab-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 13px;
+  padding: 6px 16px;
+  border-radius: var(--radius);
+}
+
+.picker-subtab-btn.active {
+  color: var(--text-primary);
+  border-color: var(--accent);
+  background: var(--bg-card-hover);
+}
+
+#picker-item-list { overflow-y: auto; display: flex; flex-direction: column; gap: 6px; flex: 1; min-height: 0; }
+
+.picker-item-row {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1688,29 +1525,29 @@ button { font-family: var(--font-body); cursor: pointer; }
   transition: border-color 0.15s, background 0.15s;
 }
 
-.modal-item-row:hover { border-color: var(--accent); background: var(--bg-card-hover); }
+.picker-item-row:hover { border-color: var(--accent); background: var(--bg-card-hover); }
 
-.modal-item-thumb {
+.picker-item-thumb {
   width: 34px;
   height: 34px;
   object-fit: contain;
   flex-shrink: 0;
 }
 
-.modal-item-thumb-placeholder {
+.picker-item-thumb-placeholder {
   width: 34px;
   height: 34px;
   flex-shrink: 0;
 }
 
-.modal-item-name {
+.picker-item-name {
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.modal-item-price {
+.picker-item-price {
   display: flex;
   align-items: center;
   gap: 3px;
@@ -1720,9 +1557,9 @@ button { font-family: var(--font-body); cursor: pointer; }
   color: var(--text-secondary);
 }
 
-.modal-item-price img { width: 14px; height: 14px; }
+.picker-item-price img { width: 14px; height: 14px; }
 
-.modal-back-btn {
+.picker-back-btn {
   align-self: flex-start;
   background: transparent;
   border: 1px solid var(--border-strong);
@@ -1733,7 +1570,186 @@ button { font-family: var(--font-body); cursor: pointer; }
   margin-bottom: 4px;
 }
 
-.modal-back-btn:hover { color: var(--text-primary); border-color: var(--accent); }
+.picker-back-btn:hover { color: var(--text-primary); border-color: var(--accent); }
+
+/* ---- 오른쪽: 실제 게임 로드아웃 장비창 스타일 ---- */
+
+.equip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.equip-header h2 { font-size: 17px; }
+
+.equip-total-price {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  color: var(--accent);
+}
+
+.equip-total-price img { width: 16px; height: 16px; }
+
+.equip-section { margin-bottom: 20px; }
+.equip-section:last-child { margin-bottom: 0; }
+
+.equip-section-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.equip-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.equip-row-boxes {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.equip-field-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+
+.equip-box {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.equip-field-grid .equip-box { width: auto; aspect-ratio: 1 / 1; }
+
+.equip-box:hover { border-color: var(--accent); background: var(--bg-card-hover); }
+
+.equip-box img {
+  max-width: 78%;
+  max-height: 78%;
+  object-fit: contain;
+}
+
+.equip-box-small {
+  width: 40px;
+  height: 40px;
+  cursor: default;
+}
+
+.equip-box-small:hover { border-color: var(--border); background: var(--bg-card); }
+
+.equip-box-wide {
+  width: 100%;
+  height: 72px;
+  justify-content: flex-start;
+  padding-left: 16px;
+}
+
+.equip-box-wide img { max-width: 56px; max-height: 56px; }
+
+.equip-box-empty { cursor: pointer; }
+.equip-box-empty::after {
+  content: "+";
+  color: var(--text-muted);
+  font-size: 20px;
+}
+
+.equip-box-clear {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  color: var(--text-secondary);
+  font-size: 10px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.equip-box-clear:hover { color: var(--danger-strong); border-color: var(--danger-strong); }
+
+/* 무기 용량 게이지 — 실제 게임처럼 작은 사각형이 칸수만큼 채워짐 */
+.equip-capacity-pips { display: flex; gap: 4px; margin-top: 6px; }
+.equip-pip {
+  width: 14px;
+  height: 6px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 1px;
+}
+.equip-pip-filled { background: var(--accent-strong); border-color: var(--accent-strong); }
+
+/* 특성 섹션 헤더의 업그레이드 포인트 비용 배지 (헌트 달러와 다른 재화라 별도 아이콘 스타일) */
+.equip-section-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.equip-section-title-row .equip-section-title { margin-bottom: 0; }
+
+.equip-upgrade-cost {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.equip-upgrade-cost-icon {
+  width: 15px;
+  height: 15px;
+  border-radius: 3px;
+  background: var(--accent-strong);
+  display: inline-block;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+.equip-row-price,
+.equip-row-price-standalone {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.equip-row-price-standalone { justify-content: flex-end; margin-top: 8px; }
+
+.equip-row-price img,
+.equip-row-price-standalone img { width: 14px; height: 14px; }
+
+@media (max-width: 900px) {
+  #loadout-layout { flex-direction: column; }
+  #loadout-picker-panel { max-height: 60vh; }
+}
 
 /* 자세히 보기 그래프 — 보장킬 세로선 마우스오버 시 커서 옆 안내 */
 .bp-kill-tooltip {

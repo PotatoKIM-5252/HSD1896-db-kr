@@ -32,28 +32,29 @@ const state = {
   },
 
   // 로드아웃 빌더 무기 선택 모달 전용 필터 (메인 검색 필터와 별개로 관리)
-  modalWeaponFilters: {
+  pickerWeaponFilters: {
     slotSize: new Set(),
     ammoCategory: new Set(),
     ammoEffect: new Set(),
   },
 
   // 로드아웃 빌더 도구/소모품 선택 모달 전용 필터 (역시 메인 검색 필터와 별개)
-  modalToolFilters: {
+  pickerToolFilters: {
     toolClass: new Set(),
     toolTags: new Set(),
   },
-  modalConsumableFilters: {
+  pickerConsumableFilters: {
     consumableClass: new Set(),
     consumableTags: new Set(),
   },
-  modalTraitFilters: {
+  pickerTraitFilters: {
     traitClass: new Set(),
     traitTags: new Set(),
   },
 
   loadout: {},
-  modal: { onSelect: null, categoryFilter: null },
+  // merged: true면 "도구/소모품" 통합 칸을 고르는 중이라는 뜻 — 서브탭(도구/소모품)으로 전환 가능
+  picker: { onSelect: null, categoryFilter: null, merged: false },
 
   // 무기 상세 패널에서 현재 선택된 탄약 (무기 id 단위로 기억)
   selectedAmmo: {},        // { "weapon_frontier_73c": "compact_fmj", ... }
@@ -132,6 +133,9 @@ function getTotalWeaponSlotSize(excludeKey, excludeIndex) {
 
 const WEAPON_SLOT_LIMIT = 6;
 
+// 특성은 최대 15개까지만 로드아웃에 담을 수 있음(사용자 확인)
+const TRAIT_MAX_COUNT = 15;
+
 
 // 아이템을 카테고리에 맞는 로드아웃 슬롯 중 "첫 번째 빈 자리"에 자동으로 채워넣는다.
 // (무기: 주무기 → 보조무기 순으로 탐색, 특성처럼 개수 제한이 없는 슬롯은 목록에 추가)
@@ -145,6 +149,10 @@ function addToLoadoutQuick(item, ammoId = null) {
       // 공유 풀 용량 체크 (도구+소모품처럼 여러 카테고리가 칸을 나눠 쓰는 경우)
       if (slotDef.sharedGroup && getSharedGroupUsage(slotDef.sharedGroup) >= slotDef.sharedCapacity) {
         return { ok: false, message: "필드 장비 칸이 가득 찼습니다" };
+      }
+      // 특성은 공유 풀이 아니라 자체적으로 최대 개수 제한이 있음
+      if (item.category === "trait" && state.loadout[key].length >= TRAIT_MAX_COUNT) {
+        return { ok: false, message: `특성은 최대 ${TRAIT_MAX_COUNT}개까지만 담을 수 있습니다` };
       }
       if (!slotDef.allowDuplicates && state.loadout[key].includes(item.id)) {
         return { ok: false, message: "이미 추가되어 있습니다" };
@@ -183,12 +191,9 @@ function init() {
     renderItemGrid();
   });
 
-  document.getElementById("modal-close-btn").addEventListener("click", closeModal);
-  document.getElementById("modal-overlay").addEventListener("click", (e) => {
-    if (e.target.id === "modal-overlay") closeModal();
-  });
-  document.getElementById("modal-search-input").addEventListener("input", (e) => {
-    renderModalList(e.target.value.trim().toLowerCase());
+  document.getElementById("picker-close-btn").addEventListener("click", closePicker);
+  document.getElementById("picker-search-input").addEventListener("input", (e) => {
+    renderPickerList(e.target.value.trim().toLowerCase());
   });
 
   document.getElementById("clear-loadout-btn").addEventListener("click", clearLoadout);
@@ -1895,65 +1900,80 @@ function drawGuideLine(ctx, scales, chartArea, yValue, color, label) {
 // -------------------------------------------------------------------------
 // 모달
 // -------------------------------------------------------------------------
-function openModal(categoryFilter, onSelect) {
-  state.modal.categoryFilter = categoryFilter;
-  state.modal.onSelect = onSelect;
-  document.getElementById("modal-overlay").hidden = false;
-  document.getElementById("modal-title").textContent =
-    `${CATEGORIES[categoryFilter]?.label ?? categoryFilter} 선택`;
-  document.getElementById("modal-search-input").hidden = false;
-  document.getElementById("modal-search-input").value = "";
+// categoryFilter: "weapon" | "tool" | "consumable" | "trait" | "tool_consumable"(도구+소모품 통합 칸)
+function openPicker(categoryFilter, onSelect) {
+  const merged = categoryFilter === "tool_consumable";
+  state.picker.merged = merged;
+  state.picker.categoryFilter = merged ? "tool" : categoryFilter;
+  state.picker.onSelect = onSelect;
 
-  // 무기를 고르는 경우에만 필터 UI 표시 (매번 초기화해서 깨끗한 상태로 시작)
-  state.modalWeaponFilters = { slotSize: new Set(), ammoCategory: new Set(), ammoEffect: new Set() };
-  const filtersWrap = document.getElementById("modal-weapon-filters");
-  if (categoryFilter === "weapon") {
-    filtersWrap.hidden = false;
-    renderModalWeaponFilters();
+  document.getElementById("picker-empty-state").hidden = true;
+  document.getElementById("picker-content").hidden = false;
+
+  document.getElementById("picker-title").textContent =
+    merged ? "도구 & 소모품 선택" : `${CATEGORIES[categoryFilter]?.label ?? categoryFilter} 선택`;
+  document.getElementById("picker-search-input").hidden = false;
+  document.getElementById("picker-search-input").value = "";
+
+  const subtabsWrap = document.getElementById("picker-subtabs");
+  if (merged) {
+    subtabsWrap.hidden = false;
+    renderPickerSubtabs();
   } else {
-    filtersWrap.hidden = true;
-    filtersWrap.innerHTML = "";
+    subtabsWrap.hidden = true;
+    subtabsWrap.innerHTML = "";
   }
 
-  // 도구를 고르는 경우 도구 필터 UI 표시 (역시 매번 초기화)
-  state.modalToolFilters = { toolClass: new Set(), toolTags: new Set() };
-  const toolFiltersWrap = document.getElementById("modal-tool-filters");
-  if (categoryFilter === "tool") {
-    toolFiltersWrap.hidden = false;
-    renderModalToolFilters();
-  } else {
-    toolFiltersWrap.hidden = true;
-    toolFiltersWrap.innerHTML = "";
-  }
+  showPickerFiltersFor(state.picker.categoryFilter);
+  renderPickerList("");
+}
 
-  // 소모품을 고르는 경우 소모품 필터 UI 표시 (역시 매번 초기화)
-  state.modalConsumableFilters = { consumableClass: new Set(), consumableTags: new Set() };
-  const consumableFiltersWrap = document.getElementById("modal-consumable-filters");
-  if (categoryFilter === "consumable") {
-    consumableFiltersWrap.hidden = false;
-    renderModalConsumableFilters();
-  } else {
-    consumableFiltersWrap.hidden = true;
-    consumableFiltersWrap.innerHTML = "";
-  }
+// "도구 & 소모품" 통합 칸을 고를 때 위에 뜨는 도구/소모품 전환 탭
+function renderPickerSubtabs() {
+  const wrap = document.getElementById("picker-subtabs");
+  wrap.innerHTML = "";
+  [["tool", "도구"], ["consumable", "소모품"]].forEach(([key, label]) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "picker-subtab-btn";
+    if (state.picker.categoryFilter === key) btn.classList.add("active");
+    btn.textContent = label;
+    btn.addEventListener("click", () => {
+      state.picker.categoryFilter = key;
+      showPickerFiltersFor(key);
+      renderPickerSubtabs();
+      renderPickerList(document.getElementById("picker-search-input").value.trim().toLowerCase());
+    });
+    wrap.appendChild(btn);
+  });
+}
 
-  // 특성을 고르는 경우 특성 필터 UI 표시 (역시 매번 초기화)
-  state.modalTraitFilters = { traitClass: new Set(), traitTags: new Set() };
-  const traitFiltersWrap = document.getElementById("modal-trait-filters");
-  if (categoryFilter === "trait") {
-    traitFiltersWrap.hidden = false;
-    renderModalTraitFilters();
-  } else {
-    traitFiltersWrap.hidden = true;
-    traitFiltersWrap.innerHTML = "";
-  }
+// 카테고리에 맞는 필터 UI만 보이도록 하고 나머지는 숨김 (매번 필터 상태 초기화)
+function showPickerFiltersFor(categoryFilter) {
+  state.pickerWeaponFilters = { slotSize: new Set(), ammoCategory: new Set(), ammoEffect: new Set() };
+  const weaponWrap = document.getElementById("picker-weapon-filters");
+  if (categoryFilter === "weapon") { weaponWrap.hidden = false; renderPickerWeaponFilters(); }
+  else { weaponWrap.hidden = true; weaponWrap.innerHTML = ""; }
 
-  renderModalList("");
+  state.pickerToolFilters = { toolClass: new Set(), toolTags: new Set() };
+  const toolWrap = document.getElementById("picker-tool-filters");
+  if (categoryFilter === "tool") { toolWrap.hidden = false; renderPickerToolFilters(); }
+  else { toolWrap.hidden = true; toolWrap.innerHTML = ""; }
+
+  state.pickerConsumableFilters = { consumableClass: new Set(), consumableTags: new Set() };
+  const consumableWrap = document.getElementById("picker-consumable-filters");
+  if (categoryFilter === "consumable") { consumableWrap.hidden = false; renderPickerConsumableFilters(); }
+  else { consumableWrap.hidden = true; consumableWrap.innerHTML = ""; }
+
+  state.pickerTraitFilters = { traitClass: new Set(), traitTags: new Set() };
+  const traitWrap = document.getElementById("picker-trait-filters");
+  if (categoryFilter === "trait") { traitWrap.hidden = false; renderPickerTraitFilters(); }
+  else { traitWrap.hidden = true; traitWrap.innerHTML = ""; }
 }
 
 // 로드아웃 빌더의 무기 선택 모달 전용 필터 UI (메인 검색의 필터와 동일한 구성, 상태만 별도)
-function renderModalWeaponFilters() {
-  const wrap = document.getElementById("modal-weapon-filters");
+function renderPickerWeaponFilters() {
+  const wrap = document.getElementById("picker-weapon-filters");
   wrap.innerHTML = "";
   Object.entries(WEAPON_FILTERS).forEach(([filterKey, def]) => {
     const group = document.createElement("div");
@@ -1967,7 +1987,7 @@ function renderModalWeaponFilters() {
 
     let options = def.options;
     if (filterKey === "ammoEffect") {
-      const available = getAvailableAmmoEffectValues(state.modalWeaponFilters.ammoCategory);
+      const available = getAvailableAmmoEffectValues(state.pickerWeaponFilters.ammoCategory);
       if (available) options = def.options.filter((opt) => available.has(opt.value));
     }
 
@@ -1975,7 +1995,7 @@ function renderModalWeaponFilters() {
       const chip = document.createElement("button");
       chip.type = "button";
       chip.className = "filter-chip";
-      if (state.modalWeaponFilters[filterKey].has(opt.value)) chip.classList.add("active");
+      if (state.pickerWeaponFilters[filterKey].has(opt.value)) chip.classList.add("active");
 
       if (opt.image) {
         chip.classList.add("filter-chip-icon");
@@ -1991,12 +2011,12 @@ function renderModalWeaponFilters() {
       }
 
       chip.addEventListener("click", () => {
-        const set = state.modalWeaponFilters[filterKey];
+        const set = state.pickerWeaponFilters[filterKey];
         if (set.has(opt.value)) set.delete(opt.value);
         else set.add(opt.value);
-        if (filterKey === "ammoCategory") pruneAmmoEffectFilter(state.modalWeaponFilters);
-        renderModalWeaponFilters();
-        renderModalList(document.getElementById("modal-search-input").value.trim().toLowerCase());
+        if (filterKey === "ammoCategory") pruneAmmoEffectFilter(state.pickerWeaponFilters);
+        renderPickerWeaponFilters();
+        renderPickerList(document.getElementById("picker-search-input").value.trim().toLowerCase());
       });
       chips.appendChild(chip);
     });
@@ -2006,8 +2026,8 @@ function renderModalWeaponFilters() {
 }
 
 // 로드아웃 빌더의 도구 선택 모달 전용 필터 UI (메인 검색의 도구 필터와 동일한 구성, 상태만 별도)
-function renderModalToolFilters() {
-  const wrap = document.getElementById("modal-tool-filters");
+function renderPickerToolFilters() {
+  const wrap = document.getElementById("picker-tool-filters");
   wrap.innerHTML = "";
   Object.entries(TOOL_FILTERS).forEach(([filterKey, def]) => {
     const group = document.createElement("div");
@@ -2023,7 +2043,7 @@ function renderModalToolFilters() {
       const chip = document.createElement("button");
       chip.type = "button";
       chip.className = "filter-chip";
-      if (state.modalToolFilters[filterKey].has(opt.value)) chip.classList.add("active");
+      if (state.pickerToolFilters[filterKey].has(opt.value)) chip.classList.add("active");
 
       if (opt.image) {
         chip.classList.add("filter-chip-icon");
@@ -2039,11 +2059,11 @@ function renderModalToolFilters() {
       }
 
       chip.addEventListener("click", () => {
-        const set = state.modalToolFilters[filterKey];
+        const set = state.pickerToolFilters[filterKey];
         if (set.has(opt.value)) set.delete(opt.value);
         else set.add(opt.value);
-        renderModalToolFilters();
-        renderModalList(document.getElementById("modal-search-input").value.trim().toLowerCase());
+        renderPickerToolFilters();
+        renderPickerList(document.getElementById("picker-search-input").value.trim().toLowerCase());
       });
       chips.appendChild(chip);
     });
@@ -2053,8 +2073,8 @@ function renderModalToolFilters() {
 }
 
 // 로드아웃 빌더의 소모품 선택 모달 전용 필터 UI (메인 검색의 소모품 필터와 동일한 구성, 상태만 별도)
-function renderModalConsumableFilters() {
-  const wrap = document.getElementById("modal-consumable-filters");
+function renderPickerConsumableFilters() {
+  const wrap = document.getElementById("picker-consumable-filters");
   wrap.innerHTML = "";
   Object.entries(CONSUMABLE_FILTERS).forEach(([filterKey, def]) => {
     const group = document.createElement("div");
@@ -2070,7 +2090,7 @@ function renderModalConsumableFilters() {
       const chip = document.createElement("button");
       chip.type = "button";
       chip.className = "filter-chip";
-      if (state.modalConsumableFilters[filterKey].has(opt.value)) chip.classList.add("active");
+      if (state.pickerConsumableFilters[filterKey].has(opt.value)) chip.classList.add("active");
 
       if (opt.image) {
         chip.classList.add("filter-chip-icon");
@@ -2086,11 +2106,11 @@ function renderModalConsumableFilters() {
       }
 
       chip.addEventListener("click", () => {
-        const set = state.modalConsumableFilters[filterKey];
+        const set = state.pickerConsumableFilters[filterKey];
         if (set.has(opt.value)) set.delete(opt.value);
         else set.add(opt.value);
-        renderModalConsumableFilters();
-        renderModalList(document.getElementById("modal-search-input").value.trim().toLowerCase());
+        renderPickerConsumableFilters();
+        renderPickerList(document.getElementById("picker-search-input").value.trim().toLowerCase());
       });
       chips.appendChild(chip);
     });
@@ -2100,8 +2120,8 @@ function renderModalConsumableFilters() {
 }
 
 // 로드아웃 빌더의 특성 선택 모달 전용 필터 UI (메인 검색의 특성 필터와 동일한 구성, 상태만 별도)
-function renderModalTraitFilters() {
-  const wrap = document.getElementById("modal-trait-filters");
+function renderPickerTraitFilters() {
+  const wrap = document.getElementById("picker-trait-filters");
   wrap.innerHTML = "";
   Object.entries(TRAIT_FILTERS).forEach(([filterKey, def]) => {
     const group = document.createElement("div");
@@ -2117,7 +2137,7 @@ function renderModalTraitFilters() {
       const chip = document.createElement("button");
       chip.type = "button";
       chip.className = "filter-chip";
-      if (state.modalTraitFilters[filterKey].has(opt.value)) chip.classList.add("active");
+      if (state.pickerTraitFilters[filterKey].has(opt.value)) chip.classList.add("active");
 
       if (opt.image) {
         chip.classList.add("filter-chip-icon");
@@ -2133,11 +2153,11 @@ function renderModalTraitFilters() {
       }
 
       chip.addEventListener("click", () => {
-        const set = state.modalTraitFilters[filterKey];
+        const set = state.pickerTraitFilters[filterKey];
         if (set.has(opt.value)) set.delete(opt.value);
         else set.add(opt.value);
-        renderModalTraitFilters();
-        renderModalList(document.getElementById("modal-search-input").value.trim().toLowerCase());
+        renderPickerTraitFilters();
+        renderPickerList(document.getElementById("picker-search-input").value.trim().toLowerCase());
       });
       chips.appendChild(chip);
     });
@@ -2146,26 +2166,29 @@ function renderModalTraitFilters() {
   });
 }
 
-function closeModal() {
-  document.getElementById("modal-overlay").hidden = true;
-  document.getElementById("modal-search-input").hidden = false;
-  document.getElementById("modal-weapon-filters").hidden = true;
-  document.getElementById("modal-tool-filters").hidden = true;
-  document.getElementById("modal-consumable-filters").hidden = true;
-  document.getElementById("modal-trait-filters").hidden = true;
-  state.modal.onSelect = null;
-  state.modal.categoryFilter = null;
+function closePicker() {
+  document.getElementById("picker-content").hidden = true;
+  document.getElementById("picker-empty-state").hidden = false;
+  document.getElementById("picker-search-input").hidden = false;
+  document.getElementById("picker-subtabs").hidden = true;
+  document.getElementById("picker-weapon-filters").hidden = true;
+  document.getElementById("picker-tool-filters").hidden = true;
+  document.getElementById("picker-consumable-filters").hidden = true;
+  document.getElementById("picker-trait-filters").hidden = true;
+  state.picker.onSelect = null;
+  state.picker.categoryFilter = null;
+  state.picker.merged = false;
 }
 
-function renderModalList(query) {
-  const list = document.getElementById("modal-item-list");
+function renderPickerList(query) {
+  const list = document.getElementById("picker-item-list");
   list.innerHTML = "";
   const items = getFilteredItems({
-    category: state.modal.categoryFilter, query,
-    useWeaponFilters: true, filterSource: state.modalWeaponFilters,
-    useToolFilters: true, toolFilterSource: state.modalToolFilters,
-    useConsumableFilters: true, consumableFilterSource: state.modalConsumableFilters,
-    useTraitFilters: true, traitFilterSource: state.modalTraitFilters,
+    category: state.picker.categoryFilter, query,
+    useWeaponFilters: true, filterSource: state.pickerWeaponFilters,
+    useToolFilters: true, toolFilterSource: state.pickerToolFilters,
+    useConsumableFilters: true, consumableFilterSource: state.pickerConsumableFilters,
+    useTraitFilters: true, traitFilterSource: state.pickerTraitFilters,
   });
   if (items.length === 0) {
     list.innerHTML = `<p class="empty-msg">선택할 수 있는 아이템이 없습니다.</p>`;
@@ -2173,20 +2196,20 @@ function renderModalList(query) {
   }
   items.forEach((item) => {
     const row = document.createElement("div");
-    row.className = "modal-item-row";
+    row.className = "picker-item-row";
     row.innerHTML = `
-      ${item.image ? `<img src="${item.image}" alt="" class="modal-item-thumb" onerror="this.style.display='none'">` : `<span class="modal-item-thumb-placeholder"></span>`}
-      <span class="modal-item-name">${item.name}</span>
+      ${item.image ? `<img src="${item.image}" alt="" class="picker-item-thumb" onerror="this.style.display='none'">` : `<span class="picker-item-thumb-placeholder"></span>`}
+      <span class="picker-item-name">${item.name}</span>
       ${item.scarce
-        ? `<span class="modal-item-price"><img src="images/ui/scarce.png" alt="Scarce" title="Scarce (상점 구매 불가, 월드에서만 획득)"></span>`
-        : item.price != null ? `<span class="modal-item-price"><img src="images/ui/hunt_dollars.png" alt="$">${item.price}</span>` : ""}
+        ? `<span class="picker-item-price"><img src="images/ui/scarce.png" alt="Scarce" title="Scarce (상점 구매 불가, 월드에서만 획득)"></span>`
+        : item.price != null ? `<span class="picker-item-price"><img src="images/ui/hunt_dollars.png" alt="$">${item.price}</span>` : ""}
     `;
     row.addEventListener("click", () => {
       // 무기는 클릭하면 바로 확정하지 않고 탄약 선택 단계로 이동
       if (item.category === "weapon" && item.ammoTypes && item.ammoTypes.length > 0) {
-        renderModalAmmoStep(item);
-      } else if (state.modal.onSelect) {
-        state.modal.onSelect(item, null);
+        renderPickerAmmoStep(item);
+      } else if (state.picker.onSelect) {
+        state.picker.onSelect(item, null);
       }
     });
     list.appendChild(row);
@@ -2194,22 +2217,22 @@ function renderModalList(query) {
 }
 
 // 무기 선택 후 탄약을 고르는 단계 (가격도 함께 표시)
-function renderModalAmmoStep(weaponItem) {
-  document.getElementById("modal-title").textContent = `${weaponItem.name} — 탄약 선택`;
-  document.getElementById("modal-search-input").hidden = true;
+function renderPickerAmmoStep(weaponItem) {
+  document.getElementById("picker-title").textContent = `${weaponItem.name} — 탄약 선택`;
+  document.getElementById("picker-search-input").hidden = true;
 
-  const list = document.getElementById("modal-item-list");
+  const list = document.getElementById("picker-item-list");
   list.innerHTML = "";
 
   const backBtn = document.createElement("button");
   backBtn.type = "button";
-  backBtn.className = "modal-back-btn";
+  backBtn.className = "picker-back-btn";
   backBtn.textContent = "← 무기 목록으로";
   backBtn.addEventListener("click", () => {
-    document.getElementById("modal-search-input").hidden = false;
-    document.getElementById("modal-title").textContent =
-      `${CATEGORIES[state.modal.categoryFilter]?.label ?? state.modal.categoryFilter} 선택`;
-    renderModalList(document.getElementById("modal-search-input").value.trim().toLowerCase());
+    document.getElementById("picker-search-input").hidden = false;
+    document.getElementById("picker-title").textContent =
+      `${CATEGORIES[state.picker.categoryFilter]?.label ?? state.picker.categoryFilter} 선택`;
+    renderPickerList(document.getElementById("picker-search-input").value.trim().toLowerCase());
   });
   list.appendChild(backBtn);
 
@@ -2217,199 +2240,334 @@ function renderModalAmmoStep(weaponItem) {
     const ammo = AMMO_TYPES[ammoId];
     if (!ammo) return;
     const row = document.createElement("div");
-    row.className = "modal-item-row";
+    row.className = "picker-item-row";
     row.innerHTML = `
-      ${ammo.image ? `<img src="${ammo.image}" alt="" class="modal-item-thumb" onerror="this.style.display='none'">` : `<span class="modal-item-thumb-placeholder"></span>`}
-      <span class="modal-item-name">${ammo.label}${ammoId === weaponItem.defaultAmmo ? " (기본)" : ""}</span>
+      ${ammo.image ? `<img src="${ammo.image}" alt="" class="picker-item-thumb" onerror="this.style.display='none'">` : `<span class="picker-item-thumb-placeholder"></span>`}
+      <span class="picker-item-name">${ammo.label}${ammoId === weaponItem.defaultAmmo ? " (기본)" : ""}</span>
       ${ammo.scarce
-        ? `<span class="modal-item-price modal-item-scarce"><img src="images/ui/scarce.png" alt="Scarce" title="Scarce (상점 구매 불가, 월드에서만 획득)"></span>`
-        : ammo.cost != null ? `<span class="modal-item-price"><img src="images/ui/hunt_dollars.png" alt="$">${ammo.cost}</span>` : ""}
+        ? `<span class="picker-item-price picker-item-scarce"><img src="images/ui/scarce.png" alt="Scarce" title="Scarce (상점 구매 불가, 월드에서만 획득)"></span>`
+        : ammo.cost != null ? `<span class="picker-item-price"><img src="images/ui/hunt_dollars.png" alt="$">${ammo.cost}</span>` : ""}
     `;
     row.addEventListener("click", () => {
-      if (state.modal.onSelect) state.modal.onSelect(weaponItem, ammoId);
+      if (state.picker.onSelect) state.picker.onSelect(weaponItem, ammoId);
     });
     list.appendChild(row);
   });
 }
 
 // -------------------------------------------------------------------------
-// 로드아웃
+// 로드아웃 — 오른쪽 장비판(실제 게임 로드아웃 창 스타일) + 왼쪽 피커 패널
 // -------------------------------------------------------------------------
-function renderLoadoutBoard() {
-  const board = document.getElementById("loadout-board");
-  board.innerHTML = "";
-  Object.entries(CATEGORIES).forEach(([catKey, catDef]) => {
-    const groupEl = document.createElement("div");
-    groupEl.className = "loadout-group";
-    const heading = document.createElement("h2");
-    heading.innerHTML = catDef.image
-      ? `<img src="${catDef.image}" alt="" class="loadout-group-icon" onerror="this.style.display='none'">${catDef.label}`
-      : `${catDef.icon} ${catDef.label}`;
-    groupEl.appendChild(heading);
-    catDef.loadoutSlots.forEach((slotDef) => {
-      const key = loadoutKey(catKey, slotDef.slotKey);
-      if (slotDef.max === null) groupEl.appendChild(renderDynamicSlotGroup(catKey, slotDef, key));
-      else for (let i = 0; i < slotDef.max; i++) groupEl.appendChild(renderFixedSlot(catKey, slotDef, key, i));
-    });
-    board.appendChild(groupEl);
-  });
-}
 
-function renderFixedSlot(catKey, slotDef, key, index) {
-  const slotEl = document.createElement("div");
-  slotEl.className = "slot";
-  const labelEl = document.createElement("span");
-  labelEl.className = "slot-label";
-  labelEl.textContent = slotDef.max > 1 ? `${slotDef.label} ${index + 1}` : slotDef.label;
-  slotEl.appendChild(labelEl);
-
-  // 무기 슬롯은 { item, ammoId } 형태로 저장됨 (도구/소모품은 ammoId가 항상 null)
-  const slotData = state.loadout[key][index];
-  const item = slotData?.item || null;
-  const ammo = slotData?.ammoId ? AMMO_TYPES[slotData.ammoId] : null;
-
-  const contentEl = document.createElement("div");
-  contentEl.className = "slot-content";
-  if (item) {
-    slotEl.classList.add("filled");
-    if (item.image) {
-      const thumb = document.createElement("img");
-      thumb.src = item.image;
-      thumb.alt = "";
-      thumb.className = "slot-thumb";
-      thumb.onerror = () => { thumb.style.display = "none"; };
-      contentEl.appendChild(thumb);
-    }
-    const nameSpan = document.createElement("span");
-    nameSpan.className = "slot-item-name";
-    nameSpan.textContent = item.name;
-    contentEl.appendChild(nameSpan);
-
-    if (item.scarce) {
-      contentEl.insertAdjacentHTML(
-        "beforeend",
-        `<span class="slot-item-price"><img src="images/ui/scarce.png" alt="Scarce" title="Scarce (상점 구매 불가, 월드에서만 획득)"></span>`
-      );
-    } else if (item.price != null) {
-      contentEl.insertAdjacentHTML(
-        "beforeend",
-        `<span class="slot-item-price"><img src="images/ui/hunt_dollars.png" alt="$">${item.price}</span>`
-      );
-    }
-
-    const clearBtn = document.createElement("button");
-    clearBtn.type = "button";
-    clearBtn.className = "slot-clear-btn";
-    clearBtn.textContent = "✕";
-    clearBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      state.loadout[key][index] = null;
-      renderLoadoutBoard();
-    });
-    contentEl.appendChild(clearBtn);
-  } else {
-    const catImg = CATEGORIES[catKey]?.image;
-    contentEl.innerHTML = catImg
-      ? `<img src="${catImg}" alt="" class="slot-empty-icon" onerror="this.style.display='none'"><span class="slot-empty-text">비어있음</span>`
-      : `<span class="slot-empty-text">비어있음</span>`;
-  }
-  slotEl.appendChild(contentEl);
-
-  // 선택된 탄약이 있으면 무기 정보 아래에 탄약 한 줄 추가 (이름 + 가격)
-  if (item && ammo) {
-    const ammoRow = document.createElement("div");
-    ammoRow.className = "slot-ammo-row";
-    ammoRow.innerHTML = `
-      ${ammo.image ? `<img src="${ammo.image}" alt="" class="slot-ammo-icon" onerror="this.style.display='none'">` : ""}
-      <span class="slot-ammo-name">${ammo.label}</span>
-      ${ammo.scarce
-        ? `<span class="slot-item-price"><img src="images/ui/scarce.png" alt="Scarce" title="Scarce (상점 구매 불가, 월드에서만 획득)"></span>`
-        : ammo.cost != null ? `<span class="slot-item-price"><img src="images/ui/hunt_dollars.png" alt="$">${ammo.cost}</span>` : ""}
-    `;
-    slotEl.appendChild(ammoRow);
-  }
-
-  slotEl.addEventListener("click", (e) => {
-    if (e.target.closest(".slot-clear-btn")) return;
-    openModal(catKey, (selectedItem, selectedAmmoId) => {
-      if (catKey === "weapon") {
-        const otherTotal = getTotalWeaponSlotSize(key, index);
-        const newTotal = otherTotal + (selectedItem.slotSize || 0);
-        if (newTotal > WEAPON_SLOT_LIMIT) {
-          showToast(`무기 칸수 합이 ${WEAPON_SLOT_LIMIT}칸을 넘어서 장착할 수 없습니다. (다른 무기 ${otherTotal}칸 + 이 무기 ${selectedItem.slotSize}칸 = ${newTotal}칸)`);
-          return;
-        }
+// 현재 로드아웃에 담긴 아이템들의 헌트 달러 총합 (Scarce 아이템/특성의 업그레이드 포인트는 제외)
+function calculateLoadoutTotal() {
+  let total = 0;
+  CATEGORIES.weapon.loadoutSlots.forEach((slotDef) => {
+    const key = loadoutKey("weapon", slotDef.slotKey);
+    (state.loadout[key] || []).forEach((slotData) => {
+      if (!slotData) return;
+      if (slotData.item?.price != null && !slotData.item.scarce) total += slotData.item.price;
+      if (slotData.ammoId) {
+        const ammo = AMMO_TYPES[slotData.ammoId];
+        if (ammo && ammo.cost != null && !ammo.scarce) total += ammo.cost;
       }
-      state.loadout[key][index] = { item: selectedItem, ammoId: selectedAmmoId ?? null };
-      renderLoadoutBoard();
-      closeModal();
     });
   });
-  return slotEl;
-}
-
-function renderDynamicSlotGroup(catKey, slotDef, key) {
-  const wrap = document.createElement("div");
-  wrap.className = "loadout-dynamic-group";
-  const listEl = document.createElement("div");
-  listEl.className = "dynamic-list-items";
-  const ids = state.loadout[key];
-  if (ids.length === 0) listEl.innerHTML = `<p class="empty-msg">${withEulReulIga(`추가된 ${slotDef.label}`, "이", "가")} 없습니다.</p>`;
-  else ids.forEach((itemId, idx) => {
-    const item = ITEMS.find((i) => i.id === itemId);
-    if (!item) return;
-    const row = document.createElement("div");
-    row.className = "trait-row";
-    row.innerHTML = `
-      <span class="trait-row-main">
-        ${item.image ? `<img src="${item.image}" alt="" class="trait-thumb" onerror="this.style.display='none'">` : ""}
-        <span>${item.name}</span>
-      </span>
-    `;
-    const removeBtn = document.createElement("button");
-    removeBtn.type = "button";
-    removeBtn.className = "slot-clear-btn";
-    removeBtn.textContent = "✕";
-    removeBtn.addEventListener("click", () => {
-      // id가 아니라 인덱스로 하나만 제거 (같은 아이템을 여러 개 챙긴 경우 전체가 지워지지 않도록)
-      state.loadout[key].splice(idx, 1);
-      renderLoadoutBoard();
-    });
-    row.appendChild(removeBtn);
-    listEl.appendChild(row);
-  });
-  wrap.appendChild(listEl);
-
-  const isFull = slotDef.sharedGroup && getSharedGroupUsage(slotDef.sharedGroup) >= slotDef.sharedCapacity;
-  const addBtn = document.createElement("button");
-  addBtn.type = "button";
-  if (isFull) {
-    addBtn.className = "add-item-btn add-item-btn-disabled";
-    addBtn.disabled = true;
-    addBtn.textContent = `필드 장비 칸이 가득 찼습니다 (${slotDef.sharedCapacity}/${slotDef.sharedCapacity})`;
-  } else {
-    addBtn.className = "add-item-btn";
-    addBtn.textContent = `+ ${slotDef.label} 추가`;
-    addBtn.addEventListener("click", () => {
-      openModal(catKey, (selectedItem) => {
-        // 모달이 열려있는 동안 다른 경로로 칸이 다 찼을 수도 있으니 다시 확인
-        if (slotDef.sharedGroup && getSharedGroupUsage(slotDef.sharedGroup) >= slotDef.sharedCapacity) {
-          closeModal();
-          renderLoadoutBoard();
-          return;
-        }
-        if (!slotDef.allowDuplicates && state.loadout[key].includes(selectedItem.id)) {
-          closeModal();
-          return;
-        }
-        state.loadout[key].push(selectedItem.id);
-        renderLoadoutBoard();
-        closeModal();
+  ["tool", "consumable"].forEach((catKey) => {
+    CATEGORIES[catKey].loadoutSlots.forEach((slotDef) => {
+      const key = loadoutKey(catKey, slotDef.slotKey);
+      (state.loadout[key] || []).forEach((itemId) => {
+        const item = ITEMS.find((i) => i.id === itemId);
+        if (item && item.price != null && !item.scarce) total += item.price;
       });
     });
+  });
+  return total;
+}
+
+// 장비 칸 하나(빈 칸/채워진 칸 공용) — 이미지, 클릭(고르기), ✕(비우기)를 한번에 처리
+function createEquipBox({ image, title, empty, small, wide, onClick, onClear }) {
+  const box = document.createElement("div");
+  box.className = "equip-box"
+    + (empty ? " equip-box-empty" : "")
+    + (small ? " equip-box-small" : "")
+    + (wide ? " equip-box-wide" : "");
+  if (title) box.title = title;
+  if (image) {
+    const img = document.createElement("img");
+    img.src = image;
+    img.alt = "";
+    img.onerror = () => { img.style.display = "none"; };
+    box.appendChild(img);
   }
-  wrap.appendChild(addBtn);
+  if (onClear) {
+    const clearBtn = document.createElement("button");
+    clearBtn.type = "button";
+    clearBtn.className = "equip-box-clear";
+    clearBtn.textContent = "✕";
+    clearBtn.addEventListener("click", (e) => { e.stopPropagation(); onClear(); });
+    box.appendChild(clearBtn);
+  }
+  if (onClick) box.addEventListener("click", onClick);
+  return box;
+}
+
+// 무기 슬롯 하나를 고르는 피커를 염 (대형/소형 슬롯 공용)
+function openWeaponSlotPicker(key, index) {
+  openPicker("weapon", (selectedItem, selectedAmmoId) => {
+    const otherTotal = getTotalWeaponSlotSize(key, index);
+    const newTotal = otherTotal + (selectedItem.slotSize || 0);
+    if (newTotal > WEAPON_SLOT_LIMIT) {
+      showToast(`무기 칸수 합이 ${WEAPON_SLOT_LIMIT}칸을 넘어서 장착할 수 없습니다. (다른 무기 ${otherTotal}칸 + 이 무기 ${selectedItem.slotSize}칸 = ${newTotal}칸)`);
+      return;
+    }
+    state.loadout[key][index] = { item: selectedItem, ammoId: selectedAmmoId ?? null };
+    renderLoadoutBoard();
+    closePicker();
+  });
+}
+
+// 대형 슬롯/소형 슬롯 한 줄 — 무기 칸(들) + 탄약 칸 + 줄 오른쪽 끝 가격
+// 무기 용량 게이지 — 채워진 칸수만큼 사각형이 밝게 표시됨 (실제 게임 UI 참고)
+function renderCapacityPips(used, max) {
+  const wrap = document.createElement("div");
+  wrap.className = "equip-capacity-pips";
+  for (let i = 0; i < max; i++) {
+    const pip = document.createElement("span");
+    pip.className = "equip-pip" + (i < used ? " equip-pip-filled" : "");
+    wrap.appendChild(pip);
+  }
   return wrap;
+}
+
+function renderWeaponSlotsRow(slotDef) {
+  const key = loadoutKey("weapon", slotDef.slotKey);
+  const wrap = document.createElement("div");
+
+  let rowTotal = 0;
+  let rowScarce = false;
+  let rowHasItem = false;
+  let rowSlotSize = 0;
+
+  for (let i = 0; i < slotDef.max; i++) {
+    const slotData = state.loadout[key][i];
+    const item = slotData?.item || null;
+    const ammo = slotData?.ammoId ? AMMO_TYPES[slotData.ammoId] : null;
+
+    const rowEl = document.createElement("div");
+    rowEl.className = "equip-row";
+    const boxesWrap = document.createElement("div");
+    boxesWrap.className = "equip-row-boxes";
+
+    boxesWrap.appendChild(createEquipBox({
+      image: item?.image,
+      title: item?.name,
+      empty: !item,
+      wide: true,
+      onClick: () => openWeaponSlotPicker(key, i),
+      onClear: item ? () => { state.loadout[key][i] = null; renderLoadoutBoard(); } : null,
+    }));
+
+    if (item && ammo) {
+      boxesWrap.appendChild(createEquipBox({ image: ammo.image, title: ammo.label, small: true }));
+    }
+
+    rowEl.appendChild(boxesWrap);
+
+    const priceEl = document.createElement("span");
+    priceEl.className = "equip-row-price";
+    if (item) {
+      rowHasItem = true;
+      rowSlotSize += item.slotSize || 0;
+      if (item.scarce) {
+        rowScarce = true;
+        priceEl.innerHTML = `<img src="images/ui/scarce.png" alt="Scarce" title="Scarce (상점 구매 불가, 월드에서만 획득)">`;
+      } else if (item.price != null) {
+        rowTotal += item.price;
+      }
+      if (ammo) {
+        if (ammo.scarce) rowScarce = true;
+        else if (ammo.cost != null) rowTotal += ammo.cost;
+      }
+      priceEl.innerHTML = rowScarce
+        ? `<img src="images/ui/scarce.png" alt="Scarce" title="Scarce (상점 구매 불가, 월드에서만 획득)">${rowTotal > 0 ? rowTotal : ""}`
+        : `<img src="images/ui/hunt_dollars.png" alt="$">${rowTotal}`;
+    }
+    rowEl.appendChild(priceEl);
+    wrap.appendChild(rowEl);
+  }
+
+  wrap.appendChild(renderCapacityPips(rowSlotSize, WEAPON_SLOT_LIMIT));
+  return wrap;
+}
+
+// "도구 & 소모품" 통합 칸을 고르는 피커를 염 (도구/소모품 서브탭 포함)
+function openFieldPicker() {
+  openPicker("tool_consumable", (selectedItem) => {
+    const cat = selectedItem.category; // "tool" | "consumable"
+    const key = loadoutKey(cat, cat);
+    if (getSharedGroupUsage("field") >= 8) {
+      showToast("필드 장비 칸이 가득 찼습니다 (8/8)");
+      renderLoadoutBoard();
+      closePicker();
+      return;
+    }
+    state.loadout[key].push(selectedItem.id);
+    renderLoadoutBoard();
+    closePicker();
+  });
+}
+
+// 도구+소모품이 8칸을 공유하는 통합 섹션 (예전엔 도구 4/소모품 4로 나뉘어 있었지만 현재는 통합)
+function renderFieldEquipmentSection() {
+  const section = document.createElement("div");
+  section.className = "equip-section";
+  const heading = document.createElement("h3");
+  heading.className = "equip-section-title";
+  heading.textContent = "도구 및 소모품";
+  section.appendChild(heading);
+
+  const toolKey = loadoutKey("tool", "tool");
+  const consumableKey = loadoutKey("consumable", "consumable");
+  const toolIds = state.loadout[toolKey] || [];
+  const consumableIds = state.loadout[consumableKey] || [];
+  const merged = [
+    ...toolIds.map((id, idx) => ({ key: toolKey, idx, id })),
+    ...consumableIds.map((id, idx) => ({ key: consumableKey, idx, id })),
+  ];
+
+  const boxesWrap = document.createElement("div");
+  boxesWrap.className = "equip-row-boxes equip-field-grid";
+  let total = 0;
+  let anyScarce = false;
+
+  merged.forEach((entry) => {
+    const item = ITEMS.find((i) => i.id === entry.id);
+    if (!item) return;
+    if (item.scarce) anyScarce = true;
+    else if (item.price != null) total += item.price;
+    boxesWrap.appendChild(createEquipBox({
+      image: item.image,
+      title: item.name,
+      onClear: () => { state.loadout[entry.key].splice(entry.idx, 1); renderLoadoutBoard(); },
+    }));
+  });
+
+  const capacity = 8;
+  for (let i = merged.length; i < capacity; i++) {
+    boxesWrap.appendChild(createEquipBox({ empty: true, onClick: () => openFieldPicker() }));
+  }
+  section.appendChild(boxesWrap);
+
+  if (merged.length > 0) {
+    const priceEl = document.createElement("div");
+    priceEl.className = "equip-row-price-standalone";
+    priceEl.innerHTML = anyScarce
+      ? `<img src="images/ui/scarce.png" alt="Scarce" title="Scarce 아이템 포함">${total > 0 ? total : ""}`
+      : `<img src="images/ui/hunt_dollars.png" alt="$">${total}`;
+    section.appendChild(priceEl);
+  }
+
+  return section;
+}
+
+// 특성 섹션 — 도구/소모품과 같은 칸 스타일이지만 최대 TRAIT_MAX_COUNT(15)개까지 자유롭게 추가/삭제.
+// 헤더 오른쪽에 현재 담은 특성들의 업그레이드 포인트 비용 총합을 배지로 표시(헌트 달러와는 다른 재화).
+function renderTraitSection() {
+  const section = document.createElement("div");
+  section.className = "equip-section";
+
+  const key = loadoutKey("trait", "trait");
+  const ids = state.loadout[key] || [];
+  const upgradeCostTotal = ids.reduce((sum, id) => {
+    const item = ITEMS.find((i) => i.id === id);
+    return sum + (item?.price != null ? item.price : 0);
+  }, 0);
+
+  const titleRow = document.createElement("div");
+  titleRow.className = "equip-section-title-row";
+  titleRow.innerHTML = `
+    <h3 class="equip-section-title">특성</h3>
+    <span class="equip-upgrade-cost"><span class="equip-upgrade-cost-icon"></span>${upgradeCostTotal}</span>
+  `;
+  section.appendChild(titleRow);
+
+  const boxesWrap = document.createElement("div");
+  boxesWrap.className = "equip-row-boxes equip-field-grid";
+
+  ids.forEach((id, idx) => {
+    const item = ITEMS.find((i) => i.id === id);
+    if (!item) return;
+    boxesWrap.appendChild(createEquipBox({
+      image: item.image,
+      title: item.name,
+      onClear: () => { state.loadout[key].splice(idx, 1); renderLoadoutBoard(); },
+    }));
+  });
+
+  if (ids.length < TRAIT_MAX_COUNT) {
+    boxesWrap.appendChild(createEquipBox({
+      empty: true,
+      onClick: () => {
+        openPicker("trait", (selectedItem) => {
+          if (state.loadout[key].length >= TRAIT_MAX_COUNT) {
+            showToast(`특성은 최대 ${TRAIT_MAX_COUNT}개까지만 담을 수 있습니다.`);
+            renderLoadoutBoard();
+            closePicker();
+            return;
+          }
+          state.loadout[key].push(selectedItem.id);
+          renderLoadoutBoard();
+          closePicker();
+        });
+      },
+    }));
+  }
+
+  section.appendChild(boxesWrap);
+  return section;
+}
+
+// 오른쪽 장비판 전체를 다시 그림 (총합 가격 헤더 + 대형/소형 슬롯 + 도구&소모품 + 특성)
+function renderEquipmentPanel() {
+  const panel = document.getElementById("loadout-equipment-panel");
+  panel.innerHTML = "";
+
+  const header = document.createElement("div");
+  header.className = "equip-header";
+  header.innerHTML = `
+    <h2>로드아웃 장비</h2>
+    <span class="equip-total-price"><img src="images/ui/hunt_dollars.png" alt="$">${calculateLoadoutTotal()}</span>
+  `;
+  panel.appendChild(header);
+
+  // 무기 용량 게이지 (양쪽 슬롯 무기 칸수 합계 / 최대치)
+  const capSection = document.createElement("div");
+  capSection.className = "equip-section";
+  const capHeading = document.createElement("h3");
+  capHeading.className = "equip-section-title";
+  capHeading.textContent = "무기 용량";
+  capSection.appendChild(capHeading);
+  capSection.appendChild(renderCapacityPips(getTotalWeaponSlotSize(), WEAPON_SLOT_LIMIT));
+  panel.appendChild(capSection);
+
+  CATEGORIES.weapon.loadoutSlots.forEach((slotDef) => {
+    const section = document.createElement("div");
+    section.className = "equip-section";
+    const heading = document.createElement("h3");
+    heading.className = "equip-section-title";
+    heading.textContent = slotDef.label;
+    section.appendChild(heading);
+    section.appendChild(renderWeaponSlotsRow(slotDef));
+    panel.appendChild(section);
+  });
+
+  panel.appendChild(renderFieldEquipmentSection());
+  panel.appendChild(renderTraitSection());
+}
+
+function renderLoadoutBoard() {
+  renderEquipmentPanel();
 }
 
 function clearLoadout() { initLoadoutState(); renderLoadoutBoard(); }
