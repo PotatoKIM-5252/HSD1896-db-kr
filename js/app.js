@@ -2340,7 +2340,7 @@ function calculateLoadoutTotal() {
 // ammoHalf: 이중탄약 무기의 탄약칸 2개를 각각 절반 크기로 줄여서 나란히 붙일 때 true
 // stackCount: 2 이상이면 우측 하단에 "xN" 배지 표시(투척/설치/타로/주사기 스택)
 // locked: true면 스택으로 인해 못 쓰게 된 칸 — 클릭 불가, 검정으로 잠긴 표시만 함
-function createEquipBox({ image, title, empty, small, wide, weaponSize, ammoHalf, stackCount, locked, draggable, onClick, onClear, onDragStart, onDragOver, onDrop, onDragEnd }) {
+function createEquipBox({ image, title, empty, small, wide, weaponSize, ammoHalf, stackCount, locked, draggable, shellSize, onClick, onClear, onDragStart, onDragOver, onDrop, onDragEnd }) {
   const box = document.createElement("div");
   box.className = "equip-box"
     + (empty ? " equip-box-empty" : "")
@@ -2349,6 +2349,8 @@ function createEquipBox({ image, title, empty, small, wide, weaponSize, ammoHalf
     + (wide && weaponSize === "sm" ? " equip-box-wide--sm" : "")
     + (wide && weaponSize === "lg" ? " equip-box-wide--lg" : "")
     + (ammoHalf ? " equip-box-ammo-half" : "")
+    + (shellSize === "base" ? " equip-box-shell-base" : "")
+    + (shellSize === "special" ? " equip-box-shell-special" : "")
     + (locked ? " equip-box-locked" : "");
   if (title) box.title = title;
   if (image) {
@@ -2453,6 +2455,15 @@ function getConsumableStackGroup(item) {
   return null;
 }
 
+// 샷건 계열 탄약 중 "기본 쉘"(라벨이 영문 "Shells"인 무특수탄)인지 판정 —
+// 기본 쉘은 이미지 자체가 세로로 길고 여백이 많아서 특수쉘과 나란히 두면 유독 커 보임.
+function isBaseShotgunShell(ammo) {
+  return !!(ammo && ammo.category === "shotgun" && ammo.label === "Shells");
+}
+// 샷건 계열 특수탄(슬러그/드래곤브레스/플리셰트/페니샷/신호탄 등)인지 판정
+function isSpecialShotgunShell(ammo) {
+  return !!(ammo && ammo.category === "shotgun" && ammo.label !== "Shells");
+}
 
 function openWeaponSlotPicker(key, index) {
   openPicker("weapon", (selectedItem, selectedAmmoId) => {
@@ -2676,17 +2687,20 @@ function renderWeaponSlotsRow(slotDef) {
   if (primaryItem && primaryAmmo) {
     if (isDualAmmoWeapon(primaryItem)) {
       const secondaryAmmo = primarySlotData?.ammoId2 ? AMMO_TYPES[primarySlotData.ammoId2] : null;
+      const primaryShellSize = isBaseShotgunShell(primaryAmmo) ? "base" : isSpecialShotgunShell(primaryAmmo) ? "special" : undefined;
+      const secondaryShellSize = isBaseShotgunShell(secondaryAmmo) ? "base" : isSpecialShotgunShell(secondaryAmmo) ? "special" : undefined;
       boxesWrap.appendChild(createEquipBox({
-        image: primaryAmmo.image, title: primaryAmmo.label, small: true, ammoHalf: true,
+        image: primaryAmmo.image, title: primaryAmmo.label, small: true, ammoHalf: true, shellSize: primaryShellSize,
         onClick: () => openPrimaryAmmoPicker(key),
       }));
       boxesWrap.appendChild(createEquipBox({
-        image: secondaryAmmo?.image, title: secondaryAmmo?.label || "탄약 선택", small: true, ammoHalf: true,
+        image: secondaryAmmo?.image, title: secondaryAmmo?.label || "탄약 선택", small: true, ammoHalf: true, shellSize: secondaryShellSize,
         empty: !secondaryAmmo,
         onClick: () => openSecondaryAmmoPicker(key),
       }));
     } else {
-      boxesWrap.appendChild(createEquipBox({ image: primaryAmmo.image, title: primaryAmmo.label, small: true, onClick: () => openPrimaryAmmoPicker(key) }));
+      const shellSize = isBaseShotgunShell(primaryAmmo) ? "base" : isSpecialShotgunShell(primaryAmmo) ? "special" : undefined;
+      boxesWrap.appendChild(createEquipBox({ image: primaryAmmo.image, title: primaryAmmo.label, small: true, shellSize, onClick: () => openPrimaryAmmoPicker(key) }));
     }
   }
 
