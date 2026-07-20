@@ -714,9 +714,8 @@ function createItemCard(item) {
     card.innerHTML = `
       ${imgHTML}
       <div class="item-card-name">${item.name}</div>
-      ${tagIcons.length ? `<div class="item-card-trait-tags">${tagIcons.map((t) => `<img src="${t.image}" alt="${t.label}" title="${t.label}" class="trait-tag-icon">`).join("")}</div>` : ""}
       <div class="item-card-meta">
-        <span></span>
+        <div class="item-card-trait-tags">${tagIcons.map((t) => `<img src="${t.image}" alt="${t.label}" title="${t.label}" class="trait-tag-icon">`).join("")}</div>
         ${item.traitTags && item.traitTags.includes("scarce")
           ? `<span class="item-card-price"><img src="images/ui/scarce.png" alt="Scarce" class="dollar-icon" title="Scarce (상점 구매 불가, 월드에서만 획득)"></span>`
           : item.price != null ? `<span class="item-card-price"><img src="images/ui/upgrade_points.webp" alt="업그레이드 포인트" class="dollar-icon">${item.price}</span>` : ""}
