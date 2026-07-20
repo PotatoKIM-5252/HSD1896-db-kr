@@ -1464,12 +1464,19 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 #loadout-picker-panel,
 #loadout-equipment-panel {
-  flex: 1 1 50%;
+  flex: 1 1 0%;
   min-width: 0;
   background: var(--bg-panel);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   padding: 20px;
+}
+
+/* 필터/피커 패널을 넓히고 장비판(오른쪽)은 실제 게임 로드아웃 창처럼 좁고 촘촘하게 */
+#loadout-picker-panel { flex-grow: 1.7; }
+#loadout-equipment-panel {
+  flex-grow: 1;
+  --eq-cell: 40px;   /* 장비판 내 "특성 1칸" 기준 단위 — 무기/탄약 칸 사이즈 계산에 공용으로 사용 */
 }
 
 #loadout-picker-panel {
@@ -1647,11 +1654,11 @@ button { font-family: var(--font-body); cursor: pointer; }
    상하 중앙 정렬하기 위해 이 wrap도 equip-row 안에서 flex 아이템으로 취급 */
 .equip-row > .equip-field-grid { flex: 1; }
 
-.equip-field-grid { display: grid; grid-template-columns: repeat(4, 1fr); row-gap: 6px; column-gap: 1px; }
+.equip-field-grid { display: grid; grid-template-columns: repeat(4, var(--eq-cell)); row-gap: 6px; column-gap: 3px; }
 
 /* 특성 칸: 5칸 x 3줄(총 15칸) 전용 그리드. 도구&소모품(4칸)과 열 개수만 다름 */
-.equip-trait-grid { display: grid; grid-template-columns: repeat(5, 1fr); row-gap: 6px; column-gap: 1px; }
-.equip-trait-grid .equip-box { width: auto; aspect-ratio: 1 / 1; border-radius: 2px; }
+.equip-trait-grid { display: grid; grid-template-columns: repeat(5, var(--eq-cell)); row-gap: 6px; column-gap: 3px; }
+.equip-trait-grid .equip-box { width: var(--eq-cell); height: var(--eq-cell); border-radius: 2px; }
 
 .equip-box {
   position: relative;
@@ -1668,7 +1675,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   transition: border-color 0.15s, background 0.15s;
 }
 
-.equip-field-grid .equip-box { width: auto; aspect-ratio: 1 / 1; border-radius: 2px; }
+.equip-field-grid .equip-box { width: var(--eq-cell); height: var(--eq-cell); border-radius: 2px; }
 
 .equip-box:hover { border-color: var(--accent); background: var(--bg-card-hover); }
 
@@ -1684,17 +1691,32 @@ button { font-family: var(--font-body); cursor: pointer; }
   cursor: default;
 }
 
+/* 이중탄약(2번째 탄종 동시 장전) 무기 — 탄약칸 2개를 각각 절반 크기로 줄여서 나란히 붙이면
+   둘을 합친 폭이 도구/소모품 칸(--eq-cell) 폭보다 살짝 큰 정도가 되도록 맞춤 */
+.equip-box-ammo-half {
+  width: calc((var(--eq-cell) * 1.15 - 3px) / 2);
+  height: calc((var(--eq-cell) * 1.15 - 3px) / 2);
+}
+
 .equip-box-small:hover { border-color: var(--border); background: var(--bg-card); }
 
 .equip-box-wide {
-  width: 170px;
-  height: 50px;
+  /* 기본값(빈 칸/미확정 상태)은 3칸 사이즈로 표시 — 무기 장착 시 slotSize에 따라
+     .equip-box-wide--sm(2칸 조금 안되게, slotSize 1~2) 또는 .equip-box-wide--lg(3칸, slotSize 3+)로 덮어씀 */
+  width: calc(var(--eq-cell) * 3 + 6px);
+  height: 46px;
   flex-shrink: 0;
   justify-content: flex-start;
   padding-left: 8px;
 }
 
-.equip-box-wide img { max-width: 74px; max-height: 44px; }
+/* 권총 등 1~2칸 무기 — 특성칸 2개 폭보다 살짝 작게 */
+.equip-box-wide--sm { width: calc(var(--eq-cell) * 1.85); }
+
+/* 3칸 이상 무기(라이플/샷건 등) — 특성칸 3개 폭에 맞춤 */
+.equip-box-wide--lg { width: calc(var(--eq-cell) * 3 + 6px); }
+
+.equip-box-wide img { max-width: 74px; max-height: 40px; }
 
 .equip-box-empty { cursor: pointer; }
 .equip-box-empty::after {

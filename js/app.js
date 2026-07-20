@@ -2301,12 +2301,17 @@ function calculateLoadoutTotal() {
 }
 
 // 장비 칸 하나(빈 칸/채워진 칸 공용) — 이미지, 클릭(고르기), ✕(비우기)를 한번에 처리
-function createEquipBox({ image, title, empty, small, wide, onClick, onClear }) {
+// weaponSize: "sm"(1~2칸 무기) | "lg"(3칸 이상 무기) — wide 칸에서만 사용, 미지정 시 기본(3칸) 크기
+// ammoHalf: 이중탄약 무기의 탄약칸 2개를 각각 절반 크기로 줄여서 나란히 붙일 때 true
+function createEquipBox({ image, title, empty, small, wide, weaponSize, ammoHalf, onClick, onClear }) {
   const box = document.createElement("div");
   box.className = "equip-box"
     + (empty ? " equip-box-empty" : "")
     + (small ? " equip-box-small" : "")
-    + (wide ? " equip-box-wide" : "");
+    + (wide ? " equip-box-wide" : "")
+    + (wide && weaponSize === "sm" ? " equip-box-wide--sm" : "")
+    + (wide && weaponSize === "lg" ? " equip-box-wide--lg" : "")
+    + (ammoHalf ? " equip-box-ammo-half" : "");
   if (title) box.title = title;
   if (image) {
     const img = document.createElement("img");
@@ -2379,15 +2384,21 @@ function renderWeaponSlotsRow(slotDef) {
       title: item?.name,
       empty: !item,
       wide: true,
+      weaponSize: item ? (item.slotSize >= 3 ? "lg" : "sm") : undefined,
       onClick: () => openWeaponSlotPicker(key, i),
       onClear: item ? () => { state.loadout[key][i] = null; renderLoadoutBoard(); } : null,
     }));
 
     if (item && ammo) {
-      boxesWrap.appendChild(createEquipBox({ image: ammo.image, title: ammo.label, small: true }));
       // 이중 탄약 무기 — (1) 하부 총열 등 별도 총열 보유(르맷/헤이메이커/드릴링류)
       // (2) 단발/볼트액션이라 탄종 2개를 동시에 넣고 교체 가능(스팍스/베르티에류, dualAmmoSlot)
-      if ((item.secondaryAmmoCategories && item.secondaryAmmoCategories.length > 0) || item.dualAmmoSlot) {
+      // → 탄약칸 2개를 각각 절반 크기(equip-box-ammo-half)로 줄여서 나란히 붙임 —
+      //    둘을 합친 폭이 도구/소모품 칸 폭보다 살짝 큰 정도가 되도록.
+      const isDualAmmo = (item.secondaryAmmoCategories && item.secondaryAmmoCategories.length > 0) || item.dualAmmoSlot;
+      if (isDualAmmo) {
+        boxesWrap.appendChild(createEquipBox({ image: ammo.image, title: ammo.label, small: true, ammoHalf: true }));
+        boxesWrap.appendChild(createEquipBox({ image: ammo.image, title: ammo.label, small: true, ammoHalf: true }));
+      } else {
         boxesWrap.appendChild(createEquipBox({ image: ammo.image, title: ammo.label, small: true }));
       }
     }
