@@ -161,7 +161,11 @@ function addToLoadoutQuick(item, ammoId = null) {
       return { ok: true, slotLabel: slotDef.label };
     } else {
       const arr = state.loadout[key];
-      const emptyIdx = arr.findIndex((v) => v === null);
+      // 무기는 0번 칸(대표 칸)에만 퀵 추가함. 1번 칸(듀얼 짝)은 같은 무기 한 종류로만
+      // 채울 수 있어서 여기서 임의로 채우지 않고, 장비판의 "듀얼로 추가" 클릭으로만 채움.
+      const emptyIdx = item.category === "weapon"
+        ? (arr[0] === null ? 0 : -1)
+        : arr.findIndex((v) => v === null);
       if (emptyIdx !== -1) {
         if (item.category === "weapon") {
           const otherTotal = getTotalWeaponSlotSize(key, emptyIdx);
@@ -2342,9 +2346,54 @@ function openWeaponSlotPicker(key, index) {
       return;
     }
     state.loadout[key][index] = { item: selectedItem, ammoId: selectedAmmoId ?? null };
+    // 0번 칸(듀얼의 기준이 되는 칸)의 무기를 바꾸면, 기존에 채워져 있던 1번 칸(듀얼 짝)은
+    // 더 이상 같은 무기가 아니게 되므로 함께 비움(듀얼은 같은 무기 한 종류로만 구성 가능).
+    if (index === 0 && state.loadout[key].length > 1) {
+      state.loadout[key][1] = null;
+    }
     renderLoadoutBoard();
     closePicker();
   });
+}
+
+// 듀얼 짝(1번 칸)을 0번 칸과 무조건 동일한 무기+탄약으로 채움(듀얼은 같은 무기 한 종류로만 구성 가능)
+function fillDualCompanion(key, index) {
+  const first = state.loadout[key][0];
+  if (!first || !first.item) return;
+  const otherTotal = getTotalWeaponSlotSize(key, index);
+  const newTotal = otherTotal + (first.item.slotSize || 0);
+  if (newTotal > WEAPON_SLOT_LIMIT) {
+    showToast(`무기 칸수 합이 ${WEAPON_SLOT_LIMIT}칸을 넘어서 장착할 수 없습니다. (다른 무기 ${otherTotal}칸 + 이 무기 ${first.item.slotSize}칸 = ${newTotal}칸)`);
+    return;
+  }
+  state.loadout[key][index] = { item: first.item, ammoId: first.ammoId };
+  renderLoadoutBoard();
+}
+
+// 무기 행(대형/소형 슬롯)의 탄약칸을 클릭했을 때 — 이미 장착된 무기의 탄약만 다시 고르는 단계로 바로 이동.
+// 듀얼(같은 무기 2정)인 경우 탄약은 공용이므로, 채워진 모든 칸(0번+1번)에 동일하게 반영함.
+function openAmmoPickerForRow(key) {
+  const arr = state.loadout[key];
+  const weaponItem = arr[0]?.item;
+  if (!weaponItem) return;
+  state.picker.merged = false;
+  state.picker.categoryFilter = "weapon";
+  state.picker.onSelect = (item, ammoId) => {
+    arr.forEach((slotData, idx) => {
+      if (slotData && slotData.item) arr[idx] = { item: slotData.item, ammoId };
+    });
+    renderLoadoutBoard();
+    closePicker();
+  };
+  document.getElementById("picker-empty-state").hidden = true;
+  document.getElementById("picker-content").hidden = false;
+  document.getElementById("picker-subtabs").hidden = true;
+  document.getElementById("picker-subtabs").innerHTML = "";
+  document.getElementById("picker-weapon-filters").hidden = true;
+  document.getElementById("picker-tool-filters").hidden = true;
+  document.getElementById("picker-consumable-filters").hidden = true;
+  document.getElementById("picker-trait-filters").hidden = true;
+  renderPickerAmmoStep(weaponItem);
 }
 
 // 대형 슬롯/소형 슬롯 한 줄 — 무기 칸(들) + 탄약 칸 + 줄 오른쪽 끝 가격
@@ -2374,48 +2423,47 @@ function renderWeaponSlotsRow(slotDef) {
   let rowHasItem = false;
   let rowSlotSize = 0;
 
-  // 보조 슬롯은 기본 1칸. 다만 0번 칸에 듀얼 가능한 소형(3칸 미만, 예: 권총) 무기가
-  // 들어가면 옆에 같은 사이즈의 빈 칸을 하나 더 보여줘서 듀얼 구성(권총 2정)을 지원함.
+  // 슬롯은 기본 1칸. 다만 0번 칸에 듀얼 가능한 소형(3칸 미만, 예: 권총) 무기가
+  // 들어가면 옆에 같은 사이즈의 빈 칸을 하나 더 보여줘서 듀얼 구성(같은 무기 2정)을 지원함.
   let visibleCount = 1;
   if (slotDef.max > 1) {
     const firstItem = state.loadout[key][0]?.item;
     if (firstItem && firstItem.slotSize < 3) visibleCount = 2;
   }
+  const isDualPair = visibleCount === 2;
 
+  // 1단계: 무기 칸(들)만 먼저 그림 (탄약칸은 여기서 같이 넣지 않음 — 아래 2단계에서 한 번에 처리)
   for (let i = 0; i < visibleCount; i++) {
     const slotData = state.loadout[key][i];
     const item = slotData?.item || null;
     const ammo = slotData?.ammoId ? AMMO_TYPES[slotData.ammoId] : null;
 
     // 크기 결정: 아이템이 있으면 자기 slotSize 기준. 비어있는데 "듀얼용으로 추가된 칸"
-    // (1번 칸이면서 visibleCount가 2로 확장된 경우)이면 옆 권총과 같은 sm 사이즈로 맞춤.
+    // (1번 칸이면서 visibleCount가 2로 확장된 경우)이면 옆 무기와 같은 sm 사이즈로 맞춤.
     const weaponSize = item
       ? (item.slotSize >= 3 ? "lg" : "sm")
-      : (i > 0 && visibleCount === 2 ? "sm" : undefined);
+      : (i > 0 && isDualPair ? "sm" : undefined);
+    const isDualEmptySlot = i > 0 && isDualPair && !item;
 
     boxesWrap.appendChild(createEquipBox({
       image: item?.image,
-      title: item?.name,
+      title: item ? item.name : (isDualEmptySlot ? "듀얼로 추가 (같은 무기)" : undefined),
       empty: !item,
       wide: true,
       weaponSize,
-      onClick: () => openWeaponSlotPicker(key, i),
-      onClear: item ? () => { state.loadout[key][i] = null; renderLoadoutBoard(); } : null,
+      onClick: () => {
+        // 듀얼 짝(1번 칸)이 비어있으면 별도로 무기를 고르지 않고 0번 칸과 무조건 같은
+        // 무기+탄약으로 자동 채움 (듀얼은 같은 무기 한 종류로만 구성 가능)
+        if (isDualEmptySlot) fillDualCompanion(key, i);
+        else openWeaponSlotPicker(key, i);
+      },
+      onClear: item ? () => {
+        state.loadout[key][i] = null;
+        // 0번 칸(듀얼 기준 칸)을 비우면 짝(1번 칸)도 더 이상 의미가 없으므로 함께 비움
+        if (i === 0 && state.loadout[key].length > 1) state.loadout[key][1] = null;
+        renderLoadoutBoard();
+      } : null,
     }));
-
-    if (item && ammo) {
-      // 이중 탄약 무기 — (1) 하부 총열 등 별도 총열 보유(르맷/헤이메이커/드릴링류)
-      // (2) 단발/볼트액션이라 탄종 2개를 동시에 넣고 교체 가능(스팍스/베르티에류, dualAmmoSlot)
-      // → 탄약칸 2개를 각각 절반 크기(equip-box-ammo-half)로 줄여서 나란히 붙임 —
-      //    둘을 합친 폭이 도구/소모품 칸 폭보다 살짝 큰 정도가 되도록.
-      const isDualAmmo = (item.secondaryAmmoCategories && item.secondaryAmmoCategories.length > 0) || item.dualAmmoSlot;
-      if (isDualAmmo) {
-        boxesWrap.appendChild(createEquipBox({ image: ammo.image, title: ammo.label, small: true, ammoHalf: true }));
-        boxesWrap.appendChild(createEquipBox({ image: ammo.image, title: ammo.label, small: true, ammoHalf: true }));
-      } else {
-        boxesWrap.appendChild(createEquipBox({ image: ammo.image, title: ammo.label, small: true }));
-      }
-    }
 
     if (item) {
       rowHasItem = true;
@@ -2426,6 +2474,22 @@ function renderWeaponSlotsRow(slotDef) {
         if (ammo.scarce) rowScarce = true;
         else if (ammo.cost != null) rowTotal += ammo.cost;
       }
+    }
+  }
+
+  // 2단계: 탄약 칸 — 무기 칸 사이에 끼우지 않고, 채워진 무기 칸을 다 그린 뒤 항상 맨 오른쪽에
+  // 한 묶음만 표시(0번 칸 기준 탄약; 듀얼이면 같은 무기라 탄약도 공용). 클릭하면 탄약만 다시 고를 수 있음.
+  const primarySlotData = state.loadout[key][0];
+  const primaryItem = primarySlotData?.item || null;
+  const primaryAmmo = primarySlotData?.ammoId ? AMMO_TYPES[primarySlotData.ammoId] : null;
+  if (primaryItem && primaryAmmo) {
+    const isDualAmmoWeapon = (primaryItem.secondaryAmmoCategories && primaryItem.secondaryAmmoCategories.length > 0) || primaryItem.dualAmmoSlot;
+    const onAmmoClick = () => openAmmoPickerForRow(key);
+    if (isDualAmmoWeapon) {
+      boxesWrap.appendChild(createEquipBox({ image: primaryAmmo.image, title: primaryAmmo.label, small: true, ammoHalf: true, onClick: onAmmoClick }));
+      boxesWrap.appendChild(createEquipBox({ image: primaryAmmo.image, title: primaryAmmo.label, small: true, ammoHalf: true, onClick: onAmmoClick }));
+    } else {
+      boxesWrap.appendChild(createEquipBox({ image: primaryAmmo.image, title: primaryAmmo.label, small: true, onClick: onAmmoClick }));
     }
   }
 

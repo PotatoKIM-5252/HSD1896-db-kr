@@ -45,7 +45,9 @@ const CATEGORIES = {
     icon: "🔫",
     image: "images/ui/categories/weapon.png",
     loadoutSlots: [
-      { slotKey: "primary", label: "주슬롯", max: 1 },
+      // 주슬롯: 기본은 1개지만, 3칸 미만(권총 등) 무기를 넣으면 보조 슬롯과 동일하게
+      // 옆에 한 칸이 더 생겨 소형 무기 2정을 나란히 넣을 수 있음(듀얼 구성).
+      { slotKey: "primary", label: "주슬롯", max: 2 },
       // 소형 슬롯: 기본은 1개지만, 3칸 미만(권총 등) 무기를 넣으면 옆에 한 칸이 더 생겨
       // 소형 무기 2정을 나란히 넣을 수 있음(실제 게임의 "Small Slots" 듀얼 권총 구성).
       // 렌더링/빈칸 노출 조건은 js/app.js의 renderWeaponSlotsRow에서 처리.
