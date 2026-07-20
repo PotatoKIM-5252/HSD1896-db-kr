@@ -10236,11 +10236,11 @@ const ITEMS = [
     variants: [],
   },
   {
-    // ⚠ 이미지 미보유 — 추후 캡처 받으면 image/detailImage 채울 것
     id: "trait_salveskin",
     category: "trait",
     name: "Salveskin",
-    image: "",
+    image: "images/traits/trait_salveskin.png",
+    detailImage: "images/traits/trait_salveskin_detail.png",
     traitClass: "defense",
     traitTags: [],
     price: 2,
@@ -10249,11 +10249,11 @@ const ITEMS = [
     variants: [],
   },
   {
-    // ⚠ 이미지 미보유
     id: "trait_vigor",
     category: "trait",
     name: "Vigor",
-    image: "",
+    image: "images/traits/trait_vigor.png",
+    detailImage: "images/traits/trait_vigor_detail.png",
     traitClass: "defense",
     traitTags: [],
     price: 3,
@@ -10264,11 +10264,11 @@ const ITEMS = [
 
   // -- 이동(Movement) ------------------------------------------------------
   {
-    // ⚠ 이미지 미보유
     id: "trait_gator_legs",
     category: "trait",
     name: "Gator Legs",
-    image: "",
+    image: "images/traits/trait_gator_legs.png",
+    detailImage: "images/traits/trait_gator_legs_detail.png",
     traitClass: "movement",
     traitTags: [],
     price: 3,
@@ -10277,11 +10277,11 @@ const ITEMS = [
     variants: [],
   },
   {
-    // ⚠ 이미지 미보유
     id: "trait_greyhound",
     category: "trait",
     name: "Greyhound",
-    image: "",
+    image: "images/traits/trait_greyhound.png",
+    detailImage: "images/traits/trait_greyhound_detail.png",
     traitClass: "movement",
     traitTags: [],
     price: 2,
@@ -10290,11 +10290,11 @@ const ITEMS = [
     variants: [],
   },
   {
-    // ⚠ 이미지 미보유
     id: "trait_kiteskin",
     category: "trait",
     name: "Kiteskin",
-    image: "",
+    image: "images/traits/trait_kiteskin.png",
+    detailImage: "images/traits/trait_kiteskin_detail.png",
     traitClass: "movement",
     traitTags: ["catalyst"],
     price: 1,
@@ -10303,11 +10303,11 @@ const ITEMS = [
     variants: [],
   },
   {
-    // ⚠ 이미지 미보유
     id: "trait_lightfoot",
     category: "trait",
     name: "Lightfoot",
-    image: "",
+    image: "images/traits/trait_lightfoot.png",
+    detailImage: "images/traits/trait_lightfoot_detail.png",
     traitClass: "movement",
     traitTags: [],
     price: 5,
@@ -10316,11 +10316,11 @@ const ITEMS = [
     variants: [],
   },
   {
-    // ⚠ 이미지 미보유
     id: "trait_shadow_leap",
     category: "trait",
     name: "Shadow Leap",
-    image: "",
+    image: "images/traits/trait_shadow_leap.png",
+    detailImage: "images/traits/trait_shadow_leap_detail.png",
     traitClass: "movement",
     traitTags: ["scarce"],
     price: null,
@@ -10329,11 +10329,11 @@ const ITEMS = [
     variants: [],
   },
   {
-    // ⚠ 이미지 미보유
     id: "trait_surefoot",
     category: "trait",
     name: "Surefoot",
-    image: "",
+    image: "images/traits/trait_surefoot.png",
+    detailImage: "images/traits/trait_surefoot_detail.png",
     traitClass: "movement",
     traitTags: [],
     price: 6,
