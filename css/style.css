@@ -1565,6 +1565,13 @@ button { font-family: var(--font-body); cursor: pointer; }
   flex-shrink: 0;
 }
 
+/* 피커 목록에서 무기 항목 썸네일만 --bg-card 대신 무기 이미지 실제 배경색(--bg-input)으로 맞춤 */
+.picker-item-thumb--weapon {
+  background: var(--bg-input);
+  border-radius: 3px;
+  padding: 2px;
+}
+
 .picker-item-thumb-placeholder {
   width: 34px;
   height: 34px;
@@ -1710,6 +1717,9 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 
 .equip-box-wide {
+  /* 무기 이미지(특히 jpg 원본) 자체 배경색이 --bg-input(#070a0d)과 거의 같아서,
+     무기 슬롯 배경도 --bg-card 대신 --bg-input으로 맞춰 이미지 경계가 안 보이게 함 */
+  background: var(--bg-input);
   /* 기본값(빈 칸/미확정 상태)은 3칸 사이즈로 표시 — 무기 장착 시 slotSize에 따라
      .equip-box-wide--sm(2칸 조금 안되게, slotSize 1~2) 또는 .equip-box-wide--lg(3칸, slotSize 3+)로 덮어씀 */
   width: calc(var(--eq-cell) * 3 + 6px);

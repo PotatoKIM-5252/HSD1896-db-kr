@@ -2217,7 +2217,7 @@ function renderPickerList(query) {
     const row = document.createElement("div");
     row.className = "picker-item-row";
     row.innerHTML = `
-      ${item.image ? `<img src="${item.image}" alt="" class="picker-item-thumb" onerror="this.style.display='none'">` : `<span class="picker-item-thumb-placeholder"></span>`}
+      ${item.image ? `<img src="${item.image}" alt="" class="picker-item-thumb${item.category === "weapon" ? " picker-item-thumb--weapon" : ""}" onerror="this.style.display='none'">` : `<span class="picker-item-thumb-placeholder"></span>`}
       <span class="picker-item-name">${item.name}</span>
       ${item.scarce
         ? `<span class="picker-item-price"><img src="images/ui/scarce.png" alt="Scarce" title="Scarce (상점 구매 불가, 월드에서만 획득)"></span>`
