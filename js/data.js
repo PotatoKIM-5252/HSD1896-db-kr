@@ -46,7 +46,10 @@ const CATEGORIES = {
     image: "images/ui/categories/weapon.png",
     loadoutSlots: [
       { slotKey: "primary", label: "주슬롯", max: 1 },
-      { slotKey: "secondary", label: "보조 슬롯", max: 1 },
+      // 소형 슬롯: 기본은 1개지만, 3칸 미만(권총 등) 무기를 넣으면 옆에 한 칸이 더 생겨
+      // 소형 무기 2정을 나란히 넣을 수 있음(실제 게임의 "Small Slots" 듀얼 권총 구성).
+      // 렌더링/빈칸 노출 조건은 js/app.js의 renderWeaponSlotsRow에서 처리.
+      { slotKey: "secondary", label: "보조 슬롯", max: 2 },
     ],
   },
   tool: {
@@ -10608,8 +10611,8 @@ const ITEMS = [
     variants: [],
   },
   {
-    // ⚠ Burn+Scarce 특성. Berserker/Shadow Leap과 동일하게 위키 원문에 Cost/Unlock Rank
-    // 표기가 없어 price:null 처리(Scarce라 상점 구매 불가라서로 추정) — 사용자 확답 아직 없음.
+    // Burn+Scarce 특성. Scarce는 상점 판매 없이 필드 드랍으로만 획득(사용자 확인 완료)하므로
+    // Cost/Unlock Rank 없이 price:null 처리.
     id: "trait_relentless",
     category: "trait",
     name: "Relentless",
@@ -10623,7 +10626,7 @@ const ITEMS = [
     variants: [],
   },
   {
-    // ⚠ Burn+Scarce 특성. 위와 동일한 이유로 price:null 처리, 사용자 확답 아직 없음.
+    // Burn+Scarce 특성. Scarce는 필드 드랍 전용이라 price:null 처리.
     id: "trait_remedy",
     category: "trait",
     name: "Remedy",
@@ -10663,8 +10666,7 @@ const ITEMS = [
     variants: [],
   },
   {
-    // ⚠ Scarce 특성. Cost/Unlock Rank 표기가 원문에 없어 price:null 처리(Berserker/Shadow
-    // Leap과 동일 패턴 추정), 사용자 확답 아직 없음.
+    // Scarce 특성. 필드 드랍 전용이라 price:null 처리.
     id: "trait_shadow",
     category: "trait",
     name: "Shadow",

@@ -2364,20 +2364,28 @@ function renderWeaponSlotsRow(slotDef) {
   const key = loadoutKey("weapon", slotDef.slotKey);
   const wrap = document.createElement("div");
 
+  const rowEl = document.createElement("div");
+  rowEl.className = "equip-row";
+  const boxesWrap = document.createElement("div");
+  boxesWrap.className = "equip-row-boxes";
+
   let rowTotal = 0;
   let rowScarce = false;
   let rowHasItem = false;
   let rowSlotSize = 0;
 
-  for (let i = 0; i < slotDef.max; i++) {
+  // 슬롯이 여러 칸(2칸=듀얼 가능)인 경우, 0번 칸에 대형(3칸 이상) 무기가 들어가 있으면
+  // 이미 그 무기가 자리를 다 차지하는 것이므로 1번 칸(듀얼용 빈 칸)은 표시하지 않음.
+  let visibleCount = slotDef.max;
+  if (slotDef.max > 1) {
+    const firstItem = state.loadout[key][0]?.item;
+    if (firstItem && firstItem.slotSize >= 3) visibleCount = 1;
+  }
+
+  for (let i = 0; i < visibleCount; i++) {
     const slotData = state.loadout[key][i];
     const item = slotData?.item || null;
     const ammo = slotData?.ammoId ? AMMO_TYPES[slotData.ammoId] : null;
-
-    const rowEl = document.createElement("div");
-    rowEl.className = "equip-row";
-    const boxesWrap = document.createElement("div");
-    boxesWrap.className = "equip-row-boxes";
 
     boxesWrap.appendChild(createEquipBox({
       image: item?.image,
@@ -2403,30 +2411,29 @@ function renderWeaponSlotsRow(slotDef) {
       }
     }
 
-    rowEl.appendChild(boxesWrap);
-
-    const priceEl = document.createElement("span");
-    priceEl.className = "equip-row-price";
     if (item) {
       rowHasItem = true;
       rowSlotSize += item.slotSize || 0;
-      if (item.scarce) {
-        rowScarce = true;
-        priceEl.innerHTML = `<img src="images/ui/scarce.png" alt="Scarce" title="Scarce (상점 구매 불가, 월드에서만 획득)">`;
-      } else if (item.price != null) {
-        rowTotal += item.price;
-      }
+      if (item.scarce) rowScarce = true;
+      else if (item.price != null) rowTotal += item.price;
       if (ammo) {
         if (ammo.scarce) rowScarce = true;
         else if (ammo.cost != null) rowTotal += ammo.cost;
       }
-      priceEl.innerHTML = rowScarce
-        ? `<img src="images/ui/scarce.png" alt="Scarce" title="Scarce (상점 구매 불가, 월드에서만 획득)">${rowTotal > 0 ? rowTotal : ""}`
-        : `<img src="images/ui/hunt_dollars.png" alt="$">${rowTotal}`;
     }
-    rowEl.appendChild(priceEl);
-    wrap.appendChild(rowEl);
   }
+
+  rowEl.appendChild(boxesWrap);
+
+  const priceEl = document.createElement("span");
+  priceEl.className = "equip-row-price";
+  if (rowHasItem) {
+    priceEl.innerHTML = rowScarce
+      ? `<img src="images/ui/scarce.png" alt="Scarce" title="Scarce (상점 구매 불가, 월드에서만 획득)">${rowTotal > 0 ? rowTotal : ""}`
+      : `<img src="images/ui/hunt_dollars.png" alt="$">${rowTotal}`;
+  }
+  rowEl.appendChild(priceEl);
+  wrap.appendChild(rowEl);
 
   wrap.appendChild(renderCapacityPips(rowSlotSize, WEAPON_SLOT_LIMIT));
   return wrap;
