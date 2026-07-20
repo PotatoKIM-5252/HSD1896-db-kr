@@ -2225,8 +2225,10 @@ function renderPickerList(query) {
     `;
     row.addEventListener("click", () => {
       // 무기는 클릭하면 바로 확정하지 않고 탄약 선택 단계로 이동
+      // (이중탄약 무기는 여기서 "주 탄약"만 고르고, 2번째/언더배럴 탄약은 기본값으로 자동
+      //  채워진 뒤 장비판에서 따로 다시 고를 수 있음 — openPrimaryAmmoPicker/openSecondaryAmmoPicker)
       if (item.category === "weapon" && item.ammoTypes && item.ammoTypes.length > 0) {
-        renderPickerAmmoStep(item);
+        renderPickerAmmoStep(item, { ammoIds: getPrimaryAmmoOptions(item) });
       } else if (state.picker.onSelect) {
         state.picker.onSelect(item, null);
       }
@@ -2236,8 +2238,15 @@ function renderPickerList(query) {
 }
 
 // 무기 선택 후 탄약을 고르는 단계 (가격도 함께 표시)
-function renderPickerAmmoStep(weaponItem) {
-  document.getElementById("picker-title").textContent = `${weaponItem.name} — 탄약 선택`;
+// options.ammoIds: 보여줄 탄약 id 목록(기본은 weaponItem.ammoTypes 전체)
+// options.title: 상단 타이틀 접미사(기본 "탄약 선택")
+// options.onPick(ammoId): 탄약을 클릭했을 때 실행할 콜백(기본은 state.picker.onSelect(weaponItem, ammoId))
+function renderPickerAmmoStep(weaponItem, options = {}) {
+  const ammoIds = options.ammoIds || weaponItem.ammoTypes;
+  const titleSuffix = options.title || "탄약 선택";
+  const onPick = options.onPick || ((ammoId) => { if (state.picker.onSelect) state.picker.onSelect(weaponItem, ammoId); });
+
+  document.getElementById("picker-title").textContent = `${weaponItem.name} — ${titleSuffix}`;
   document.getElementById("picker-search-input").hidden = true;
 
   const list = document.getElementById("picker-item-list");
@@ -2255,7 +2264,7 @@ function renderPickerAmmoStep(weaponItem) {
   });
   list.appendChild(backBtn);
 
-  weaponItem.ammoTypes.forEach((ammoId) => {
+  ammoIds.forEach((ammoId) => {
     const ammo = AMMO_TYPES[ammoId];
     if (!ammo) return;
     const row = document.createElement("div");
@@ -2267,9 +2276,7 @@ function renderPickerAmmoStep(weaponItem) {
         ? `<span class="picker-item-price picker-item-scarce"><img src="images/ui/scarce.png" alt="Scarce" title="Scarce (상점 구매 불가, 월드에서만 획득)"></span>`
         : ammo.cost != null ? `<span class="picker-item-price"><img src="images/ui/hunt_dollars.png" alt="$">${ammo.cost}</span>` : ""}
     `;
-    row.addEventListener("click", () => {
-      if (state.picker.onSelect) state.picker.onSelect(weaponItem, ammoId);
-    });
+    row.addEventListener("click", () => onPick(ammoId));
     list.appendChild(row);
   });
 }
@@ -2289,6 +2296,10 @@ function calculateLoadoutTotal() {
       if (slotData.ammoId) {
         const ammo = AMMO_TYPES[slotData.ammoId];
         if (ammo && ammo.cost != null && !ammo.scarce) total += ammo.cost;
+      }
+      if (slotData.ammoId2) {
+        const ammo2 = AMMO_TYPES[slotData.ammoId2];
+        if (ammo2 && ammo2.cost != null && !ammo2.scarce) total += ammo2.cost;
       }
     });
   });
@@ -2336,6 +2347,41 @@ function createEquipBox({ image, title, empty, small, wide, weaponSize, ammoHalf
   return box;
 }
 
+// 이중탄약(주 탄약 + 2번째 탄약) 무기인지 판정 —
+// (1) secondaryAmmoCategories: 하부 총열 등 별도 카테고리 총열 보유(르맷/헤이메이커/드릴링류)
+// (2) dualAmmoSlot: 단발/볼트액션이라 같은 카테고리 탄종 2개를 동시에 넣고 교체 가능(스팍스/베르티에류)
+function isDualAmmoWeapon(item) {
+  return !!(item && ((item.secondaryAmmoCategories && item.secondaryAmmoCategories.length > 0) || item.dualAmmoSlot));
+}
+
+// 주 탄약(기본 총열) 후보 목록 — secondaryAmmoCategories가 있는 무기는 item.ammoTypes가
+// 주탄약+2번째탄약이 한 배열에 섞여 있으므로, 무기 자체의 ammoCategory와 일치하는 것만 걸러냄.
+// 그 외(dualAmmoSlot만 있거나 일반 무기)는 ammoTypes 전체가 곧 주탄약 후보.
+function getPrimaryAmmoOptions(item) {
+  if (!item || !item.ammoTypes) return [];
+  if (item.secondaryAmmoCategories && item.secondaryAmmoCategories.length > 0) {
+    return item.ammoTypes.filter((id) => AMMO_TYPES[id]?.category === item.ammoCategory);
+  }
+  return item.ammoTypes;
+}
+
+// 2번째 탄약(하부 총열/두번째 장전) 후보 목록
+function getSecondaryAmmoOptions(item) {
+  if (!item || !item.ammoTypes) return [];
+  if (item.secondaryAmmoCategories && item.secondaryAmmoCategories.length > 0) {
+    return item.ammoTypes.filter((id) => item.secondaryAmmoCategories.includes(AMMO_TYPES[id]?.category));
+  }
+  if (item.dualAmmoSlot) return item.ammoTypes; // 같은 무기 2번째 탄종: 주탄약과 동일한 목록에서 선택
+  return [];
+}
+
+// 2번째 탄약 기본값 — data.js의 ammoTypes 배열 순서상 항상 기본(무특수) 탄종이 먼저 오도록
+// 정리되어 있어(예: 르맷의 "Shells"), 후보 목록의 첫 항목을 기본값으로 씀.
+function getDefaultSecondaryAmmo(item) {
+  const opts = getSecondaryAmmoOptions(item);
+  return opts.length ? opts[0] : null;
+}
+
 // 무기 슬롯 하나를 고르는 피커를 염 (대형/소형 슬롯 공용)
 function openWeaponSlotPicker(key, index) {
   openPicker("weapon", (selectedItem, selectedAmmoId) => {
@@ -2345,7 +2391,11 @@ function openWeaponSlotPicker(key, index) {
       showToast(`무기 칸수 합이 ${WEAPON_SLOT_LIMIT}칸을 넘어서 장착할 수 없습니다. (다른 무기 ${otherTotal}칸 + 이 무기 ${selectedItem.slotSize}칸 = ${newTotal}칸)`);
       return;
     }
-    state.loadout[key][index] = { item: selectedItem, ammoId: selectedAmmoId ?? null };
+    state.loadout[key][index] = {
+      item: selectedItem,
+      ammoId: selectedAmmoId ?? null,
+      ammoId2: isDualAmmoWeapon(selectedItem) ? getDefaultSecondaryAmmo(selectedItem) : null,
+    };
     // 0번 칸(듀얼의 기준이 되는 칸)의 무기를 바꾸면, 기존에 채워져 있던 1번 칸(듀얼 짝)은
     // 더 이상 같은 무기가 아니게 되므로 함께 비움(듀얼은 같은 무기 한 종류로만 구성 가능).
     if (index === 0 && state.loadout[key].length > 1) {
@@ -2366,25 +2416,14 @@ function fillDualCompanion(key, index) {
     showToast(`무기 칸수 합이 ${WEAPON_SLOT_LIMIT}칸을 넘어서 장착할 수 없습니다. (다른 무기 ${otherTotal}칸 + 이 무기 ${first.item.slotSize}칸 = ${newTotal}칸)`);
     return;
   }
-  state.loadout[key][index] = { item: first.item, ammoId: first.ammoId };
+  state.loadout[key][index] = { item: first.item, ammoId: first.ammoId, ammoId2: first.ammoId2 ?? null };
   renderLoadoutBoard();
 }
 
-// 무기 행(대형/소형 슬롯)의 탄약칸을 클릭했을 때 — 이미 장착된 무기의 탄약만 다시 고르는 단계로 바로 이동.
-// 듀얼(같은 무기 2정)인 경우 탄약은 공용이므로, 채워진 모든 칸(0번+1번)에 동일하게 반영함.
-function openAmmoPickerForRow(key) {
-  const arr = state.loadout[key];
-  const weaponItem = arr[0]?.item;
-  if (!weaponItem) return;
+// 피커 패널을 "무기 탄약 재선택" 모드로 세팅(검색/서브탭/필터 다 숨기고 목록만)
+function preparePickerPanelForAmmoStep() {
   state.picker.merged = false;
   state.picker.categoryFilter = "weapon";
-  state.picker.onSelect = (item, ammoId) => {
-    arr.forEach((slotData, idx) => {
-      if (slotData && slotData.item) arr[idx] = { item: slotData.item, ammoId };
-    });
-    renderLoadoutBoard();
-    closePicker();
-  };
   document.getElementById("picker-empty-state").hidden = true;
   document.getElementById("picker-content").hidden = false;
   document.getElementById("picker-subtabs").hidden = true;
@@ -2393,7 +2432,80 @@ function openAmmoPickerForRow(key) {
   document.getElementById("picker-tool-filters").hidden = true;
   document.getElementById("picker-consumable-filters").hidden = true;
   document.getElementById("picker-trait-filters").hidden = true;
-  renderPickerAmmoStep(weaponItem);
+}
+
+// 무기 행의 "주 탄약"칸을 클릭했을 때 — 주 탄약 후보만 다시 고르는 단계로 바로 이동.
+// 듀얼(같은 무기 2정)인 경우 탄약은 공용이므로, 채워진 모든 칸(0번+1번)에 동일하게 반영함.
+function openPrimaryAmmoPicker(key) {
+  const arr = state.loadout[key];
+  const weaponItem = arr[0]?.item;
+  if (!weaponItem) return;
+  preparePickerPanelForAmmoStep();
+  // 뒤로가기(← 무기 목록으로) 후 아예 다른 무기를 고를 경우를 대비한 안전장치 —
+  // 0번 칸(대표 칸) 무기를 통째로 교체하고, 듀얼 짝(1번 칸)은 더 이상 같은 무기가 아니므로 비움.
+  state.picker.onSelect = (selectedItem, selectedAmmoId) => {
+    const otherTotal = getTotalWeaponSlotSize(key, 0);
+    const newTotal = otherTotal + (selectedItem.slotSize || 0);
+    if (newTotal > WEAPON_SLOT_LIMIT) {
+      showToast(`무기 칸수 합이 ${WEAPON_SLOT_LIMIT}칸을 넘어서 장착할 수 없습니다.`);
+      return;
+    }
+    arr[0] = {
+      item: selectedItem,
+      ammoId: selectedAmmoId ?? null,
+      ammoId2: isDualAmmoWeapon(selectedItem) ? getDefaultSecondaryAmmo(selectedItem) : null,
+    };
+    if (arr.length > 1) arr[1] = null;
+    renderLoadoutBoard();
+    closePicker();
+  };
+  renderPickerAmmoStep(weaponItem, {
+    title: "탄약 선택",
+    ammoIds: getPrimaryAmmoOptions(weaponItem),
+    onPick: (ammoId) => {
+      arr.forEach((slotData, idx) => {
+        if (slotData && slotData.item) arr[idx] = { ...slotData, ammoId };
+      });
+      renderLoadoutBoard();
+      closePicker();
+    },
+  });
+}
+
+// 무기 행의 "2번째 탄약(하부 총열/두번째 장전)"칸을 클릭했을 때 — 주 탄약과 별개로,
+// 2번째 탄약 후보만 독립적으로 다시 고를 수 있음(르맷 등은 샷건 계열만 후보로 뜸).
+function openSecondaryAmmoPicker(key) {
+  const arr = state.loadout[key];
+  const weaponItem = arr[0]?.item;
+  if (!weaponItem) return;
+  preparePickerPanelForAmmoStep();
+  state.picker.onSelect = (selectedItem, selectedAmmoId) => {
+    const otherTotal = getTotalWeaponSlotSize(key, 0);
+    const newTotal = otherTotal + (selectedItem.slotSize || 0);
+    if (newTotal > WEAPON_SLOT_LIMIT) {
+      showToast(`무기 칸수 합이 ${WEAPON_SLOT_LIMIT}칸을 넘어서 장착할 수 없습니다.`);
+      return;
+    }
+    arr[0] = {
+      item: selectedItem,
+      ammoId: selectedAmmoId ?? null,
+      ammoId2: isDualAmmoWeapon(selectedItem) ? getDefaultSecondaryAmmo(selectedItem) : null,
+    };
+    if (arr.length > 1) arr[1] = null;
+    renderLoadoutBoard();
+    closePicker();
+  };
+  renderPickerAmmoStep(weaponItem, {
+    title: weaponItem.secondaryAmmoCategories?.length ? "하부 총열 탄약 선택" : "2번째 탄약 선택",
+    ammoIds: getSecondaryAmmoOptions(weaponItem),
+    onPick: (ammoId) => {
+      arr.forEach((slotData, idx) => {
+        if (slotData && slotData.item) arr[idx] = { ...slotData, ammoId2: ammoId };
+      });
+      renderLoadoutBoard();
+      closePicker();
+    },
+  });
 }
 
 // 대형 슬롯/소형 슬롯 한 줄 — 무기 칸(들) + 탄약 칸 + 줄 오른쪽 끝 가격
@@ -2474,22 +2586,35 @@ function renderWeaponSlotsRow(slotDef) {
         if (ammo.scarce) rowScarce = true;
         else if (ammo.cost != null) rowTotal += ammo.cost;
       }
+      const ammo2 = slotData?.ammoId2 ? AMMO_TYPES[slotData.ammoId2] : null;
+      if (ammo2) {
+        if (ammo2.scarce) rowScarce = true;
+        else if (ammo2.cost != null) rowTotal += ammo2.cost;
+      }
     }
   }
 
   // 2단계: 탄약 칸 — 무기 칸 사이에 끼우지 않고, 채워진 무기 칸을 다 그린 뒤 항상 맨 오른쪽에
-  // 한 묶음만 표시(0번 칸 기준 탄약; 듀얼이면 같은 무기라 탄약도 공용). 클릭하면 탄약만 다시 고를 수 있음.
+  // 표시(0번 칸 기준 탄약; 듀얼 무기 페어면 같은 무기라 탄약도 공용).
+  // 이중탄약(주 탄약 + 2번째 탄약/하부 총열) 무기는 칸을 2개로 나눠서 각각 독립적으로 클릭해
+  // 다시 고를 수 있게 함(르맷처럼 하부 총열이 있는 무기는 2번째 칸이 자연히 샷건쉘 계열로 표시됨).
   const primarySlotData = state.loadout[key][0];
   const primaryItem = primarySlotData?.item || null;
   const primaryAmmo = primarySlotData?.ammoId ? AMMO_TYPES[primarySlotData.ammoId] : null;
   if (primaryItem && primaryAmmo) {
-    const isDualAmmoWeapon = (primaryItem.secondaryAmmoCategories && primaryItem.secondaryAmmoCategories.length > 0) || primaryItem.dualAmmoSlot;
-    const onAmmoClick = () => openAmmoPickerForRow(key);
-    if (isDualAmmoWeapon) {
-      boxesWrap.appendChild(createEquipBox({ image: primaryAmmo.image, title: primaryAmmo.label, small: true, ammoHalf: true, onClick: onAmmoClick }));
-      boxesWrap.appendChild(createEquipBox({ image: primaryAmmo.image, title: primaryAmmo.label, small: true, ammoHalf: true, onClick: onAmmoClick }));
+    if (isDualAmmoWeapon(primaryItem)) {
+      const secondaryAmmo = primarySlotData?.ammoId2 ? AMMO_TYPES[primarySlotData.ammoId2] : null;
+      boxesWrap.appendChild(createEquipBox({
+        image: primaryAmmo.image, title: primaryAmmo.label, small: true, ammoHalf: true,
+        onClick: () => openPrimaryAmmoPicker(key),
+      }));
+      boxesWrap.appendChild(createEquipBox({
+        image: secondaryAmmo?.image, title: secondaryAmmo?.label || "탄약 선택", small: true, ammoHalf: true,
+        empty: !secondaryAmmo,
+        onClick: () => openSecondaryAmmoPicker(key),
+      }));
     } else {
-      boxesWrap.appendChild(createEquipBox({ image: primaryAmmo.image, title: primaryAmmo.label, small: true, onClick: onAmmoClick }));
+      boxesWrap.appendChild(createEquipBox({ image: primaryAmmo.image, title: primaryAmmo.label, small: true, onClick: () => openPrimaryAmmoPicker(key) }));
     }
   }
 

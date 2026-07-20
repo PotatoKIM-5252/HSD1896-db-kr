@@ -1697,7 +1697,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 .equip-box-small {
   width: 38px;
   height: var(--eq-row-h);   /* 무기 슬롯(.equip-box-wide) 높이와 동일하게 맞춤 */
-  cursor: default;
+  cursor: pointer;   /* 클릭하면 탄약 다시 고르기 가능 */
 }
 
 /* 이중탄약(2번째 탄종 동시 장전) 무기 — 탄약칸 2개를 각각 절반 크기로 줄여서 나란히 붙이면
@@ -1708,7 +1708,6 @@ button { font-family: var(--font-body); cursor: pointer; }
   height: var(--eq-row-h);
 }
 
-.equip-box-small:hover { border-color: var(--border); background: var(--bg-card); }
 
 .equip-box-wide {
   /* 기본값(빈 칸/미확정 상태)은 3칸 사이즈로 표시 — 무기 장착 시 slotSize에 따라
