@@ -4,12 +4,14 @@
    ========================================================================= */
 
 :root {
-  /* 무기 3D 렌더 이미지의 실제 배경색(약 #070a0d, 미세한 청색 톤)에 맞춰
-     전체 다크 팔레트를 중립 회색에서 살짝 푸른기가 도는 톤으로 통일함 */
-  --bg-page: #050608;
-  --bg-panel: #0b0d10;
-  --bg-card: #14171b;
-  --bg-card-hover: #1c2024;
+  /* 무기 이미지 실제 배경색(#070a0d)으로 사이트 전체 배경(페이지/패널/카드/입력창)을
+     하나로 통일 — 예전엔 레이어마다 살짝씩 다른 밝기를 썼지만(페이지<패널<카드<카드호버),
+     이제 전부 동일한 색으로 맞춰서 무기 이미지 경계가 어디서도 안 보이게 함.
+     호버 피드백은 배경색 대신 테두리 색(accent)으로만 표시됨(기존 :hover 규칙 그대로 유지). */
+  --bg-page: #070a0d;
+  --bg-panel: #070a0d;
+  --bg-card: #070a0d;
+  --bg-card-hover: #070a0d;
   --bg-input: #070a0d;
 
   --border: #262a2f;
@@ -817,7 +819,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 .bodypart-figure {
-  background: #0a0c08;
+  background: var(--bg-input);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 12px;
@@ -1074,7 +1076,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #1c1c1c;
+  background: var(--bg-input);
   border: 1px solid var(--border-strong);
   border-radius: 999px;
   padding: 6px 14px;
