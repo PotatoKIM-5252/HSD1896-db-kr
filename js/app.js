@@ -157,6 +157,14 @@ function addToLoadoutQuick(item, ammoId = null) {
       if (!slotDef.allowDuplicates && state.loadout[key].includes(item.id)) {
         return { ok: false, message: "이미 추가되어 있습니다" };
       }
+      // 투척/설치/타로/주사기 소모품은 같은 종류를 최대 4개까지만 담을 수 있음
+      const stackGroup = getConsumableStackGroup(item);
+      if (stackGroup) {
+        const currentCount = state.loadout[key].filter((id) => id === item.id).length;
+        if (currentCount >= CONSUMABLE_STACK_MAX) {
+          return { ok: false, message: `${item.name}은(는) 최대 ${CONSUMABLE_STACK_MAX}개까지만 담을 수 있습니다` };
+        }
+      }
       state.loadout[key].push(item.id);
       return { ok: true, slotLabel: slotDef.label };
     } else {
@@ -2321,7 +2329,9 @@ function calculateLoadoutTotal() {
 // 장비 칸 하나(빈 칸/채워진 칸 공용) — 이미지, 클릭(고르기), ✕(비우기)를 한번에 처리
 // weaponSize: "sm"(1~2칸 무기) | "lg"(3칸 이상 무기) — wide 칸에서만 사용, 미지정 시 기본(3칸) 크기
 // ammoHalf: 이중탄약 무기의 탄약칸 2개를 각각 절반 크기로 줄여서 나란히 붙일 때 true
-function createEquipBox({ image, title, empty, small, wide, weaponSize, ammoHalf, onClick, onClear }) {
+// stackCount: 2 이상이면 우측 하단에 "xN" 배지 표시(투척/설치/타로/주사기 스택)
+// locked: true면 스택으로 인해 못 쓰게 된 칸 — 클릭 불가, 검정으로 잠긴 표시만 함
+function createEquipBox({ image, title, empty, small, wide, weaponSize, ammoHalf, stackCount, locked, onClick, onClear }) {
   const box = document.createElement("div");
   box.className = "equip-box"
     + (empty ? " equip-box-empty" : "")
@@ -2329,7 +2339,8 @@ function createEquipBox({ image, title, empty, small, wide, weaponSize, ammoHalf
     + (wide ? " equip-box-wide" : "")
     + (wide && weaponSize === "sm" ? " equip-box-wide--sm" : "")
     + (wide && weaponSize === "lg" ? " equip-box-wide--lg" : "")
-    + (ammoHalf ? " equip-box-ammo-half" : "");
+    + (ammoHalf ? " equip-box-ammo-half" : "")
+    + (locked ? " equip-box-locked" : "");
   if (title) box.title = title;
   if (image) {
     const img = document.createElement("img");
@@ -2337,6 +2348,12 @@ function createEquipBox({ image, title, empty, small, wide, weaponSize, ammoHalf
     img.alt = "";
     img.onerror = () => { img.style.display = "none"; };
     box.appendChild(img);
+  }
+  if (stackCount > 1) {
+    const badge = document.createElement("span");
+    badge.className = "equip-box-stack-badge";
+    badge.textContent = `x${stackCount}`;
+    box.appendChild(badge);
   }
   if (onClear) {
     const clearBtn = document.createElement("button");
@@ -2346,7 +2363,7 @@ function createEquipBox({ image, title, empty, small, wide, weaponSize, ammoHalf
     clearBtn.addEventListener("click", (e) => { e.stopPropagation(); onClear(); });
     box.appendChild(clearBtn);
   }
-  if (onClick) box.addEventListener("click", onClick);
+  if (onClick && !locked) box.addEventListener("click", onClick);
   return box;
 }
 
@@ -2385,7 +2402,20 @@ function getDefaultSecondaryAmmo(item) {
   return opts.length ? opts[0] : null;
 }
 
-// 무기 슬롯 하나를 고르는 피커를 염 (대형/소형 슬롯 공용)
+// 소모품 중 "같은 종류 최대 4개까지 스택 가능"한 4가지 분류 판정 (투척/설치/타로/주사기).
+// 주사기는 스키마에 별도 태그가 없어 id가 "_shot"으로 끝나는 걸로 식별함(Antidote/Regeneration/
+// Stamina/Vitality/Recovery Shot 전부 이 규칙에 맞음).
+const CONSUMABLE_STACK_MAX = 4;
+function getConsumableStackGroup(item) {
+  if (!item || item.category !== "consumable") return null;
+  if (item.consumableTags?.includes("throwable")) return "throwable";
+  if (item.consumableTags?.includes("placeable")) return "placeable";
+  if (item.consumableClass === "tarot") return "tarot";
+  if (item.id?.includes("_shot")) return "syringe";
+  return null;
+}
+
+
 function openWeaponSlotPicker(key, index) {
   openPicker("weapon", (selectedItem, selectedAmmoId) => {
     const otherTotal = getTotalWeaponSlotSize(key, index);
@@ -2648,6 +2678,17 @@ function openFieldPicker() {
       closePicker();
       return;
     }
+    // 투척/설치/타로/주사기 소모품은 같은 종류를 최대 4개까지만 담을 수 있음
+    const stackGroup = getConsumableStackGroup(selectedItem);
+    if (stackGroup) {
+      const currentCount = (state.loadout[key] || []).filter((id) => id === selectedItem.id).length;
+      if (currentCount >= CONSUMABLE_STACK_MAX) {
+        showToast(`${selectedItem.name}은(는) 최대 ${CONSUMABLE_STACK_MAX}개까지만 담을 수 있습니다.`);
+        renderLoadoutBoard();
+        closePicker();
+        return;
+      }
+    }
     state.loadout[key].push(selectedItem.id);
     renderLoadoutBoard();
     closePicker();
@@ -2677,21 +2718,52 @@ function renderFieldEquipmentSection() {
   let total = 0;
   let anyScarce = false;
 
+  // 스택 그룹(투척/설치/타로/주사기)은 같은 id끼리 "처음 등장한 자리" 하나에 모아서
+  // xN 배지로 표시. 그 외(도구, 스택 대상 아닌 소모품)는 기존처럼 각자 자기 칸을 씀.
+  const displayList = []; // { item, key, count }
+  const stackIndexById = new Map(); // id -> displayList 인덱스 (스택 그룹 전용)
+
   merged.forEach((entry) => {
     const item = ITEMS.find((i) => i.id === entry.id);
     if (!item) return;
-    if (item.scarce) anyScarce = true;
-    else if (item.price != null) total += item.price;
+    const stackGroup = getConsumableStackGroup(item);
+    if (stackGroup && stackIndexById.has(entry.id)) {
+      displayList[stackIndexById.get(entry.id)].count += 1;
+      return;
+    }
+    displayList.push({ item, key: entry.key, count: 1 });
+    if (stackGroup) stackIndexById.set(entry.id, displayList.length - 1);
+  });
+
+  displayList.forEach((d) => {
+    if (d.item.scarce) anyScarce = true;
+    else if (d.item.price != null) total += d.item.price * d.count; // 스택된 개수만큼 가격도 반영
     boxesWrap.appendChild(createEquipBox({
-      image: item.image,
-      title: item.name,
-      onClear: () => { state.loadout[entry.key].splice(entry.idx, 1); renderLoadoutBoard(); },
+      image: d.item.image,
+      title: d.count > 1 ? `${d.item.name} x${d.count}` : d.item.name,
+      stackCount: d.count,
+      onClear: () => {
+        // 스택된 칸이면 마지막 1개만 제거(카운트만 줄어듦), 아니면 그 칸 자체를 제거
+        const arr = state.loadout[d.key];
+        let lastIdx = -1;
+        arr.forEach((id, i) => { if (id === d.item.id) lastIdx = i; });
+        if (lastIdx !== -1) arr.splice(lastIdx, 1);
+        renderLoadoutBoard();
+      },
     }));
   });
 
   const capacity = 8;
-  for (let i = merged.length; i < capacity; i++) {
+  const totalUsed = merged.length;
+  const lockedCount = totalUsed - displayList.length; // 스택으로 인해 실제로는 쓰였지만 안 보이는 칸 수
+  const emptyCount = capacity - totalUsed;
+
+  for (let i = 0; i < emptyCount; i++) {
     boxesWrap.appendChild(createEquipBox({ empty: true, onClick: () => openFieldPicker() }));
+  }
+  // 스택으로 못 쓰게 된 칸 — 그리드 맨 끝(우측 하단)부터 채워지도록 맨 나중에 추가
+  for (let i = 0; i < lockedCount; i++) {
+    boxesWrap.appendChild(createEquipBox({ locked: true, title: "스택으로 사용 중인 칸(추가 선택 불가)" }));
   }
 
   // 그리드(여러 줄로 감싸질 수 있음)와 가격을 같은 줄(equip-row)에 묶어서

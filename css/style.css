@@ -1766,6 +1766,32 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 .equip-box-clear:hover { color: var(--danger-strong); border-color: var(--danger-strong); }
 
+/* 스택 가능 소모품(투척/설치/타로/주사기) 개수 배지 — 이미지 우측 하단 */
+.equip-box-stack-badge {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  min-width: 16px;
+  padding: 1px 4px;
+  border-radius: 999px;
+  background: var(--bg-page);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.4;
+  text-align: center;
+  pointer-events: none;
+}
+
+/* 스택으로 인해 못 쓰게 된 칸 — 완전 검정으로 잠금 표시, 클릭 불가 */
+.equip-box-locked {
+  background: #000;
+  border-color: #000;
+  cursor: not-allowed;
+}
+.equip-box-locked:hover { border-color: #000; background: #000; }
+
 /* 무기 용량 게이지 — 실제 게임처럼 작은 사각형이 칸수만큼 채워짐 */
 .equip-capacity-pips { display: flex; gap: 4px; margin-top: 6px; }
 .equip-pip {
