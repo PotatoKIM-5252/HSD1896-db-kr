@@ -145,7 +145,6 @@ button { font-family: var(--font-body); cursor: pointer; }
   gap: 8px;
   padding: 10px 0;
   border-bottom: 1px solid var(--border);
-  margin-bottom: 4px;
 }
 
 #category-filters { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -1503,14 +1502,14 @@ button { font-family: var(--font-body); cursor: pointer; }
 #picker-content {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0;
   min-height: 0;
   flex: 1;
 }
 
 #picker-content[hidden] { display: none; }
 
-#picker-header { display: flex; align-items: center; justify-content: space-between; }
+#picker-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 #picker-title { font-size: 16px; }
 
 #picker-close-btn {
@@ -1524,7 +1523,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 #picker-close-btn:hover { color: var(--text-primary); border-color: var(--text-secondary); }
 
-#picker-subtabs { display: flex; gap: 8px; }
+#picker-subtabs { display: flex; gap: 8px; margin-bottom: 12px; }
 #picker-subtabs[hidden] { display: none; }
 
 .picker-subtab-btn {
