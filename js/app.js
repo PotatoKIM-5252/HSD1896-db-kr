@@ -2375,11 +2375,22 @@ function createEquipBox({ image, title, empty, small, wide, weaponSize, ammoHalf
   if (draggable) {
     box.draggable = true;
     box.classList.add("equip-box-draggable");
-    box.addEventListener("dragstart", (e) => { box.classList.add("equip-box-dragging"); onDragStart?.(e); });
+    box.addEventListener("dragstart", (e) => {
+      // Firefox 등 일부 브라우저는 dragstart에서 dataTransfer.setData를 안 부르면
+      // 드래그가 아예 시작되지 않거나 drop이 정상적으로 안 걸리는 경우가 있어 추가.
+      e.dataTransfer?.setData("text/plain", "equip-box");
+      if (e.dataTransfer) e.dataTransfer.effectAllowed = "move";
+      box.classList.add("equip-box-dragging");
+      onDragStart?.(e);
+    });
     box.addEventListener("dragend", () => { box.classList.remove("equip-box-dragging"); onDragEnd?.(); });
   }
   if (onDragOver) {
-    box.addEventListener("dragover", (e) => { e.preventDefault(); onDragOver(e); });
+    box.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
+      onDragOver(e);
+    });
     box.addEventListener("dragenter", (e) => { e.preventDefault(); box.classList.add("equip-box-drop-target"); });
     box.addEventListener("dragleave", () => box.classList.remove("equip-box-drop-target"));
   }
