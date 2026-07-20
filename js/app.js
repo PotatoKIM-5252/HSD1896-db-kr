@@ -706,6 +706,21 @@ function createItemCard(item) {
       state.selectedVariantIdx[parent.id] = item._variantIndex || 0;
       openBodyPartView(parent, item.defaultAmmo || (item.ammoTypes && item.ammoTypes[0]));
     });
+  } else if (item.category === "trait") {
+    // 특성 카드: 이름 + 이미지 + (태그 있으면 태그 아이콘) + 업그레이드 포인트/희소 표시
+    const tagIcons = (item.traitTags || [])
+      .map((t) => TRAIT_FILTERS.traitTags.options.find((o) => o.value === t))
+      .filter(Boolean);
+    card.innerHTML = `
+      ${imgHTML}
+      <div class="item-card-name">${item.name}</div>
+      ${tagIcons.length ? `<div class="item-card-trait-tags">${tagIcons.map((t) => `<img src="${t.image}" alt="${t.label}" title="${t.label}" class="trait-tag-icon">`).join("")}</div>` : ""}
+      <div class="item-card-meta">
+        <span></span>
+        ${item.traitTags && item.traitTags.includes("scarce")
+          ? `<span class="item-card-price"><img src="images/ui/scarce.png" alt="Scarce" class="dollar-icon" title="Scarce (상점 구매 불가, 월드에서만 획득)"></span>`
+          : item.price != null ? `<span class="item-card-price"><img src="images/ui/upgrade_points.webp" alt="업그레이드 포인트" class="dollar-icon">${item.price}</span>` : ""}
+      </div>`;
   } else {
     card.innerHTML = `
       ${imgHTML}
@@ -1594,10 +1609,10 @@ function renderTraitDetailHTML(item) {
     <button id="detail-close-btn" type="button">✕</button>
     <h2>${item.name}</h2>
 
-    ${(item.detailImage || item.image) ? `<img src="${item.detailImage || item.image}" alt="${item.name}" class="detail-img detail-img--tool" onerror="this.style.display='none'">` : ""}
+    ${(item.detailImage || item.image) ? `<img src="${item.detailImage || item.image}" alt="${item.name}" class="detail-img detail-img--trait" onerror="this.style.display='none'">` : ""}
 
     <div class="ammo-status-row">
-      ${item.price != null ? `<span class="ammo-status-price">업그레이드 포인트 ${item.price}</span>` : ""}
+      ${item.price != null ? `<img src="images/ui/upgrade_points.webp" alt="업그레이드 포인트" class="ammo-status-dollar"><span class="ammo-status-price">${item.price}</span>` : ""}
     </div>
 
     ${tagLabels.length ? `<div class="trait-tag-badges">${tagLabels.map((l) => `<span class="trait-tag-badge">${l}</span>`).join("")}</div>` : ""}

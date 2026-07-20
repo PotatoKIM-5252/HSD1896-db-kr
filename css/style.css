@@ -419,6 +419,19 @@ button { font-family: var(--font-body); cursor: pointer; }
   letter-spacing: 0.06em;
 }
 
+.item-card-trait-tags {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.trait-tag-icon {
+  height: 14px;
+  width: 14px;
+  object-fit: contain;
+  opacity: 0.85;
+}
+
 .item-card-meta {
   display: flex;
   align-items: center;
@@ -527,6 +540,16 @@ button { font-family: var(--font-body); cursor: pointer; }
   height: 96px;
   object-fit: contain;
   margin: 8px auto;
+  display: block;
+}
+
+/* 특성 큰 삽화(1024x512, 2:1 가로형) — 패널 폭에 맞춰 넓게, 비율 유지 */
+.detail-img--trait {
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  height: auto;
+  object-fit: cover;
+  margin: 8px 0;
   display: block;
 }
 
@@ -1624,12 +1647,12 @@ button { font-family: var(--font-body); cursor: pointer; }
    상하 중앙 정렬하기 위해 이 wrap도 equip-row 안에서 flex 아이템으로 취급 */
 .equip-row > .equip-field-grid { flex: 1; }
 
-.equip-field-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; }
+.equip-field-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; }
 
 .equip-box {
   position: relative;
-  width: 52px;
-  height: 52px;
+  width: 46px;
+  height: 46px;
   flex-shrink: 0;
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -1641,7 +1664,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   transition: border-color 0.15s, background 0.15s;
 }
 
-.equip-field-grid .equip-box { width: auto; aspect-ratio: 1 / 1; }
+.equip-field-grid .equip-box { width: auto; aspect-ratio: 1 / 1; border-radius: 2px; }
 
 .equip-box:hover { border-color: var(--accent); background: var(--bg-card-hover); }
 
@@ -1652,22 +1675,22 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 .equip-box-small {
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   cursor: default;
 }
 
 .equip-box-small:hover { border-color: var(--border); background: var(--bg-card); }
 
 .equip-box-wide {
-  width: 190px;
-  height: 56px;
+  width: 170px;
+  height: 50px;
   flex-shrink: 0;
   justify-content: flex-start;
-  padding-left: 10px;
+  padding-left: 8px;
 }
 
-.equip-box-wide img { max-width: 68px; max-height: 48px; }
+.equip-box-wide img { max-width: 74px; max-height: 44px; }
 
 .equip-box-empty { cursor: pointer; }
 .equip-box-empty::after {
