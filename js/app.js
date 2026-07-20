@@ -1594,7 +1594,7 @@ function renderTraitDetailHTML(item) {
     <button id="detail-close-btn" type="button">✕</button>
     <h2>${item.name}</h2>
 
-    ${item.image ? `<img src="${item.image}" alt="${item.name}" class="detail-img detail-img--tool" onerror="this.style.display='none'">` : ""}
+    ${(item.detailImage || item.image) ? `<img src="${item.detailImage || item.image}" alt="${item.name}" class="detail-img detail-img--tool" onerror="this.style.display='none'">` : ""}
 
     <div class="ammo-status-row">
       ${item.price != null ? `<span class="ammo-status-price">업그레이드 포인트 ${item.price}</span>` : ""}
