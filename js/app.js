@@ -1610,9 +1610,10 @@ function renderTraitDetailHTML(item) {
 
     ${(item.detailImage || item.image) ? `<img src="${item.detailImage || item.image}" alt="${item.name}" class="detail-img detail-img--trait" onerror="this.style.display='none'">` : ""}
 
+    ${item.price != null ? `
     <div class="ammo-status-row">
-      ${item.price != null ? `<img src="images/ui/upgrade_points.webp" alt="업그레이드 포인트" class="ammo-status-dollar"><span class="ammo-status-price">${item.price}</span>` : ""}
-    </div>
+      <img src="images/ui/upgrade_points.webp" alt="업그레이드 포인트" class="ammo-status-dollar"><span class="ammo-status-price">${item.price}</span>
+    </div>` : ""}
 
     ${tagLabels.length ? `<div class="trait-tag-badges">${tagLabels.map((l) => `<span class="trait-tag-badge">${l}</span>`).join("")}</div>` : ""}
 
@@ -2512,12 +2513,12 @@ function renderTraitSection() {
   titleRow.className = "equip-section-title-row";
   titleRow.innerHTML = `
     <h3 class="equip-section-title">특성</h3>
-    <span class="equip-upgrade-cost"><span class="equip-upgrade-cost-icon"></span>${upgradeCostTotal}</span>
+    <span class="equip-upgrade-cost"><img src="images/ui/upgrade_points.webp" alt="업그레이드 포인트" class="equip-upgrade-cost-icon">${upgradeCostTotal}</span>
   `;
   section.appendChild(titleRow);
 
   const boxesWrap = document.createElement("div");
-  boxesWrap.className = "equip-row-boxes equip-field-grid";
+  boxesWrap.className = "equip-row-boxes equip-trait-grid";
 
   function openAddTraitPicker() {
     openPicker("trait", (selectedItem) => {

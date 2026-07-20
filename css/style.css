@@ -1647,7 +1647,11 @@ button { font-family: var(--font-body); cursor: pointer; }
    상하 중앙 정렬하기 위해 이 wrap도 equip-row 안에서 flex 아이템으로 취급 */
 .equip-row > .equip-field-grid { flex: 1; }
 
-.equip-field-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; }
+.equip-field-grid { display: grid; grid-template-columns: repeat(4, 1fr); row-gap: 6px; column-gap: 1px; }
+
+/* 특성 칸: 5칸 x 3줄(총 15칸) 전용 그리드. 도구&소모품(4칸)과 열 개수만 다름 */
+.equip-trait-grid { display: grid; grid-template-columns: repeat(5, 1fr); row-gap: 6px; column-gap: 1px; }
+.equip-trait-grid .equip-box { width: auto; aspect-ratio: 1 / 1; border-radius: 2px; }
 
 .equip-box {
   position: relative;
@@ -1751,10 +1755,8 @@ button { font-family: var(--font-body); cursor: pointer; }
 .equip-upgrade-cost-icon {
   width: 15px;
   height: 15px;
-  border-radius: 3px;
-  background: var(--accent-strong);
+  object-fit: contain;
   display: inline-block;
-  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
 }
 
 .equip-row-price {
