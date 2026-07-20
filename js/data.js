@@ -8202,6 +8202,10 @@ const ITEMS = [
         image: "images/weapons/variants/romero77_alamo.jpg",
         description: "",
         price: 98,
+        // 본체(Romero 77)는 dualAmmoSlot:true(2탄종 동시 장전)이지만, Alamo는 그 기믹이
+        // 없는 파생형이라 명시적으로 false 오버라이드(사용자 확인) — 안 그러면 스프레드
+        // 병합 시 본체 값을 그대로 물려받아 잘못 이중탄약으로 표시됨.
+        dualAmmoSlot: false,
         chamber: {
           loaded: "4+1",
         },
