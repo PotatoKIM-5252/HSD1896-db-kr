@@ -147,6 +147,15 @@ button { font-family: var(--font-body); cursor: pointer; }
   border-bottom: 1px solid var(--border);
 }
 
+/* hidden 속성이 붙었을 때 실제로 숨겨지도록(위 display:flex가 더 우선순위 높아서
+   그냥 두면 빈 테두리 박스로 계속 보이는 버그가 있었음 — "칸칸칸" 빈 줄 문제) */
+#picker-weapon-filters[hidden],
+#picker-tool-filters[hidden],
+#picker-consumable-filters[hidden],
+#picker-trait-filters[hidden] {
+  display: none;
+}
+
 #category-filters { display: flex; flex-wrap: wrap; gap: 8px; }
 
 .cat-filter-btn {

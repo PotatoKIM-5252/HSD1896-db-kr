@@ -2236,9 +2236,17 @@ function renderPickerList(query) {
     row.innerHTML = `
       ${item.image ? `<img src="${item.image}" alt="" class="picker-item-thumb${item.category === "weapon" ? " picker-item-thumb--weapon" : ""}" onerror="this.style.display='none'">` : `<span class="picker-item-thumb-placeholder"></span>`}
       <span class="picker-item-name">${item.name}</span>
-      ${item.scarce
-        ? `<span class="picker-item-price"><img src="images/ui/scarce.png" alt="Scarce" title="Scarce (상점 구매 불가, 월드에서만 획득)"></span>`
-        : item.price != null ? `<span class="picker-item-price"><img src="images/ui/hunt_dollars.png" alt="$">${item.price}</span>` : ""}
+      ${(() => {
+        const isTraitScarce = item.category === "trait" && item.traitTags?.includes("scarce");
+        if (item.scarce || isTraitScarce) {
+          return `<span class="picker-item-price"><img src="images/ui/scarce.png" alt="Scarce" title="Scarce (상점 구매 불가, 월드에서만 획득)"></span>`;
+        }
+        if (item.price == null) return "";
+        // 특성은 헌트 달러가 아니라 업그레이드 포인트를 씀(재화가 다름)
+        const priceIcon = item.category === "trait" ? "images/ui/upgrade_points.webp" : "images/ui/hunt_dollars.png";
+        const priceAlt = item.category === "trait" ? "업그레이드 포인트" : "$";
+        return `<span class="picker-item-price"><img src="${priceIcon}" alt="${priceAlt}">${item.price}</span>`;
+      })()}
     `;
     row.addEventListener("click", () => {
       // 무기는 클릭하면 바로 확정하지 않고 탄약 선택 단계로 이동
