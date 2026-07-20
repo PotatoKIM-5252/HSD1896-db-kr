@@ -110,15 +110,6 @@ button { font-family: var(--font-body); cursor: pointer; }
 .tab-panel[hidden] { display: none; }
 .empty-msg { color: var(--text-muted); font-size: 14px; padding: 24px 4px; }
 
-/* 로드아웃 탭만 예외적으로 #app-main의 1240px 제한을 벗어나 창 너비를 꽉 채움
-   (다른 탭 레이아웃엔 영향 없음, #loadout-picker-panel/#loadout-equipment-panel의
-   내부 비율(flex-grow)은 그대로 유지된 채 전체 폭만 늘어남) */
-#tab-loadout {
-  width: calc(100vw - 64px);
-  max-width: 2000px;
-  margin-left: calc(50% - 50vw + 32px);
-}
-
 /* ===================== 검색 컨트롤 ===================== */
 
 #search-controls {
@@ -1485,7 +1476,8 @@ button { font-family: var(--font-body); cursor: pointer; }
 #loadout-picker-panel { flex-grow: 1.7; }
 #loadout-equipment-panel {
   flex-grow: 1;
-  --eq-cell: 40px;   /* 장비판 내 "특성 1칸" 기준 단위 — 무기/탄약 칸 사이즈 계산에 공용으로 사용 */
+  --eq-cell: 52px;   /* 장비판 내 "특성 1칸" 기준 단위 — 무기/탄약 칸 사이즈 계산에 공용으로 사용 */
+  --eq-row-h: 58px;  /* 무기 슬롯 행 높이 — 탄약칸 높이도 이 값에 맞춤 */
 }
 
 #loadout-picker-panel {
@@ -1703,17 +1695,17 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 .equip-box-small {
-  width: 30px;
-  height: 46px;   /* 무기 슬롯(.equip-box-wide) 높이와 동일하게 맞춤 */
+  width: 38px;
+  height: var(--eq-row-h);   /* 무기 슬롯(.equip-box-wide) 높이와 동일하게 맞춤 */
   cursor: default;
 }
 
 /* 이중탄약(2번째 탄종 동시 장전) 무기 — 탄약칸 2개를 각각 절반 크기로 줄여서 나란히 붙이면
    둘을 합친 폭이 도구/소모품 칸(--eq-cell) 폭보다 살짝 큰 정도가 되도록 맞춤
-   (높이는 무기 슬롯과 동일하게 46px 유지) */
+   (높이는 무기 슬롯과 동일하게 유지) */
 .equip-box-ammo-half {
   width: calc((var(--eq-cell) * 1.15 - 3px) / 2);
-  height: 46px;
+  height: var(--eq-row-h);
 }
 
 .equip-box-small:hover { border-color: var(--border); background: var(--bg-card); }
@@ -1722,7 +1714,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   /* 기본값(빈 칸/미확정 상태)은 3칸 사이즈로 표시 — 무기 장착 시 slotSize에 따라
      .equip-box-wide--sm(2칸 조금 안되게, slotSize 1~2) 또는 .equip-box-wide--lg(3칸, slotSize 3+)로 덮어씀 */
   width: calc(var(--eq-cell) * 3 + 6px);
-  height: 46px;
+  height: var(--eq-row-h);
   flex-shrink: 0;
   justify-content: flex-start;
   padding-left: 8px;

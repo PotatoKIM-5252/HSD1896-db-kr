@@ -2374,12 +2374,12 @@ function renderWeaponSlotsRow(slotDef) {
   let rowHasItem = false;
   let rowSlotSize = 0;
 
-  // 슬롯이 여러 칸(2칸=듀얼 가능)인 경우, 0번 칸에 대형(3칸 이상) 무기가 들어가 있으면
-  // 이미 그 무기가 자리를 다 차지하는 것이므로 1번 칸(듀얼용 빈 칸)은 표시하지 않음.
-  let visibleCount = slotDef.max;
+  // 보조 슬롯은 기본 1칸. 다만 0번 칸에 듀얼 가능한 소형(3칸 미만, 예: 권총) 무기가
+  // 들어가면 옆에 같은 사이즈의 빈 칸을 하나 더 보여줘서 듀얼 구성(권총 2정)을 지원함.
+  let visibleCount = 1;
   if (slotDef.max > 1) {
     const firstItem = state.loadout[key][0]?.item;
-    if (firstItem && firstItem.slotSize >= 3) visibleCount = 1;
+    if (firstItem && firstItem.slotSize < 3) visibleCount = 2;
   }
 
   for (let i = 0; i < visibleCount; i++) {
@@ -2387,12 +2387,18 @@ function renderWeaponSlotsRow(slotDef) {
     const item = slotData?.item || null;
     const ammo = slotData?.ammoId ? AMMO_TYPES[slotData.ammoId] : null;
 
+    // 크기 결정: 아이템이 있으면 자기 slotSize 기준. 비어있는데 "듀얼용으로 추가된 칸"
+    // (1번 칸이면서 visibleCount가 2로 확장된 경우)이면 옆 권총과 같은 sm 사이즈로 맞춤.
+    const weaponSize = item
+      ? (item.slotSize >= 3 ? "lg" : "sm")
+      : (i > 0 && visibleCount === 2 ? "sm" : undefined);
+
     boxesWrap.appendChild(createEquipBox({
       image: item?.image,
       title: item?.name,
       empty: !item,
       wide: true,
-      weaponSize: item ? (item.slotSize >= 3 ? "lg" : "sm") : undefined,
+      weaponSize,
       onClick: () => openWeaponSlotPicker(key, i),
       onClear: item ? () => { state.loadout[key][i] = null; renderLoadoutBoard(); } : null,
     }));
