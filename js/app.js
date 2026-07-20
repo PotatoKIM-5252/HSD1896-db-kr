@@ -1995,6 +1995,9 @@ function renderPickerWeaponFilters() {
   const wrap = document.getElementById("picker-weapon-filters");
   wrap.innerHTML = "";
   Object.entries(WEAPON_FILTERS).forEach(([filterKey, def]) => {
+    // 로드아웃 빌더 피커에서는 "탄약 종류"(ammoEffect) 필터를 없애고 목록을 곧바로
+    // 붙여서 보여줌(사용자 요청) — 메인 검색 페이지의 renderWeaponFilters는 영향 없음.
+    if (filterKey === "ammoEffect") return;
     const group = document.createElement("div");
     group.className = "weapon-filter-group";
     const label = document.createElement("span");
