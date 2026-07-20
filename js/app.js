@@ -105,6 +105,8 @@ function withEulReulIga(word, withBatchim, withoutBatchim) {
 
 // 같은 sharedGroup을 쓰는 슬롯들(도구+소모품)의 전체 사용 칸 수 합산
 function getSharedGroupUsage(sharedGroup) {
+  // "field"(도구+소모품 공유 풀)는 통합 순서 배열(field__all)의 길이가 곧 사용량
+  if (sharedGroup === "field") return (state.loadout["field__all"] || []).length;
   let count = 0;
   Object.entries(CATEGORIES).forEach(([catKey, catDef]) => {
     catDef.loadoutSlots.forEach((slotDef) => {
@@ -144,7 +146,7 @@ function addToLoadoutQuick(item, ammoId = null) {
   if (!catDef) return { ok: false, message: "로드아웃에 추가할 수 없는 항목입니다." };
 
   for (const slotDef of catDef.loadoutSlots) {
-    const key = loadoutKey(item.category, slotDef.slotKey);
+    const key = slotDef.sharedGroup === "field" ? "field__all" : loadoutKey(item.category, slotDef.slotKey);
     if (slotDef.max === null) {
       // 공유 풀 용량 체크 (도구+소모품처럼 여러 카테고리가 칸을 나눠 쓰는 경우)
       if (slotDef.sharedGroup && getSharedGroupUsage(slotDef.sharedGroup) >= slotDef.sharedCapacity) {
@@ -255,6 +257,10 @@ function initLoadoutState() {
       state.loadout[key] = slotDef.max === null ? [] : new Array(slotDef.max).fill(null);
     });
   });
+  // 도구+소모품 공유 풀("field")은 실제로는 이 배열 하나로 순서까지 관리함(드래그 앤 드롭
+  // 재정렬을 위해 카테고리 구분 없이 뒤섞인 순서 그대로 저장) — 위 루프가 만든
+  // tool__tool/consumable__consumable 배열은 더 이상 실사용하지 않는 레거시 자리표시자.
+  state.loadout["field__all"] = [];
 }
 
 function switchTab(tabName) {
@@ -2314,14 +2320,9 @@ function calculateLoadoutTotal() {
       }
     });
   });
-  ["tool", "consumable"].forEach((catKey) => {
-    CATEGORIES[catKey].loadoutSlots.forEach((slotDef) => {
-      const key = loadoutKey(catKey, slotDef.slotKey);
-      (state.loadout[key] || []).forEach((itemId) => {
-        const item = ITEMS.find((i) => i.id === itemId);
-        if (item && item.price != null && !item.scarce) total += item.price;
-      });
-    });
+  (state.loadout["field__all"] || []).forEach((itemId) => {
+    const item = ITEMS.find((i) => i.id === itemId);
+    if (item && item.price != null && !item.scarce) total += item.price;
   });
   return total;
 }
@@ -2331,7 +2332,7 @@ function calculateLoadoutTotal() {
 // ammoHalf: 이중탄약 무기의 탄약칸 2개를 각각 절반 크기로 줄여서 나란히 붙일 때 true
 // stackCount: 2 이상이면 우측 하단에 "xN" 배지 표시(투척/설치/타로/주사기 스택)
 // locked: true면 스택으로 인해 못 쓰게 된 칸 — 클릭 불가, 검정으로 잠긴 표시만 함
-function createEquipBox({ image, title, empty, small, wide, weaponSize, ammoHalf, stackCount, locked, onClick, onClear }) {
+function createEquipBox({ image, title, empty, small, wide, weaponSize, ammoHalf, stackCount, locked, draggable, onClick, onClear, onDragStart, onDragOver, onDrop, onDragEnd }) {
   const box = document.createElement("div");
   box.className = "equip-box"
     + (empty ? " equip-box-empty" : "")
@@ -2362,6 +2363,24 @@ function createEquipBox({ image, title, empty, small, wide, weaponSize, ammoHalf
     clearBtn.textContent = "✕";
     clearBtn.addEventListener("click", (e) => { e.stopPropagation(); onClear(); });
     box.appendChild(clearBtn);
+  }
+  if (draggable) {
+    box.draggable = true;
+    box.classList.add("equip-box-draggable");
+    box.addEventListener("dragstart", (e) => { box.classList.add("equip-box-dragging"); onDragStart?.(e); });
+    box.addEventListener("dragend", () => { box.classList.remove("equip-box-dragging"); onDragEnd?.(); });
+  }
+  if (onDragOver) {
+    box.addEventListener("dragover", (e) => { e.preventDefault(); onDragOver(e); });
+    box.addEventListener("dragenter", (e) => { e.preventDefault(); box.classList.add("equip-box-drop-target"); });
+    box.addEventListener("dragleave", () => box.classList.remove("equip-box-drop-target"));
+  }
+  if (onDrop) {
+    box.addEventListener("drop", (e) => {
+      e.preventDefault();
+      box.classList.remove("equip-box-drop-target");
+      onDrop(e);
+    });
   }
   if (onClick && !locked) box.addEventListener("click", onClick);
   return box;
@@ -2568,12 +2587,13 @@ function renderWeaponSlotsRow(slotDef) {
   let rowHasItem = false;
   let rowSlotSize = 0;
 
-  // 슬롯은 기본 1칸. 다만 0번 칸에 듀얼 가능한 소형(3칸 미만, 예: 권총) 무기가
-  // 들어가면 옆에 같은 사이즈의 빈 칸을 하나 더 보여줘서 듀얼 구성(같은 무기 2정)을 지원함.
+  // 슬롯은 기본 1칸. 다만 0번 칸에 권총(weaponClass==="handgun")이 들어가면 옆에
+  // 같은 사이즈의 빈 칸을 하나 더 보여줘서 듀얼 구성(같은 권총 2정)을 지원함.
+  // 듀얼은 권총만 가능 — 2칸짜리 소총/카빈 등은 slotSize가 작아도 듀얼 불가.
   let visibleCount = 1;
   if (slotDef.max > 1) {
     const firstItem = state.loadout[key][0]?.item;
-    if (firstItem && firstItem.slotSize < 3) visibleCount = 2;
+    if (firstItem && firstItem.weaponClass === "handgun") visibleCount = 2;
   }
   const isDualPair = visibleCount === 2;
 
@@ -2670,8 +2690,7 @@ function renderWeaponSlotsRow(slotDef) {
 // "도구 & 소모품" 통합 칸을 고르는 피커를 염 (도구/소모품 서브탭 포함)
 function openFieldPicker() {
   openPicker("tool_consumable", (selectedItem) => {
-    const cat = selectedItem.category; // "tool" | "consumable"
-    const key = loadoutKey(cat, cat);
+    const key = "field__all";
     if (getSharedGroupUsage("field") >= 8) {
       showToast("필드 장비 칸이 가득 찼습니다 (8/8)");
       renderLoadoutBoard();
@@ -2704,14 +2723,9 @@ function renderFieldEquipmentSection() {
   heading.textContent = "도구 및 소모품";
   section.appendChild(heading);
 
-  const toolKey = loadoutKey("tool", "tool");
-  const consumableKey = loadoutKey("consumable", "consumable");
-  const toolIds = state.loadout[toolKey] || [];
-  const consumableIds = state.loadout[consumableKey] || [];
-  const merged = [
-    ...toolIds.map((id, idx) => ({ key: toolKey, idx, id })),
-    ...consumableIds.map((id, idx) => ({ key: consumableKey, idx, id })),
-  ];
+  // 도구+소모품은 실제로 이 배열 하나로 순서까지 관리함(카테고리 구분 없이 뒤섞인 순서
+  // 그대로 저장) — 드래그 앤 드롭으로 도구/소모품을 자유롭게 섞어서 재배치할 수 있게 하기 위함.
+  const fieldIds = state.loadout["field__all"] || [];
 
   const boxesWrap = document.createElement("div");
   boxesWrap.className = "equip-row-boxes equip-field-grid";
@@ -2720,31 +2734,57 @@ function renderFieldEquipmentSection() {
 
   // 스택 그룹(투척/설치/타로/주사기)은 같은 id끼리 "처음 등장한 자리" 하나에 모아서
   // xN 배지로 표시. 그 외(도구, 스택 대상 아닌 소모품)는 기존처럼 각자 자기 칸을 씀.
-  const displayList = []; // { item, key, count }
+  const displayList = []; // { item, count }
   const stackIndexById = new Map(); // id -> displayList 인덱스 (스택 그룹 전용)
 
-  merged.forEach((entry) => {
-    const item = ITEMS.find((i) => i.id === entry.id);
+  fieldIds.forEach((id) => {
+    const item = ITEMS.find((i) => i.id === id);
     if (!item) return;
     const stackGroup = getConsumableStackGroup(item);
-    if (stackGroup && stackIndexById.has(entry.id)) {
-      displayList[stackIndexById.get(entry.id)].count += 1;
+    if (stackGroup && stackIndexById.has(id)) {
+      displayList[stackIndexById.get(id)].count += 1;
       return;
     }
-    displayList.push({ item, key: entry.key, count: 1 });
-    if (stackGroup) stackIndexById.set(entry.id, displayList.length - 1);
+    displayList.push({ item, count: 1 });
+    if (stackGroup) stackIndexById.set(id, displayList.length - 1);
   });
 
   displayList.forEach((d) => {
     if (d.item.scarce) anyScarce = true;
     else if (d.item.price != null) total += d.item.price * d.count; // 스택된 개수만큼 가격도 반영
+  });
+
+  // 도구/소모품 칸을 드래그 앤 드롭으로 순서 재배치 — displayList(화면에 보이는 칸 단위,
+  // 스택은 하나로 묶여서 통째로 이동)를 옮긴 뒤, 그 순서 그대로 field__all을 다시 만듦.
+  function rebuildFieldArrayFromDisplayList(list) {
+    const rebuilt = [];
+    list.forEach((d) => {
+      for (let i = 0; i < d.count; i++) rebuilt.push(d.item.id);
+    });
+    state.loadout["field__all"] = rebuilt;
+  }
+
+  let dragSourceIdx = null;
+
+  displayList.forEach((d, dIdx) => {
     boxesWrap.appendChild(createEquipBox({
       image: d.item.image,
       title: d.count > 1 ? `${d.item.name} x${d.count}` : d.item.name,
       stackCount: d.count,
+      draggable: true,
+      onDragStart: () => { dragSourceIdx = dIdx; },
+      onDragOver: () => {},
+      onDragEnd: () => { dragSourceIdx = null; },
+      onDrop: () => {
+        if (dragSourceIdx === null || dragSourceIdx === dIdx) return;
+        const [moved] = displayList.splice(dragSourceIdx, 1);
+        displayList.splice(dIdx, 0, moved);
+        rebuildFieldArrayFromDisplayList(displayList);
+        renderLoadoutBoard();
+      },
       onClear: () => {
         // 스택된 칸이면 마지막 1개만 제거(카운트만 줄어듦), 아니면 그 칸 자체를 제거
-        const arr = state.loadout[d.key];
+        const arr = state.loadout["field__all"];
         let lastIdx = -1;
         arr.forEach((id, i) => { if (id === d.item.id) lastIdx = i; });
         if (lastIdx !== -1) arr.splice(lastIdx, 1);
@@ -2754,12 +2794,24 @@ function renderFieldEquipmentSection() {
   });
 
   const capacity = 8;
-  const totalUsed = merged.length;
+  const totalUsed = fieldIds.length;
   const lockedCount = totalUsed - displayList.length; // 스택으로 인해 실제로는 쓰였지만 안 보이는 칸 수
   const emptyCount = capacity - totalUsed;
 
   for (let i = 0; i < emptyCount; i++) {
-    boxesWrap.appendChild(createEquipBox({ empty: true, onClick: () => openFieldPicker() }));
+    boxesWrap.appendChild(createEquipBox({
+      empty: true,
+      onClick: () => openFieldPicker(),
+      onDragOver: () => {},
+      onDrop: () => {
+        // 빈 칸에 드롭하면 목록 맨 뒤로 이동
+        if (dragSourceIdx === null) return;
+        const [moved] = displayList.splice(dragSourceIdx, 1);
+        displayList.push(moved);
+        rebuildFieldArrayFromDisplayList(displayList);
+        renderLoadoutBoard();
+      },
+    }));
   }
   // 스택으로 못 쓰게 된 칸 — 그리드 맨 끝(우측 하단)부터 채워지도록 맨 나중에 추가
   for (let i = 0; i < lockedCount; i++) {
@@ -2771,7 +2823,7 @@ function renderFieldEquipmentSection() {
   const rowEl = document.createElement("div");
   rowEl.className = "equip-row";
   rowEl.appendChild(boxesWrap);
-  if (merged.length > 0) {
+  if (fieldIds.length > 0) {
     const priceEl = document.createElement("span");
     priceEl.className = "equip-row-price";
     priceEl.innerHTML = anyScarce

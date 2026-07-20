@@ -1542,17 +1542,28 @@ button { font-family: var(--font-body); cursor: pointer; }
   background: var(--bg-card-hover);
 }
 
-#picker-item-list { overflow-y: auto; display: flex; flex-direction: column; gap: 6px; flex: 1; min-height: 0; }
+/* 왼쪽 피커 목록 — 세로로 긴 바 형식 대신, 작은 카드를 격자로 촘촘하게 배치 */
+#picker-item-list {
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+  align-content: start;
+}
 
 .picker-item-row {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
+  text-align: center;
+  gap: 4px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 8px 14px;
-  font-size: 13px;
+  padding: 8px 6px;
+  font-size: 11px;
   color: var(--text-primary);
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
@@ -1561,8 +1572,8 @@ button { font-family: var(--font-body); cursor: pointer; }
 .picker-item-row:hover { border-color: var(--accent); background: var(--bg-card-hover); }
 
 .picker-item-thumb {
-  width: 34px;
-  height: 34px;
+  width: 100%;
+  height: 40px;
   object-fit: contain;
   flex-shrink: 0;
 }
@@ -1575,31 +1586,37 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 .picker-item-thumb-placeholder {
-  width: 34px;
-  height: 34px;
+  width: 100%;
+  height: 40px;
   flex-shrink: 0;
 }
 
 .picker-item-name {
-  flex: 1;
+  width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.25;
+  font-size: 11px;
 }
 
 .picker-item-price {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 3px;
   flex-shrink: 0;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-secondary);
 }
 
-.picker-item-price img { width: 14px; height: 14px; }
+.picker-item-price img { width: 12px; height: 12px; }
 
 .picker-back-btn {
+  grid-column: 1 / -1;
   align-self: flex-start;
   background: transparent;
   border: 1px solid var(--border-strong);
@@ -1695,12 +1712,11 @@ button { font-family: var(--font-body); cursor: pointer; }
   object-fit: contain;
 }
 
-/* 탄약 표시칸(단일/이중탄약 절반) 이미지 — 칸 크기가 서로 달라도 이미지 비율을 통일하고
-   기존(82%)보다 조금 더 크게 표시 */
+/* 탄약 표시칸(단일/이중탄약 절반) 이미지 — 칸 크기는 그대로 두고 이미지 자체만 꽉 차게 키움 */
 .equip-box-small img,
 .equip-box-ammo-half img {
-  max-width: 92%;
-  max-height: 92%;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .equip-box-small {
@@ -1791,6 +1807,11 @@ button { font-family: var(--font-body); cursor: pointer; }
   cursor: not-allowed;
 }
 .equip-box-locked:hover { border-color: #000; background: #000; }
+
+/* 도구/소모품 칸 드래그 앤 드롭 재정렬 시각 피드백 */
+.equip-box-draggable { cursor: grab; }
+.equip-box-dragging { opacity: 0.4; }
+.equip-box-drop-target { border-color: var(--accent-strong); box-shadow: inset 0 0 0 2px var(--accent-strong); }
 
 /* 무기 용량 게이지 — 실제 게임처럼 작은 사각형이 칸수만큼 채워짐 */
 .equip-capacity-pips { display: flex; gap: 4px; margin-top: 6px; }
