@@ -77,6 +77,28 @@ button { font-family: var(--font-body); cursor: pointer; }
   line-height: 0;
 }
 
+#app-footer {
+  border-top: 1px solid var(--border);
+  background: var(--bg-panel);
+  padding: 18px 32px 24px;
+}
+
+#app-footer p {
+  max-width: 1240px;
+  margin: 0 auto;
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+#app-footer p + p { margin-top: 6px; }
+
+#app-footer a { color: var(--text-secondary); text-decoration: underline; text-underline-offset: 2px; }
+#app-footer a:hover { color: var(--accent-strong); }
+
+#app-footer strong { color: var(--text-secondary); font-weight: 600; }
+
 #site-logo img {
   height: 52px;
   width: auto;
