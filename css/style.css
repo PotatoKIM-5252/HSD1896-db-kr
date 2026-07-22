@@ -1482,8 +1482,9 @@ button { font-family: var(--font-body); cursor: pointer; }
   padding: 20px;
 }
 
-/* 필터/피커 패널을 넓히고 장비판(오른쪽)은 실제 게임 로드아웃 창처럼 좁고 촘촘하게 */
-#loadout-picker-panel { flex-grow: 1.7; }
+/* 필터/피커 패널을 넓히고 장비판(오른쪽)은 실제 게임 로드아웃 창처럼 좁고 촘촘하게
+   (장비판을 특성칸 1.5칸(약 78px)만큼 더 줄여달라는 요청 반영 — flex-grow 비율 조정) */
+#loadout-picker-panel { flex-grow: 2.3; }
 #loadout-equipment-panel {
   flex-grow: 1;
   --eq-cell: 52px;   /* 장비판 내 "특성 1칸" 기준 단위 — 무기/탄약 칸 사이즈 계산에 공용으로 사용 */
@@ -1740,9 +1741,9 @@ button { font-family: var(--font-body); cursor: pointer; }
 /* 샷건 기본 쉘(Shells) — 특수탄과 같은 높이로 두면 유독 커 보여서 조금 더 작게 */
 .equip-box-shell-base img {
   width: auto;
-  height: calc(var(--eq-row-h) - 16px);
-  max-width: 80%;
-  max-height: 80%;
+  height: calc(var(--eq-row-h) - 22px);
+  max-width: 70%;
+  max-height: 70%;
   object-fit: contain;
 }
 
