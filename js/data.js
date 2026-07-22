@@ -1598,7 +1598,8 @@ const AMMO_TYPES = {
     image: "images/ui/ammo_effects/ammo_medium_bleed.png",
     icon: "🩸",
     description: "덤덤탄 - 명중 시 강한 출혈 효과.",
-    cost: 0,
+    cost: null,
+    scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득) — 다른 무기의 덤덤탄과 동일하게 수정(기존엔 cost:0으로 잘못 표기됨)
     falloff: [
       [0, 1.00],
       [30, 1.00],
