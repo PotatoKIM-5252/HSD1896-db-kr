@@ -1562,6 +1562,12 @@ button { font-family: var(--font-body); cursor: pointer; }
   align-content: start;
 }
 
+/* 무기 선택창 — 자리가 넓어졌으니 가로로 긴 카드로(무기 이미지가 원래 가로로 길어서
+   좁은 정사각 카드보다 훨씬 잘 보임). 칸 안 배치는 이미지 → 이름 → 가격 그대로 유지. */
+#picker-item-list.picker-item-list--wide {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+
 .picker-item-row {
   display: flex;
   flex-direction: column;
@@ -1578,6 +1584,11 @@ button { font-family: var(--font-body); cursor: pointer; }
   transition: border-color 0.15s, background 0.15s;
 }
 
+.picker-item-list--wide .picker-item-row {
+  padding: 10px 8px;
+  font-size: 12px;
+}
+
 .picker-item-row:hover { border-color: var(--accent); background: var(--bg-card-hover); }
 
 .picker-item-thumb {
@@ -1585,6 +1596,11 @@ button { font-family: var(--font-body); cursor: pointer; }
   height: 40px;
   object-fit: contain;
   flex-shrink: 0;
+}
+
+.picker-item-list--wide .picker-item-thumb,
+.picker-item-list--wide .picker-item-thumb-placeholder {
+  height: 56px;
 }
 
 /* 피커 목록에서 무기 항목 썸네일만 --bg-card 대신 무기 이미지 실제 배경색(--bg-input)으로 맞춤 */

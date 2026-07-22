@@ -2219,6 +2219,8 @@ function closePicker() {
 function renderPickerList(query) {
   const list = document.getElementById("picker-item-list");
   list.innerHTML = "";
+  // 무기 선택창은 자리가 넓어졌으니 가로로 긴 카드로(무기 이미지가 원래 가로로 길어서 더 잘 보임)
+  list.classList.toggle("picker-item-list--wide", state.picker.categoryFilter === "weapon");
   const items = getFilteredItems({
     category: state.picker.categoryFilter, query,
     useWeaponFilters: true, filterSource: state.pickerWeaponFilters,
