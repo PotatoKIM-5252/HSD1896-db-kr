@@ -1726,12 +1726,9 @@ button { font-family: var(--font-body); cursor: pointer; }
   max-height: 100%;
 }
 
-/* 샷건 기본 쉘(Shells)/특수탄(슬러그·드래곤브레스·플리셰트·페니샷·신호탄 등) 둘 다
-   같은 크기로 칸을 꽉 채우도록 강제 확대(기본쉘만 따로 줄이던 규칙은 롤백해서 통일함).
-   간략히 보기 패널의 .ammo-status-icon(고정 px 높이 + width:auto)과 동일한 방식으로
-   맞춰서 퍼센트 기반보다 더 확실하게 박스를 채우도록 함.
+/* 샷건 특수탄(슬러그·드래곤브레스·플리셰트·페니샷·신호탄 등) — 칸을 꽉 채움.
+   간략히 보기 패널의 .ammo-status-icon(고정 px 높이 + width:auto)과 동일한 방식.
    이미지 파일 자체는 손대지 않고 이 칸(무기 슬롯 옆 탄약 표시)에서만 적용됨. */
-.equip-box-shell-base img,
 .equip-box-shell-special img {
   width: auto;
   height: calc(var(--eq-row-h) - 6px);
@@ -1740,8 +1737,19 @@ button { font-family: var(--font-body); cursor: pointer; }
   object-fit: contain;
 }
 
+/* 샷건 기본 쉘(Shells) — 특수탄과 같은 높이로 두면 유독 커 보여서 조금 더 작게 */
+.equip-box-shell-base img {
+  width: auto;
+  height: calc(var(--eq-row-h) - 16px);
+  max-width: 80%;
+  max-height: 80%;
+  object-fit: contain;
+}
+
 .equip-box-small {
-  width: 38px;
+  /* 이중탄약 절반칸(.equip-box-ammo-half)과 폭을 통일 — 무기별로 탄약칸 크기가
+     들쭉날쭉해 보이던 것을 작은 쪽 기준으로 맞춤 */
+  width: calc((var(--eq-cell) * 1.15 - 3px) / 2);
   height: var(--eq-row-h);   /* 무기 슬롯(.equip-box-wide) 높이와 동일하게 맞춤 */
   cursor: pointer;   /* 클릭하면 탄약 다시 고르기 가능 */
 }

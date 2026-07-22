@@ -2709,9 +2709,17 @@ function renderWeaponSlotsRow(slotDef) {
   const priceEl = document.createElement("span");
   priceEl.className = "equip-row-price";
   if (rowHasItem) {
-    priceEl.innerHTML = rowScarce
-      ? `<img src="images/ui/scarce.png" alt="Scarce" title="Scarce (상점 구매 불가, 월드에서만 획득)">${rowTotal > 0 ? rowTotal : ""}`
-      : `<img src="images/ui/hunt_dollars.png" alt="$">${rowTotal}`;
+    // 헌트달러로 사는 부분(무기/일반탄 가격)과 Scarce(필드 드랍 전용) 표시를 분리해서
+    // 보여줌 — 합쳐서 "[Scarce 아이콘]가격" 식으로 보이면 마치 Scarce 아이템이 유료인
+    //것처럼 오해를 살 수 있어서(예: 무기는 유료인데 탄약만 Scarce인 경우) 수정.
+    let html = "";
+    if (rowTotal > 0 || !rowScarce) {
+      html += `<img src="images/ui/hunt_dollars.png" alt="$">${rowTotal}`;
+    }
+    if (rowScarce) {
+      html += `<img src="images/ui/scarce.png" alt="Scarce" title="Scarce (상점 구매 불가, 월드에서만 획득)">`;
+    }
+    priceEl.innerHTML = html;
   }
   rowEl.appendChild(priceEl);
   wrap.appendChild(rowEl);
@@ -2859,9 +2867,14 @@ function renderFieldEquipmentSection() {
   if (fieldIds.length > 0) {
     const priceEl = document.createElement("span");
     priceEl.className = "equip-row-price";
-    priceEl.innerHTML = anyScarce
-      ? `<img src="images/ui/scarce.png" alt="Scarce" title="Scarce 아이템 포함">${total > 0 ? total : ""}`
-      : `<img src="images/ui/hunt_dollars.png" alt="$">${total}`;
+    let html = "";
+    if (total > 0 || !anyScarce) {
+      html += `<img src="images/ui/hunt_dollars.png" alt="$">${total}`;
+    }
+    if (anyScarce) {
+      html += `<img src="images/ui/scarce.png" alt="Scarce" title="Scarce 아이템 포함">`;
+    }
+    priceEl.innerHTML = html;
     rowEl.appendChild(priceEl);
   }
   section.appendChild(rowEl);
