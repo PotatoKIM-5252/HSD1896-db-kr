@@ -1778,10 +1778,17 @@ button { font-family: var(--font-body); cursor: pointer; }
   object-fit: contain;
 }
 
+/* 일반 탄약(샷건 계열이 아닌 것) — 원본 파일마다 캔버스 높이가 제각각이라
+   max-height만으로는(=원본 그대로 표시) 칸마다 크기가 들쭉날쭉해 보임
+   (예: 듀얼탄약 무기에서 주탄약/보조탄약 크기가 서로 다르게 보이던 문제).
+   샷건 계열 탄약칸과 동일한 높이로 맞춰서 항상 일정하게 표시. */
 .equip-box-small img,
 .equip-box-ammo-half img {
-  max-width: 100%;
-  max-height: 100%;
+  width: auto;
+  height: 54px;
+  max-width: 93%;
+  max-height: 93%;
+  object-fit: contain;
 }
 
 /* 샷건 특수탄(슬러그·드래곤브레스·플리셰트·페니샷·신호탄 등) — 탄약칸을 최대한
