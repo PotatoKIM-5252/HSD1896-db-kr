@@ -4887,7 +4887,7 @@ const ITEMS = [
       {
         id: "frontier73c_silencer",
         name: "Frontier 73C Silencer",
-        image: "images/weapons/variants/frontier73c_silencer.jpg",
+        image: "images/weapons/variants/frontier73c_silencer.png",
         description: "",
         price: 55,
         stats: {
@@ -4900,7 +4900,7 @@ const ITEMS = [
       {
         id: "frontier73c_marksman",
         name: "Frontier 73C Marksman",
-        image: "images/weapons/variants/frontier73c_marksman.jpg",
+        image: "images/weapons/variants/frontier73c_marksman.png",
         description: "",
         price: 45,
         stats: {
@@ -4968,7 +4968,7 @@ const ITEMS = [
       {
         id: "infantry73l_sniper",
         name: "Infantry 73L Sniper",
-        image: "images/weapons/variants/infantry73l_sniper.jpg",
+        image: "images/weapons/variants/infantry73l_sniper.png",
         description: "",
         price: 90,
         stats: {
@@ -4978,7 +4978,7 @@ const ITEMS = [
       {
         id: "infantry73l_bayonet",
         name: "Infantry 73L Bayonet",
-        image: "images/weapons/variants/infantry73l_bayonet.jpg",
+        image: "images/weapons/variants/infantry73l_bayonet.png",
         description: "",
         price: 88,
         stats: {
@@ -5121,7 +5121,7 @@ const ITEMS = [
       {
         id: "ranger73_talon",
         name: "Ranger 73 Talon",
-        image: "images/weapons/variants/ranger73_talon.jpg",
+        image: "images/weapons/variants/ranger73_talon.png",
         description: "",
         price: 85,
         stats: {
@@ -5132,7 +5132,7 @@ const ITEMS = [
       {
         id: "ranger73_aperture",
         name: "Ranger 73 Aperture",
-        image: "images/weapons/variants/ranger73_aperture.jpg",
+        image: "images/weapons/variants/ranger73_aperture.png",
         description: "",
         price: 79,
         stats: {
@@ -5198,7 +5198,7 @@ const ITEMS = [
       {
         id: "vandal73c_bullseye",
         name: "Vandal 73C Bullseye",
-        image: "images/weapons/variants/vandal73c_bullseye.jpg",
+        image: "images/weapons/variants/vandal73c_bullseye.png",
         description: "",
         price: 37,
         stats: {
@@ -5209,7 +5209,7 @@ const ITEMS = [
       {
         id: "vandal73c_striker",
         name: "Vandal 73C Striker",
-        image: "images/weapons/variants/vandal73c_striker.jpg",
+        image: "images/weapons/variants/vandal73c_striker.png",
         description: "",
         price: 45,
         stats: {
@@ -5276,7 +5276,7 @@ const ITEMS = [
       {
         id: "bornheim_match",
         name: "Bornheim No. 3 Match",
-        image: "images/weapons/variants/bornheim_match.jpg",
+        image: "images/weapons/variants/bornheim_match.png",
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
         slotSize: 2,
@@ -5296,7 +5296,7 @@ const ITEMS = [
       {
         id: "bornheim_silencer",
         name: "Bornheim No. 3 Silencer",
-        image: "images/weapons/variants/bornheim_silencer.jpg",
+        image: "images/weapons/variants/bornheim_silencer.png",
         description: "",
         price: 174,
         stats: {
@@ -5308,7 +5308,7 @@ const ITEMS = [
       {
         id: "bornheim_extended",
         name: "Bornheim No. 3 Extended",
-        image: "images/weapons/variants/bornheim_extended.jpg",
+        image: "images/weapons/variants/bornheim_extended.png",
         description: "",
         price: 203,
         chamber: {
@@ -5375,7 +5375,7 @@ const ITEMS = [
       {
         id: "conversion_chain_pistol",
         name: "Conversion Chain Pistol",
-        image: "images/weapons/variants/conversion_chain_pistol.jpg",
+        image: "images/weapons/variants/conversion_chain_pistol.png",
         description: "",
         price: 84,
         chamber: {
@@ -5449,7 +5449,7 @@ const ITEMS = [
       {
         id: "lemat_carbine",
         name: "LeMat Carbine",
-        image: "images/weapons/variants/lemat_carbine.jpg",
+        image: "images/weapons/variants/lemat_carbine.png",
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
         slotSize: 3,
@@ -5471,7 +5471,7 @@ const ITEMS = [
       {
         id: "lemat_carbine_marksman",
         name: "LeMat Carbine Marksman",
-        image: "images/weapons/variants/lemat_carbine_marksman.jpg",
+        image: "images/weapons/variants/lemat_carbine_marksman.png",
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
         slotSize: 3,
@@ -5548,7 +5548,7 @@ const ITEMS = [
       {
         id: "nagant_precision",
         name: "Nagant M1895 Precision",
-        image: "images/weapons/variants/nagant_precision.jpg",
+        image: "images/weapons/variants/nagant_precision.png",
         description: "",
         slotSize: 2,
         price: 29,
@@ -5566,7 +5566,7 @@ const ITEMS = [
       {
         id: "nagant_silencer",
         name: "Nagant M1895 Silencer",
-        image: "images/weapons/variants/nagant_silencer.jpg",
+        image: "images/weapons/variants/nagant_silencer.png",
         description: "",
         price: 27,
         stats: {
@@ -5578,7 +5578,7 @@ const ITEMS = [
       {
         id: "nagant_deadeye",
         name: "Nagant M1895 Deadeye",
-        image: "images/weapons/variants/nagant_deadeye.jpg",
+        image: "images/weapons/variants/nagant_deadeye.png",
         description: "",
         slotSize: 2,
         price: 30,
@@ -5715,7 +5715,7 @@ const ITEMS = [
       {
         id: "officer_brawler",
         name: "Officer Brawler",
-        image: "images/weapons/variants/officer_brawler.jpg",
+        image: "images/weapons/variants/officer_brawler.png",
         description: "",
         price: 106,
         stats: {
@@ -5727,7 +5727,7 @@ const ITEMS = [
       {
         id: "officer_carbine",
         name: "Officer Carbine",
-        image: "images/weapons/variants/officer_carbine.jpg",
+        image: "images/weapons/variants/officer_carbine.png",
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
         slotSize: 3,
@@ -5747,7 +5747,7 @@ const ITEMS = [
       {
         id: "officer_carbine_deadeye",
         name: "Officer Carbine Deadeye",
-        image: "images/weapons/variants/officer_carbine_deadeye.jpg",
+        image: "images/weapons/variants/officer_carbine_deadeye.png",
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
         slotSize: 3,
@@ -5823,7 +5823,7 @@ const ITEMS = [
       {
         id: "centennial_sniper",
         name: "Centennial Sniper",
-        image: "images/weapons/variants/centennial_sniper.jpg",
+        image: "images/weapons/variants/centennial_sniper.png",
         description: "",
         price: 181,
         stats: {
@@ -5835,7 +5835,7 @@ const ITEMS = [
       {
         id: "centennial_shorty",
         name: "Centennial Shorty",
-        image: "images/weapons/variants/centennial_shorty.jpg",
+        image: "images/weapons/variants/centennial_shorty.png",
         description: "",
         price: 103,
         slotSize: 2,
@@ -5859,7 +5859,7 @@ const ITEMS = [
       {
         id: "centennial_shorty_silencer",
         name: "Centennial Shorty Silencer",
-        image: "images/weapons/variants/centennial_shorty_silencer.jpg",
+        image: "images/weapons/variants/centennial_shorty_silencer.png",
         // ✅ [확인됨] 예비 탄약 9발 — 사용자 확인. 가격은 패치노트(Update 2.2.0.35)에서 확정된 118을 사용(위키 캐시엔 구가격 137로 표기돼 있었음).
         description: "",
         price: 118,
@@ -5884,7 +5884,7 @@ const ITEMS = [
       {
         id: "centennial_trauma",
         name: "Centennial Trauma",
-        image: "images/weapons/variants/centennial_trauma.jpg",
+        image: "images/weapons/variants/centennial_trauma.png",
         description: "",
         price: 167,
         stats: {
@@ -5896,7 +5896,7 @@ const ITEMS = [
       {
         id: "centennial_pointman",
         name: "Centennial Pointman",
-        image: "images/weapons/variants/centennial_pointman.jpg",
+        image: "images/weapons/variants/centennial_pointman.png",
         description: "",
         price: 114,
         slotSize: 2,
@@ -6034,7 +6034,7 @@ const ITEMS = [
       {
         id: "drilling_hatchet",
         name: "Drilling Hatchet",
-        image: "images/weapons/variants/drilling_hatchet.jpg",
+        image: "images/weapons/variants/drilling_hatchet.png",
         description: "",
         price: 340,
         slotSize: 2,
@@ -6069,7 +6069,7 @@ const ITEMS = [
       {
         id: "drilling_shorty",
         name: "Drilling Shorty",
-        image: "images/weapons/variants/drilling_shorty.jpg",
+        image: "images/weapons/variants/drilling_shorty.png",
         description: "",
         price: 330,
         slotSize: 2,
@@ -6159,7 +6159,7 @@ const ITEMS = [
       {
         id: "maynard_silencer",
         name: "Maynard Sniper Silencer",
-        image: "images/weapons/variants/maynard_silencer.jpg",
+        image: "images/weapons/variants/maynard_silencer.png",
         description: "",
         weaponClass: "rifle",
         price: 159,
@@ -6229,7 +6229,7 @@ const ITEMS = [
       {
         id: "springfield1866_bayonet",
         name: "Springfield 1866 Bayonet",
-        image: "images/weapons/variants/springfield1866_bayonet.jpg",
+        image: "images/weapons/variants/springfield1866_bayonet.png",
         description: "",
         weaponClass: "rifle",
         price: 48,
@@ -6240,7 +6240,7 @@ const ITEMS = [
       {
         id: "springfield1866_bullseye",
         name: "Springfield 1866 Bullseye",
-        image: "images/weapons/variants/springfield1866_bullseye.jpg",
+        image: "images/weapons/variants/springfield1866_bullseye.png",
         description: "",
         weaponClass: "rifle",
         price: 35,
@@ -6262,7 +6262,7 @@ const ITEMS = [
       {
         id: "springfield1866_marksman",
         name: "Springfield 1866 Marksman",
-        image: "images/weapons/variants/springfield1866_marksman.jpg",
+        image: "images/weapons/variants/springfield1866_marksman.png",
         description: "",
         weaponClass: "rifle",
         price: 42,
@@ -6274,7 +6274,7 @@ const ITEMS = [
       {
         id: "springfield1866_shorty",
         name: "Springfield 1866 Shorty",
-        image: "images/weapons/variants/springfield1866_shorty.jpg",
+        image: "images/weapons/variants/springfield1866_shorty.png",
         description: "",
         weaponClass: "rifle",
         price: 33,
@@ -6296,7 +6296,7 @@ const ITEMS = [
       {
         id: "springfield1866_striker",
         name: "Springfield 1866 Striker",
-        image: "images/weapons/variants/springfield1866_striker.jpg",
+        image: "images/weapons/variants/springfield1866_striker.png",
         description: "",
         weaponClass: "rifle",
         price: 43,
@@ -6372,7 +6372,7 @@ const ITEMS = [
       {
         id: "carbine1865_aperture",
         name: "1865 Carbine Aperture",
-        image: "images/weapons/variants/carbine1865_aperture.jpg",
+        image: "images/weapons/variants/carbine1865_aperture.png",
         description: "",
         weaponClass: "rifle",
         price: 74,
@@ -6383,7 +6383,7 @@ const ITEMS = [
       {
         id: "carbine1865_silencer",
         name: "1865 Carbine Silencer",
-        image: "images/weapons/variants/carbine1865_silencer.jpg",
+        image: "images/weapons/variants/carbine1865_silencer.png",
         description: "",
         weaponClass: "rifle",
         price: 80,
@@ -6451,7 +6451,7 @@ const ITEMS = [
       {
         id: "vetterli71_bayonet",
         name: "Vetterli 71 Bayonet",
-        image: "images/weapons/variants/vetterli71_bayonet.jpg",
+        image: "images/weapons/variants/vetterli71_bayonet.png",
         description: "",
         weaponClass: "rifle",
         price: 115,
@@ -6462,7 +6462,7 @@ const ITEMS = [
       {
         id: "vetterli71_cyclone",
         name: "Vetterli 71 Cyclone",
-        image: "images/weapons/variants/vetterli71_cyclone.jpg",
+        image: "images/weapons/variants/vetterli71_cyclone.png",
         description: "",
         weaponClass: "rifle",
         price: 280,
@@ -6483,7 +6483,7 @@ const ITEMS = [
       {
         id: "vetterli71_deadeye",
         name: "Vetterli 71 Deadeye",
-        image: "images/weapons/variants/vetterli71_deadeye.jpg",
+        image: "images/weapons/variants/vetterli71_deadeye.png",
         description: "",
         weaponClass: "rifle",
         price: 110,
@@ -6495,7 +6495,7 @@ const ITEMS = [
       {
         id: "vetterli71_marksman",
         name: "Vetterli 71 Marksman",
-        image: "images/weapons/variants/vetterli71_marksman.jpg",
+        image: "images/weapons/variants/vetterli71_marksman.png",
         description: "",
         weaponClass: "rifle",
         price: 116,
@@ -6507,7 +6507,7 @@ const ITEMS = [
       {
         id: "vetterli71_silencer",
         name: "Vetterli 71 Silencer",
-        image: "images/weapons/variants/vetterli71_silencer.jpg",
+        image: "images/weapons/variants/vetterli71_silencer.png",
         description: "",
         weaponClass: "rifle",
         price: 150,
@@ -6576,7 +6576,7 @@ const ITEMS = [
       {
         id: "pax_claw",
         name: "Pax Claw",
-        image: "images/weapons/variants/pax_claw.jpg",
+        image: "images/weapons/variants/pax_claw.png",
         description: "",
         weaponClass: "handgun",
         price: 90,
@@ -6588,7 +6588,7 @@ const ITEMS = [
       {
         id: "pax_trueshot",
         name: "Pax Trueshot",
-        image: "images/weapons/variants/pax_trueshot.jpg",
+        image: "images/weapons/variants/pax_trueshot.png",
         description: "",
         weaponClass: "handgun",
         price: 141,
@@ -6661,7 +6661,7 @@ const ITEMS = [
       {
         id: "scottfield_brawler",
         name: "Scottfield Brawler",
-        image: "images/weapons/variants/scottfield_brawler.jpg",
+        image: "images/weapons/variants/scottfield_brawler.png",
         description: "",
         weaponClass: "handgun",
         price: 87,
@@ -6677,7 +6677,7 @@ const ITEMS = [
       {
         id: "scottfield_precision",
         name: "Scottfield Precision",
-        image: "images/weapons/variants/scottfield_precision.jpg",
+        image: "images/weapons/variants/scottfield_precision.png",
         description: "",
         weaponClass: "handgun",
         price: 85,
@@ -6695,7 +6695,7 @@ const ITEMS = [
       {
         id: "scottfield_spitfire",
         name: "Scottfield Spitfire",
-        image: "images/weapons/variants/scottfield_spitfire.jpg",
+        image: "images/weapons/variants/scottfield_spitfire.png",
         description: "",
         weaponClass: "handgun",
         price: 108,
@@ -6777,7 +6777,7 @@ const ITEMS = [
       {
         id: "mako1895_aperture",
         name: "Mako 1895 Aperture",
-        image: "images/weapons/variants/mako1895_aperture.jpg",
+        image: "images/weapons/variants/mako1895_aperture.png",
         description: "",
         price: 378,
         stats: {
@@ -6788,7 +6788,7 @@ const ITEMS = [
       {
         id: "mako1895_claw",
         name: "Mako 1895 Claw",
-        image: "images/weapons/variants/mako1895_claw.jpg",
+        image: "images/weapons/variants/mako1895_claw.png",
         description: "",
         price: 370,
         stats: {
@@ -6854,7 +6854,7 @@ const ITEMS = [
       {
         id: "martinihenry_deadeye",
         name: "Martini-Henry Deadeye",
-        image: "images/weapons/variants/martinihenry_deadeye.jpg",
+        image: "images/weapons/variants/martinihenry_deadeye.png",
         description: "",
         price: 128,
         stats: {
@@ -6865,7 +6865,7 @@ const ITEMS = [
       {
         id: "martinihenry_ironside",
         name: "Martini-Henry Ironside",
-        image: "images/weapons/variants/martinihenry_ironside.jpg",
+        image: "images/weapons/variants/martinihenry_ironside.png",
         description: "",
         price: 159,
         chamber: {
@@ -6880,7 +6880,7 @@ const ITEMS = [
       {
         id: "martinihenry_marksman",
         name: "Martini-Henry Marksman",
-        image: "images/weapons/variants/martinihenry_marksman.jpg",
+        image: "images/weapons/variants/martinihenry_marksman.png",
         description: "",
         price: 134,
         stats: {
@@ -6958,7 +6958,7 @@ const ITEMS = [
       {
         id: "sparks_silencer",
         name: "Sparks Silencer",
-        image: "images/weapons/variants/sparks_silencer.jpg",
+        image: "images/weapons/variants/sparks_silencer.png",
         description: "",
         price: 149,
         stats: {
@@ -6972,7 +6972,7 @@ const ITEMS = [
       {
         id: "sparks_pistol_silencer",
         name: "Sparks Pistol Silencer",
-        image: "images/weapons/variants/sparks_pistol_silencer.jpg",
+        image: "images/weapons/variants/sparks_pistol_silencer.png",
         description: "",
         weaponClass: "handgun", // 절단형 권총이라 소총군이 아닌 권총군으로 override
         price: 178,
@@ -7007,7 +7007,7 @@ const ITEMS = [
       {
         id: "sparks_pistol",
         name: "Sparks Pistol",
-        image: "images/weapons/variants/sparks_pistol.jpg",
+        image: "images/weapons/variants/sparks_pistol.png",
         description: "",
         weaponClass: "handgun", // 절단형 권총이라 소총군이 아닌 권총군으로 override
         price: 155,
@@ -7041,7 +7041,7 @@ const ITEMS = [
       {
         id: "sparks_sniper",
         name: "Sparks Sniper",
-        image: "images/weapons/variants/sparks_sniper.jpg",
+        image: "images/weapons/variants/sparks_sniper.png",
         // ⚠ 낙하범위/탄속 등 본체와 동일해서 탄약도 본체(sparks_long 등) 그대로 공유
         description: "",
         price: 150,
@@ -7163,7 +7163,7 @@ const ITEMS = [
       {
         id: "uppercut_precision",
         name: "Uppercut Precision",
-        image: "images/weapons/variants/uppercut_precision.jpg",
+        image: "images/weapons/variants/uppercut_precision.png",
         description: "",
         price: 321,
         slotSize: 3,
@@ -7191,7 +7191,7 @@ const ITEMS = [
       {
         id: "uppercut_deadeye",
         name: "Uppercut Deadeye",
-        image: "images/weapons/variants/uppercut_deadeye.jpg",
+        image: "images/weapons/variants/uppercut_deadeye.png",
         description: "",
         price: 337,
         slotSize: 3,
@@ -7325,7 +7325,7 @@ const ITEMS = [
       {
         id: "krag_bayonet",
         name: "Krag Bayonet",
-        image: "images/weapons/variants/krag_bayonet.jpg",
+        image: "images/weapons/variants/krag_bayonet.png",
         description: "",
         price: 460,
         stats: {
@@ -7335,7 +7335,7 @@ const ITEMS = [
       {
         id: "krag_sniper",
         name: "Krag Sniper",
-        image: "images/weapons/variants/krag_sniper.jpg",
+        image: "images/weapons/variants/krag_sniper.png",
         description: "",
         price: 517,
         stats: {
@@ -7346,7 +7346,7 @@ const ITEMS = [
       {
         id: "krag_silencer",
         name: "Krag Silencer",
-        image: "images/weapons/variants/krag_silencer.jpg",
+        image: "images/weapons/variants/krag_silencer.png",
         description: "",
         price: 517,
         ammoTypes: [
@@ -7419,7 +7419,7 @@ const ITEMS = [
       {
         id: "lebel1886_aperture",
         name: "Lebel 1886 Aperture",
-        image: "images/weapons/variants/lebel1886_aperture.jpg",
+        image: "images/weapons/variants/lebel1886_aperture.png",
         description: "",
         price: 417,
         stats: {
@@ -7429,7 +7429,7 @@ const ITEMS = [
       {
         id: "lebel1886_talon",
         name: "Lebel 1886 Talon",
-        image: "images/weapons/variants/lebel1886_talon.jpg",
+        image: "images/weapons/variants/lebel1886_talon.png",
         description: "",
         price: 407,
         stats: {
@@ -7439,7 +7439,7 @@ const ITEMS = [
       {
         id: "lebel1886_marksman",
         name: "Lebel 1886 Marksman",
-        image: "images/weapons/variants/lebel1886_marksman.jpg",
+        image: "images/weapons/variants/lebel1886_marksman.png",
         description: "",
         price: 437,
         stats: {
@@ -7503,7 +7503,7 @@ const ITEMS = [
       {
         id: "mosinnagant_bayonet",
         name: "Mosin-Nagant Bayonet",
-        image: "images/weapons/variants/mosinnagant_bayonet.jpg",
+        image: "images/weapons/variants/mosinnagant_bayonet.png",
         description: "",
         price: 630,
         stats: {
@@ -7513,7 +7513,7 @@ const ITEMS = [
       {
         id: "mosinnagant_sniper",
         name: "Mosin-Nagant Sniper",
-        image: "images/weapons/variants/mosinnagant_sniper.jpg",
+        image: "images/weapons/variants/mosinnagant_sniper.png",
         description: "",
         price: 713,
         stats: {
@@ -7526,7 +7526,7 @@ const ITEMS = [
       {
         id: "mosinnagant_avtomat",
         name: "Mosin-Nagant Avtomat",
-        image: "images/weapons/variants/mosinnagant_avtomat.jpg",
+        image: "images/weapons/variants/mosinnagant_avtomat.png",
         description: "",
         price: 1250,
         slotSize: 5,
@@ -7606,7 +7606,7 @@ const ITEMS = [
       {
         id: "berthier1892_riposte",
         name: "Berthier 1892 Riposte",
-        image: "images/weapons/variants/berthier1892_riposte.jpg",
+        image: "images/weapons/variants/berthier1892_riposte.png",
         description: "",
         price: 390,
         stats: {
@@ -7617,7 +7617,7 @@ const ITEMS = [
       {
         id: "berthier1892_deadeye",
         name: "Berthier 1892 Deadeye",
-        image: "images/weapons/variants/berthier1892_deadeye.jpg",
+        image: "images/weapons/variants/berthier1892_deadeye.png",
         description: "",
         price: 397,
         stats: {
@@ -7628,7 +7628,7 @@ const ITEMS = [
       {
         id: "berthier1892_marksman",
         name: "Berthier 1892 Marksman",
-        image: "images/weapons/variants/berthier1892_marksman.jpg",
+        image: "images/weapons/variants/berthier1892_marksman.png",
         description: "",
         price: 413,
         stats: {
@@ -7692,7 +7692,7 @@ const ITEMS = [
       {
         id: "mosinobrez_mace",
         name: "Mosin Obrez Mace",
-        image: "images/weapons/variants/mosinobrez_mace.jpg",
+        image: "images/weapons/variants/mosinobrez_mace.png",
         description: "",
         price: 300,
         ammoTypes: [
@@ -7711,7 +7711,7 @@ const ITEMS = [
       {
         id: "mosinobrez_extended",
         name: "Mosin Obrez Extended",
-        image: "images/weapons/variants/mosinobrez_extended.jpg",
+        image: "images/weapons/variants/mosinobrez_extended.png",
         description: "",
         price: 350,
         chamber: {
@@ -7732,7 +7732,7 @@ const ITEMS = [
       {
         id: "mosinobrez_match",
         name: "Mosin Obrez Match",
-        image: "images/weapons/variants/mosinobrez_match.jpg",
+        image: "images/weapons/variants/mosinobrez_match.png",
         description: "",
         price: 345,
         slotSize: 3,
@@ -7757,7 +7757,7 @@ const ITEMS = [
       {
         id: "mosinobrez_sharpeye",
         name: "Mosin Obrez Sharpeye",
-        image: "images/weapons/variants/mosinobrez_sharpeye.jpg",
+        image: "images/weapons/variants/mosinobrez_sharpeye.png",
         description: "",
         price: 362,
         slotSize: 3,
@@ -7837,7 +7837,7 @@ const ITEMS = [
       {
         id: "auto4_shorty",
         name: "Auto-4 Shorty",
-        image: "images/weapons/variants/auto4_shorty.jpg",
+        image: "images/weapons/variants/auto4_shorty.png",
         description: "",
         price: 300,
         slotSize: 3,
@@ -7978,7 +7978,7 @@ const ITEMS = [
       {
         id: "rival78_shorty",
         name: "Rival 78 Shorty",
-        image: "images/weapons/variants/rival78_shorty.jpg",
+        image: "images/weapons/variants/rival78_shorty.png",
         description: "",
         price: 145,
         slotSize: 2,
@@ -8008,7 +8008,7 @@ const ITEMS = [
       {
         id: "rival78_trauma",
         name: "Rival 78 Trauma",
-        image: "images/weapons/variants/rival78_trauma.jpg",
+        image: "images/weapons/variants/rival78_trauma.png",
         description: "",
         price: 180,
         stats: {
@@ -8020,7 +8020,7 @@ const ITEMS = [
       {
         id: "rival78_mace",
         name: "Rival 78 Mace",
-        image: "images/weapons/variants/rival78_mace.jpg",
+        image: "images/weapons/variants/rival78_mace.png",
         description: "",
         price: 155,
         slotSize: 2,
@@ -8107,7 +8107,7 @@ const ITEMS = [
       {
         id: "romero77_shorty",
         name: "Romero 77 Shorty",
-        image: "images/weapons/variants/romero77_shorty.jpg",
+        image: "images/weapons/variants/romero77_shorty.png",
         description: "",
         price: 46,
         slotSize: 2,
@@ -8141,7 +8141,7 @@ const ITEMS = [
       {
         id: "romero77_talon",
         name: "Romero 77 Talon",
-        image: "images/weapons/variants/romero77_talon.jpg",
+        image: "images/weapons/variants/romero77_talon.png",
         description: "",
         price: 76,
         chamber: {
@@ -8166,7 +8166,7 @@ const ITEMS = [
       {
         id: "romero77_hatchet",
         name: "Romero 77 Hatchet",
-        image: "images/weapons/variants/romero77_hatchet.jpg",
+        image: "images/weapons/variants/romero77_hatchet.png",
         // Shorty와 완전히 동일한 총(근접무기 유무만 차이)이라 탄약 전부 공유
         description: "",
         price: 56,
@@ -8200,7 +8200,7 @@ const ITEMS = [
       {
         id: "romero77_alamo",
         name: "Romero 77 Alamo",
-        image: "images/weapons/variants/romero77_alamo.jpg",
+        image: "images/weapons/variants/romero77_alamo.png",
         description: "",
         price: 98,
         // 본체(Romero 77)는 dualAmmoSlot:true(2탄종 동시 장전)이지만, Alamo는 그 기믹이
@@ -8281,7 +8281,7 @@ const ITEMS = [
       {
         id: "slate_riposte",
         name: "Slate Riposte",
-        image: "images/weapons/variants/slate_riposte.jpg",
+        image: "images/weapons/variants/slate_riposte.png",
         description: "",
         price: 323,
         stats: {
@@ -8347,7 +8347,7 @@ const ITEMS = [
       {
         id: "specter1882_shorty",
         name: "Specter 1882 Shorty",
-        image: "images/weapons/variants/specter1882_shorty.jpg",
+        image: "images/weapons/variants/specter1882_shorty.png",
         description: "",
         price: 164,
         slotSize: 2,
@@ -8381,7 +8381,7 @@ const ITEMS = [
       {
         id: "specter1882_bayonet",
         name: "Specter 1882 Bayonet",
-        image: "images/weapons/variants/specter1882_bayonet.jpg",
+        image: "images/weapons/variants/specter1882_bayonet.png",
         description: "",
         price: 198,
         ammoTypes: [
@@ -8458,7 +8458,7 @@ const ITEMS = [
       {
         id: "terminus_shorty",
         name: "Terminus Shorty",
-        image: "images/weapons/variants/terminus_shorty.jpg",
+        image: "images/weapons/variants/terminus_shorty.png",
         description: "",
         price: 148,
         slotSize: 2,
@@ -8495,7 +8495,7 @@ const ITEMS = [
     id: "weapon_nitro_express",
     category: "weapon",
     name: "Nitro Express",
-    image: "images/weapons/nitro_express.jpg",
+    image: "images/weapons/nitro_express.png",
 
     slotSize: 5,
     ammoCategory: "special",
@@ -8533,7 +8533,7 @@ const ITEMS = [
     id: "weapon_crossbow",
     category: "weapon",
     name: "Crossbow",
-    image: "images/weapons/crossbow.jpg",
+    image: "images/weapons/crossbow.png",
 
     slotSize: 4,
     ammoCategory: "special",
@@ -8571,7 +8571,7 @@ const ITEMS = [
       {
         id: "crossbow_deadeye",
         name: "Crossbow Deadeye",
-        image: "images/weapons/variants/crossbow_deadeye.jpg",
+        image: "images/weapons/variants/crossbow_deadeye.png",
         description: "",
         price: 53,
         stats: {
@@ -8624,7 +8624,7 @@ const ITEMS = [
     id: "weapon_bomb_launcher",
     category: "weapon",
     name: "Bomb Launcher",
-    image: "images/weapons/bomb_launcher.jpg",
+    image: "images/weapons/bomb_launcher.png",
 
     slotSize: 2,
     ammoCategory: "special",
@@ -8661,7 +8661,7 @@ const ITEMS = [
       {
         id: "bomb_lance",
         name: "Bomb Lance",
-        image: "images/weapons/bomb_lance.jpg",
+        image: "images/weapons/bomb_lance.png",
         description: "",
         weaponClass: "rifle",
         price: 199,
@@ -8686,7 +8686,7 @@ const ITEMS = [
     id: "weapon_hunting_bow",
     category: "weapon",
     name: "Hunting Bow",
-    image: "images/weapons/hunting_bow.jpg",
+    image: "images/weapons/hunting_bow.png",
 
     slotSize: 3,
     ammoCategory: "special",
@@ -8725,7 +8725,7 @@ const ITEMS = [
     id: "weapon_chu_ko_nu",
     category: "weapon",
     name: "Chu Ko Nu",
-    image: "images/weapons/chu_ko_nu.jpg",
+    image: "images/weapons/chu_ko_nu.png",
 
     slotSize: 2,
     ammoCategory: "special",
@@ -8763,7 +8763,7 @@ const ITEMS = [
     id: "weapon_dolch_96",
     category: "weapon",
     name: "Dolch 96",
-    image: "images/weapons/dolch_96.jpg",
+    image: "images/weapons/dolch_96.png",
 
     slotSize: 2,
     ammoCategory: "special",
@@ -8841,7 +8841,7 @@ const ITEMS = [
     id: "weapon_hand_crossbow",
     category: "weapon",
     name: "Hand Crossbow",
-    image: "images/weapons/hand_crossbow.jpg",
+    image: "images/weapons/hand_crossbow.png",
 
     slotSize: 1,
     ammoCategory: "special",
@@ -8881,7 +8881,7 @@ const ITEMS = [
     id: "weapon_combat_axe",
     category: "weapon",
     name: "Combat Axe",
-    image: "images/weapons/combat_axe.jpg",
+    image: "images/weapons/combat_axe.png",
 
     slotSize: 2,
     ammoCategory: "melee",
@@ -8910,7 +8910,7 @@ const ITEMS = [
     id: "weapon_katana",
     category: "weapon",
     name: "Katana",
-    image: "images/weapons/katana.jpg",
+    image: "images/weapons/katana.png",
 
     slotSize: 2,
     ammoCategory: "melee",
@@ -8938,7 +8938,7 @@ const ITEMS = [
     id: "weapon_railroad_hammer",
     category: "weapon",
     name: "Railroad Hammer",
-    image: "images/weapons/railroad_hammer.jpg",
+    image: "images/weapons/railroad_hammer.png",
 
     slotSize: 2,
     ammoCategory: "melee",
@@ -8966,7 +8966,7 @@ const ITEMS = [
     id: "weapon_baseball_bat",
     category: "weapon",
     name: "Baseball Bat",
-    image: "images/weapons/baseball_bat.jpg",
+    image: "images/weapons/baseball_bat.png",
 
     slotSize: 1,
     ammoCategory: "melee",
@@ -8994,7 +8994,7 @@ const ITEMS = [
     id: "weapon_cavalry_saber",
     category: "weapon",
     name: "Cavalry Saber",
-    image: "images/weapons/cavalry_saber.jpg",
+    image: "images/weapons/cavalry_saber.png",
 
     slotSize: 1,
     ammoCategory: "melee",
@@ -9022,7 +9022,7 @@ const ITEMS = [
     id: "weapon_machete",
     category: "weapon",
     name: "Machete",
-    image: "images/weapons/machete.jpg",
+    image: "images/weapons/machete.png",
 
     slotSize: 1,
     ammoCategory: "melee",
