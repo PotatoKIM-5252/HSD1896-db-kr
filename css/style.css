@@ -1784,23 +1784,24 @@ button { font-family: var(--font-body); cursor: pointer; }
   max-height: 100%;
 }
 
-/* 샷건 특수탄(슬러그·드래곤브레스·플리셰트·페니샷·신호탄 등) — 칸을 꽉 채움.
-   간략히 보기 패널의 .ammo-status-icon(고정 px 높이 + width:auto)과 동일한 방식.
-   이미지 파일 자체는 손대지 않고 이 칸(무기 슬롯 옆 탄약 표시)에서만 적용됨. */
+/* 샷건 특수탄(슬러그·드래곤브레스·플리셰트·페니샷·신호탄 등) — 원본 이미지 자체가
+   여백 없이 꽉 찬 그림이라, 기본 쉘과 같은 높이를 주면 유독 커 보임(특히 슬러그·
+   플리셰트). 기본 쉘과 눈으로 봤을 때 비슷한 크기가 되도록 높이를 줄임. */
 .equip-box-shell-special img {
   width: auto;
-  height: calc(var(--eq-row-h) - 6px);
+  height: 30px;
   max-width: 92%;
   max-height: 92%;
   object-fit: contain;
 }
 
-/* 샷건 기본 쉘(Shells) — 특수탄과 같은 높이로 두면 유독 커 보여서 조금 더 작게 */
+/* 샷건 기본 쉘(Shells) — 이미지 자체에 여백이 많아서 특수탄과 같은 높이를 줘도
+   훨씬 작아 보임 — 특수탄 쪽을 줄인 만큼 이쪽은 조금 키워서 서로 비슷하게 맞춤 */
 .equip-box-shell-base img {
   width: auto;
-  height: calc(var(--eq-row-h) - 22px);
-  max-width: 70%;
-  max-height: 70%;
+  height: 46px;
+  max-width: 85%;
+  max-height: 85%;
   object-fit: contain;
 }
 
