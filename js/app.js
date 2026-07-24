@@ -684,8 +684,40 @@ function getFilteredItems(extra = {}) {
   });
 }
 
+// 검색 탭(메인 화면) 전용: 검색어도 없고 현재 카테고리의 필터 칩도 하나도
+// 선택 안 된 "무필터" 상태인지 확인. 로드아웃 빌더의 아이템 선택창(picker)은
+// 이 게이팅과 무관하게 항상 전체 목록을 보여줘야 하므로 getFilteredItems 자체가
+// 아니라 renderItemGrid에서만 체크한다.
+function hasActiveSearchFilters() {
+  if (state.searchQuery) return true;
+  switch (state.filterCategory) {
+    case "weapon": {
+      const f = state.weaponFilters;
+      return f.slotSize.size > 0 || f.ammoCategory.size > 0 || f.ammoEffect.size > 0;
+    }
+    case "tool": {
+      const f = state.toolFilters;
+      return f.toolClass.size > 0 || f.toolTags.size > 0;
+    }
+    case "consumable": {
+      const f = state.consumableFilters;
+      return f.consumableClass.size > 0 || f.consumableTags.size > 0;
+    }
+    case "trait": {
+      const f = state.traitFilters;
+      return f.traitClass.size > 0 || f.traitTags.size > 0;
+    }
+    default:
+      return false;
+  }
+}
+
 function renderItemGrid() {
   const grid = document.getElementById("item-grid");
+  if (!hasActiveSearchFilters()) {
+    grid.innerHTML = `<p class="empty-msg">검색어를 입력하거나 필터를 선택하면 목록이 표시됩니다.</p>`;
+    return;
+  }
   const items = getFilteredItems();
   grid.innerHTML = "";
   if (items.length === 0) {
