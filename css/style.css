@@ -1784,24 +1784,23 @@ button { font-family: var(--font-body); cursor: pointer; }
   max-height: 100%;
 }
 
-/* 샷건 특수탄(슬러그·드래곤브레스·플리셰트·페니샷·신호탄 등) — 원본 이미지 자체가
-   여백 없이 꽉 찬 그림이라, 기본 쉘과 같은 높이를 주면 유독 커 보임(특히 슬러그·
-   플리셰트). 기본 쉘과 눈으로 봤을 때 비슷한 크기가 되도록 높이를 줄임. */
+/* 샷건 특수탄(슬러그·드래곤브레스·플리셰트·페니샷·신호탄 등) — 탄약칸을 최대한
+   꽉 채우도록 칸 높이 가까이까지 키움. */
 .equip-box-shell-special img {
   width: auto;
-  height: 30px;
-  max-width: 92%;
-  max-height: 92%;
+  height: 54px;
+  max-width: 93%;
+  max-height: 93%;
   object-fit: contain;
 }
 
-/* 샷건 기본 쉘(Shells) — 이미지 자체에 여백이 많아서 특수탄과 같은 높이를 줘도
-   훨씬 작아 보임 — 특수탄 쪽을 줄인 만큼 이쪽은 조금 키워서 서로 비슷하게 맞춤 */
+/* 샷건 기본 쉘(Shells) — 이미지 자체 여백이 많아 특수탄만큼 꽉 차 보이진 않지만,
+   허용된 칸 높이 안에서는 동일하게 최대로 키움. */
 .equip-box-shell-base img {
   width: auto;
-  height: 46px;
-  max-width: 85%;
-  max-height: 85%;
+  height: 54px;
+  max-width: 93%;
+  max-height: 93%;
   object-fit: contain;
 }
 
