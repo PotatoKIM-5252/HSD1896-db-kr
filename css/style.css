@@ -1794,6 +1794,16 @@ button { font-family: var(--font-body); cursor: pointer; }
   object-fit: contain;
 }
 
+/* 슬러그·플리셰트 — 다른 특수탄보다 원본 여백이 더 적어 같은 높이를 줘도 유독
+   커 보여서 아주 살짝만 더 작게 */
+.equip-box-shell-special-tight img {
+  width: auto;
+  height: 49px;
+  max-width: 88%;
+  max-height: 88%;
+  object-fit: contain;
+}
+
 /* 샷건 기본 쉘(Shells) — 이미지 자체 여백이 많아 특수탄만큼 꽉 차 보이진 않지만,
    허용된 칸 높이 안에서는 동일하게 최대로 키움. */
 .equip-box-shell-base img {

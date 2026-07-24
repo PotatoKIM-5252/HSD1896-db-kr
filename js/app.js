@@ -2385,6 +2385,7 @@ function createEquipBox({ image, title, empty, small, wide, weaponSize, ammoHalf
     + (ammoHalf ? " equip-box-ammo-half" : "")
     + (shellSize === "base" ? " equip-box-shell-base" : "")
     + (shellSize === "special" ? " equip-box-shell-special" : "")
+    + (shellSize === "special-tight" ? " equip-box-shell-special-tight" : "")
     + (locked ? " equip-box-locked" : "");
   if (title) box.title = title;
   if (image) {
@@ -2497,6 +2498,16 @@ function isBaseShotgunShell(ammo) {
 // 샷건 계열 특수탄(슬러그/드래곤브레스/플리셰트/페니샷/신호탄 등)인지 판정
 function isSpecialShotgunShell(ammo) {
   return !!(ammo && ammo.category === "shotgun" && ammo.label !== "Shells");
+}
+// 슬러그/플리셰트는 원본 이미지가 다른 특수탄보다 여백이 적어 유독 커 보여서 살짝만 더 작게
+function isOversizedShotgunSpecial(ammo) {
+  return !!(ammo && (ammo.effect === "slug" || ammo.effect === "flechette"));
+}
+function getShellSize(ammo) {
+  if (isBaseShotgunShell(ammo)) return "base";
+  if (isOversizedShotgunSpecial(ammo)) return "special-tight";
+  if (isSpecialShotgunShell(ammo)) return "special";
+  return undefined;
 }
 
 function openWeaponSlotPicker(key, index) {
@@ -2721,8 +2732,8 @@ function renderWeaponSlotsRow(slotDef) {
   if (primaryItem && primaryAmmo) {
     if (isDualAmmoWeapon(primaryItem)) {
       const secondaryAmmo = primarySlotData?.ammoId2 ? AMMO_TYPES[primarySlotData.ammoId2] : null;
-      const primaryShellSize = isBaseShotgunShell(primaryAmmo) ? "base" : isSpecialShotgunShell(primaryAmmo) ? "special" : undefined;
-      const secondaryShellSize = isBaseShotgunShell(secondaryAmmo) ? "base" : isSpecialShotgunShell(secondaryAmmo) ? "special" : undefined;
+      const primaryShellSize = getShellSize(primaryAmmo);
+      const secondaryShellSize = getShellSize(secondaryAmmo);
       boxesWrap.appendChild(createEquipBox({
         image: primaryAmmo.image, title: primaryAmmo.label, small: true, ammoHalf: true, shellSize: primaryShellSize,
         onClick: () => openPrimaryAmmoPicker(key),
@@ -2733,7 +2744,7 @@ function renderWeaponSlotsRow(slotDef) {
         onClick: () => openSecondaryAmmoPicker(key),
       }));
     } else {
-      const shellSize = isBaseShotgunShell(primaryAmmo) ? "base" : isSpecialShotgunShell(primaryAmmo) ? "special" : undefined;
+      const shellSize = getShellSize(primaryAmmo);
       boxesWrap.appendChild(createEquipBox({ image: primaryAmmo.image, title: primaryAmmo.label, small: true, shellSize, onClick: () => openPrimaryAmmoPicker(key) }));
     }
   }
