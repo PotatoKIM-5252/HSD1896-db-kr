@@ -131,6 +131,12 @@ button { font-family: var(--font-body); cursor: pointer; }
 /* ===================== 공통 레이아웃 ===================== */
 
 #app-main { max-width: 1240px; margin: 0 auto; padding: 28px 32px 60px; }
+
+/* 간략히 보기 패널이 열리면 무기목록/필터 폭은 그대로 두고, 화면에 여유가 있는 만큼만
+   컨테이너 자체를 넓혀서 오른쪽 여백에 패널을 띄운다 (목록이 6칸→4칸으로 줄어드는 것 방지).
+   뷰포트가 좁아 여유가 없으면 max-width가 상한일 뿐이라 자연히 좁아짐(반응형 폴백은 그대로 동작). */
+#app-main:has(#item-detail-panel:not([hidden])) { max-width: 1624px; }
+
 .tab-panel[hidden] { display: none; }
 .empty-msg { color: var(--text-muted); font-size: 14px; padding: 24px 4px; }
 
