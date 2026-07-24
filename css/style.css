@@ -140,7 +140,6 @@ button { font-family: var(--font-body); cursor: pointer; }
   display: flex;
   flex-direction: column;
   gap: 14px;
-  margin-bottom: 24px;
 }
 
 #search-input, #picker-search-input {
@@ -398,9 +397,22 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 #search-body {
   display: grid;
-  grid-template-columns: 1fr 360px;
+  grid-template-columns: 1fr;
   gap: 24px;
   align-items: start;
+}
+
+/* 간략히 보기(item-detail-panel)가 열려있을 때만 오른쪽에 칸을 내줌 —
+   닫혀있을 땐 무기목록(#item-grid)이 전체 폭을 써서 열이 더 많이 표시됨 */
+#search-body:has(#item-detail-panel:not([hidden])) {
+  grid-template-columns: 1fr 360px;
+}
+
+#search-left {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
 }
 
 #item-grid {
@@ -2004,7 +2016,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 @media (max-width: 880px) {
   #app-header { padding: 16px 18px; }
   #app-main { padding: 20px 16px 48px; }
-  #search-body { grid-template-columns: 1fr; }
+  #search-body, #search-body:has(#item-detail-panel:not([hidden])) { grid-template-columns: 1fr; }
   #item-detail-panel { position: static; max-height: none; }
   .weapon-filter-group { grid-template-columns: 1fr; gap: 6px; }
   .detail-stats { grid-template-columns: 1fr; }
