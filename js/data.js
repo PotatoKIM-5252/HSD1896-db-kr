@@ -4014,8 +4014,21 @@ const AMMO_TYPES = {
     cost: 65,
     // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
     statOverrides: { damage: 179, spread: 65, ammoExtra: 3 },
-    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측, 드릴링 본체 기준)
     ohkRange: { guaranteed: 14 },
+  },
+
+  // 드릴링 쇼티/해칫 전용 — 총열 길이가 달라 슬러그 한방컷 거리가 본체와 다를 수 있으나
+  // 아직 실측 전이라 ohkRange 비워둠(측정되면 채울 것). 그 외 스탯은 drilling_slug와 동일.
+  drilling_shorty_slug: {
+    label: "슬러그",
+    category: "shotgun",
+    effect: "slug",
+    image: "images/ui/ammo_effect_icons/slug_shelltight.png",
+    icon: "●",
+    description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
+    cost: 65,
+    statOverrides: { damage: 179, spread: 65, ammoExtra: 3 },
   },
 
   lemat_dragonbreath: {
@@ -6117,7 +6130,7 @@ const ITEMS = [
           "drilling_shorty_shells",
           "drilling_flechette",
           "drilling_pennyshot",
-          "drilling_slug",
+          "drilling_shorty_slug",
         ],
         defaultAmmo: "drilling_medium",
         stats: {
@@ -6152,7 +6165,7 @@ const ITEMS = [
           "drilling_shorty_shells",
           "drilling_flechette",
           "drilling_pennyshot",
-          "drilling_slug",
+          "drilling_shorty_slug",
         ],
         defaultAmmo: "drilling_medium",
         stats: {
