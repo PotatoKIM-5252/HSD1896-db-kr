@@ -630,7 +630,9 @@ button { font-family: var(--font-body); cursor: pointer; }
 .detail-ammo b { color: var(--text-primary); font-weight: 500; }
 
 .detail-chart-wrap {
-  height: 200px;
+  /* 그래프(캔버스)는 이 최소 높이로 표시되고, 부위별 한방컷(OHK) 막대가 여러 개
+     쌓이는 경우(예: 밤 런처 작살)엔 내용에 맞춰 더 늘어남 */
+  min-height: 200px;
   margin-bottom: 8px;
 }
 
@@ -1006,7 +1008,9 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 .bp-chart-wrap {
-  height: 340px;
+  /* 그래프(캔버스)는 이 최소 높이로 표시되고, 부위별 한방컷(OHK) 막대가 여러 개
+     쌓이는 경우(예: 밤 런처 작살)엔 내용에 맞춰 더 늘어남 */
+  min-height: 340px;
   background: var(--bg-input);
   border: 1px solid var(--border);
   border-radius: var(--radius);

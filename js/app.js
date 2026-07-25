@@ -1230,12 +1230,20 @@ function renderMeleeBodyPartView(item, overlay, content) {
 // (탄약 자체에 ohkRange가 있을 때만 표시 — 슬러그/드래곤브레스/신호탄 등 다른 탄약에는 적용 안 됨)
 function getOhkRangeForCurrentAmmo(item, ammoId) {
   const ammo = AMMO_TYPES[ammoId];
-  return ammo?.ohkRange ?? null;
+  if (!ammo) return null;
+  return (ammo.ohkRange || ammo.ohkRangeVariants) ? ammo : null;
 }
 
 // 샷건류: 거리별 데미지 그래프 대신 초록(보장)→노랑(불안정)→빨강(불가) 막대로 표시
-function renderOhkRangeBar(ohkRange) {
-  const { guaranteed, unstableEnd, noneFrom } = ohkRange;
+// title: 막대 상단 라벨(부위별 데이터 등 "가슴 정조준" 기준이 아닐 때 덮어쓰기용)
+// 슬러그처럼 펠릿 분산이 없는 단일 탄자 탄약은 불안정 구간이 존재하지 않음 —
+// ohkRange에 unstableEnd를 안 주면(guaranteed만 있으면) 노랑 구간 없이 보장→불가로 바로 전환되는
+// 2단 막대로 표시(불안정 관련 눈금/범례도 생략).
+function renderOhkRangeBar(ohkRange, title) {
+  const { guaranteed } = ohkRange;
+  const hasUnstable = ohkRange.unstableEnd != null && ohkRange.noneFrom != null;
+  const unstableEnd = hasUnstable ? ohkRange.unstableEnd : guaranteed;
+  const noneFrom = hasUnstable ? ohkRange.noneFrom : guaranteed;
   const maxDisplay = Math.max(noneFrom + 3, 15);
   const gPct = (guaranteed / maxDisplay) * 100;
   const nPct = (noneFrom / maxDisplay) * 100;
@@ -1243,7 +1251,7 @@ function renderOhkRangeBar(ohkRange) {
 
   return `
     <div class="ohk-range-box">
-      <h4 class="ohk-range-title">가슴 정조준 기준 한방컷(OHK) 거리</h4>
+      <h4 class="ohk-range-title">${title ?? "가슴 정조준 기준 한방컷(OHK) 거리"}</h4>
       <div class="ohk-range-bar" style="background: linear-gradient(to right,
         var(--success) 0%, var(--success) ${gPct}%,
         #d4c25e ${gPct}%,
@@ -1252,17 +1260,31 @@ function renderOhkRangeBar(ohkRange) {
       <div class="ohk-range-ticks">
         <span style="left:0%">0m</span>
         <span style="left:${gPct}%">${guaranteed}m</span>
-        <span style="left:${nPct}%">${noneFrom}m</span>
+        ${hasUnstable ? `<span style="left:${nPct}%">${noneFrom}m</span>` : ""}
         <span style="left:100%">${maxLabel}m</span>
       </div>
       <p class="ohk-range-legend">
-        <span><i class="ohk-swatch" style="background:var(--success)"></i>${guaranteed}m까지 보장</span>
-        <span><i class="ohk-swatch" style="background:#d4c25e"></i>${unstableEnd}m까지 불안정</span>
+        <span><i class="ohk-swatch" style="background:var(--success)"></i>${guaranteed}m까지 ${hasUnstable ? "보장" : "한방"}</span>
+        ${hasUnstable ? `<span><i class="ohk-swatch" style="background:#d4c25e"></i>${unstableEnd}m까지 불안정</span>` : ""}
         <span><i class="ohk-swatch" style="background:var(--danger-strong)"></i>${noneFrom}m부터 불가</span>
       </p>
-      <p class="status-effect-note">※ 실측 기반 참고용 수치이며, 펠릿 분산 특성상 오차가 있을 수 있습니다.</p>
+      <p class="status-effect-note">※ 실측 기반 참고용 수치이며, ${hasUnstable ? "펠릿 분산 특성상 " : ""}오차가 있을 수 있습니다.</p>
     </div>
   `;
+}
+
+// 탄약 하나에 딸린 OHK 막대를 전부 이어붙여 렌더링:
+// - ammo.ohkRange: 기본(가슴 정조준 기준) 막대 1개
+// - ammo.ohkRangeVariants: [{ label, ohkRange }, ...] 부위별/특성 적용 시 등 추가 막대(기본 막대 바로 아래 순서대로 표시)
+function renderOhkRangeSection(ammo) {
+  let html = "";
+  if (ammo.ohkRange) html += renderOhkRangeBar(ammo.ohkRange);
+  if (ammo.ohkRangeVariants) {
+    ammo.ohkRangeVariants.forEach((v) => {
+      html += renderOhkRangeBar(v.ohkRange, v.label);
+    });
+  }
+  return html;
 }
 
 function drawBodyPartChart(currentItem, ammoId, refRange, parentItem) {
@@ -1276,9 +1298,9 @@ function drawBodyPartChart(currentItem, ammoId, refRange, parentItem) {
   }
 
   // 샷건류(낙하곡선 없음): 한방컷 보장거리 데이터가 있으면 그래프 대신 색상 막대로 표시
-  const ohkRange = getOhkRangeForCurrentAmmo(currentItem, ammoId);
-  if (ohkRange) {
-    canvas.outerHTML = renderOhkRangeBar(ohkRange);
+  const ohkAmmo = getOhkRangeForCurrentAmmo(currentItem, ammoId);
+  if (ohkAmmo) {
+    canvas.outerHTML = renderOhkRangeSection(ohkAmmo);
     return;
   }
 
@@ -1798,9 +1820,9 @@ function drawWeaponChart(item, ammoId) {
   if (!canvas) return;
 
   // 샷건류(낙하곡선 없음): 한방컷 보장거리 데이터가 있으면 그래프 대신 색상 막대로 표시
-  const ohkRange = getOhkRangeForCurrentAmmo(item, ammoId);
-  if (ohkRange) {
-    canvas.outerHTML = renderOhkRangeBar(ohkRange);
+  const ohkAmmo = getOhkRangeForCurrentAmmo(item, ammoId);
+  if (ohkAmmo) {
+    canvas.outerHTML = renderOhkRangeSection(ohkAmmo);
     return;
   }
 

@@ -3172,6 +3172,8 @@ const AMMO_TYPES = {
     cost: 130,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 179, spread: 95, ammoExtra: 5 },
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
+    ohkRange: { guaranteed: 15 },
   },
 
   // ⚠ Auto-4 Shorty 전용 탄약 (Auto-5의 파생형, 위키 실측치 기준)
@@ -3219,6 +3221,8 @@ const AMMO_TYPES = {
     description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소. (위키 표기는 167이나, 다른 2칸 샷건들과 동일하게 실제로는 157 적용)",
     cost: 130,
     statOverrides: { damage: 157, spread: 160, ammoExtra: 3 },
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
+    ohkRange: { guaranteed: 10 },
   },
 
   homestead78_shells: {
@@ -3283,6 +3287,8 @@ const AMMO_TYPES = {
     cost: 130,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 195, spread: 70, ammoExtra: 8 },
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
+    ohkRange: { guaranteed: 13 },
   },  rival78_shells: {
     label: "Shells",
     category: "shotgun",
@@ -3345,6 +3351,8 @@ const AMMO_TYPES = {
     cost: 130,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 165, spread: 95, ammoExtra: 8 },
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
+    ohkRange: { guaranteed: 13 },
   },
 
   // ⚠ Rival 78 Mace 전용 특수탄 4종 (위키 실측치, 사용자 확인) - 본체와 데미지/탄속 기준점이 달라 별도 필요
@@ -3453,6 +3461,8 @@ const AMMO_TYPES = {
     cost: 130,
     // ⚠ 예비탄 3: Update 2.8.1 패치노트 기준 최신값(위키 페이지는 구버전 4로 표기돼 있어 패치노트로 보정)
     statOverrides: { damage: 157, spread: 105, ammoExtra: 3 },
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
+    ohkRange: { guaranteed: 11 },
   },
 
   romero77_shells: {
@@ -3504,6 +3514,8 @@ const AMMO_TYPES = {
     cost: 65,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 179, spread: 65, ammoExtra: 4 },
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
+    ohkRange: { guaranteed: 15 },
   },
 
   romero77_starshell: {
@@ -3613,6 +3625,8 @@ const AMMO_TYPES = {
     description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
     cost: 65,
     statOverrides: { damage: 157, spread: 125, ammoExtra: 2 },
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
+    ohkRange: { guaranteed: 11 },
   },
 
   romero77shorty_starshell: {
@@ -3662,6 +3676,8 @@ const AMMO_TYPES = {
     cost: 130,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 165, spread: 80, ammoExtra: 8 },
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
+    ohkRange: { guaranteed: 13 },
   },
 
   specter1882_shells: {
@@ -3726,6 +3742,8 @@ const AMMO_TYPES = {
     cost: 130,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 179, spread: 75, ammoExtra: 8 },
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
+    ohkRange: { guaranteed: 14 },
   },
 
   // ⚠ Specter 1882 Bayonet 전용 탄약 (위키 실측치 기준, 사용자 확인) - 본체와 데미지 기준점이 달라 별도 탄약 필요
@@ -3832,6 +3850,8 @@ const AMMO_TYPES = {
     description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
     cost: 130,
     statOverrides: { damage: 157, spread: 120, ammoExtra: 3 },
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
+    ohkRange: { guaranteed: 10 },
   },
 
   terminus_shells: {
@@ -3994,6 +4014,8 @@ const AMMO_TYPES = {
     cost: 65,
     // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
     statOverrides: { damage: 179, spread: 65, ammoExtra: 3 },
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
+    ohkRange: { guaranteed: 14 },
   },
 
   lemat_dragonbreath: {
@@ -4019,6 +4041,22 @@ const AMMO_TYPES = {
     cost: 65,
     // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
     statOverrides: { damage: 157, spread: 115, ammoExtra: 2 },
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
+    ohkRange: { guaranteed: 10 },
+  },
+
+  // 르맷 카빈 전용 — 르맷(권총)과 총열 길이가 달라 슬러그 한방컷 보장거리가 다름(사용자 실측),
+  // 그 외 스탯은 르맷과 동일한 하부 총열 탄약이라 lemat_slug와 완전히 동일하게 둠
+  lemat_carbine_slug: {
+    label: "슬러그",
+    category: "shotgun",
+    effect: "slug",
+    image: "images/ui/ammo_effect_icons/slug_shelltight.png",
+    icon: "●",
+    description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
+    cost: 65,
+    statOverrides: { damage: 157, spread: 115, ammoExtra: 2 },
+    ohkRange: { guaranteed: 13 },
   },
 
   lemat_starshell: {
@@ -4057,6 +4095,8 @@ const AMMO_TYPES = {
     cost: 65,
     // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
     statOverrides: { damage: 159, spread: 115, ammoExtra: 2 },
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
+    ohkRange: { guaranteed: 10 },
   },
 
   haymaker_starshell: {
@@ -4493,6 +4533,8 @@ const AMMO_TYPES = {
     description: "기본 볼트.",
     cost: 0,
     statOverrides: {  },
+    // 사용자 실측: 불안정 구간 없이 보장거리에서 바로 불가로 전환
+    ohkRange: { guaranteed: 25 },
   },
   crossbow_explosive_bolt: {
     label: "폭발 볼트",
@@ -4571,6 +4613,12 @@ const AMMO_TYPES = {
     cost: 5,
     statOverrides: { damage: 260, spread: 9, muzzleVelocity: 80, ammoExtra: 12 },
     specialEffects: ["강한 출혈 효과 발생", "회수 후 재사용 가능"],
+    // 사용자 실측(부위별): 가슴 46m / 팔 29m / 복부 39m — 전부 불안정 구간 없이 바로 불가로 전환
+    ohkRange: { guaranteed: 46 },
+    ohkRangeVariants: [
+      { label: "팔 기준 한방컷(OHK) 거리", ohkRange: { guaranteed: 29 } },
+      { label: "복부 기준 한방컷(OHK) 거리", ohkRange: { guaranteed: 39 } },
+    ],
   },
   bomblauncher_steelball: {
     label: "강철탄",
@@ -4581,6 +4629,8 @@ const AMMO_TYPES = {
     description: "강철탄 - 탄속 대폭 증가, 분산도 증가.",
     cost: 5,
     statOverrides: { damage: 239, spread: 62.5, muzzleVelocity: 450, ammoExtra: 8 },
+    // 사용자 실측(가슴 정조준 기준)
+    ohkRange: { guaranteed: 10, unstableEnd: 14, noneFrom: 15 },
   },
   bomblauncher_waxedfrag: {
     label: "왁스 파편탄",
@@ -4626,6 +4676,12 @@ const AMMO_TYPES = {
     cost: 5,
     statOverrides: { damage: 260, spread: 9, muzzleVelocity: 80, ammoExtra: 12 },
     specialEffects: ["강한 출혈 효과 발생", "회수 후 재사용 가능"],
+    // 밤 런처와 동일한 탄약군이라는 사용자 확인에 따라 동일 값 적용 (가슴 46m / 팔 29m / 복부 39m)
+    ohkRange: { guaranteed: 46 },
+    ohkRangeVariants: [
+      { label: "팔 기준 한방컷(OHK) 거리", ohkRange: { guaranteed: 29 } },
+      { label: "복부 기준 한방컷(OHK) 거리", ohkRange: { guaranteed: 39 } },
+    ],
   },
   bomblance_steelball: {
     label: "강철탄",
@@ -4636,6 +4692,8 @@ const AMMO_TYPES = {
     description: "강철탄 - 탄속 대폭 증가, 분산도 증가.",
     cost: 5,
     statOverrides: { damage: 239, spread: 62.5, muzzleVelocity: 450, ammoExtra: 8 },
+    // 밤 런처와 동일한 탄약군이라는 사용자 확인에 따라 동일 값 적용
+    ohkRange: { guaranteed: 10, unstableEnd: 14, noneFrom: 15 },
   },
   bomblance_waxedfrag: {
     label: "왁스 파편탄",
@@ -4659,6 +4717,13 @@ const AMMO_TYPES = {
     description: "기본 화살.",
     cost: 0,
     statOverrides: {  },
+    // 사용자 실측: 불안정 구간 없이 보장거리에서 바로 불가로 전환
+    ohkRange: { guaranteed: 28 },
+    // "백 개의 손(Hundred Hands)" 특성 장착 시 데미지가 늘어나 한방컷 거리가 달라짐(사용자 실측) —
+    // 0~7m는 부위 무관 항상 한방, 7~34m는 부위에 따라 한방 가능(불안정), 34m 초과부터 불가
+    ohkRangeVariants: [
+      { label: "Hundred Hands 착용 시 한방컷(OHK) 거리", ohkRange: { guaranteed: 7, unstableEnd: 34, noneFrom: 35 } },
+    ],
   },
   huntingbow_concertina: {
     label: "철조망 화살",
@@ -4765,6 +4830,8 @@ const AMMO_TYPES = {
     description: "기본 볼트.",
     cost: 0,
     statOverrides: {  },
+    // 사용자 실측: 불안정 구간 없이 보장거리에서 바로 불가로 전환
+    ohkRange: { guaranteed: 15 },
   },
   handcrossbow_chaos: {
     label: "카오스 볼트",
@@ -5453,7 +5520,7 @@ const ITEMS = [
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
         slotSize: 3,
-        ammoTypes: ["lemat_carbine_compact", "lemat_fmj", "lemat_incendiary", "lemat_shells", "lemat_dragonbreath", "lemat_slug", "lemat_starshell"],
+        ammoTypes: ["lemat_carbine_compact", "lemat_fmj", "lemat_incendiary", "lemat_shells", "lemat_dragonbreath", "lemat_carbine_slug", "lemat_starshell"],
         defaultAmmo: "lemat_carbine_compact",
         price: 115,
         stats: {
@@ -5475,7 +5542,7 @@ const ITEMS = [
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
         slotSize: 3,
-        ammoTypes: ["lemat_carbine_compact", "lemat_fmj", "lemat_incendiary", "lemat_shells", "lemat_dragonbreath", "lemat_slug", "lemat_starshell"],
+        ammoTypes: ["lemat_carbine_compact", "lemat_fmj", "lemat_incendiary", "lemat_shells", "lemat_dragonbreath", "lemat_carbine_slug", "lemat_starshell"],
         defaultAmmo: "lemat_carbine_compact",
         price: 127,
         stats: {
