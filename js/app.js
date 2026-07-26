@@ -1066,16 +1066,16 @@ function openBodyPartView(parentItem, ammoId) {
           ${statRowSimple("수직 반동", stats.verticalRecoil, "verticalRecoil")}
           ${statRowSimple("재장전 속도", stats.reloadSpeed, "reloadSpeed")}
           ${statRowSimple("총구속도", stats.muzzleVelocity, "muzzleVelocity")}
-          ${statRowSimple("근접 피해", stats.meleeLight, "meleeLight")}
-          ${statRowSimple("중형 근접 피해", stats.meleeHeavy, "meleeHeavy")}
-          ${statRowSimple("기력 비용(강공격)", stats.staminaConsumption, "staminaConsumption")}
+          ${statRowSimple("약공격 피해", stats.meleeLight, "meleeLight")}
+          ${statRowSimple("강공격 피해", stats.meleeHeavy, "meleeHeavy")}
+          ${statRowSimple("기력 소모(약공격)", stats.staminaConsumption, "staminaConsumption")}
         </div>
       </div>
 
       <!-- 우측: 그래프 → 특수탄 탭 → 특수탄 효과 -->
       <div class="bodypart-graph-col">
         ${hasAnyGraphData ? `
-        <h4 class="bp-chart-heading">거리별 데미지 <span class="bodypart-hint">— 그래프를 클릭하여 거리 선택</span></h4>
+        <h4 class="bp-chart-heading">거리별 피해 <span class="bodypart-hint">— 그래프를 클릭하여 거리 선택</span></h4>
         <div class="bp-chart-wrap"><canvas id="bp-chart"></canvas></div>
         ` : ""}
 
@@ -1177,9 +1177,9 @@ function renderMeleeBodyPartView(item, overlay, content) {
         </div>
 
         <div class="detail-stats bp-stats-inline">
-          ${statRowSimple("근접 피해", stats.meleeLight, "meleeLight")}
+          ${statRowSimple("약공격 피해", stats.meleeLight, "meleeLight")}
           ${statRowSimple("강공격 피해", stats.meleeHeavy, "meleeHeavy")}
-          ${statRowSimple("기력 비용(강공격)", stats.staminaConsumption, "staminaConsumption")}
+          ${statRowSimple("기력 소모(약공격)", stats.staminaConsumption, "staminaConsumption")}
         </div>
       </div>
 
@@ -1315,7 +1315,7 @@ function drawBodyPartChart(currentItem, ammoId, refRange, parentItem) {
   const maxDmg = Math.max(...ds.data.map((d) => d.y));
   const canOHK = maxDmg >= HUNTER_HP;
 
-  const opts = chartOptions("거리 (m)", "데미지", { showOHK: canOHK, refRange, xMax: 100, yStepSize: 25 });
+  const opts = chartOptions("거리 (m)", "피해", { showOHK: canOHK, refRange, xMax: 100, yStepSize: 25 });
   // 애니메이션 비활성화 — 클릭마다 그래프가 다시 올라오는 효과 제거
   opts.animation = false;
   opts.animations = { colors: false, x: false, y: false };
@@ -1354,7 +1354,7 @@ function drawBodyPartChart(currentItem, ammoId, refRange, parentItem) {
     const hit = killLines.find((l) => Math.abs(chart.scales.x.getPixelForValue(l.range) - xPixel) < 6);
     if (hit) {
       killTooltip.hidden = false;
-      killTooltip.textContent = `${Math.round(hit.range)}m 이내 — 최소데미지(${weakestPartLabel}) 기준 ${hit.n} BTK`;
+      killTooltip.textContent = `${Math.round(hit.range)}m 이내 — 최소피해(${weakestPartLabel}) 기준 ${hit.n} BTK`;
       killTooltip.style.left = `${evt.clientX + 14}px`;
       killTooltip.style.top = `${evt.clientY + 14}px`;
     } else {
@@ -1394,7 +1394,7 @@ function statRowSimple(label, value, key) {
 
 // 무기 스탯 설명 (Hunt: Showdown 공식 위키 원문을 한글로 번역)
 const STAT_DESCRIPTIONS = {
-  damage: "가슴(상체) 10m 거리에서 명중했을 때의 데미지 값입니다.\n샷건은 10m 근접사격 시 평균 데미지 기준입니다.",
+  damage: "가슴(상체) 10m 거리에서 명중했을 때의 피해 값입니다.\n샷건은 10m 근접사격 시 평균 피해 기준입니다.",
   dropRange: "탄환이 조준점보다 대략 머리 높이(20cm)만큼 떨어지는 거리(m)입니다.\n조준(ADS) 시 HUD에 표시됩니다.\n탄종, 탄속, 총열 길이, 무기 작동 방식에 따라 낙하율이 달라집니다.",
   rateOfFire: "분당 발사 가능 횟수이며, 재장전 시간도 포함된 값입니다.",
   cycleTime: "다음 사격이 가능해지기까지 걸리는 시간(초)입니다.\n단발 무기는 재장전 시간도 포함됩니다.\n듀얼 웰드의 경우, 먼저 발사한 무기가 다시 준비되는 데 걸리는 시간입니다.",
@@ -1403,16 +1403,16 @@ const STAT_DESCRIPTIONS = {
   verticalRecoil: "사격 후 수직 반동의 세기(도, degree)입니다.",
   reloadSpeed: "탄창이 빈 상태에서 완전히 재장전하는 데 걸리는 시간(초)입니다.\n클립 재장전이나, 마지막 탄을 넣기 전 무기를 조작해야 하는 등의 특수 동작 시간도 포함됩니다.",
   muzzleVelocity: "탄환이 발사될 때의 속도(m/s)입니다.\n탄환은 포물선을 그리며 날아갑니다.",
-  meleeLight: "라이트 근접 공격이 상체에 명중했을 때의 데미지 값입니다.",
-  meleeHeavy: "헤비 근접 공격이 상체에 명중했을 때의 데미지 값입니다.",
-  staminaConsumption: "라이트 또는 헤비 근접 공격 시 소모되는 기력(100 기준)입니다.",
+  meleeLight: "근접 약공격이 상체에 명중했을 때의 피해 값입니다.",
+  meleeHeavy: "근접 강공격이 상체에 명중했을 때의 피해 값입니다.",
+  staminaConsumption: "근접 약공격 또는 강공격 시 소모되는 기력(100 기준)입니다.",
   // 도구(Tool) 전용 스탯 — huntshowdown.wiki.gg/wiki/Tools "Tool Statistics" 섹션 기준
-  damagePerTick: "효과가 지속되는 동안 틱마다 들어가는 데미지입니다.",
+  damagePerTick: "효과가 지속되는 동안 틱마다 들어가는 피해입니다.",
   effectRadius: "효과가 적용되는 반경(m)입니다.",
   effectDuration: "효과가 지속되는 시간(초)입니다.",
   fuseTimer: "기폭(폭발)까지 걸리는 시간(초)입니다.",
   throwRange: "던질 수 있는 최대 거리(m)입니다.",
-  staminaConsumptionHeavy: "헤비 근접 공격 시 소모되는 기력(100 기준)입니다.",
+  staminaConsumptionHeavy: "근접 강공격 시 소모되는 기력(100 기준)입니다.",
   staminaConsumptionThrow: "투척 시 소모되는 기력(100 기준)입니다.",
   controlRange: "Stalker Beetle 등을 조종할 수 있는 최대 거리(m)입니다.",
 };
@@ -1524,7 +1524,7 @@ function renderWeaponDetailHTML(item, selectedAmmoId) {
     ${ammo?.description ? `<p class="detail-desc">${ammo.description}</p>` : ""}
     ${effectsHTML ? `<ul class="ammo-effects">${effectsHTML}</ul>` : ""}
 
-    <h4>거리별 데미지</h4>
+    <h4>거리별 피해</h4>
     <div class="detail-chart-wrap"><canvas id="detail-chart"></canvas></div>
 
     <div class="detail-action-row">
@@ -1558,9 +1558,9 @@ function renderMeleeDetailHTML(item) {
 
     <h4>근접 스탯</h4>
     <div class="bp-stats-inline">
-      ${statRowSimple("근접 피해", stats.meleeLight, "meleeLight")}
+      ${statRowSimple("약공격 피해", stats.meleeLight, "meleeLight")}
       ${statRowSimple("강공격 피해", stats.meleeHeavy, "meleeHeavy")}
-      ${statRowSimple("기력 비용(강공격)", stats.staminaConsumption, "staminaConsumption")}
+      ${statRowSimple("기력 소모(약공격)", stats.staminaConsumption, "staminaConsumption")}
     </div>
 
     <div class="detail-action-row">
@@ -1843,7 +1843,7 @@ function drawWeaponChart(item, ammoId) {
   state.charts.detail = new Chart(canvas.getContext("2d"), {
     type: "line",
     data: { datasets: [ds] },
-    options: chartOptions("거리 (m)", "데미지", { showOHK: canOHK, refRange: currentRef }),
+    options: chartOptions("거리 (m)", "피해", { showOHK: canOHK, refRange: currentRef }),
     plugins: [btkLinesPlugin, refRangePlugin],
   });
 
@@ -3116,7 +3116,7 @@ function renderAnalysis() {
   state.charts.compare = new Chart(canvas.getContext("2d"), {
     type: "line",
     data: { datasets },
-    options: chartOptions("거리 (m)", "데미지", { showOHK: anyOHK }),
+    options: chartOptions("거리 (m)", "피해", { showOHK: anyOHK }),
     plugins: [btkLinesPlugin],
   });
 
@@ -3134,9 +3134,10 @@ const STAT_DEFS = [
   { key: "verticalRecoil", label: "수직 반동" },
   { key: "reloadSpeed", label: "재장전 속도" },
   { key: "muzzleVelocity", label: "총구속도" },
-  { key: "meleeLight", label: "근접 피해" },
-  { key: "meleeHeavy", label: "중형 근접 피해" },
-  { key: "staminaConsumption", label: "기력 비용(강공격)" },
+  { key: "meleeLight", label: "약공격 피해" },
+  { key: "meleeHeavy", label: "강공격 피해" },
+  { key: "staminaConsumption", label: "기력 소모(약공격)" },
+  { key: "staminaConsumptionHeavy", label: "기력 소모(강공격)" },
 ];
 
 function renderCompareStatsSection() {

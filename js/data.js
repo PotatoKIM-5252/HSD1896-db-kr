@@ -5,7 +5,7 @@
 
    ▣ 구조
      1) HUNTER_HP         : 헌터 체력 (BTK 계산 기준값)
-     2) BODY_PART_MULTIPLIERS : 부위별 데미지 배율 (자세히 보기에서 사용)
+     2) BODY_PART_MULTIPLIERS : 부위별 피해 배율 (자세히 보기에서 사용)
      3) CATEGORIES        : 카테고리(무기/도구/소모품/특성)와 로드아웃 슬롯 정의
      4) WEAPON_FILTERS    : 무기 필터(칸수/탄종/탄약효과) 옵션
      5) AMMO_TYPES        : 탄약 객체 — 거리 곡선과 무기 스탯 보정값을 보관
@@ -310,7 +310,7 @@ const AMMO_TYPES = {
     isBase: true,                // 기본탄 (특수탄이 아님)
     image: "images/ui/ammo_effects/ammo_compact_regular_tight.png",
     icon: "🟫",
-    description: "Compact - 20m부터 데미지 감소 시작. 관통력 낮음.",
+    description: "Compact - 20m부터 피해 감소 시작. 관통력 낮음.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -327,7 +327,7 @@ const AMMO_TYPES = {
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_compact_full_metal.png",
     icon: "🟤",
-    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 50,
     falloff: [
       [0, 1.00],
@@ -340,7 +340,7 @@ const AMMO_TYPES = {
       verticalRecoil: 8,
       muzzleVelocity: 330,
     },
-    specialEffects: ["30m부터 데미지 감소 시작"],
+    specialEffects: ["30m부터 피해 감소 시작"],
   },
 
   compact_high_velocity: {
@@ -349,7 +349,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -432,7 +432,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_compact_regular_tight.png",
     icon: "🟫",
-    description: "Compact - 20m부터 데미지 감소 시작. 관통력 낮음.",
+    description: "Compact - 20m부터 피해 감소 시작. 관통력 낮음.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -449,7 +449,7 @@ const AMMO_TYPES = {
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_compact_full_metal.png",
     icon: "🟤",
-    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 50,
     falloff: [
       [0, 1.00],
@@ -462,7 +462,7 @@ const AMMO_TYPES = {
       verticalRecoil: 5,
       muzzleVelocity: 330,
     },
-    specialEffects: ["30m부터 데미지 감소 시작"],
+    specialEffects: ["30m부터 피해 감소 시작"],
   },
 
   infantry73l_high_velocity: {
@@ -471,7 +471,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -554,7 +554,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_compact_regular_tight.png",
     icon: "🟫",
-    description: "Compact - 20m부터 데미지 감소 시작. 관통력 낮음.",
+    description: "Compact - 20m부터 피해 감소 시작. 관통력 낮음.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -571,7 +571,7 @@ const AMMO_TYPES = {
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_compact_full_metal.png",
     icon: "🟤",
-    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 50,
     falloff: [
       [0, 1.00],
@@ -584,7 +584,7 @@ const AMMO_TYPES = {
       verticalRecoil: 9,
       muzzleVelocity: 360,
     },
-    specialEffects: ["30m부터 데미지 감소 시작"],
+    specialEffects: ["30m부터 피해 감소 시작"],
   },
 
   marathon_high_velocity: {
@@ -593,7 +593,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
     cost: 50,
     falloff: [
       [0, 1.00],
@@ -655,7 +655,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_compact_regular_tight.png",
     icon: "🟫",
-    description: "Compact - 20m부터 데미지 감소 시작. 관통력 낮음.",
+    description: "Compact - 20m부터 피해 감소 시작. 관통력 낮음.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -672,7 +672,7 @@ const AMMO_TYPES = {
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_compact_full_metal.png",
     icon: "🟤",
-    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 50,
     falloff: [
       [0, 1.00],
@@ -681,7 +681,7 @@ const AMMO_TYPES = {
       [100, 0.5273],
     ],
     statOverrides: { dropRange: 125, verticalRecoil: 6, muzzleVelocity: 330 },
-    specialEffects: ["30m부터 데미지 감소 시작"],
+    specialEffects: ["30m부터 피해 감소 시작"],
   },
 
   ranger73_high_velocity: {
@@ -690,7 +690,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -762,7 +762,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_compact_regular_tight.png",
     icon: "🟫",
-    description: "Compact - 20m부터 데미지 감소 시작. 관통력 낮음.",
+    description: "Compact - 20m부터 피해 감소 시작. 관통력 낮음.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -779,7 +779,7 @@ const AMMO_TYPES = {
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_compact_full_metal.png",
     icon: "🟤",
-    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 50,
     falloff: [
       [0, 1.00],
@@ -788,7 +788,7 @@ const AMMO_TYPES = {
       [100, 0.5273],
     ],
     statOverrides: { dropRange: 110, verticalRecoil: 11, muzzleVelocity: 310 },
-    specialEffects: ["30m부터 데미지 감소 시작"],
+    specialEffects: ["30m부터 피해 감소 시작"],
   },
 
   vandal73c_high_velocity: {
@@ -797,7 +797,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -867,7 +867,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_compact_regular_tight.png",
     icon: "🟫",
-    description: "Compact - 20m부터 데미지 감소 시작. 관통력 낮음.",
+    description: "Compact - 20m부터 피해 감소 시작. 관통력 낮음.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -887,7 +887,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_compact_regular_tight.png",
     icon: "🟫",
-    description: "Compact - 20m부터 데미지 감소 시작.",
+    description: "Compact - 20m부터 피해 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -904,7 +904,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -961,7 +961,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_compact_regular_tight.png",
     icon: "🟫",
-    description: "Compact - 20m부터 데미지 감소 시작. 관통력 낮음.",
+    description: "Compact - 20m부터 피해 감소 시작. 관통력 낮음.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -999,7 +999,7 @@ const AMMO_TYPES = {
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_compact_full_metal.png",
     icon: "🟤",
-    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 50,
     falloff: [
       [0, 1.00],
@@ -1009,7 +1009,7 @@ const AMMO_TYPES = {
       [100, 0.4974],
     ],
     statOverrides: { dropRange: 70, verticalRecoil: 6.5, muzzleVelocity: 270 },
-    specialEffects: ["30m부터 데미지 감소 시작"],
+    specialEffects: ["30m부터 피해 감소 시작"],
   },
 
   lemat_compact: {
@@ -1018,7 +1018,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_compact_regular_tight.png",
     icon: "🟫",
-    description: "Compact - 20m부터 데미지 감소 시작. 관통력 낮음.",
+    description: "Compact - 20m부터 피해 감소 시작. 관통력 낮음.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -1038,7 +1038,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_compact_regular_tight.png",
     icon: "🟫",
-    description: "Compact - 20m부터 데미지 감소 시작.",
+    description: "Compact - 20m부터 피해 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -1055,7 +1055,7 @@ const AMMO_TYPES = {
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_compact_full_metal.png",
     icon: "🟤",
-    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 50,
     falloff: [
       [0, 1.00],
@@ -1065,7 +1065,7 @@ const AMMO_TYPES = {
       [100, 0.4974],
     ],
     statOverrides: { dropRange: 70, verticalRecoil: 8, muzzleVelocity: 335 },
-    specialEffects: ["30m부터 데미지 감소 시작"],
+    specialEffects: ["30m부터 피해 감소 시작"],
   },
 
   lemat_incendiary: {
@@ -1092,7 +1092,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_compact_regular_tight.png",
     icon: "🟫",
-    description: "Compact - 20m부터 데미지 감소 시작. 관통력 낮음.",
+    description: "Compact - 20m부터 피해 감소 시작. 관통력 낮음.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -1130,7 +1130,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -1186,7 +1186,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_compact_regular_tight.png",
     icon: "🟫",
-    description: "Compact - 20m부터 데미지 감소 시작. 관통력 낮음.",
+    description: "Compact - 20m부터 피해 감소 시작. 관통력 낮음.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -1224,7 +1224,7 @@ const AMMO_TYPES = {
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_compact_full_metal.png",
     icon: "🟤",
-    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 50,
     falloff: [
       [0, 1.00],
@@ -1234,7 +1234,7 @@ const AMMO_TYPES = {
       [100, 0.4974],
     ],
     statOverrides: { dropRange: 70, verticalRecoil: 7, muzzleVelocity: 200 },
-    specialEffects: ["30m부터 데미지 감소 시작"],
+    specialEffects: ["30m부터 피해 감소 시작"],
   },
 
   officer_compact: {
@@ -1243,7 +1243,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_compact_regular_tight.png",
     icon: "🟫",
-    description: "Compact - 20m부터 데미지 감소 시작. 관통력 낮음.",
+    description: "Compact - 20m부터 피해 감소 시작. 관통력 낮음.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -1264,7 +1264,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_compact_regular_tight.png",
     icon: "🟫",
-    description: "Compact - 20m부터 데미지 감소 시작.",
+    description: "Compact - 20m부터 피해 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -1301,7 +1301,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -1359,7 +1359,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_medium_regular_tight.png",
     icon: "🟫",
-    description: "Medium - 30m부터 데미지 감소 시작.",
+    description: "Medium - 30m부터 피해 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -1395,7 +1395,7 @@ const AMMO_TYPES = {
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_medium_full_metal.png",
     icon: "🟤",
-    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 50,
     falloff: [
       [0, 1.00],
@@ -1404,7 +1404,7 @@ const AMMO_TYPES = {
       [100, 0.6101],
     ],
     statOverrides: { dropRange: 125, verticalRecoil: 14, muzzleVelocity: 480 },
-    specialEffects: ["40m부터 데미지 감소 시작"],
+    specialEffects: ["40m부터 피해 감소 시작"],
   },
 
   centennial_high_velocity: {
@@ -1413,7 +1413,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -1469,7 +1469,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_medium_regular_tight.png",
     icon: "🟫",
-    description: "Medium - 30m부터 데미지 감소 시작.",
+    description: "Medium - 30m부터 피해 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -1507,7 +1507,7 @@ const AMMO_TYPES = {
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_medium_full_metal.png",
     icon: "🟤",
-    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 50,
     falloff: [
       [0, 1.00],
@@ -1516,7 +1516,7 @@ const AMMO_TYPES = {
       [100, 0.6101],
     ],
     statOverrides: { dropRange: 130, verticalRecoil: 14, muzzleVelocity: 510 },
-    specialEffects: ["40m부터 데미지 감소 시작"],
+    specialEffects: ["40m부터 피해 감소 시작"],
   },
 
   wildland_high_velocity: {
@@ -1525,7 +1525,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -1580,7 +1580,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_medium_regular_tight.png",
     icon: "🟫",
-    description: "Medium - 30m부터 데미지 감소 시작.",
+    description: "Medium - 30m부터 피해 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -1616,7 +1616,7 @@ const AMMO_TYPES = {
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_medium_full_metal.png",
     icon: "🟤",
-    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 50,
     falloff: [
       [0, 1.00],
@@ -1625,7 +1625,7 @@ const AMMO_TYPES = {
       [100, 0.6101],
     ],
     statOverrides: { dropRange: 125, verticalRecoil: 16, muzzleVelocity: 371 },
-    specialEffects: ["40m부터 데미지 감소 시작"],
+    specialEffects: ["40m부터 피해 감소 시작"],
   },
 
   drilling_high_velocity: {
@@ -1634,7 +1634,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -1651,7 +1651,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_medium_regular_tight.png",
     icon: "🟫",
-    description: "Medium - 30m부터 데미지 감소 시작.",
+    description: "Medium - 30m부터 피해 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -1687,7 +1687,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -1722,7 +1722,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_medium_regular_tight.png",
     icon: "🟫",
-    description: "Medium - 30m부터 데미지 감소 시작.",
+    description: "Medium - 30m부터 피해 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -1758,7 +1758,7 @@ const AMMO_TYPES = {
     effect: "explosive",
     image: "images/ui/ammo_effects/ammo_medium_explosive.png",
     icon: "💥",
-    description: "폭발탄 - 광범위 폭발 데미지. 상점 구매 불가(월드 획득 전용).",
+    description: "폭발탄 - 광범위 폭발 피해. 상점 구매 불가(월드 획득 전용).",
     cost: null,
     scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
     falloff: [
@@ -1775,7 +1775,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
     cost: 30,
     falloff: [
       [0, 1.00],
@@ -1810,7 +1810,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_medium_regular_tight.png",
     icon: "🟫",
-    description: "Medium - 30m부터 데미지 감소 시작.",
+    description: "Medium - 30m부터 피해 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -1827,7 +1827,7 @@ const AMMO_TYPES = {
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_medium_full_metal.png",
     icon: "🟤",
-    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 50,
     falloff: [
       [0, 1.00],
@@ -1836,7 +1836,7 @@ const AMMO_TYPES = {
       [100, 0.6101],
     ],
     statOverrides: { dropRange: 105, verticalRecoil: 7, muzzleVelocity: 272 },
-    specialEffects: ["40m부터 데미지 감소 시작"],
+    specialEffects: ["40m부터 피해 감소 시작"],
   },
 
   carbine1865_subsonic: {
@@ -1861,7 +1861,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_medium_regular_tight.png",
     icon: "🟫",
-    description: "Medium - 30m부터 데미지 감소 시작.",
+    description: "Medium - 30m부터 피해 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -1878,7 +1878,7 @@ const AMMO_TYPES = {
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_medium_full_metal.png",
     icon: "🟤",
-    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 50,
     falloff: [
       [0, 1.00],
@@ -1887,7 +1887,7 @@ const AMMO_TYPES = {
       [100, 0.6101],
     ],
     statOverrides: { dropRange: 115, verticalRecoil: 9, muzzleVelocity: 350 },
-    specialEffects: ["40m부터 데미지 감소 시작"],
+    specialEffects: ["40m부터 피해 감소 시작"],
   },
 
   vetterli71_high_velocity: {
@@ -1896,7 +1896,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -1950,7 +1950,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_medium_regular_tight.png",
     icon: "🟫",
-    description: "Medium - 30m부터 데미지 감소 시작.",
+    description: "Medium - 30m부터 피해 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -1988,7 +1988,7 @@ const AMMO_TYPES = {
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_medium_full_metal.png",
     icon: "🟤",
-    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 50,
     falloff: [
       [0, 1.00],
@@ -1998,7 +1998,7 @@ const AMMO_TYPES = {
       [100, 0.4924],
     ],
     statOverrides: { dropRange: 60, verticalRecoil: 12, muzzleVelocity: 300 },
-    specialEffects: ["40m부터 데미지 감소 시작"],
+    specialEffects: ["40m부터 피해 감소 시작"],
   },
 
   pax_high_velocity: {
@@ -2007,7 +2007,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -2064,7 +2064,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_medium_regular_tight.png",
     icon: "🟫",
-    description: "Medium - 30m부터 데미지 감소 시작.",
+    description: "Medium - 30m부터 피해 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -2102,7 +2102,7 @@ const AMMO_TYPES = {
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_medium_full_metal.png",
     icon: "🟤",
-    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 50,
     falloff: [
       [0, 1.00],
@@ -2112,7 +2112,7 @@ const AMMO_TYPES = {
       [100, 0.4924],
     ],
     statOverrides: { dropRange: 60, verticalRecoil: 12, muzzleVelocity: 250 },
-    specialEffects: ["40m부터 데미지 감소 시작"],
+    specialEffects: ["40m부터 피해 감소 시작"],
   },
 
   scottfield_high_velocity: {
@@ -2121,7 +2121,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -2161,7 +2161,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_long_regular_tight.png",
     icon: "🟫",
-    description: "Long - 40m부터 데미지 감소 시작.",
+    description: "Long - 40m부터 피해 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -2178,7 +2178,7 @@ const AMMO_TYPES = {
     effect: "explosive",
     image: "images/ui/ammo_effects/ammo_long_explosive.png",
     icon: "💥",
-    description: "폭발탄 - 광범위 폭발 데미지. 상점 구매 불가(월드 획득 전용).",
+    description: "폭발탄 - 광범위 폭발 피해. 상점 구매 불가(월드 획득 전용).",
     cost: null,
     scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
     falloff: [
@@ -2197,7 +2197,7 @@ const AMMO_TYPES = {
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_long_full_metal.png",
     icon: "🟤",
-    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -2205,7 +2205,7 @@ const AMMO_TYPES = {
       [100, 0.6169],
     ],
     statOverrides: { dropRange: 95, verticalRecoil: 14, muzzleVelocity: 305 },
-    specialEffects: ["50m부터 데미지 감소 시작"],
+    specialEffects: ["50m부터 피해 감소 시작"],
   },
 
   martinihenry_long: {
@@ -2214,7 +2214,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_long_regular_tight.png",
     icon: "🟫",
-    description: "Long - 40m부터 데미지 감소 시작.",
+    description: "Long - 40m부터 피해 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -2231,7 +2231,7 @@ const AMMO_TYPES = {
     effect: "explosive",
     image: "images/ui/ammo_effects/ammo_long_explosive.png",
     icon: "💥",
-    description: "폭발탄 - 광범위 폭발 데미지. 상점 구매 불가(월드 획득 전용).",
+    description: "폭발탄 - 광범위 폭발 피해. 상점 구매 불가(월드 획득 전용).",
     cost: null,
     scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
     falloff: [
@@ -2250,7 +2250,7 @@ const AMMO_TYPES = {
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_long_full_metal.png",
     icon: "🟤",
-    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 30,
     falloff: [
       [0, 1.00],
@@ -2258,7 +2258,7 @@ const AMMO_TYPES = {
       [100, 0.6169],
     ],
     statOverrides: { dropRange: 110, verticalRecoil: 16, muzzleVelocity: 320 },
-    specialEffects: ["50m부터 데미지 감소 시작"],
+    specialEffects: ["50m부터 피해 감소 시작"],
   },
 
   martinihenry_high_velocity: {
@@ -2267,7 +2267,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_long_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
     cost: 35,
     falloff: [
       [0, 1.00],
@@ -2303,7 +2303,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_long_regular_tight.png",
     icon: "🟫",
-    description: "Long - 40m부터 데미지 감소 시작.",
+    description: "Long - 40m부터 피해 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -2320,7 +2320,7 @@ const AMMO_TYPES = {
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_long_full_metal.png",
     icon: "🟤",
-    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 30,
     falloff: [
       [0, 1.00],
@@ -2328,7 +2328,7 @@ const AMMO_TYPES = {
       [100, 0.6169],
     ],
     statOverrides: { dropRange: 125, verticalRecoil: 13, muzzleVelocity: 370 },
-    specialEffects: ["50m부터 데미지 감소 시작"],
+    specialEffects: ["50m부터 피해 감소 시작"],
   },
 
   sparks_incendiary: {
@@ -2394,7 +2394,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_long_regular_tight.png",
     icon: "🟫",
-    description: "Long - 40m부터 데미지 감소 시작.",
+    description: "Long - 40m부터 피해 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -2412,7 +2412,7 @@ const AMMO_TYPES = {
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_long_full_metal.png",
     icon: "🟤",
-    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 30,
     falloff: [
       [0, 1.00],
@@ -2420,7 +2420,7 @@ const AMMO_TYPES = {
       [100, 0.6169],
     ],
     statOverrides: { dropRange: 85, verticalRecoil: 27, muzzleVelocity: 362 },
-    specialEffects: ["50m부터 데미지 감소 시작"],
+    specialEffects: ["50m부터 피해 감소 시작"],
   },
 
   sparkspistol_subsonic: {
@@ -2448,7 +2448,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_long_regular_tight.png",
     icon: "🟫",
-    description: "Long - 40m부터 데미지 감소 시작.",
+    description: "Long - 40m부터 피해 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -2466,7 +2466,7 @@ const AMMO_TYPES = {
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_long_full_metal.png",
     icon: "🟤",
-    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 30,
     falloff: [
       [0, 1.00],
@@ -2474,7 +2474,7 @@ const AMMO_TYPES = {
       [100, 0.6169],
     ],
     statOverrides: { dropRange: 80, verticalRecoil: 28, muzzleVelocity: 308 },
-    specialEffects: ["50m부터 데미지 감소 시작"],
+    specialEffects: ["50m부터 피해 감소 시작"],
   },
 
   sparkspistolsilencer_subsonic: {
@@ -2501,7 +2501,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_long_regular_tight.png",
     icon: "🟫",
-    description: "Long - 40m부터 데미지 감소 시작.",
+    description: "Long - 40m부터 피해 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -2519,7 +2519,7 @@ const AMMO_TYPES = {
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_long_full_metal.png",
     icon: "🟤",
-    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -2529,7 +2529,7 @@ const AMMO_TYPES = {
       [100, 0.4605],
     ],
     statOverrides: { dropRange: 50, verticalRecoil: 25, muzzleVelocity: 375 },
-    specialEffects: ["50m부터 데미지 감소 시작"],
+    specialEffects: ["50m부터 피해 감소 시작"],
   },
 
   haymaker_poison: {
@@ -2557,7 +2557,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_long_regular_tight.png",
     icon: "🟫",
-    description: "Long - 40m부터 데미지 감소 시작.",
+    description: "Long - 40m부터 피해 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -2575,7 +2575,7 @@ const AMMO_TYPES = {
     effect: "explosive",
     image: "images/ui/ammo_effects/ammo_long_explosive.png",
     icon: "💥",
-    description: "폭발탄 - 광범위 폭발 데미지. 상점 구매 불가(월드 획득 전용).",
+    description: "폭발탄 - 광범위 폭발 피해. 상점 구매 불가(월드 획득 전용).",
     cost: null,
     scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
     falloff: [
@@ -2594,7 +2594,7 @@ const AMMO_TYPES = {
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_long_full_metal.png",
     icon: "🟤",
-    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -2604,7 +2604,7 @@ const AMMO_TYPES = {
       [100, 0.4605],
     ],
     statOverrides: { dropRange: 60, verticalRecoil: 25, muzzleVelocity: 360 },
-    specialEffects: ["50m부터 데미지 감소 시작"],
+    specialEffects: ["50m부터 피해 감소 시작"],
   },
 
   uppercut_incendiary: {
@@ -2634,7 +2634,7 @@ const AMMO_TYPES = {
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_long_full_metal.png",
     icon: "🟤",
-    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -2644,7 +2644,7 @@ const AMMO_TYPES = {
       [100, 0.4605],
     ],
     statOverrides: { dropRange: 55, verticalRecoil: 13, muzzleVelocity: 360 },
-    specialEffects: ["50m부터 데미지 감소 시작"],
+    specialEffects: ["50m부터 피해 감소 시작"],
   },
 
   uppercut_deadeye_fmj: {
@@ -2653,7 +2653,7 @@ const AMMO_TYPES = {
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_long_full_metal.png",
     icon: "🟤",
-    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -2663,7 +2663,7 @@ const AMMO_TYPES = {
       [100, 0.4605],
     ],
     statOverrides: { dropRange: 55, verticalRecoil: 16, muzzleVelocity: 360 },
-    specialEffects: ["50m부터 데미지 감소 시작"],
+    specialEffects: ["50m부터 피해 감소 시작"],
   },
 
   // ── 1890 Cavalry 전용 탄약 ──
@@ -2675,7 +2675,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_long_regular_tight.png",
     icon: "🟫",
-    description: "Long - 40m부터 데미지 감소 시작.",
+    description: "Long - 40m부터 피해 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -2694,7 +2694,7 @@ const AMMO_TYPES = {
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_long_full_metal.png",
     icon: "🟤",
-    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 30,
     falloff: [
       [0, 1.00],
@@ -2702,7 +2702,7 @@ const AMMO_TYPES = {
       [100, 0.6169],
     ],
     statOverrides: { dropRange: 100, verticalRecoil: 10, muzzleVelocity: 300 },
-    specialEffects: ["50m부터 데미지 감소 시작"],
+    specialEffects: ["50m부터 피해 감소 시작"],
   },
 
   cavalry_high_velocity: {
@@ -2711,7 +2711,7 @@ const AMMO_TYPES = {
     effect: "high_velocity",
     image: "images/ui/ammo_effects/ammo_long_high_velocity.png",
     icon: "🟠",
-    description: "고속탄 - 탄속 증가, 반동 증가, 데미지 감소.",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
     cost: 30,
     falloff: [
       [0, 1.00],
@@ -2729,7 +2729,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_special_long_regular_tight.png",
     icon: "🟫",
-    description: "Special Long - 40m부터 데미지 감소 시작.",
+    description: "Special Long - 40m부터 피해 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -2746,7 +2746,7 @@ const AMMO_TYPES = {
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_special_long_full_metal.png",
     icon: "🟤",
-    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -2754,7 +2754,7 @@ const AMMO_TYPES = {
       [100, 0.6190],
     ],
     statOverrides: { dropRange: 125, verticalRecoil: 6, muzzleVelocity: 458 },
-    specialEffects: ["50m부터 데미지 감소 시작"],
+    specialEffects: ["50m부터 피해 감소 시작"],
   },
 
   krag_incendiary: {
@@ -2801,7 +2801,7 @@ const AMMO_TYPES = {
     effect: "full_metal",
     image: "images/ui/ammo_effects/ammo_special_long_full_metal.png",
     icon: "🟤",
-    description: "Full Metal Jacket - 관통력 증가, 데미지 유지력 증가. 탄속 감소.",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 60,
     falloff: [
       [0, 1.00],
@@ -2809,7 +2809,7 @@ const AMMO_TYPES = {
       [100, 0.6190],
     ],
     statOverrides: { dropRange: 120, verticalRecoil: 6, muzzleVelocity: 414 },
-    specialEffects: ["50m부터 데미지 감소 시작"],
+    specialEffects: ["50m부터 피해 감소 시작"],
   },
 
   krag_silencer_subsonic: {
@@ -2836,7 +2836,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_special_long_regular_tight.png",
     icon: "🟫",
-    description: "Special Long - 40m부터 데미지 감소 시작.",
+    description: "Special Long - 40m부터 피해 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -2872,7 +2872,7 @@ const AMMO_TYPES = {
     effect: "spitzer",
     image: "images/ui/ammo_effects/ammo_special_long_spitzer.png",
     icon: "🏹",
-    description: "스피처탄 - 탄속 증가, 관통력 증가, 데미지 감소. 상점 구매 불가(월드 획득 전용).",
+    description: "스피처탄 - 탄속 증가, 관통력 증가, 피해 감소. 상점 구매 불가(월드 획득 전용).",
     cost: null,
     scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
     falloff: [
@@ -2890,7 +2890,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_special_long_regular_tight.png",
     icon: "🟫",
-    description: "Special Long - 40m부터 데미지 감소 시작.",
+    description: "Special Long - 40m부터 피해 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -2926,7 +2926,7 @@ const AMMO_TYPES = {
     effect: "spitzer",
     image: "images/ui/ammo_effects/ammo_special_long_spitzer.png",
     icon: "🏹",
-    description: "스피처탄 - 탄속 증가, 관통력 증가, 데미지 감소. 상점 구매 불가(월드 획득 전용).",
+    description: "스피처탄 - 탄속 증가, 관통력 증가, 피해 감소. 상점 구매 불가(월드 획득 전용).",
     cost: null,
     scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
     falloff: [
@@ -2945,7 +2945,7 @@ const AMMO_TYPES = {
     effect: "spitzer",
     image: "images/ui/ammo_effects/ammo_special_long_spitzer.png",
     icon: "🏹",
-    description: "스피처탄 - 탄속 증가, 관통력 증가, 데미지 감소. 상점 구매 불가(월드 획득 전용).",
+    description: "스피처탄 - 탄속 증가, 관통력 증가, 피해 감소. 상점 구매 불가(월드 획득 전용).",
     cost: null,
     scarce: true,
     falloff: [
@@ -2963,7 +2963,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_special_long_regular_tight.png",
     icon: "🟫",
-    description: "Special Long - 40m부터 데미지 감소 시작.",
+    description: "Special Long - 40m부터 피해 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -2999,7 +2999,7 @@ const AMMO_TYPES = {
     effect: "spitzer",
     image: "images/ui/ammo_effects/ammo_special_long_spitzer.png",
     icon: "🏹",
-    description: "스피처탄 - 탄속 증가, 관통력 증가, 데미지 감소. 상점 구매 불가(월드 획득 전용).",
+    description: "스피처탄 - 탄속 증가, 관통력 증가, 피해 감소. 상점 구매 불가(월드 획득 전용).",
     cost: null,
     scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
     falloff: [
@@ -3017,7 +3017,7 @@ const AMMO_TYPES = {
     isBase: true,
     image: "images/ui/ammo_effects/ammo_special_long_regular_tight.png",
     icon: "🟫",
-    description: "Special Long - 40m부터 데미지 감소 시작.",
+    description: "Special Long - 40m부터 피해 감소 시작.",
     cost: 0,
     falloff: [
       [0, 1.00],
@@ -3053,7 +3053,7 @@ const AMMO_TYPES = {
     effect: "spitzer",
     image: "images/ui/ammo_effects/ammo_special_long_spitzer.png",
     icon: "🏹",
-    description: "스피처탄 - 탄속 증가, 관통력 증가, 데미지 감소. 상점 구매 불가(월드 획득 전용).",
+    description: "스피처탄 - 탄속 증가, 관통력 증가, 피해 감소. 상점 구매 불가(월드 획득 전용).",
     cost: null,
     scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
     falloff: [
@@ -3072,7 +3072,7 @@ const AMMO_TYPES = {
     effect: "spitzer",
     image: "images/ui/ammo_effects/ammo_special_long_spitzer.png",
     icon: "🏹",
-    description: "스피처탄 - 탄속 증가, 관통력 증가, 데미지 감소. 상점 구매 불가(월드 획득 전용).",
+    description: "스피처탄 - 탄속 증가, 관통력 증가, 피해 감소. 상점 구매 불가(월드 획득 전용).",
     cost: null,
     scarce: true,
     falloff: [
@@ -3090,7 +3090,7 @@ const AMMO_TYPES = {
     effect: "spitzer",
     image: "images/ui/ammo_effects/ammo_special_long_spitzer.png",
     icon: "🏹",
-    description: "스피처탄 - 탄속 증가, 관통력 증가, 데미지 감소. 상점 구매 불가(월드 획득 전용).",
+    description: "스피처탄 - 탄속 증가, 관통력 증가, 피해 감소. 상점 구매 불가(월드 획득 전용).",
     cost: null,
     scarce: true,
     falloff: [
@@ -3109,7 +3109,7 @@ const AMMO_TYPES = {
     effect: "spitzer",
     image: "images/ui/ammo_effects/ammo_special_long_spitzer.png",
     icon: "🏹",
-    description: "스피처탄 - 탄속 증가, 관통력 증가, 데미지 감소. 상점 구매 불가(월드 획득 전용).",
+    description: "스피처탄 - 탄속 증가, 관통력 증가, 피해 감소. 상점 구매 불가(월드 획득 전용).",
     cost: null,
     scarce: true,
     falloff: [
@@ -3156,7 +3156,7 @@ const AMMO_TYPES = {
     effect: "pennyshot",
     image: "images/ui/ammo_effect_icons/pennyshot_shelltight.png",
     icon: "🪙",
-    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고피해, 원거리 부정확.",
     cost: 10,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 147, spread: 100, ammoExtra: 12 },
@@ -3207,7 +3207,7 @@ const AMMO_TYPES = {
     effect: "pennyshot",
     image: "images/ui/ammo_effect_icons/pennyshot_shelltight.png",
     icon: "🪙",
-    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고피해, 원거리 부정확.",
     cost: 10,
     statOverrides: { damage: 107, spread: 125, ammoExtra: 7 },
   },
@@ -3271,7 +3271,7 @@ const AMMO_TYPES = {
     effect: "pennyshot",
     image: "images/ui/ammo_effect_icons/pennyshot_shelltight.png",
     icon: "🪙",
-    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고피해, 원거리 부정확.",
     cost: 10,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 174, spread: 75, ammoExtra: 18 },
@@ -3335,7 +3335,7 @@ const AMMO_TYPES = {
     effect: "pennyshot",
     image: "images/ui/ammo_effect_icons/pennyshot_shelltight.png",
     icon: "🪙",
-    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고피해, 원거리 부정확.",
     cost: 10,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 138, spread: 100, ammoExtra: 18 },
@@ -3386,7 +3386,7 @@ const AMMO_TYPES = {
     effect: "pennyshot",
     image: "images/ui/ammo_effect_icons/pennyshot_shelltight.png",
     icon: "🪙",
-    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고피해, 원거리 부정확.",
     cost: 10,
     statOverrides: { damage: 62, spread: 125, ammoExtra: 6 },
   },
@@ -3447,7 +3447,7 @@ const AMMO_TYPES = {
     effect: "pennyshot",
     image: "images/ui/ammo_effect_icons/pennyshot_shelltight.png",
     icon: "🪙",
-    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고피해, 원거리 부정확.",
     cost: 10,
     // ⚠ 예비탄 6: Update 2.8.1 패치노트 기준 최신값(위키 페이지는 구버전 9로 표기돼 있어 패치노트로 보정)
     statOverrides: { damage: 62, spread: 125, ammoExtra: 6 },
@@ -3500,7 +3500,7 @@ const AMMO_TYPES = {
     effect: "pennyshot",
     image: "images/ui/ammo_effect_icons/pennyshot_shelltight.png",
     icon: "🪙",
-    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고피해, 원거리 부정확.",
     cost: 5,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 192, spread: 75, ammoExtra: 4 },
@@ -3540,7 +3540,7 @@ const AMMO_TYPES = {
     effect: "pennyshot",
     image: "images/ui/ammo_effect_icons/pennyshot_shelltight.png",
     icon: "🪙",
-    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고피해, 원거리 부정확.",
     cost: 5,
     statOverrides: { damage: 192, spread: 75, ammoExtra: 20 },
   },
@@ -3554,7 +3554,7 @@ const AMMO_TYPES = {
     effect: "pennyshot",
     image: "images/ui/ammo_effect_icons/pennyshot_shelltight.png",
     icon: "🪙",
-    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고피해, 원거리 부정확.",
     cost: 5,
     statOverrides: { damage: 188, spread: 75, ammoExtra: 18 },
   },
@@ -3615,7 +3615,7 @@ const AMMO_TYPES = {
     effect: "pennyshot",
     image: "images/ui/ammo_effect_icons/pennyshot_shelltight.png",
     icon: "🪙",
-    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고피해, 원거리 부정확.",
     cost: 5,
     statOverrides: { damage: 97, spread: 100, ammoExtra: 6 },
   },
@@ -3664,7 +3664,7 @@ const AMMO_TYPES = {
     effect: "pennyshot",
     image: "images/ui/ammo_effect_icons/pennyshot_shelltight.png",
     icon: "🪙",
-    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고피해, 원거리 부정확.",
     cost: 10,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 182, spread: 80, ammoExtra: 18 },
@@ -3730,7 +3730,7 @@ const AMMO_TYPES = {
     effect: "pennyshot",
     image: "images/ui/ammo_effect_icons/pennyshot_shelltight.png",
     icon: "🪙",
-    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고피해, 원거리 부정확.",
     cost: 10,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 193, spread: 75, ammoExtra: 18 },
@@ -3781,7 +3781,7 @@ const AMMO_TYPES = {
     effect: "pennyshot",
     image: "images/ui/ammo_effect_icons/pennyshot_shelltight.png",
     icon: "🪙",
-    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고피해, 원거리 부정확.",
     cost: 10,
     statOverrides: { damage: 155, spread: 95, ammoExtra: 18 },
   },
@@ -3842,7 +3842,7 @@ const AMMO_TYPES = {
     effect: "pennyshot",
     image: "images/ui/ammo_effect_icons/pennyshot_shelltight.png",
     icon: "🪙",
-    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고피해, 원거리 부정확.",
     cost: 10,
     statOverrides: { damage: 81, spread: 120, ammoExtra: 6 },
   },
@@ -3905,7 +3905,7 @@ const AMMO_TYPES = {
     effect: "pennyshot",
     image: "images/ui/ammo_effect_icons/pennyshot_shelltight.png",
     icon: "🪙",
-    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고피해, 원거리 부정확.",
     cost: 10,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 183, spread: 80, ammoExtra: 18 },
@@ -3968,7 +3968,7 @@ const AMMO_TYPES = {
     effect: "pennyshot",
     image: "images/ui/ammo_effect_icons/pennyshot_shelltight.png",
     icon: "🪙",
-    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고피해, 원거리 부정확.",
     cost: 10,
     statOverrides: { damage: 75, spread: 115, ammoExtra: 6 },
   },
@@ -4008,7 +4008,7 @@ const AMMO_TYPES = {
     effect: "pennyshot",
     image: "images/ui/ammo_effect_icons/pennyshot_shelltight.png",
     icon: "🪙",
-    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고데미지, 원거리 부정확.",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고피해, 원거리 부정확.",
     cost: 5,
     // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
     statOverrides: { damage: 190, spread: 75, ammoExtra: 8 },
@@ -4530,7 +4530,7 @@ const AMMO_TYPES = {
     effect: "explosive",
     image: "images/ui/ammo_effects/ammo_nitro_explosive.png",
     icon: "💥",
-    description: "폭발탄 - 광범위 폭발 데미지. 상점 구매 불가(월드 획득 전용).",
+    description: "폭발탄 - 광범위 폭발 피해. 상점 구매 불가(월드 획득 전용).",
     cost: null,
     scarce: true,
     statOverrides: { damage: 163, dropRange: 20, muzzleVelocity: 410 },
@@ -4567,7 +4567,7 @@ const AMMO_TYPES = {
     effect: "explosive",
     image: "images/ui/ammo_effects/ammo_crossbow_explosive_bolt.png",
     icon: "💥",
-    description: "폭발 볼트 - 광범위 폭발 데미지. 상점 구매 불가(월드 획득 전용).",
+    description: "폭발 볼트 - 광범위 폭발 피해. 상점 구매 불가(월드 획득 전용).",
     cost: null,
     scarce: true,
     statOverrides: { damage: 220, dropRange: 10, spread: 37.5, muzzleVelocity: 60, ammoExtra: 8 },
@@ -4663,7 +4663,7 @@ const AMMO_TYPES = {
     effect: "bleed",
     image: "images/ui/ammo_effects/ammo_bomb_lance_waterproof_explosive.png",
     icon: "🩸",
-    description: "왁스 파편탄 - 착탄+폭발 데미지, 강한 출혈. (표기 데미지는 착탄25+최대폭발126의 합산치)",
+    description: "왁스 파편탄 - 착탄+폭발 피해, 강한 출혈. (표기 피해는 착탄25+최대폭발126의 합산치)",
     cost: 50,
     statOverrides: { damage: 174, ammoExtra: 8 },
     specialEffects: ["강한 출혈 효과 발생"],
