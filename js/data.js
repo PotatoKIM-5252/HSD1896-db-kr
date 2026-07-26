@@ -3982,6 +3982,8 @@ const AMMO_TYPES = {
     description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
     cost: 130,
     statOverrides: { damage: 157, spread: 125, ammoExtra: 3 },
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
+    ohkRange: { guaranteed: 11 },
   },
 
 
