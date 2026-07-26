@@ -1068,7 +1068,7 @@ function openBodyPartView(parentItem, ammoId) {
           ${statRowSimple("총구속도", stats.muzzleVelocity, "muzzleVelocity")}
           ${statRowSimple("약공격 피해", stats.meleeLight, "meleeLight")}
           ${statRowSimple("강공격 피해", stats.meleeHeavy, "meleeHeavy")}
-          ${statRowSimple("기력 소모(약공격)", stats.staminaConsumption, "staminaConsumption")}
+          ${statRowSimple("기력 소모(강공격)", stats.staminaConsumption, "staminaConsumption")}
         </div>
       </div>
 
@@ -1179,7 +1179,7 @@ function renderMeleeBodyPartView(item, overlay, content) {
         <div class="detail-stats bp-stats-inline">
           ${statRowSimple("약공격 피해", stats.meleeLight, "meleeLight")}
           ${statRowSimple("강공격 피해", stats.meleeHeavy, "meleeHeavy")}
-          ${statRowSimple("기력 소모(약공격)", stats.staminaConsumption, "staminaConsumption")}
+          ${statRowSimple("기력 소모(강공격)", stats.staminaConsumption, "staminaConsumption")}
         </div>
       </div>
 
@@ -1560,7 +1560,7 @@ function renderMeleeDetailHTML(item) {
     <div class="bp-stats-inline">
       ${statRowSimple("약공격 피해", stats.meleeLight, "meleeLight")}
       ${statRowSimple("강공격 피해", stats.meleeHeavy, "meleeHeavy")}
-      ${statRowSimple("기력 소모(약공격)", stats.staminaConsumption, "staminaConsumption")}
+      ${statRowSimple("기력 소모(강공격)", stats.staminaConsumption, "staminaConsumption")}
     </div>
 
     <div class="detail-action-row">
@@ -3136,8 +3136,7 @@ const STAT_DEFS = [
   { key: "muzzleVelocity", label: "총구속도" },
   { key: "meleeLight", label: "약공격 피해" },
   { key: "meleeHeavy", label: "강공격 피해" },
-  { key: "staminaConsumption", label: "기력 소모(약공격)" },
-  { key: "staminaConsumptionHeavy", label: "기력 소모(강공격)" },
+  { key: "staminaConsumption", label: "기력 소모(강공격)" },
 ];
 
 function renderCompareStatsSection() {
