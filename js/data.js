@@ -3475,8 +3475,8 @@ const AMMO_TYPES = {
     description: "Shells - 기본 샷건탄(벅샷).",
     cost: 0,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
-    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
-    ohkRange: { guaranteed: 12, unstableEnd: 13, noneFrom: 14 },
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 재실측 — 불안정 구간 없이 바로 불가로 전환
+    ohkRange: { guaranteed: 14 },
     statOverrides: {  },
   },
 
@@ -3516,8 +3516,8 @@ const AMMO_TYPES = {
     cost: 65,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 179, spread: 65, ammoExtra: 4 },
-    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 재실측)
-    ohkRange: { guaranteed: 14 },
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
+    ohkRange: { guaranteed: 15 },
   },
 
   romero77_starshell: {
@@ -4066,8 +4066,8 @@ const AMMO_TYPES = {
     cost: 65,
     // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
     statOverrides: { damage: 157, spread: 115, ammoExtra: 2 },
-    // 사용자 재실측: 10m 확정, 11m까지 불안정, 12m부터 불가
-    ohkRange: { guaranteed: 10, unstableEnd: 11, noneFrom: 12 },
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
+    ohkRange: { guaranteed: 10 },
   },
 
   // 르맷 카빈 전용 — 르맷(권총)과 총열 길이가 달라 슬러그 한방컷 보장거리가 다름(사용자 실측),
@@ -4081,8 +4081,21 @@ const AMMO_TYPES = {
     description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
     cost: 65,
     statOverrides: { damage: 157, spread: 115, ammoExtra: 2 },
-    // 사용자 재실측: 11m 확정, 12m까지 불안정, 13m부터 불가
+    ohkRange: { guaranteed: 13 },
+  },
+
+  // 르맷 카빈 전용 — 르맷(권총)과 총열 길이가 달라 기본 샷건쉘 한방컷도 다름(사용자 실측),
+  // 그 외 스탯은 르맷과 동일한 하부 총열 탄약이라 lemat_shells와 완전히 동일하게 둠
+  lemat_carbine_shells: {
+    label: "Shells",
+    category: "shotgun",
+    image: "images/ui/ammo_effects/ammo_shotgun_shells_shelltight_scaled.png",
+    icon: "🔫",
+    description: "Shells - 하부 총열 기본 샷건탄(벅샷).",
+    cost: 0,
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
     ohkRange: { guaranteed: 11, unstableEnd: 12, noneFrom: 13 },
+    statOverrides: {  },
   },
 
   lemat_starshell: {
@@ -4121,8 +4134,8 @@ const AMMO_TYPES = {
     cost: 65,
     // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
     statOverrides: { damage: 159, spread: 115, ammoExtra: 2 },
-    // 사용자 재실측: 10m 확정, 11m까지 불안정, 12m부터 불가
-    ohkRange: { guaranteed: 10, unstableEnd: 11, noneFrom: 12 },
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
+    ohkRange: { guaranteed: 10 },
   },
 
   haymaker_starshell: {
@@ -4148,8 +4161,8 @@ const AMMO_TYPES = {
     description: "Shells - 하부 총열 기본 샷건탄(벅샷).",
     cost: 0,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
-    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
-    ohkRange: { guaranteed: 9, unstableEnd: 11, noneFrom: 12 },
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 재실측 데이터
+    ohkRange: { guaranteed: 10, unstableEnd: 11, noneFrom: 12 },
     statOverrides: {  },
   },
 
@@ -4161,8 +4174,8 @@ const AMMO_TYPES = {
     description: "Shells - 하부 총열 기본 샷건탄(벅샷).",
     cost: 0,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
-    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
-    ohkRange: { guaranteed: 9, unstableEnd: 11, noneFrom: 12 },
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 재실측 데이터
+    ohkRange: { guaranteed: 10, unstableEnd: 11, noneFrom: 12 },
     statOverrides: {  },
   },
 
@@ -5546,7 +5559,7 @@ const ITEMS = [
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
         slotSize: 3,
-        ammoTypes: ["lemat_carbine_compact", "lemat_fmj", "lemat_incendiary", "lemat_shells", "lemat_dragonbreath", "lemat_carbine_slug", "lemat_starshell"],
+        ammoTypes: ["lemat_carbine_compact", "lemat_fmj", "lemat_incendiary", "lemat_carbine_shells", "lemat_dragonbreath", "lemat_carbine_slug", "lemat_starshell"],
         defaultAmmo: "lemat_carbine_compact",
         price: 115,
         stats: {
@@ -5568,7 +5581,7 @@ const ITEMS = [
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
         slotSize: 3,
-        ammoTypes: ["lemat_carbine_compact", "lemat_fmj", "lemat_incendiary", "lemat_shells", "lemat_dragonbreath", "lemat_carbine_slug", "lemat_starshell"],
+        ammoTypes: ["lemat_carbine_compact", "lemat_fmj", "lemat_incendiary", "lemat_carbine_shells", "lemat_dragonbreath", "lemat_carbine_slug", "lemat_starshell"],
         defaultAmmo: "lemat_carbine_compact",
         price: 127,
         stats: {
