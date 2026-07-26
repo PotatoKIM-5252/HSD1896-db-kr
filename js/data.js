@@ -3516,8 +3516,8 @@ const AMMO_TYPES = {
     cost: 65,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 179, spread: 65, ammoExtra: 4 },
-    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
-    ohkRange: { guaranteed: 15 },
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 재실측)
+    ohkRange: { guaranteed: 14 },
   },
 
   romero77_starshell: {
@@ -4066,8 +4066,8 @@ const AMMO_TYPES = {
     cost: 65,
     // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
     statOverrides: { damage: 157, spread: 115, ammoExtra: 2 },
-    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
-    ohkRange: { guaranteed: 10 },
+    // 사용자 재실측: 10m 확정, 11m까지 불안정, 12m부터 불가
+    ohkRange: { guaranteed: 10, unstableEnd: 11, noneFrom: 12 },
   },
 
   // 르맷 카빈 전용 — 르맷(권총)과 총열 길이가 달라 슬러그 한방컷 보장거리가 다름(사용자 실측),
@@ -4081,7 +4081,8 @@ const AMMO_TYPES = {
     description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
     cost: 65,
     statOverrides: { damage: 157, spread: 115, ammoExtra: 2 },
-    ohkRange: { guaranteed: 13 },
+    // 사용자 재실측: 11m 확정, 12m까지 불안정, 13m부터 불가
+    ohkRange: { guaranteed: 11, unstableEnd: 12, noneFrom: 13 },
   },
 
   lemat_starshell: {
@@ -4120,8 +4121,8 @@ const AMMO_TYPES = {
     cost: 65,
     // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
     statOverrides: { damage: 159, spread: 115, ammoExtra: 2 },
-    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
-    ohkRange: { guaranteed: 10 },
+    // 사용자 재실측: 10m 확정, 11m까지 불안정, 12m부터 불가
+    ohkRange: { guaranteed: 10, unstableEnd: 11, noneFrom: 12 },
   },
 
   haymaker_starshell: {
