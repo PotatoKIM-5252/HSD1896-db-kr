@@ -3400,6 +3400,8 @@ const AMMO_TYPES = {
     description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
     cost: 130,
     statOverrides: { damage: 157, spread: 150, ammoExtra: 3 },
+    // 근접무기(메이스) 부착 파생형이라 총열은 본체와 동일 — 본체(Rival 78)와 같은 한방컷 거리 적용(사용자 확인)
+    ohkRange: { guaranteed: 13 },
   },
 
   // ⚠ Rival 78 Shorty 전용 탄약 (위키 실측치 기준. 가격/예비탄은 Update 2.8.1로 위키 페이지가 아직 안 바뀐 부분을 패치노트로 보정: 가격 125→145, 기본탄 예비 6→4)
@@ -3566,6 +3568,8 @@ const AMMO_TYPES = {
     description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
     cost: 65,
     statOverrides: { damage: 179, spread: 65, ammoExtra: 8 },
+    // 근접무기(알라모) 부착 파생형이라 총열은 본체와 동일 — 본체(Romero 77)와 같은 한방컷 거리 적용(사용자 확인)
+    ohkRange: { guaranteed: 15 },
   },
 
   romero77alamo_starshell: {
@@ -3791,6 +3795,8 @@ const AMMO_TYPES = {
     description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
     cost: 130,
     statOverrides: { damage: 165, spread: 90, ammoExtra: 8 },
+    // 근접무기(총검) 부착 파생형이라 총열은 본체와 동일 — 본체(Specter 1882)와 같은 한방컷 거리 적용(사용자 확인)
+    ohkRange: { guaranteed: 14 },
   },
 
   // ⚠ Specter 1882 Shorty 전용 탄약 (위키 실측치 기준)
