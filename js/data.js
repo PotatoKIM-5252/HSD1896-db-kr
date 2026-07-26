@@ -3566,7 +3566,7 @@ const AMMO_TYPES = {
     image: "images/ui/ammo_effect_icons/slug_shelltight.png",
     icon: "●",
     description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
-    cost: 65,
+    cost: 130,
     statOverrides: { damage: 179, spread: 65, ammoExtra: 8 },
     // 근접무기(알라모) 부착 파생형이라 총열은 본체와 동일 — 본체(Romero 77)와 같은 한방컷 거리 적용(사용자 확인)
     ohkRange: { guaranteed: 15 },
