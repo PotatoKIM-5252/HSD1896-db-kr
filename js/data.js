@@ -3921,6 +3921,8 @@ const AMMO_TYPES = {
     cost: 130,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 165, spread: 75, ammoExtra: 8 },
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
+    ohkRange: { guaranteed: 13 },
   },
 
   // ⚠ Terminus Shorty 전용 탄약 (위키 실측치 기준)
