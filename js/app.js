@@ -77,6 +77,13 @@ const state = {
   activeMapId: null,
   activeMapLayers: null,  // Set — 최초 진입 시 MAP_LAYERS의 defaultOn 값으로 채움
   activeMapMarker: null,
+
+  // 커뮤니티 로드아웃: Firestore에서 받아온 목록(파싱+가격 계산까지 끝낸 캐시) +
+  // 현재 정렬/가격 필터 상태. 정렬·필터를 바꿀 때는 재조회 없이 이 캐시로만 다시 그림.
+  communityLoadouts: [],
+  communitySort: "",       // "" | "price-asc" | "price-desc"
+  communityPriceMin: null,
+  communityPriceMax: null,
 };
 
 function loadoutKey(c, s) { return `${c}__${s}`; }
@@ -228,6 +235,20 @@ function init() {
   });
 
   document.getElementById("community-save-btn").addEventListener("click", handleCommunitySave);
+  document.getElementById("community-sort-select").addEventListener("change", (e) => {
+    state.communitySort = e.target.value;
+    renderCommunityLoadoutList();
+  });
+  document.getElementById("community-price-min").addEventListener("input", (e) => {
+    const v = e.target.value.trim();
+    state.communityPriceMin = v === "" ? null : Number(v);
+    renderCommunityLoadoutList();
+  });
+  document.getElementById("community-price-max").addEventListener("input", (e) => {
+    const v = e.target.value.trim();
+    state.communityPriceMax = v === "" ? null : Number(v);
+    renderCommunityLoadoutList();
+  });
   renderCommunityLoadouts();
 
   // 무기 스탯(피해/재장전속도 등)에 마우스를 올리면 커서 오른쪽에 설명 표시
@@ -821,7 +842,7 @@ function showHoverPreview(cardEl, item) {
       <div><span>피해</span><b>${s.damage ?? "-"}</b></div>
       <div><span>드롭 사거리</span><b>${s.dropRange ?? "-"}m</b></div>
       <div><span>탄속</span><b>${s.muzzleVelocity ?? "-"}</b></div>
-      <div><span>연사 속도</span><b>${s.rateOfFire ?? "-"}</b></div>
+      <div><span>사이클 시간</span><b>${s.cycleTime ?? "-"}</b></div>
     </div>
   `;
 
@@ -2405,6 +2426,33 @@ function calculateLoadoutTotal() {
   return total;
 }
 
+// calculateLoadoutTotal()과 동일한 계산을, 커뮤니티 로드아웃(직렬화된 {w,f,t} 형식)에도
+// 쓸 수 있도록 state.loadout이 아니라 인자로 받은 객체 기준으로 계산
+function calculateSerializedLoadoutTotal(obj) {
+  let total = 0;
+  if (!obj) return total;
+  Object.values(obj.w || {}).forEach((arr) => {
+    (arr || []).forEach((slot) => {
+      if (!slot || !slot.id) return;
+      const item = findItemById(slot.id);
+      if (item && item.price != null && !item.scarce) total += item.price;
+      if (slot.a) {
+        const ammo = AMMO_TYPES[slot.a];
+        if (ammo && ammo.cost != null && !ammo.scarce) total += ammo.cost;
+      }
+      if (slot.a2) {
+        const ammo2 = AMMO_TYPES[slot.a2];
+        if (ammo2 && ammo2.cost != null && !ammo2.scarce) total += ammo2.cost;
+      }
+    });
+  });
+  (obj.f || []).forEach((id) => {
+    const item = findItemById(id);
+    if (item && item.price != null && !item.scarce) total += item.price;
+  });
+  return total;
+}
+
 // 장비 칸 하나(빈 칸/채워진 칸 공용) — 이미지, 클릭(고르기), ✕(비우기)를 한번에 처리
 // weaponSize: "sm"(1~2칸 무기) | "lg"(3칸 이상 무기) — wide 칸에서만 사용, 미지정 시 기본(3칸) 크기
 // ammoHalf: 이중탄약 무기의 탄약칸 2개를 각각 절반 크기로 줄여서 나란히 붙일 때 true
@@ -3140,6 +3188,22 @@ async function handleCommunitySave() {
   }
 }
 
+// 이 브라우저에서 이미 좋아요 누른 로드아웃 id 목록 — 로그인이 없는 익명 구조라
+// 완벽한 중복 방지는 아니지만, 같은 사람이 같은 브라우저에서 실수로 여러 번
+// 누르는 것 정도는 막아준다.
+function getLikedLoadoutIds() {
+  try {
+    return new Set(JSON.parse(localStorage.getItem("likedCommunityLoadouts") || "[]"));
+  } catch {
+    return new Set();
+  }
+}
+function markLoadoutLiked(id) {
+  const liked = getLikedLoadoutIds();
+  liked.add(id);
+  localStorage.setItem("likedCommunityLoadouts", JSON.stringify([...liked]));
+}
+
 async function renderCommunityLoadouts() {
   const listEl = document.getElementById("community-loadout-list");
   if (!window.LoadoutCloud) {
@@ -3148,44 +3212,106 @@ async function renderCommunityLoadouts() {
   }
   listEl.textContent = "불러오는 중...";
   try {
-    const loadouts = await window.LoadoutCloud.listLoadouts();
-    listEl.innerHTML = "";
-    if (loadouts.length === 0) {
-      listEl.textContent = "아직 올라온 로드아웃이 없습니다.";
-      return;
-    }
-    loadouts.forEach((entry) => {
-      const row = document.createElement("div");
-      row.className = "community-loadout-row";
-
-      // 이름은 반드시 textContent로만 그린다 — innerHTML에 남이 올린 텍스트를 절대 넣지 않음(XSS 방지)
-      const nameSpan = document.createElement("span");
-      nameSpan.className = "community-loadout-name";
-      nameSpan.textContent = entry.name || "(이름 없음)";
-
-      const loadBtn = document.createElement("button");
-      loadBtn.type = "button";
-      loadBtn.className = "community-loadout-load-btn";
-      loadBtn.textContent = "불러오기";
-      loadBtn.addEventListener("click", () => {
-        let parsed;
-        try {
-          parsed = JSON.parse(entry.data);
-        } catch {
-          showToast("이 로드아웃 데이터를 읽을 수 없습니다.");
-          return;
-        }
-        applySerializedLoadout(parsed);
-        showToast("로드아웃을 불러왔습니다.");
-      });
-
-      row.appendChild(nameSpan);
-      row.appendChild(loadBtn);
-      listEl.appendChild(row);
+    const raw = await window.LoadoutCloud.listLoadouts();
+    state.communityLoadouts = raw.map((entry) => {
+      let parsed = null;
+      try { parsed = JSON.parse(entry.data); } catch { /* 아래에서 무효 처리 */ }
+      return {
+        ...entry,
+        parsed,
+        totalCost: parsed ? calculateSerializedLoadoutTotal(parsed) : null,
+      };
     });
+    renderCommunityLoadoutList();
   } catch (err) {
     listEl.textContent = "목록을 불러오지 못했습니다.";
   }
+}
+
+// 정렬/가격 필터 컨트롤이 바뀔 때마다 재조회 없이 캐시(state.communityLoadouts)로만 다시 그림
+function renderCommunityLoadoutList() {
+  const listEl = document.getElementById("community-loadout-list");
+  let entries = state.communityLoadouts.filter((e) => e.parsed != null);
+
+  if (state.communityPriceMin != null) {
+    entries = entries.filter((e) => e.totalCost >= state.communityPriceMin);
+  }
+  if (state.communityPriceMax != null) {
+    entries = entries.filter((e) => e.totalCost <= state.communityPriceMax);
+  }
+  if (state.communitySort === "price-asc") {
+    entries = [...entries].sort((a, b) => a.totalCost - b.totalCost);
+  } else if (state.communitySort === "price-desc") {
+    entries = [...entries].sort((a, b) => b.totalCost - a.totalCost);
+  }
+
+  listEl.innerHTML = "";
+  if (entries.length === 0) {
+    listEl.textContent = state.communityLoadouts.length === 0
+      ? "아직 올라온 로드아웃이 없습니다."
+      : "조건에 맞는 로드아웃이 없습니다.";
+    return;
+  }
+
+  const likedIds = getLikedLoadoutIds();
+  entries.forEach((entry) => {
+    const row = document.createElement("div");
+    row.className = "community-loadout-row";
+
+    const info = document.createElement("div");
+    info.className = "community-loadout-info";
+
+    // 이름은 반드시 textContent로만 그린다 — innerHTML에 남이 올린 텍스트를 절대 넣지 않음(XSS 방지)
+    const nameSpan = document.createElement("span");
+    nameSpan.className = "community-loadout-name";
+    nameSpan.textContent = entry.name || "(이름 없음)";
+
+    const priceSpan = document.createElement("span");
+    priceSpan.className = "community-loadout-price";
+    priceSpan.innerHTML = `<img src="images/ui/hunt_dollars.png" alt="$" class="dollar-icon">${entry.totalCost}`;
+
+    info.appendChild(nameSpan);
+    info.appendChild(priceSpan);
+
+    const actions = document.createElement("div");
+    actions.className = "community-loadout-actions";
+
+    const likeBtn = document.createElement("button");
+    likeBtn.type = "button";
+    const alreadyLiked = likedIds.has(entry.id);
+    likeBtn.className = `community-loadout-like-btn${alreadyLiked ? " liked" : ""}`;
+    likeBtn.textContent = `♥ ${entry.likes ?? 0}`;
+    likeBtn.disabled = alreadyLiked;
+    likeBtn.addEventListener("click", async () => {
+      if (!window.LoadoutCloud) return;
+      likeBtn.disabled = true;
+      try {
+        await window.LoadoutCloud.likeLoadout(entry.id);
+        entry.likes = (entry.likes ?? 0) + 1;
+        markLoadoutLiked(entry.id);
+        likeBtn.textContent = `♥ ${entry.likes}`;
+        likeBtn.classList.add("liked");
+      } catch {
+        likeBtn.disabled = false;
+        showToast("좋아요 반영에 실패했습니다.");
+      }
+    });
+
+    const loadBtn = document.createElement("button");
+    loadBtn.type = "button";
+    loadBtn.className = "community-loadout-load-btn";
+    loadBtn.textContent = "불러오기";
+    loadBtn.addEventListener("click", () => {
+      applySerializedLoadout(entry.parsed);
+      showToast("로드아웃을 불러왔습니다.");
+    });
+
+    actions.appendChild(likeBtn);
+    actions.appendChild(loadBtn);
+    row.appendChild(info);
+    row.appendChild(actions);
+    listEl.appendChild(row);
+  });
 }
 
 // -------------------------------------------------------------------------

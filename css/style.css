@@ -1410,6 +1410,34 @@ button { font-family: var(--font-body); cursor: pointer; }
 .community-save-msg { margin: 10px 0 0; font-size: 12px; color: var(--success); }
 .community-save-msg.error { color: var(--danger-strong); }
 
+#community-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+#community-sort-select {
+  background: var(--bg-input);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+#community-price-min, #community-price-max {
+  width: 100px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  color: var(--text-primary);
+  font-size: 12px;
+}
+
+.community-filter-tilde { color: var(--text-muted); }
+
 #community-loadout-list {
   margin-top: 16px;
   display: flex;
@@ -1430,6 +1458,13 @@ button { font-family: var(--font-body); cursor: pointer; }
   padding: 10px 14px;
 }
 
+.community-loadout-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
 .community-loadout-name {
   color: var(--text-primary);
   font-size: 13px;
@@ -1437,6 +1472,33 @@ button { font-family: var(--font-body); cursor: pointer; }
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.community-loadout-price {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.community-loadout-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+.community-loadout-like-btn {
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.community-loadout-like-btn:hover { color: var(--danger-strong); border-color: var(--danger-strong); }
+.community-loadout-like-btn.liked { color: var(--danger-strong); border-color: var(--danger-strong); }
+.community-loadout-like-btn:disabled { cursor: default; }
 
 .community-loadout-load-btn {
   background: transparent;

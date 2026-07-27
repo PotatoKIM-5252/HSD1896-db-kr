@@ -95,6 +95,16 @@
           <button id="community-save-btn" type="button">현재 로드아웃 올리기</button>
         </div>
         <p id="community-save-msg" class="community-save-msg" hidden></p>
+        <div id="community-filter-row">
+          <select id="community-sort-select">
+            <option value="">정렬: 최신순</option>
+            <option value="price-asc">가격 낮은순</option>
+            <option value="price-desc">가격 높은순</option>
+          </select>
+          <input type="number" id="community-price-min" placeholder="최소 가격" min="0">
+          <span class="community-filter-tilde">~</span>
+          <input type="number" id="community-price-max" placeholder="최대 가격" min="0">
+        </div>
         <div id="community-loadout-list"></div>
       </div>
     </section>

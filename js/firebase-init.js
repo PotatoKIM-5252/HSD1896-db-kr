@@ -13,6 +13,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getFirestore, collection, addDoc, getDocs, query, orderBy, limit, serverTimestamp,
+  doc, updateDoc, increment,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -41,6 +42,7 @@ async function saveLoadout(name, dataStr) {
     name: trimmedName,
     data: dataStr,
     createdAt: serverTimestamp(),
+    likes: 0,
   });
 }
 
@@ -50,4 +52,10 @@ async function listLoadouts() {
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
-window.LoadoutCloud = { saveLoadout, listLoadouts };
+// 좋아요는 매번 +1씩만 원자적으로 증가 — 보안 규칙에서 likes 필드 외에는
+// 아무것도 못 바꾸게, 그리고 정확히 +1만 되게 강제함
+async function likeLoadout(id) {
+  await updateDoc(doc(db, LOADOUTS_COLLECTION, id), { likes: increment(1) });
+}
+
+window.LoadoutCloud = { saveLoadout, listLoadouts, likeLoadout };
