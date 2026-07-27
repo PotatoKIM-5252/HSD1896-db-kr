@@ -9089,6 +9089,7 @@ const ITEMS = [
         description: "",
         price: 730,
         slotSize: 3,
+        noAkimbo: true, // 개머리판 부착형이라 아킴보 불가
         stats: {
           cycleTime: 0.3,
           spread: 30,
