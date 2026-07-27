@@ -2947,9 +2947,9 @@ function renderFieldEquipmentSection() {
       onDragOver: () => {},
       onDragEnd: () => { dragSourceIdx = null; },
       onDrop: () => {
+        // 다른 칸들은 그대로 두고, 옮기는 칸과 놓인 칸 딱 2개만 자리를 맞바꿈(밀어내기 아님)
         if (dragSourceIdx === null || dragSourceIdx === dIdx) return;
-        const [moved] = displayList.splice(dragSourceIdx, 1);
-        displayList.splice(dIdx, 0, moved);
+        [displayList[dragSourceIdx], displayList[dIdx]] = [displayList[dIdx], displayList[dragSourceIdx]];
         rebuildFieldArrayFromDisplayList(displayList);
         renderLoadoutBoard();
       },
