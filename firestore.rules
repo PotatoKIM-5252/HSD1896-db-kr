@@ -1,0 +1,25 @@
+rules_version = '2';
+
+// 커뮤니티 로드아웃(sharedLoadouts) 보안 규칙
+// - 누구나 읽을 수 있음(공개 갤러리)
+// - 새 글 작성(create)만 허용, 수정/삭제는 클라이언트에서 절대 불가(불변 게시물)
+// - 필드 타입/글자 수 제한으로 도배·용량 공격 방지
+// 이 파일은 문서 보관용이며, 실제 반영은 Firebase 콘솔 > Firestore Database >
+// 규칙(Rules) 탭에 이 내용을 붙여넣고 "게시"를 눌러야 적용됩니다.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /sharedLoadouts/{loadoutId} {
+      allow read: if true;
+
+      allow create: if request.resource.data.keys().hasOnly(['name', 'data', 'createdAt'])
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() > 0
+                    && request.resource.data.name.size() <= 30
+                    && request.resource.data.data is string
+                    && request.resource.data.data.size() <= 4000
+                    && request.resource.data.createdAt == request.time;
+
+      allow update, delete: if false;
+    }
+  }
+}

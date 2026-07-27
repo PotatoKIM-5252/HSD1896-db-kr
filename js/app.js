@@ -227,6 +227,9 @@ function init() {
     document.getElementById("map-info-panel").hidden = true;
   });
 
+  document.getElementById("community-save-btn").addEventListener("click", handleCommunitySave);
+  renderCommunityLoadouts();
+
   // 무기 스탯(피해/재장전속도 등)에 마우스를 올리면 커서 오른쪽에 설명 표시
   // (동적으로 다시 그려지는 요소라 document에 이벤트 위임)
   const statTooltip = document.getElementById("stat-tooltip");
@@ -3060,6 +3063,130 @@ function renderLoadoutBoard() {
 }
 
 function clearLoadout() { initLoadoutState(); renderLoadoutBoard(); }
+
+// -------------------------------------------------------------------------
+// 커뮤니티 로드아웃 — 현재 로드아웃을 Firestore에 저장/공유, 남이 올린 것도 불러오기
+//
+// 무기 슬롯은 item 전체 객체 대신 id만 저장하고, 불러올 때 findItemById로
+// 다시 찾는다. 존재하지 않는 id(삭제/변경된 아이템)는 조용히 무시(방어적 검증) —
+// 남이 올린 데이터를 그대로 신뢰하지 않는다.
+// -------------------------------------------------------------------------
+function serializeCurrentLoadout() {
+  const out = { w: {}, f: [], t: [] };
+  CATEGORIES.weapon.loadoutSlots.forEach((slotDef) => {
+    const key = loadoutKey("weapon", slotDef.slotKey);
+    out.w[slotDef.slotKey] = (state.loadout[key] || []).map((slot) => {
+      if (!slot || !slot.item) return null;
+      return { id: slot.item.id, a: slot.ammoId ?? null, a2: slot.ammoId2 ?? null };
+    });
+  });
+  out.f = (state.loadout["field__all"] || []).slice();
+  out.t = (state.loadout[loadoutKey("trait", "trait")] || []).slice();
+  return out;
+}
+
+function applySerializedLoadout(obj) {
+  if (!obj || typeof obj !== "object") return false;
+  initLoadoutState();
+  CATEGORIES.weapon.loadoutSlots.forEach((slotDef) => {
+    const key = loadoutKey("weapon", slotDef.slotKey);
+    const arr = (obj.w && obj.w[slotDef.slotKey]) || [];
+    const rebuilt = arr.map((slot) => {
+      if (!slot || !slot.id) return null;
+      const item = findItemById(slot.id);
+      if (!item) return null;
+      return {
+        item,
+        ammoId: (slot.a != null && AMMO_TYPES[slot.a]) ? slot.a : null,
+        ammoId2: (slot.a2 != null && AMMO_TYPES[slot.a2]) ? slot.a2 : null,
+      };
+    });
+    while (rebuilt.length < slotDef.max) rebuilt.push(null);
+    state.loadout[key] = rebuilt.slice(0, slotDef.max);
+  });
+  state.loadout["field__all"] = (Array.isArray(obj.f) ? obj.f : [])
+    .filter((id) => findItemById(id)).slice(0, 8);
+  state.loadout[loadoutKey("trait", "trait")] = (Array.isArray(obj.t) ? obj.t : [])
+    .filter((id) => findItemById(id)).slice(0, TRAIT_MAX_COUNT);
+  renderLoadoutBoard();
+  return true;
+}
+
+function showCommunitySaveMsg(text, isError) {
+  const msg = document.getElementById("community-save-msg");
+  msg.textContent = text;
+  msg.hidden = false;
+  msg.classList.toggle("error", !!isError);
+}
+
+async function handleCommunitySave() {
+  const input = document.getElementById("community-name-input");
+  const btn = document.getElementById("community-save-btn");
+  if (!window.LoadoutCloud) {
+    showCommunitySaveMsg("커뮤니티 기능을 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.", true);
+    return;
+  }
+  btn.disabled = true;
+  try {
+    const dataStr = JSON.stringify(serializeCurrentLoadout());
+    await window.LoadoutCloud.saveLoadout(input.value, dataStr);
+    input.value = "";
+    showCommunitySaveMsg("업로드 완료!", false);
+    renderCommunityLoadouts();
+  } catch (err) {
+    showCommunitySaveMsg(err.message || "업로드에 실패했습니다.", true);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function renderCommunityLoadouts() {
+  const listEl = document.getElementById("community-loadout-list");
+  if (!window.LoadoutCloud) {
+    listEl.textContent = "커뮤니티 기능을 불러오는 중입니다...";
+    return;
+  }
+  listEl.textContent = "불러오는 중...";
+  try {
+    const loadouts = await window.LoadoutCloud.listLoadouts();
+    listEl.innerHTML = "";
+    if (loadouts.length === 0) {
+      listEl.textContent = "아직 올라온 로드아웃이 없습니다.";
+      return;
+    }
+    loadouts.forEach((entry) => {
+      const row = document.createElement("div");
+      row.className = "community-loadout-row";
+
+      // 이름은 반드시 textContent로만 그린다 — innerHTML에 남이 올린 텍스트를 절대 넣지 않음(XSS 방지)
+      const nameSpan = document.createElement("span");
+      nameSpan.className = "community-loadout-name";
+      nameSpan.textContent = entry.name || "(이름 없음)";
+
+      const loadBtn = document.createElement("button");
+      loadBtn.type = "button";
+      loadBtn.className = "community-loadout-load-btn";
+      loadBtn.textContent = "불러오기";
+      loadBtn.addEventListener("click", () => {
+        let parsed;
+        try {
+          parsed = JSON.parse(entry.data);
+        } catch {
+          showToast("이 로드아웃 데이터를 읽을 수 없습니다.");
+          return;
+        }
+        applySerializedLoadout(parsed);
+        showToast("로드아웃을 불러왔습니다.");
+      });
+
+      row.appendChild(nameSpan);
+      row.appendChild(loadBtn);
+      listEl.appendChild(row);
+    });
+  } catch (err) {
+    listEl.textContent = "목록을 불러오지 못했습니다.";
+  }
+}
 
 // -------------------------------------------------------------------------
 // 분석 탭 — 무기+탄약 조합 비교

@@ -1365,6 +1365,92 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 #goto-analysis-btn:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
 
+/* ===================== 커뮤니티 로드아웃 ===================== */
+
+#community-loadouts {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+
+#community-loadouts h3 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin: 0 0 12px;
+}
+
+#community-save-row { display: flex; gap: 10px; }
+
+#community-name-input {
+  flex: 1;
+  background: var(--bg-input);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+#community-save-btn {
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 18px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-text);
+  white-space: nowrap;
+}
+
+#community-save-btn:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+#community-save-btn:disabled { opacity: 0.6; cursor: default; }
+
+.community-save-msg { margin: 10px 0 0; font-size: 12px; color: var(--success); }
+.community-save-msg.error { color: var(--danger-strong); }
+
+#community-loadout-list {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.community-loadout-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+}
+
+.community-loadout-name {
+  color: var(--text-primary);
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.community-loadout-load-btn {
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text-secondary);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.community-loadout-load-btn:hover { color: var(--text-primary); border-color: var(--accent-strong); }
+
 /* ===================== 무기 비교 탭 ===================== */
 
 #compare-header {

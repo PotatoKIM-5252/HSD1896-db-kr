@@ -86,6 +86,17 @@
         <button id="clear-loadout-btn" type="button">로드아웃 초기화</button>
         <button id="goto-analysis-btn" type="button">무기 비교 탭으로 이동</button>
       </div>
+
+      <!-- 커뮤니티 로드아웃: 지금 로드아웃을 이름 붙여 공개로 올리고, 남이 올린 것도 불러올 수 있음 -->
+      <div id="community-loadouts">
+        <h3>커뮤니티 로드아웃</h3>
+        <div id="community-save-row">
+          <input type="text" id="community-name-input" placeholder="로드아웃 이름 (최대 30자)" maxlength="30">
+          <button id="community-save-btn" type="button">현재 로드아웃 올리기</button>
+        </div>
+        <p id="community-save-msg" class="community-save-msg" hidden></p>
+        <div id="community-loadout-list"></div>
+      </div>
     </section>
 
     <!-- ===================== 3. 무기 비교 탭 ===================== -->
@@ -164,6 +175,8 @@
 
   <script src="js/data.js"></script>
   <script src="js/maps-data.js"></script>
+  <!-- 커뮤니티 로드아웃 저장/불러오기용 Firebase(Firestore) 연동 -->
+  <script type="module" src="js/firebase-init.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
