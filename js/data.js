@@ -9041,7 +9041,57 @@ const ITEMS = [
     },
 
     description: "",
-    variants: [],
+    // 위키 실측치 기준 파생형 3종 추가(사용자 확인) — 탄약 델타(Dumdum: 낙하범위/탄속 변화,
+    // 중급 출혈)가 본체와 완전히 동일해서 dolch96_special/dolch96_dumdum 그대로 공유
+    variants: [
+      {
+        id: "dolch96_claw",
+        name: "Dolch 96 Claw",
+        nameKo: "돌치 96 클로",
+        image: "images/weapons/variants/dolch96_claw.png",
+        description: "",
+        price: 700,
+        updateAdded: "Update 1.15",
+        stats: {
+          meleeLight: 52,
+          meleeHeavy: 105,
+          staminaConsumption: 25,
+        },
+      },
+      {
+        id: "dolch96_bullseye",
+        name: "Dolch 96 Bullseye",
+        nameKo: "돌치 96 불스아이",
+        image: "images/weapons/variants/dolch96_bullseye.png",
+        description: "",
+        price: 725,
+        updateAdded: "Update 1.15",
+        stats: {
+          rateOfFire: 40,
+          spread: 50,
+          sway: 106,
+          reloadSpeed: 21.7,
+        },
+      },
+      {
+        id: "dolch96_precision",
+        name: "Dolch 96 Precision",
+        nameKo: "돌치 96 프리시전",
+        image: "images/weapons/variants/dolch96_precision.png",
+        description: "",
+        price: 730,
+        slotSize: 3,
+        stats: {
+          cycleTime: 0.3,
+          spread: 30,
+          sway: 87,
+          verticalRecoil: 12,
+          meleeLight: 27,
+          meleeHeavy: 54,
+          staminaConsumption: 25,
+        },
+      },
+    ],
   },
 
   {
