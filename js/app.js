@@ -3155,7 +3155,9 @@ function shuffleArray(arr) {
   return a;
 }
 
-function equipRandomWeaponSlot(key, item) {
+// 무기 행(주슬롯/보조슬롯) 하나를 장착. dual이면 같은 무기+탄약으로 옆 칸(아킴보 짝)까지 채움.
+function equipRandomWeaponRow(key, row) {
+  const item = row.item;
   const primaryOptions = getPrimaryAmmoOptions(item);
   const ammoId = primaryOptions.length ? pickRandomItem(primaryOptions) : (item.defaultAmmo || null);
   let ammoId2 = null;
@@ -3164,55 +3166,64 @@ function equipRandomWeaponSlot(key, item) {
     ammoId2 = secondaryOptions.length ? pickRandomItem(secondaryOptions) : getDefaultSecondaryAmmo(item);
   }
   state.loadout[key][0] = { item, ammoId, ammoId2 };
+  if (row.dual) state.loadout[key][1] = { item, ammoId, ammoId2 };
 }
 
-// 무기 두 자루를 무작위로 골라 반환(장착은 하지 않음). 칸수 합 WEAPON_SLOT_LIMIT 이하,
-// 샷건 최대 1자루, 5칸/6칸 스위치 조건까지 만족하는 조합이 나올 때까지 재시도.
+const AKIMBO_RANDOM_CHANCE = 0.3; // 아킴보 가능한 권총이 뽑혔을 때 실제로 듀얼로 만들 확률
+
+// 무기 두 자루(행)를 무작위로 골라 반환(장착은 하지 않음). 각 행은 { item, dual } —
+// dual이면 같은 무기를 아킴보(듀얼)로 옆 칸까지 채워 칸수를 2배로 계산.
+// 칸수 합 WEAPON_SLOT_LIMIT 이하, 샷건 최대 1자루, 5칸/6칸 스위치 조건까지 만족할 때까지 재시도.
 // (재시도해도 못 찾으면 null — 스위치를 아주 좁게 걸어둔 극단적인 경우에 대한 안전장치)
 function tryPickRandomWeapons(weaponPool, allowSlot5, allowSlot6) {
   const shuffled = shuffleArray(weaponPool);
-  const chosen = [];
+  const rows = [];
   for (const w of shuffled) {
-    if (chosen.length >= 2) break;
-    const usedSlots = chosen.reduce((sum, c) => sum + (c.slotSize || 0), 0);
-    const newTotal = usedSlots + (w.slotSize || 0);
-    if (newTotal > WEAPON_SLOT_LIMIT) continue;
-    if (w.weaponClass === "shotgun" && chosen.some((c) => c.weaponClass === "shotgun")) continue;
-    chosen.push(w);
+    if (rows.length >= 2) break;
+    if (w.weaponClass === "shotgun" && rows.some((r) => r.item.weaponClass === "shotgun")) continue;
+    const usedSlots = rows.reduce((sum, r) => sum + (r.item.slotSize || 0) * (r.dual ? 2 : 1), 0);
+    const canAkimbo = w.weaponClass === "handgun" && !w.noAkimbo;
+    const wantDual = canAkimbo && Math.random() < AKIMBO_RANDOM_CHANCE;
+    if (wantDual && usedSlots + (w.slotSize || 0) * 2 <= WEAPON_SLOT_LIMIT) {
+      rows.push({ item: w, dual: true });
+    } else if (usedSlots + (w.slotSize || 0) <= WEAPON_SLOT_LIMIT) {
+      rows.push({ item: w, dual: false });
+    }
   }
-  const total = chosen.reduce((sum, c) => sum + (c.slotSize || 0), 0);
+  const total = rows.reduce((sum, r) => sum + (r.item.slotSize || 0) * (r.dual ? 2 : 1), 0);
   if (total === 5 && !allowSlot5) return null;
   if (total === 6 && !allowSlot6) return null;
-  return chosen;
+  return rows;
 }
 
 // -------------------------------------------------------------------------
 // 특성(무기 조건부) 판정 — 특정 무기(군)를 장착했을 때만 유효한 특성들의 조건 정의.
-// ⚠ 액션 방식(레버/볼트/펌프/단발/싱글액션 리볼버) 및 스코프 보유 여부는 실제 게임 지식을
-// 기반으로 분류했음 — 정확도가 중요한 부분이라 사용자 확인 필요(별도로 안내함).
+// 액션 방식(레버/볼트/펌프/단발/싱글액션 리볼버) 및 스코프 보유 여부는 사용자 확인을 거쳐
+// 확정된 분류임(2026-07-27).
 // -------------------------------------------------------------------------
 const WEAPON_ACTION_TYPE = {
   // 레버액션
   weapon_frontier_73c: "lever", weapon_infantry_73l: "lever", weapon_marathon: "lever",
   weapon_ranger_73: "lever", weapon_vandal_73c: "lever", weapon_centennial: "lever",
-  weapon_1890_cavalry: "lever", weapon_rival78: "lever",
+  weapon_terminus: "lever",
 
   // 볼트액션
   weapon_vetterli_71: "bolt", weapon_sparks: "bolt", weapon_mako_1895: "bolt",
   weapon_krag: "bolt", weapon_lebel_1886: "bolt", weapon_mosin_nagant: "bolt",
-  weapon_berthier_1892: "bolt", weapon_mosin_obrez: "bolt",
+  weapon_berthier_1892: "bolt", weapon_mosin_obrez: "bolt", weapon_1865_carbine: "bolt",
 
   // 펌프액션
-  weapon_romero77: "pump", weapon_terminus: "pump",
+  weapon_romero77: "pump",
 
   // 단발(비반복 단발 소총 — 폴링블록/트랩도어 등)
   weapon_maynard_sniper: "single_shot", weapon_springfield_1866: "single_shot",
-  weapon_martini_henry: "single_shot", weapon_1865_carbine: "single_shot",
+  weapon_martini_henry: "single_shot", weapon_1890_cavalry: "single_shot",
 
-  // 싱글액션 리볼버(패닝 대상)
+  // 싱글액션 리볼버(패닝 대상) — 더블액션인 Officer/New Army는 제외
   weapon_bornheim_no3: "revolver_sa", weapon_conversion: "revolver_sa",
   weapon_lemat: "revolver_sa", weapon_nagant_m1895: "revolver_sa",
-  weapon_new_army: "revolver_sa", weapon_scottfield: "revolver_sa",
+  weapon_scottfield: "revolver_sa",
+  // weapon_rival78: 받는 액션 기반 특성 없음(사용자 확인)
 };
 // 파생형이 액션 방식 자체를 바꾸는 예외(모신-나강 아프토마트는 전자동 개조라 볼트액션 아님)
 const WEAPON_ACTION_TYPE_OVERRIDE = { mosinnagant_avtomat: null };
@@ -3235,11 +3246,12 @@ function hasApertureSight(item) {
   return item.name.endsWith("Aperture");
 }
 
-// trait id → 조건 판정 함수. context = { weapons: [item,...](장착된 무기들), fieldIds: [...] }
+// trait id → 조건 판정 함수.
+// context = { weapons: [item,...](장착된 무기들), fieldIds: [...], hasAkimboPair: boolean }
 const TRAIT_WEAPON_CONDITIONS = {
   trait_hundred_hands: (ctx) => ctx.weapons.some((w) => (w._trueParentId || w.id) === "weapon_hunting_bow"),
   trait_martialist: (ctx) => ctx.weapons.some((w) => (w._trueParentId || w.id) === "weapon_katana"),
-  trait_bolt_thrower: (ctx) => ctx.weapons.some((w) => ["weapon_crossbow", "weapon_bomb_launcher"].includes(w._trueParentId || w.id)),
+  trait_bolt_thrower: (ctx) => ctx.weapons.some((w) => ["weapon_crossbow", "weapon_bomb_launcher", "weapon_hand_crossbow"].includes(w._trueParentId || w.id)),
   trait_assailant: (ctx) => ctx.fieldIds.some((id) => ["tool_throwing_knives", "tool_throwing_axes"].includes(id)),
   trait_iron_eye: (ctx) => ctx.weapons.some((w) => ["bolt", "lever", "pump"].includes(getWeaponActionType(w))),
   trait_levering: (ctx) => ctx.weapons.some((w) => getWeaponActionType(w) === "lever"),
@@ -3247,9 +3259,8 @@ const TRAIT_WEAPON_CONDITIONS = {
   trait_fast_fingers: (ctx) => ctx.weapons.some((w) => getWeaponActionType(w) === "single_shot"),
   trait_scopesmith: (ctx) => ctx.weapons.some((w) => hasScopeSight(w)),
   trait_steady_aim: (ctx) => ctx.weapons.some((w) => hasScopeSight(w) || hasApertureSight(w)),
-  // 아킴보(듀얼) 페어를 만들었을 때만 유효한데, 현재 랜덤 로드아웃은 듀얼 조합을 생성하지
-  // 않으므로 조건을 충족할 수 없어 항상 제외.
-  trait_ambidextrous: () => false,
+  // 아킴보(듀얼) 페어를 실제로 만들었을 때만 유효
+  trait_ambidextrous: (ctx) => !!ctx.hasAkimboPair,
 };
 
 function isTraitEligibleForRandomLoadout(trait, context) {
@@ -3290,17 +3301,20 @@ function pickTraitsExactBudget(candidates, targetPoints) {
 function generateRandomLoadout() {
   initLoadoutState();
 
-  // 1) 무기: 주슬롯 + 보조슬롯 각 1자루. 칸수 합/샷건 중복/5·6칸 스위치 조건을 만족할 때까지 재시도.
+  // 1) 무기: 주슬롯 + 보조슬롯 각 1행. 아킴보 가능한 권총은 확률적으로 듀얼(같은 무기 페어)로
+  // 채워짐. 칸수 합/샷건 중복/5·6칸 스위치 조건을 만족할 때까지 재시도.
   const weaponPool = getFlattenedWeaponItems().filter((item) => item.category === "weapon");
-  let chosenWeapons = null;
-  for (let attempt = 0; attempt < 200 && chosenWeapons === null; attempt++) {
-    chosenWeapons = tryPickRandomWeapons(weaponPool, state.randomAllowSlot5, state.randomAllowSlot6);
+  let weaponRows = null;
+  for (let attempt = 0; attempt < 200 && weaponRows === null; attempt++) {
+    weaponRows = tryPickRandomWeapons(weaponPool, state.randomAllowSlot5, state.randomAllowSlot6);
   }
-  if (!chosenWeapons) chosenWeapons = [];
-  if (chosenWeapons[0]) equipRandomWeaponSlot(loadoutKey("weapon", "primary"), chosenWeapons[0]);
-  if (chosenWeapons[1]) equipRandomWeaponSlot(loadoutKey("weapon", "secondary"), chosenWeapons[1]);
-  const totalWeaponSlotSize = chosenWeapons.reduce((sum, w) => sum + (w.slotSize || 0), 0);
+  if (!weaponRows) weaponRows = [];
+  if (weaponRows[0]) equipRandomWeaponRow(loadoutKey("weapon", "primary"), weaponRows[0]);
+  if (weaponRows[1]) equipRandomWeaponRow(loadoutKey("weapon", "secondary"), weaponRows[1]);
+  const chosenWeapons = weaponRows.map((r) => r.item);
+  const totalWeaponSlotSize = weaponRows.reduce((sum, r) => sum + (r.item.slotSize || 0) * (r.dual ? 2 : 1), 0);
   const hasMeleeWeaponEquipped = chosenWeapons.some((w) => w.weaponClass === "melee");
+  const hasAkimboPair = weaponRows.some((r) => r.dual);
 
   // 2) 필드 장비(도구+소모품, 공유 8칸) — 필수 항목부터 확정
   const field = state.loadout["field__all"];
@@ -3356,7 +3370,7 @@ function generateRandomLoadout() {
 
   // 3) 특성: 희소 특성 제외 + 무기 조건부 특성 필터링 + 10포인트 정확히 채움 +
   // 무기 칸수 합 6칸이면 보급 장교(trait_quartermaster) 고정 등장
-  const traitContext = { weapons: chosenWeapons, fieldIds: field };
+  const traitContext = { weapons: chosenWeapons, fieldIds: field, hasAkimboPair };
   const eligibleTraits = ITEMS.filter((i) =>
     i.category === "trait" &&
     !(i.traitTags || []).includes("scarce") &&
