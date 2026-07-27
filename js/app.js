@@ -176,7 +176,7 @@ function addToLoadoutQuick(item, ammoId = null) {
       if (stackGroup) {
         const currentCount = state.loadout[key].filter((id) => id === item.id).length;
         if (currentCount >= CONSUMABLE_STACK_MAX) {
-          return { ok: false, message: `${item.name}은(는) 최대 ${CONSUMABLE_STACK_MAX}개까지만 담을 수 있습니다` };
+          return { ok: false, message: `${item.nameKo || item.name}은(는) 최대 ${CONSUMABLE_STACK_MAX}개까지만 담을 수 있습니다` };
         }
       }
       state.loadout[key].push(item.id);
@@ -628,6 +628,13 @@ function mergeWeaponVariant(parentItem, v) {
   };
 }
 
+// 한글 이름이 있으면 "한글 (English)" 형태로, 없으면 영문 이름 그대로 표시.
+// 이름이 노출되는 모든 곳(카드/상세보기/로드아웃/비교/피커/툴팁 등)에서 공용으로 사용.
+function displayName(item) {
+  if (!item) return "";
+  return item.nameKo ? `${item.nameKo} (${item.name})` : item.name;
+}
+
 // ITEMS를 "모무기 + 모든 파생형"이 각각 독립된 카드로 검색/필터링 되도록 평탄화한 리스트로 변환.
 // 파생형은 _trueParentId(원 무기 id), _variantIndex(자세히 보기 탭 인덱스, 0=모무기)를 함께 갖는다.
 function getFlattenedWeaponItems() {
@@ -673,7 +680,7 @@ function getFilteredItems(extra = {}) {
 
   return getFlattenedWeaponItems().filter((item) => {
     if (category && category !== "all" && item.category !== category) return false;
-    if (query && !item.name.toLowerCase().includes(query)) return false;
+    if (query && !item.name.toLowerCase().includes(query) && !(item.nameKo || "").includes(query)) return false;
     if (useWeaponFilters && item.category === "weapon") {
       const f = filterSource;
       if (f.slotSize.size > 0 && !f.slotSize.has(item.slotSize)) return false;
@@ -767,14 +774,14 @@ function createItemCard(item) {
   card.className = "item-card";
   const cat = CATEGORIES[item.category];
   const imgHTML = item.image
-    ? `<img src="${item.image}" alt="${item.name}" class="item-card-img" onerror="this.style.display='none'">`
+    ? `<img src="${item.image}" alt="${displayName(item)}" class="item-card-img" onerror="this.style.display='none'">`
     : `<div class="item-card-icon">${cat ? cat.icon : ""}</div>`;
 
   // 무기 카드: 이름 + 이미지 + 칸수 + 가격 + (자세히 보기 버튼)
   if (item.category === "weapon") {
     card.innerHTML = `
       ${imgHTML}
-      <div class="item-card-name">${item.name}</div>
+      <div class="item-card-name">${displayName(item)}</div>
       <div class="item-card-meta">
         <span class="item-card-slots"><img src="images/ui/slot_${item.slotSize || 1}.png" alt="${item.slotSize}칸" class="slot-icon"></span>
         ${item.scarce
@@ -798,7 +805,7 @@ function createItemCard(item) {
       .filter(Boolean);
     card.innerHTML = `
       ${imgHTML}
-      <div class="item-card-name">${item.name}</div>
+      <div class="item-card-name">${displayName(item)}</div>
       <div class="item-card-meta">
         <div class="item-card-trait-tags">${tagIcons.map((t) => `<img src="${t.image}" alt="${t.label}" title="${t.label}" class="trait-tag-icon">`).join("")}</div>
         ${item.traitTags && item.traitTags.includes("scarce")
@@ -808,7 +815,7 @@ function createItemCard(item) {
   } else {
     card.innerHTML = `
       ${imgHTML}
-      <div class="item-card-name">${item.name}</div>
+      <div class="item-card-name">${displayName(item)}</div>
       <div class="item-card-category">${cat ? cat.label : item.category}</div>`;
   }
 
@@ -837,7 +844,7 @@ function showHoverPreview(cardEl, item) {
 
   const s = item.stats;
   tooltip.innerHTML = `
-    <div class="hover-preview-title">${item.name}</div>
+    <div class="hover-preview-title">${displayName(item)}</div>
     <div class="hover-preview-stats">
       <div><span>피해</span><b>${s.damage ?? "-"}</b></div>
       <div><span>드롭 사거리</span><b>${s.dropRange ?? "-"}m</b></div>
@@ -956,7 +963,7 @@ function bindLoadoutQuickAddButton(item, ammoId = null) {
 // 모무기 + 파생형들을 합쳐서 "탭에 표시할 무기 리스트" 만들기
 // 파생형의 비어있는 필드는 모무기 값으로 채워서 완전한 무기 객체로 변환
 function buildWeaponVariantsList(parentItem) {
-  const list = [{ ...parentItem, _isParent: true, _displayName: parentItem.name + " (기본)" }];
+  const list = [{ ...parentItem, _isParent: true, _displayName: displayName(parentItem) + " (기본)" }];
 
   if (!Array.isArray(parentItem.variants)) return list;
 
@@ -969,7 +976,7 @@ function buildWeaponVariantsList(parentItem) {
       stats: { ...parentItem.stats, ...(v.stats || {}) },
       chamber: { ...(parentItem.chamber || {}), ...(v.chamber || {}) },
       _isParent: false,
-      _displayName: v.name,
+      _displayName: displayName(v),
       // 파생형 자체에는 variants 가 없도록
       variants: undefined,
     };
@@ -1060,7 +1067,7 @@ function openBodyPartView(parentItem, ammoId) {
 
   content.innerHTML = `
     <button id="bodypart-close-btn" type="button">✕</button>
-    <h2>${parentItem.name} <span class="bodypart-ammo">${ammo?.label ?? ""}</span></h2>
+    <h2>${displayName(parentItem)} <span class="bodypart-ammo">${ammo?.label ?? ""}</span></h2>
     ${variantsList.length > 1 ? `<div class="variant-tabs variant-tabs-compact">${variantTabs}</div>` : ""}
     ${currentItem.description ? `<p class="variant-desc">${currentItem.description}</p>` : ""}
 
@@ -1077,7 +1084,7 @@ function openBodyPartView(parentItem, ammoId) {
       <!-- 중앙: 무기 이미지 → 기본정보 → 총기 스탯 -->
       <div class="bodypart-weapon-col">
         ${currentItem.image
-          ? `<img src="${currentItem.image}" alt="${currentItem.name}" class="bp-weapon-img" onerror="this.style.display='none'">`
+          ? `<img src="${currentItem.image}" alt="${displayName(currentItem)}" class="bp-weapon-img" onerror="this.style.display='none'">`
           : `<div class="bp-weapon-img-placeholder">무기 이미지 없음</div>`}
 
         <!-- 탄약 상태: [탄약 아이콘] 장탄/예비탄 [칸수 아이콘] | [달러 아이콘] 가격 -->
@@ -1194,13 +1201,13 @@ function renderMeleeBodyPartView(item, overlay, content) {
 
   content.innerHTML = `
     <button id="bodypart-close-btn" type="button">✕</button>
-    <h2>${item.name}</h2>
+    <h2>${displayName(item)}</h2>
     ${item.description ? `<p class="variant-desc">${item.description}</p>` : ""}
 
     <div class="bodypart-layout bodypart-layout--no-figure">
       <div class="bodypart-weapon-col">
         ${item.image
-          ? `<img src="${item.image}" alt="${item.name}" class="bp-weapon-img" onerror="this.style.display='none'">`
+          ? `<img src="${item.image}" alt="${displayName(item)}" class="bp-weapon-img" onerror="this.style.display='none'">`
           : `<div class="bp-weapon-img-placeholder">무기 이미지 없음</div>`}
 
         <!-- 근접무기는 탄약이 없어서 칸수/가격만 표시 -->
@@ -1537,9 +1544,9 @@ function renderWeaponDetailHTML(item, selectedAmmoId) {
 
   return `
     <button id="detail-close-btn" type="button">✕</button>
-    <h2>${item.name}</h2>
+    <h2>${displayName(item)}</h2>
 
-    ${item.image ? `<img src="${item.image}" alt="${item.name}" class="detail-img" onerror="this.style.display='none'">` : ""}
+    ${item.image ? `<img src="${item.image}" alt="${displayName(item)}" class="detail-img" onerror="this.style.display='none'">` : ""}
 
     <!-- 한 줄: [탄약 아이콘] 장탄/예비탄 [칸수 아이콘] | [달러 아이콘] 가격 -->
     <div class="ammo-status-row">
@@ -1577,9 +1584,9 @@ function renderMeleeDetailHTML(item) {
   const inCompare = state.compareEntries.some((e) => e.weaponId === item.id && e.ammoId == null);
   return `
     <button id="detail-close-btn" type="button">✕</button>
-    <h2>${item.name}</h2>
+    <h2>${displayName(item)}</h2>
 
-    ${item.image ? `<img src="${item.image}" alt="${item.name}" class="detail-img" onerror="this.style.display='none'">` : ""}
+    ${item.image ? `<img src="${item.image}" alt="${displayName(item)}" class="detail-img" onerror="this.style.display='none'">` : ""}
 
     <!-- 한 줄: 칸수 | 가격 (근접무기는 탄약이 없어서 장탄/예비탄 표시 없음) -->
     <div class="ammo-status-row">
@@ -1647,9 +1654,9 @@ function renderToolDetailHTML(item) {
 
   return `
     <button id="detail-close-btn" type="button">✕</button>
-    <h2>${item.name}</h2>
+    <h2>${displayName(item)}</h2>
 
-    ${item.image ? `<img src="${item.image}" alt="${item.name}" class="detail-img detail-img--tool" onerror="this.style.display='none'">` : ""}
+    ${item.image ? `<img src="${item.image}" alt="${displayName(item)}" class="detail-img detail-img--tool" onerror="this.style.display='none'">` : ""}
 
     <!-- 한 줄: 수량(또는 탄약) | 가격 -->
     <div class="ammo-status-row">
@@ -1681,9 +1688,9 @@ function renderConsumableDetailHTML(item) {
   const showDesc = CONSUMABLE_DESC_CLASSES.includes(item.consumableClass);
   return `
     <button id="detail-close-btn" type="button">✕</button>
-    <h2>${item.name}</h2>
+    <h2>${displayName(item)}</h2>
 
-    ${item.image ? `<img src="${item.image}" alt="${item.name}" class="detail-img detail-img--tool" onerror="this.style.display='none'">` : ""}
+    ${item.image ? `<img src="${item.image}" alt="${displayName(item)}" class="detail-img detail-img--tool" onerror="this.style.display='none'">` : ""}
 
     <div class="ammo-status-row">
       ${item.scarce
@@ -1713,9 +1720,9 @@ function renderTraitDetailHTML(item) {
     .filter(Boolean);
   return `
     <button id="detail-close-btn" type="button">✕</button>
-    <h2>${item.name}</h2>
+    <h2>${displayName(item)}</h2>
 
-    ${(item.detailImage || item.image) ? `<img src="${item.detailImage || item.image}" alt="${item.name}" class="detail-img detail-img--trait" onerror="this.style.display='none'">` : ""}
+    ${(item.detailImage || item.image) ? `<img src="${item.detailImage || item.image}" alt="${displayName(item)}" class="detail-img detail-img--trait" onerror="this.style.display='none'">` : ""}
 
     ${item.price != null ? `
     <div class="ammo-status-row">
@@ -1760,9 +1767,9 @@ function renderGenericDetailHTML(item) {
     .map(([key, val]) => `<li><span>${key}</span>: ${val}</li>`).join("");
   return `
     <button id="detail-close-btn" type="button">✕</button>
-    <h2>${item.name}</h2>
+    <h2>${displayName(item)}</h2>
     <p class="detail-category">${cat?.label ?? item.category}</p>
-    ${item.image ? `<img src="${item.image}" alt="${item.name}" class="detail-img" onerror="this.style.display='none'">` : ""}
+    ${item.image ? `<img src="${item.image}" alt="${displayName(item)}" class="detail-img" onerror="this.style.display='none'">` : ""}
     ${item.description ? `<p class="detail-desc">${item.description}</p>` : ""}
     <h4>세부 정보</h4>
     <ul class="detail-meta">${metaList || "<li>없음</li>"}</ul>
@@ -1796,7 +1803,7 @@ function buildFalloffDataset(item, ammoId, color, xMax = 100) {
   }
 
   return {
-    label: `${item.name} · ${ammo.label}`,
+    label: `${displayName(item)} · ${ammo.label}`,
     data,
     borderColor: color,
     backgroundColor: color + "22",
@@ -2326,7 +2333,7 @@ function renderPickerList(query) {
     row.className = "picker-item-row";
     row.innerHTML = `
       ${item.image ? `<img src="${item.image}" alt="" class="picker-item-thumb${item.category === "weapon" ? " picker-item-thumb--weapon" : ""}" onerror="this.style.display='none'">` : `<span class="picker-item-thumb-placeholder"></span>`}
-      <span class="picker-item-name">${item.name}</span>
+      <span class="picker-item-name">${displayName(item)}</span>
       ${(() => {
         const isTraitScarce = item.category === "trait" && item.traitTags?.includes("scarce");
         if (item.scarce || isTraitScarce) {
@@ -2362,7 +2369,7 @@ function renderPickerAmmoStep(weaponItem, options = {}) {
   const titleSuffix = options.title || "탄약 선택";
   const onPick = options.onPick || ((ammoId) => { if (state.picker.onSelect) state.picker.onSelect(weaponItem, ammoId); });
 
-  document.getElementById("picker-title").textContent = `${weaponItem.name} — ${titleSuffix}`;
+  document.getElementById("picker-title").textContent = `${displayName(weaponItem)} — ${titleSuffix}`;
   document.getElementById("picker-search-input").hidden = true;
 
   const list = document.getElementById("picker-item-list");
@@ -2772,7 +2779,7 @@ function renderWeaponSlotsRow(slotDef) {
 
     boxesWrap.appendChild(createEquipBox({
       image: item?.image,
-      title: item ? item.name : (isDualEmptySlot ? "듀얼로 추가 (같은 무기)" : undefined),
+      title: item ? displayName(item) : (isDualEmptySlot ? "듀얼로 추가 (같은 무기)" : undefined),
       empty: !item,
       wide: true,
       weaponSize,
@@ -2873,7 +2880,7 @@ function openFieldPicker() {
     if (stackGroup) {
       const currentCount = (state.loadout[key] || []).filter((id) => id === selectedItem.id).length;
       if (currentCount >= CONSUMABLE_STACK_MAX) {
-        showToast(`${selectedItem.name}은(는) 최대 ${CONSUMABLE_STACK_MAX}개까지만 담을 수 있습니다.`);
+        showToast(`${selectedItem.nameKo || selectedItem.name}은(는) 최대 ${CONSUMABLE_STACK_MAX}개까지만 담을 수 있습니다.`);
         renderLoadoutBoard();
         closePicker();
         return;
@@ -2940,7 +2947,7 @@ function renderFieldEquipmentSection() {
   displayList.forEach((d, dIdx) => {
     boxesWrap.appendChild(createEquipBox({
       image: d.item.image,
-      title: d.count > 1 ? `${d.item.name} x${d.count}` : d.item.name,
+      title: d.count > 1 ? `${displayName(d.item)} x${d.count}` : displayName(d.item),
       stackCount: d.count,
       draggable: true,
       onDragStart: () => { dragSourceIdx = dIdx; },
@@ -3055,7 +3062,7 @@ function renderTraitSection() {
     if (!item) return;
     boxesWrap.appendChild(createEquipBox({
       image: item.image,
-      title: item.name,
+      title: displayName(item),
       onClear: () => { state.loadout[key].splice(idx, 1); renderLoadoutBoard(); },
     }));
   });
@@ -3352,7 +3359,7 @@ function renderAnalysis() {
     chip.title = "클릭하면 아래 총기 스탯 비교에 추가/제외됩니다";
     chip.innerHTML = `
       <span class="compare-swatch" style="background:${color}"></span>
-      <span>${item.name} · ${ammo.label}</span>
+      <span>${displayName(item)} · ${ammo.label}</span>
       <button class="slot-clear-btn" type="button">✕</button>
     `;
     chip.querySelector(".slot-clear-btn").addEventListener("click", (e) => {
@@ -3439,7 +3446,7 @@ function renderCompareStatsSection() {
     wrap.style.height = "auto";
     const { item, ammo, stats } = selected[0];
     wrap.innerHTML = `
-      <h4 class="compare-stats-single-title">${item.name} · ${ammo.label}</h4>
+      <h4 class="compare-stats-single-title">${displayName(item)} · ${ammo.label}</h4>
       <div class="detail-stats">
         ${STAT_DEFS.map((d) => statRowSimple(d.label, stats[d.key], d.key)).join("")}
       </div>
@@ -3461,7 +3468,7 @@ function renderCompareStatsSection() {
       return `
         <div class="stat-compare-bar-row">
           <span class="stat-compare-swatch" style="background:${s.color}"></span>
-          <span class="stat-compare-name" title="${s.item.name} · ${s.ammo.label}">${s.item.name} · ${s.ammo.label}</span>
+          <span class="stat-compare-name" title="${displayName(s.item)} · ${s.ammo.label}">${displayName(s.item)} · ${s.ammo.label}</span>
           <span class="stat-compare-track"><span class="stat-compare-fill" style="width:${pct}%; background:${s.color}"></span></span>
           <b class="stat-compare-value">${raw}</b>
         </div>`;

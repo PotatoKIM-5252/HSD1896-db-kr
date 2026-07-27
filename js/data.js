@@ -4941,6 +4941,7 @@ const ITEMS = [
     id: "weapon_frontier_73c",
     category: "weapon",
     name: "Frontier 73C",
+    nameKo: "프론티어 73C",
     image: "images/weapons/frontier_73c.png",
 
     // 검색 필터용
@@ -4993,6 +4994,7 @@ const ITEMS = [
       {
         id: "frontier73c_silencer",
         name: "Frontier 73C Silencer",
+        nameKo: "프론티어 73C 사일런서",
         image: "images/weapons/variants/frontier73c_silencer.png",
         description: "",
         price: 55,
@@ -5006,6 +5008,7 @@ const ITEMS = [
       {
         id: "frontier73c_marksman",
         name: "Frontier 73C Marksman",
+        nameKo: "프론티어 73C 막스맨",
         image: "images/weapons/variants/frontier73c_marksman.png",
         description: "",
         price: 45,
@@ -5022,6 +5025,7 @@ const ITEMS = [
     id: "weapon_infantry_73l",
     category: "weapon",
     name: "Infantry 73L",
+    nameKo: "인펀트리 73L",
     image: "images/weapons/infantry_73l.png",
 
     // 검색 필터용
@@ -5074,6 +5078,7 @@ const ITEMS = [
       {
         id: "infantry73l_sniper",
         name: "Infantry 73L Sniper",
+        nameKo: "인펀트리 73L 스나이퍼",
         image: "images/weapons/variants/infantry73l_sniper.png",
         description: "",
         price: 90,
@@ -5084,6 +5089,7 @@ const ITEMS = [
       {
         id: "infantry73l_bayonet",
         name: "Infantry 73L Bayonet",
+        nameKo: "인펀트리 73L 바요넷",
         image: "images/weapons/variants/infantry73l_bayonet.png",
         description: "",
         price: 88,
@@ -5098,6 +5104,7 @@ const ITEMS = [
     id: "weapon_marathon",
     category: "weapon",
     name: "Marathon",
+    nameKo: "마라톤",
     image: "images/weapons/marathon.png",
 
     // 검색 필터용
@@ -5149,6 +5156,7 @@ const ITEMS = [
       {
         id: "marathon_swift",
         name: "Marathon Swift",
+        nameKo: "마라톤 스위프트",
         image: "images/weapons/variants/marathon_swift.png",
         description: "",
         price: 95,
@@ -5164,6 +5172,7 @@ const ITEMS = [
     id: "weapon_ranger_73",
     category: "weapon",
     name: "Ranger 73",
+    nameKo: "레인저 73",
     image: "images/weapons/ranger_73.png",
 
     // 검색 필터용
@@ -5216,6 +5225,7 @@ const ITEMS = [
       {
         id: "ranger73_swift",
         name: "Ranger 73 Swift",
+        nameKo: "레인저 73 스위프트",
         image: "images/weapons/variants/ranger73_swift.png",
         description: "",
         price: 128,
@@ -5227,6 +5237,7 @@ const ITEMS = [
       {
         id: "ranger73_talon",
         name: "Ranger 73 Talon",
+        nameKo: "레인저 73 탤런",
         image: "images/weapons/variants/ranger73_talon.png",
         description: "",
         price: 85,
@@ -5238,6 +5249,7 @@ const ITEMS = [
       {
         id: "ranger73_aperture",
         name: "Ranger 73 Aperture",
+        nameKo: "레인저 73 애퍼쳐",
         image: "images/weapons/variants/ranger73_aperture.png",
         description: "",
         price: 79,
@@ -5252,6 +5264,7 @@ const ITEMS = [
     id: "weapon_vandal_73c",
     category: "weapon",
     name: "Vandal 73C",
+    nameKo: "밴달 73C",
     image: "images/weapons/vandal_73c.png",
 
     // 검색 필터용
@@ -5304,6 +5317,7 @@ const ITEMS = [
       {
         id: "vandal73c_bullseye",
         name: "Vandal 73C Bullseye",
+        nameKo: "밴달 73C 불스아이",
         image: "images/weapons/variants/vandal73c_bullseye.png",
         description: "",
         price: 37,
@@ -5315,6 +5329,7 @@ const ITEMS = [
       {
         id: "vandal73c_striker",
         name: "Vandal 73C Striker",
+        nameKo: "밴달 73C 스트라이커",
         image: "images/weapons/variants/vandal73c_striker.png",
         description: "",
         price: 45,
@@ -5332,6 +5347,7 @@ const ITEMS = [
     id: "weapon_bornheim_no3",
     category: "weapon",
     name: "Bornheim No. 3",
+    nameKo: "본하임 No. 3",
     image: "images/weapons/bornheim_no3.png",
 
     // 검색 필터용
@@ -5382,6 +5398,7 @@ const ITEMS = [
       {
         id: "bornheim_match",
         name: "Bornheim No. 3 Match",
+        nameKo: "본하임 No. 3 매치",
         image: "images/weapons/variants/bornheim_match.png",
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
@@ -5402,6 +5419,7 @@ const ITEMS = [
       {
         id: "bornheim_silencer",
         name: "Bornheim No. 3 Silencer",
+        nameKo: "본하임 No. 3 사일런서",
         image: "images/weapons/variants/bornheim_silencer.png",
         description: "",
         price: 174,
@@ -5414,6 +5432,7 @@ const ITEMS = [
       {
         id: "bornheim_extended",
         name: "Bornheim No. 3 Extended",
+        nameKo: "본하임 No. 3 익스텐디드",
         image: "images/weapons/variants/bornheim_extended.png",
         description: "",
         price: 203,
@@ -5432,6 +5451,7 @@ const ITEMS = [
     id: "weapon_conversion",
     category: "weapon",
     name: "Conversion",
+    nameKo: "컨버전",
     image: "images/weapons/conversion.png",
 
     // 검색 필터용
@@ -5481,6 +5501,7 @@ const ITEMS = [
       {
         id: "conversion_chain_pistol",
         name: "Conversion Chain Pistol",
+        nameKo: "컨버전 체인 피스톨",
         image: "images/weapons/variants/conversion_chain_pistol.png",
         description: "",
         price: 84,
@@ -5501,6 +5522,7 @@ const ITEMS = [
     id: "weapon_lemat",
     category: "weapon",
     name: "LeMat",
+    nameKo: "르맷",
     image: "images/weapons/lemat.png",
 
     // 검색 필터용
@@ -5555,6 +5577,7 @@ const ITEMS = [
       {
         id: "lemat_carbine",
         name: "LeMat Carbine",
+        nameKo: "르맷 카빈",
         image: "images/weapons/variants/lemat_carbine.png",
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
@@ -5577,6 +5600,7 @@ const ITEMS = [
       {
         id: "lemat_carbine_marksman",
         name: "LeMat Carbine Marksman",
+        nameKo: "르맷 카빈 막스맨",
         image: "images/weapons/variants/lemat_carbine_marksman.png",
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
@@ -5603,6 +5627,7 @@ const ITEMS = [
     id: "weapon_nagant_m1895",
     category: "weapon",
     name: "Nagant M1895",
+    nameKo: "나강 M1895",
     image: "images/weapons/nagant_m1895.png",
 
     // 검색 필터용
@@ -5654,6 +5679,7 @@ const ITEMS = [
       {
         id: "nagant_precision",
         name: "Nagant M1895 Precision",
+        nameKo: "나강 M1895 프리시전",
         image: "images/weapons/variants/nagant_precision.png",
         description: "",
         noAkimbo: true, // 정밀 조준경 부착형이라 아킴보(듀얼 웰드) 불가
@@ -5673,6 +5699,7 @@ const ITEMS = [
       {
         id: "nagant_silencer",
         name: "Nagant M1895 Silencer",
+        nameKo: "나강 M1895 사일런서",
         image: "images/weapons/variants/nagant_silencer.png",
         description: "",
         price: 27,
@@ -5685,6 +5712,7 @@ const ITEMS = [
       {
         id: "nagant_deadeye",
         name: "Nagant M1895 Deadeye",
+        nameKo: "나강 M1895 데드아이",
         image: "images/weapons/variants/nagant_deadeye.png",
         description: "",
         noAkimbo: true, // 정밀 조준경 부착형이라 아킴보(듀얼 웰드) 불가
@@ -5708,6 +5736,7 @@ const ITEMS = [
     id: "weapon_new_army",
     category: "weapon",
     name: "New Army",
+    nameKo: "뉴 아미",
     image: "images/weapons/new_army.png",
 
     // 검색 필터용
@@ -5757,6 +5786,7 @@ const ITEMS = [
       {
         id: "newarmy_swift",
         name: "New Army Swift",
+        nameKo: "뉴 아미 스위프트",
         image: "images/weapons/variants/newarmy_swift.png",
         description: "",
         price: 108,
@@ -5772,6 +5802,7 @@ const ITEMS = [
     id: "weapon_officer",
     category: "weapon",
     name: "Officer",
+    nameKo: "오피서",
     image: "images/weapons/officer.png",
 
     // 검색 필터용
@@ -5823,6 +5854,7 @@ const ITEMS = [
       {
         id: "officer_brawler",
         name: "Officer Brawler",
+        nameKo: "오피서 브롤러",
         image: "images/weapons/variants/officer_brawler.png",
         description: "",
         price: 106,
@@ -5835,6 +5867,7 @@ const ITEMS = [
       {
         id: "officer_carbine",
         name: "Officer Carbine",
+        nameKo: "오피서 카빈",
         image: "images/weapons/variants/officer_carbine.png",
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
@@ -5855,6 +5888,7 @@ const ITEMS = [
       {
         id: "officer_carbine_deadeye",
         name: "Officer Carbine Deadeye",
+        nameKo: "오피서 카빈 데드아이",
         image: "images/weapons/variants/officer_carbine_deadeye.png",
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
@@ -5879,6 +5913,7 @@ const ITEMS = [
     id: "weapon_centennial",
     category: "weapon",
     name: "Centennial",
+    nameKo: "센테니얼",
     image: "images/weapons/centennial.png",
 
     // 검색 필터용
@@ -5931,6 +5966,7 @@ const ITEMS = [
       {
         id: "centennial_sniper",
         name: "Centennial Sniper",
+        nameKo: "센테니얼 스나이퍼",
         image: "images/weapons/variants/centennial_sniper.png",
         description: "",
         price: 181,
@@ -5943,6 +5979,7 @@ const ITEMS = [
       {
         id: "centennial_shorty",
         name: "Centennial Shorty",
+        nameKo: "센테니얼 쇼티",
         image: "images/weapons/variants/centennial_shorty.png",
         description: "",
         price: 103,
@@ -5967,6 +6004,7 @@ const ITEMS = [
       {
         id: "centennial_shorty_silencer",
         name: "Centennial Shorty Silencer",
+        nameKo: "센테니얼 쇼티 사일런서",
         image: "images/weapons/variants/centennial_shorty_silencer.png",
         // ✅ [확인됨] 예비 탄약 9발 — 사용자 확인. 가격은 패치노트(Update 2.2.0.35)에서 확정된 118을 사용(위키 캐시엔 구가격 137로 표기돼 있었음).
         description: "",
@@ -5992,6 +6030,7 @@ const ITEMS = [
       {
         id: "centennial_trauma",
         name: "Centennial Trauma",
+        nameKo: "센테니얼 트라우마",
         image: "images/weapons/variants/centennial_trauma.png",
         description: "",
         price: 167,
@@ -6004,6 +6043,7 @@ const ITEMS = [
       {
         id: "centennial_pointman",
         name: "Centennial Pointman",
+        nameKo: "센테니얼 포인트맨",
         image: "images/weapons/variants/centennial_pointman.png",
         description: "",
         price: 114,
@@ -6031,6 +6071,7 @@ const ITEMS = [
     id: "weapon_wildland",
     category: "weapon",
     name: "Wildland",
+    nameKo: "미개척지",
     image: "images/weapons/wildland.png",
 
     // 검색 필터용
@@ -6087,6 +6128,7 @@ const ITEMS = [
     id: "weapon_drilling",
     category: "weapon",
     name: "Drilling",
+    nameKo: "드릴링",
     image: "images/weapons/drilling.png",
 
     // 검색 필터용
@@ -6142,6 +6184,7 @@ const ITEMS = [
       {
         id: "drilling_hatchet",
         name: "Drilling Hatchet",
+        nameKo: "드릴링 해칫",
         image: "images/weapons/variants/drilling_hatchet.png",
         description: "",
         price: 340,
@@ -6177,6 +6220,7 @@ const ITEMS = [
       {
         id: "drilling_shorty",
         name: "Drilling Shorty",
+        nameKo: "드릴링 쇼티",
         image: "images/weapons/variants/drilling_shorty.png",
         description: "",
         price: 330,
@@ -6216,6 +6260,7 @@ const ITEMS = [
     id: "weapon_maynard_sniper",
     category: "weapon",
     name: "Maynard Sniper",
+    nameKo: "메이너드 스나이퍼",
     image: "images/weapons/maynard_sniper.png",
 
     // 검색 필터용
@@ -6267,6 +6312,7 @@ const ITEMS = [
       {
         id: "maynard_silencer",
         name: "Maynard Sniper Silencer",
+        nameKo: "메이너드 스나이퍼 사일런서",
         image: "images/weapons/variants/maynard_silencer.png",
         description: "",
         weaponClass: "rifle",
@@ -6285,6 +6331,7 @@ const ITEMS = [
     id: "weapon_springfield_1866",
     category: "weapon",
     name: "Springfield 1866",
+    nameKo: "스프링필드 1866",
     image: "images/weapons/springfield_1866.png",
 
     // 검색 필터용
@@ -6337,6 +6384,7 @@ const ITEMS = [
       {
         id: "springfield1866_bayonet",
         name: "Springfield 1866 Bayonet",
+        nameKo: "스프링필드 1866 바요넷",
         image: "images/weapons/variants/springfield1866_bayonet.png",
         description: "",
         weaponClass: "rifle",
@@ -6348,6 +6396,7 @@ const ITEMS = [
       {
         id: "springfield1866_bullseye",
         name: "Springfield 1866 Bullseye",
+        nameKo: "스프링필드 1866 불스아이",
         image: "images/weapons/variants/springfield1866_bullseye.png",
         description: "",
         weaponClass: "rifle",
@@ -6370,6 +6419,7 @@ const ITEMS = [
       {
         id: "springfield1866_marksman",
         name: "Springfield 1866 Marksman",
+        nameKo: "스프링필드 1866 막스맨",
         image: "images/weapons/variants/springfield1866_marksman.png",
         description: "",
         weaponClass: "rifle",
@@ -6382,6 +6432,7 @@ const ITEMS = [
       {
         id: "springfield1866_shorty",
         name: "Springfield 1866 Shorty",
+        nameKo: "스프링필드 1866 쇼티",
         image: "images/weapons/variants/springfield1866_shorty.png",
         description: "",
         weaponClass: "rifle",
@@ -6404,6 +6455,7 @@ const ITEMS = [
       {
         id: "springfield1866_striker",
         name: "Springfield 1866 Striker",
+        nameKo: "스프링필드 1866 스트라이커",
         image: "images/weapons/variants/springfield1866_striker.png",
         description: "",
         weaponClass: "rifle",
@@ -6431,6 +6483,7 @@ const ITEMS = [
     id: "weapon_1865_carbine",
     category: "weapon",
     name: "1865 Carbine",
+    nameKo: "1865 카빈",
     image: "images/weapons/carbine_1865.png",
 
     // 검색 필터용
@@ -6480,6 +6533,7 @@ const ITEMS = [
       {
         id: "carbine1865_aperture",
         name: "1865 Carbine Aperture",
+        nameKo: "1865 카빈 애퍼쳐",
         image: "images/weapons/variants/carbine1865_aperture.png",
         description: "",
         weaponClass: "rifle",
@@ -6491,6 +6545,7 @@ const ITEMS = [
       {
         id: "carbine1865_silencer",
         name: "1865 Carbine Silencer",
+        nameKo: "1865 카빈 사일런서",
         image: "images/weapons/variants/carbine1865_silencer.png",
         description: "",
         weaponClass: "rifle",
@@ -6508,6 +6563,7 @@ const ITEMS = [
     id: "weapon_vetterli_71",
     category: "weapon",
     name: "Vetterli 71",
+    nameKo: "베테를리 71",
     image: "images/weapons/vetterli_71.png",
 
     // 검색 필터용
@@ -6559,6 +6615,7 @@ const ITEMS = [
       {
         id: "vetterli71_bayonet",
         name: "Vetterli 71 Bayonet",
+        nameKo: "베테를리 71 바요넷",
         image: "images/weapons/variants/vetterli71_bayonet.png",
         description: "",
         weaponClass: "rifle",
@@ -6570,6 +6627,7 @@ const ITEMS = [
       {
         id: "vetterli71_cyclone",
         name: "Vetterli 71 Cyclone",
+        nameKo: "베테를리 71 사이클론",
         image: "images/weapons/variants/vetterli71_cyclone.png",
         description: "",
         weaponClass: "rifle",
@@ -6591,6 +6649,7 @@ const ITEMS = [
       {
         id: "vetterli71_deadeye",
         name: "Vetterli 71 Deadeye",
+        nameKo: "베테를리 71 데드아이",
         image: "images/weapons/variants/vetterli71_deadeye.png",
         description: "",
         weaponClass: "rifle",
@@ -6603,6 +6662,7 @@ const ITEMS = [
       {
         id: "vetterli71_marksman",
         name: "Vetterli 71 Marksman",
+        nameKo: "베테를리 71 막스맨",
         image: "images/weapons/variants/vetterli71_marksman.png",
         description: "",
         weaponClass: "rifle",
@@ -6615,6 +6675,7 @@ const ITEMS = [
       {
         id: "vetterli71_silencer",
         name: "Vetterli 71 Silencer",
+        nameKo: "베테를리 71 사일런서",
         image: "images/weapons/variants/vetterli71_silencer.png",
         description: "",
         weaponClass: "rifle",
@@ -6632,6 +6693,7 @@ const ITEMS = [
     id: "weapon_pax",
     category: "weapon",
     name: "Pax",
+    nameKo: "팍스",
     image: "images/weapons/pax.png",
 
     // 검색 필터용
@@ -6684,6 +6746,7 @@ const ITEMS = [
       {
         id: "pax_claw",
         name: "Pax Claw",
+        nameKo: "팍스 클로",
         image: "images/weapons/variants/pax_claw.png",
         description: "",
         weaponClass: "handgun",
@@ -6696,6 +6759,7 @@ const ITEMS = [
       {
         id: "pax_trueshot",
         name: "Pax Trueshot",
+        nameKo: "팍스 트루샷",
         image: "images/weapons/variants/pax_trueshot.png",
         description: "",
         weaponClass: "handgun",
@@ -6718,6 +6782,7 @@ const ITEMS = [
     id: "weapon_scottfield",
     category: "weapon",
     name: "Scottfield",
+    nameKo: "스코필드",
     image: "images/weapons/scottfield.png",
 
     // 검색 필터용
@@ -6769,6 +6834,7 @@ const ITEMS = [
       {
         id: "scottfield_brawler",
         name: "Scottfield Brawler",
+        nameKo: "스코필드 브롤러",
         image: "images/weapons/variants/scottfield_brawler.png",
         description: "",
         weaponClass: "handgun",
@@ -6785,6 +6851,7 @@ const ITEMS = [
       {
         id: "scottfield_precision",
         name: "Scottfield Precision",
+        nameKo: "스코필드 프리시전",
         image: "images/weapons/variants/scottfield_precision.png",
         description: "",
         weaponClass: "handgun",
@@ -6804,6 +6871,7 @@ const ITEMS = [
       {
         id: "scottfield_spitfire",
         name: "Scottfield Spitfire",
+        nameKo: "스코필드 스핏파이어",
         image: "images/weapons/variants/scottfield_spitfire.png",
         description: "",
         weaponClass: "handgun",
@@ -6820,6 +6888,7 @@ const ITEMS = [
       {
         id: "scottfield_swift",
         name: "Scottfield Swift",
+        nameKo: "스코필드 스위프트",
         image: "images/weapons/variants/scottfield_swift.png",
         description: "",
         weaponClass: "handgun",
@@ -6837,6 +6906,7 @@ const ITEMS = [
     id: "weapon_mako_1895",
     category: "weapon",
     name: "Mako 1895",
+    nameKo: "마코 1895",
     image: "images/weapons/mako_1895.png",
 
     // 검색 필터용
@@ -6886,6 +6956,7 @@ const ITEMS = [
       {
         id: "mako1895_aperture",
         name: "Mako 1895 Aperture",
+        nameKo: "마코 1895 애퍼쳐",
         image: "images/weapons/variants/mako1895_aperture.png",
         description: "",
         price: 378,
@@ -6897,6 +6968,7 @@ const ITEMS = [
       {
         id: "mako1895_claw",
         name: "Mako 1895 Claw",
+        nameKo: "마코 1895 클로",
         image: "images/weapons/variants/mako1895_claw.png",
         description: "",
         price: 370,
@@ -6911,6 +6983,7 @@ const ITEMS = [
     id: "weapon_martini_henry",
     category: "weapon",
     name: "Martini-Henry",
+    nameKo: "마티니-헨리",
     image: "images/weapons/martini_henry.png",
 
     // 검색 필터용
@@ -6963,6 +7036,7 @@ const ITEMS = [
       {
         id: "martinihenry_deadeye",
         name: "Martini-Henry Deadeye",
+        nameKo: "마티니-헨리 데드아이",
         image: "images/weapons/variants/martinihenry_deadeye.png",
         description: "",
         price: 128,
@@ -6974,6 +7048,7 @@ const ITEMS = [
       {
         id: "martinihenry_ironside",
         name: "Martini-Henry Ironside",
+        nameKo: "마티니-헨리 아이언사이드",
         image: "images/weapons/variants/martinihenry_ironside.png",
         description: "",
         price: 159,
@@ -6989,6 +7064,7 @@ const ITEMS = [
       {
         id: "martinihenry_marksman",
         name: "Martini-Henry Marksman",
+        nameKo: "마티니-헨리 막스맨",
         image: "images/weapons/variants/martinihenry_marksman.png",
         description: "",
         price: 134,
@@ -7000,6 +7076,7 @@ const ITEMS = [
       {
         id: "martinihenry_riposte",
         name: "Martini-Henry Riposte",
+        nameKo: "마티니-헨리 리포스트",
         image: "images/weapons/variants/martinihenry_riposte.png",
         // ✅ [확인됨] 가격 132 — 사용자 확인
         description: "",
@@ -7015,6 +7092,7 @@ const ITEMS = [
     id: "weapon_sparks",
     category: "weapon",
     name: "Sparks",
+    nameKo: "스팍스",
     image: "images/weapons/sparks.png",
 
     // 검색 필터용
@@ -7067,6 +7145,7 @@ const ITEMS = [
       {
         id: "sparks_silencer",
         name: "Sparks Silencer",
+        nameKo: "스팍스 사일런서",
         image: "images/weapons/variants/sparks_silencer.png",
         description: "",
         price: 149,
@@ -7081,6 +7160,7 @@ const ITEMS = [
       {
         id: "sparks_pistol_silencer",
         name: "Sparks Pistol Silencer",
+        nameKo: "스팍스 피스톨 사일런서",
         image: "images/weapons/variants/sparks_pistol_silencer.png",
         description: "",
         weaponClass: "handgun", // 절단형 권총이라 소총군이 아닌 권총군으로 override
@@ -7116,6 +7196,7 @@ const ITEMS = [
       {
         id: "sparks_pistol",
         name: "Sparks Pistol",
+        nameKo: "스팍스 피스톨",
         image: "images/weapons/variants/sparks_pistol.png",
         description: "",
         weaponClass: "handgun", // 절단형 권총이라 소총군이 아닌 권총군으로 override
@@ -7150,6 +7231,7 @@ const ITEMS = [
       {
         id: "sparks_sniper",
         name: "Sparks Sniper",
+        nameKo: "스팍스 스나이퍼",
         image: "images/weapons/variants/sparks_sniper.png",
         // ⚠ 낙하범위/탄속 등 본체와 동일해서 탄약도 본체(sparks_long 등) 그대로 공유
         description: "",
@@ -7166,6 +7248,7 @@ const ITEMS = [
     id: "weapon_haymaker",
     category: "weapon",
     name: "Haymaker",
+    nameKo: "헤이메이커",
     image: "images/weapons/haymaker.png",
 
     // 검색 필터용
@@ -7222,6 +7305,7 @@ const ITEMS = [
     id: "weapon_uppercut",
     category: "weapon",
     name: "Uppercut",
+    nameKo: "어퍼컷",
     image: "images/weapons/uppercut.png",
 
     // 검색 필터용
@@ -7272,6 +7356,7 @@ const ITEMS = [
       {
         id: "uppercut_precision",
         name: "Uppercut Precision",
+        nameKo: "어퍼컷 프리시전",
         image: "images/weapons/variants/uppercut_precision.png",
         description: "",
         noAkimbo: true, // 정밀 조준경 부착형이라 아킴보(듀얼 웰드) 불가
@@ -7301,6 +7386,7 @@ const ITEMS = [
       {
         id: "uppercut_deadeye",
         name: "Uppercut Deadeye",
+        nameKo: "어퍼컷 데드아이",
         image: "images/weapons/variants/uppercut_deadeye.png",
         description: "",
         noAkimbo: true, // 정밀 조준경 부착형이라 아킴보(듀얼 웰드) 불가
@@ -7333,6 +7419,7 @@ const ITEMS = [
     id: "weapon_1890_cavalry",
     category: "weapon",
     name: "1890 Cavalry",
+    nameKo: "1890 카발리",
     image: "images/weapons/cavalry_1890.png",
 
     // 검색 필터용
@@ -7386,6 +7473,7 @@ const ITEMS = [
     id: "weapon_krag",
     category: "weapon",
     name: "Krag",
+    nameKo: "크래그",
     image: "images/weapons/krag.png",
 
     // 검색 필터용
@@ -7436,6 +7524,7 @@ const ITEMS = [
       {
         id: "krag_bayonet",
         name: "Krag Bayonet",
+        nameKo: "크래그 바요넷",
         image: "images/weapons/variants/krag_bayonet.png",
         description: "",
         price: 460,
@@ -7446,6 +7535,7 @@ const ITEMS = [
       {
         id: "krag_sniper",
         name: "Krag Sniper",
+        nameKo: "크래그 스나이퍼",
         image: "images/weapons/variants/krag_sniper.png",
         description: "",
         price: 517,
@@ -7457,6 +7547,7 @@ const ITEMS = [
       {
         id: "krag_silencer",
         name: "Krag Silencer",
+        nameKo: "크래그 사일런서",
         image: "images/weapons/variants/krag_silencer.png",
         description: "",
         price: 517,
@@ -7480,6 +7571,7 @@ const ITEMS = [
     id: "weapon_lebel_1886",
     category: "weapon",
     name: "Lebel 1886",
+    nameKo: "레벨 1886",
     image: "images/weapons/lebel_1886.png",
 
     // 검색 필터용
@@ -7530,6 +7622,7 @@ const ITEMS = [
       {
         id: "lebel1886_aperture",
         name: "Lebel 1886 Aperture",
+        nameKo: "레벨 1886 애퍼쳐",
         image: "images/weapons/variants/lebel1886_aperture.png",
         description: "",
         price: 417,
@@ -7540,6 +7633,7 @@ const ITEMS = [
       {
         id: "lebel1886_talon",
         name: "Lebel 1886 Talon",
+        nameKo: "레벨 1886 탤런",
         image: "images/weapons/variants/lebel1886_talon.png",
         description: "",
         price: 407,
@@ -7550,6 +7644,7 @@ const ITEMS = [
       {
         id: "lebel1886_marksman",
         name: "Lebel 1886 Marksman",
+        nameKo: "레벨 1886 막스맨",
         image: "images/weapons/variants/lebel1886_marksman.png",
         description: "",
         price: 437,
@@ -7565,6 +7660,7 @@ const ITEMS = [
     id: "weapon_mosin_nagant",
     category: "weapon",
     name: "Mosin-Nagant",
+    nameKo: "모신 나강",
     image: "images/weapons/mosin_nagant.png",
 
     // 검색 필터용
@@ -7614,6 +7710,7 @@ const ITEMS = [
       {
         id: "mosinnagant_bayonet",
         name: "Mosin-Nagant Bayonet",
+        nameKo: "모신 나강 바요넷",
         image: "images/weapons/variants/mosinnagant_bayonet.png",
         description: "",
         price: 630,
@@ -7624,6 +7721,7 @@ const ITEMS = [
       {
         id: "mosinnagant_sniper",
         name: "Mosin-Nagant Sniper",
+        nameKo: "모신 나강 스나이퍼",
         image: "images/weapons/variants/mosinnagant_sniper.png",
         description: "",
         price: 713,
@@ -7637,6 +7735,7 @@ const ITEMS = [
       {
         id: "mosinnagant_avtomat",
         name: "Mosin-Nagant Avtomat",
+        nameKo: "모신 나강 압토마트",
         image: "images/weapons/variants/mosinnagant_avtomat.png",
         description: "",
         price: 1250,
@@ -7667,6 +7766,7 @@ const ITEMS = [
     id: "weapon_berthier_1892",
     category: "weapon",
     name: "Berthier 1892",
+    nameKo: "베르티에 1892",
     image: "images/weapons/berthier_1892.png",
 
     // 검색 필터용
@@ -7717,6 +7817,7 @@ const ITEMS = [
       {
         id: "berthier1892_riposte",
         name: "Berthier 1892 Riposte",
+        nameKo: "베르티에 1892 리포스트",
         image: "images/weapons/variants/berthier1892_riposte.png",
         description: "",
         price: 390,
@@ -7728,6 +7829,7 @@ const ITEMS = [
       {
         id: "berthier1892_deadeye",
         name: "Berthier 1892 Deadeye",
+        nameKo: "베르티에 1892 데드아이",
         image: "images/weapons/variants/berthier1892_deadeye.png",
         description: "",
         price: 397,
@@ -7739,6 +7841,7 @@ const ITEMS = [
       {
         id: "berthier1892_marksman",
         name: "Berthier 1892 Marksman",
+        nameKo: "베르티에 1892 막스맨",
         image: "images/weapons/variants/berthier1892_marksman.png",
         description: "",
         price: 413,
@@ -7754,6 +7857,7 @@ const ITEMS = [
     id: "weapon_mosin_obrez",
     category: "weapon",
     name: "Mosin Obrez",
+    nameKo: "모신 오브레즈",
     image: "images/weapons/mosin_obrez.png",
 
     // 검색 필터용
@@ -7803,6 +7907,7 @@ const ITEMS = [
       {
         id: "mosinobrez_mace",
         name: "Mosin Obrez Mace",
+        nameKo: "모신 오브레즈 메이스",
         image: "images/weapons/variants/mosinobrez_mace.png",
         description: "",
         price: 300,
@@ -7822,6 +7927,7 @@ const ITEMS = [
       {
         id: "mosinobrez_extended",
         name: "Mosin Obrez Extended",
+        nameKo: "모신 오브레즈 익스텐디드",
         image: "images/weapons/variants/mosinobrez_extended.png",
         description: "",
         price: 350,
@@ -7843,6 +7949,7 @@ const ITEMS = [
       {
         id: "mosinobrez_match",
         name: "Mosin Obrez Match",
+        nameKo: "모신 오브레즈 매치",
         image: "images/weapons/variants/mosinobrez_match.png",
         description: "",
         price: 345,
@@ -7868,6 +7975,7 @@ const ITEMS = [
       {
         id: "mosinobrez_sharpeye",
         name: "Mosin Obrez Sharpeye",
+        nameKo: "모신 오브레즈 샤프아이",
         image: "images/weapons/variants/mosinobrez_sharpeye.png",
         description: "",
         price: 362,
@@ -7898,6 +8006,7 @@ const ITEMS = [
     id: "weapon_auto5",
     category: "weapon",
     name: "Auto-5",
+    nameKo: "오토-5",
     image: "images/weapons/auto5.png",
 
     // 검색 필터용
@@ -7948,6 +8057,7 @@ const ITEMS = [
       {
         id: "auto4_shorty",
         name: "Auto-4 Shorty",
+        nameKo: "오토-4 쇼티",
         image: "images/weapons/variants/auto4_shorty.png",
         description: "",
         price: 300,
@@ -7983,6 +8093,7 @@ const ITEMS = [
     id: "weapon_homestead78",
     category: "weapon",
     name: "Homestead 78",
+    nameKo: "홈스테드 78",
     image: "images/weapons/homestead78.png",
 
     // 검색 필터용
@@ -8038,6 +8149,7 @@ const ITEMS = [
     id: "weapon_rival78",
     category: "weapon",
     name: "Rival 78",
+    nameKo: "라이벌 78",
     image: "images/weapons/rival78.png",
 
     // 검색 필터용
@@ -8089,6 +8201,7 @@ const ITEMS = [
       {
         id: "rival78_shorty",
         name: "Rival 78 Shorty",
+        nameKo: "라이벌 78 쇼티",
         image: "images/weapons/variants/rival78_shorty.png",
         description: "",
         price: 145,
@@ -8119,6 +8232,7 @@ const ITEMS = [
       {
         id: "rival78_trauma",
         name: "Rival 78 Trauma",
+        nameKo: "라이벌 78 트라우마",
         image: "images/weapons/variants/rival78_trauma.png",
         description: "",
         price: 180,
@@ -8131,6 +8245,7 @@ const ITEMS = [
       {
         id: "rival78_mace",
         name: "Rival 78 Mace",
+        nameKo: "라이벌 78 메이스",
         image: "images/weapons/variants/rival78_mace.png",
         description: "",
         price: 155,
@@ -8166,6 +8281,7 @@ const ITEMS = [
     id: "weapon_romero77",
     category: "weapon",
     name: "Romero 77",
+    nameKo: "로메로 77",
     image: "images/weapons/romero77.png",
 
     // 검색 필터용
@@ -8218,6 +8334,7 @@ const ITEMS = [
       {
         id: "romero77_shorty",
         name: "Romero 77 Shorty",
+        nameKo: "로메로 77 쇼티",
         image: "images/weapons/variants/romero77_shorty.png",
         description: "",
         price: 46,
@@ -8252,6 +8369,7 @@ const ITEMS = [
       {
         id: "romero77_talon",
         name: "Romero 77 Talon",
+        nameKo: "로메로 77 탤런",
         image: "images/weapons/variants/romero77_talon.png",
         description: "",
         price: 76,
@@ -8277,6 +8395,7 @@ const ITEMS = [
       {
         id: "romero77_hatchet",
         name: "Romero 77 Hatchet",
+        nameKo: "로메로 77 해칫",
         image: "images/weapons/variants/romero77_hatchet.png",
         // Shorty와 완전히 동일한 총(근접무기 유무만 차이)이라 탄약 전부 공유
         description: "",
@@ -8311,6 +8430,7 @@ const ITEMS = [
       {
         id: "romero77_alamo",
         name: "Romero 77 Alamo",
+        nameKo: "로메로 77 알라모",
         image: "images/weapons/variants/romero77_alamo.png",
         description: "",
         price: 98,
@@ -8343,6 +8463,7 @@ const ITEMS = [
     id: "weapon_slate",
     category: "weapon",
     name: "Slate",
+    nameKo: "슬레이트",
     image: "images/weapons/slate.png",
 
     // 검색 필터용
@@ -8392,6 +8513,7 @@ const ITEMS = [
       {
         id: "slate_riposte",
         name: "Slate Riposte",
+        nameKo: "슬레이트 리포스트",
         image: "images/weapons/variants/slate_riposte.png",
         description: "",
         price: 323,
@@ -8407,6 +8529,7 @@ const ITEMS = [
     id: "weapon_specter1882",
     category: "weapon",
     name: "Specter 1882",
+    nameKo: "스펙터 1882",
     image: "images/weapons/specter1882.png",
 
     // 검색 필터용
@@ -8458,6 +8581,7 @@ const ITEMS = [
       {
         id: "specter1882_shorty",
         name: "Specter 1882 Shorty",
+        nameKo: "스펙터 1882 쇼티",
         image: "images/weapons/variants/specter1882_shorty.png",
         description: "",
         price: 164,
@@ -8492,6 +8616,7 @@ const ITEMS = [
       {
         id: "specter1882_bayonet",
         name: "Specter 1882 Bayonet",
+        nameKo: "스펙터 1882 바요넷",
         image: "images/weapons/variants/specter1882_bayonet.png",
         description: "",
         price: 198,
@@ -8518,6 +8643,7 @@ const ITEMS = [
     id: "weapon_terminus",
     category: "weapon",
     name: "Terminus",
+    nameKo: "터미누스",
     image: "images/weapons/terminus.png",
 
     // 검색 필터용
@@ -8569,6 +8695,7 @@ const ITEMS = [
       {
         id: "terminus_shorty",
         name: "Terminus Shorty",
+        nameKo: "터미누스 쇼티",
         image: "images/weapons/variants/terminus_shorty.png",
         description: "",
         price: 148,
@@ -8606,6 +8733,7 @@ const ITEMS = [
     id: "weapon_nitro_express",
     category: "weapon",
     name: "Nitro Express",
+    nameKo: "나이트로 익스프레스",
     image: "images/weapons/nitro_express.png",
 
     slotSize: 5,
@@ -8644,6 +8772,7 @@ const ITEMS = [
     id: "weapon_crossbow",
     category: "weapon",
     name: "Crossbow",
+    nameKo: "쇠뇌",
     image: "images/weapons/crossbow.png",
 
     slotSize: 4,
@@ -8682,6 +8811,7 @@ const ITEMS = [
       {
         id: "crossbow_deadeye",
         name: "Crossbow Deadeye",
+        nameKo: "쇠뇌 데드아이",
         image: "images/weapons/variants/crossbow_deadeye.png",
         description: "",
         price: 53,
@@ -8696,6 +8826,7 @@ const ITEMS = [
     id: "weapon_shredder",
     category: "weapon",
     name: "Shredder",
+    nameKo: "슈레더",
     image: "images/weapons/shredder.png",
 
     slotSize: 4,
@@ -8735,6 +8866,7 @@ const ITEMS = [
     id: "weapon_bomb_launcher",
     category: "weapon",
     name: "Bomb Launcher",
+    nameKo: "폭탄 발사기",
     image: "images/weapons/bomb_launcher.png",
 
     slotSize: 2,
@@ -8772,6 +8904,7 @@ const ITEMS = [
       {
         id: "bomb_lance",
         name: "Bomb Lance",
+        nameKo: "폭탄 창",
         image: "images/weapons/bomb_lance.png",
         description: "",
         weaponClass: "rifle",
@@ -8797,6 +8930,7 @@ const ITEMS = [
     id: "weapon_hunting_bow",
     category: "weapon",
     name: "Hunting Bow",
+    nameKo: "사냥용 활",
     image: "images/weapons/hunting_bow.png",
 
     slotSize: 3,
@@ -8836,6 +8970,7 @@ const ITEMS = [
     id: "weapon_chu_ko_nu",
     category: "weapon",
     name: "Chu Ko Nu",
+    nameKo: "연노",
     image: "images/weapons/chu_ko_nu.png",
 
     slotSize: 2,
@@ -8874,6 +9009,7 @@ const ITEMS = [
     id: "weapon_dolch_96",
     category: "weapon",
     name: "Dolch 96",
+    nameKo: "돌치 96",
     image: "images/weapons/dolch_96.png",
 
     slotSize: 2,
@@ -8912,6 +9048,7 @@ const ITEMS = [
     id: "weapon_flame_rifle",
     category: "weapon",
     name: "Flame Rifle",
+    nameKo: "화염 소총",
     image: "images/weapons/flame_rifle.png",
 
     slotSize: 2,
@@ -8952,6 +9089,7 @@ const ITEMS = [
     id: "weapon_hand_crossbow",
     category: "weapon",
     name: "Hand Crossbow",
+    nameKo: "한손 쇠뇌",
     image: "images/weapons/hand_crossbow.png",
 
     slotSize: 1,
@@ -8992,6 +9130,7 @@ const ITEMS = [
     id: "weapon_combat_axe",
     category: "weapon",
     name: "Combat Axe",
+    nameKo: "전투 도끼",
     image: "images/weapons/combat_axe.png",
 
     slotSize: 2,
@@ -9021,6 +9160,7 @@ const ITEMS = [
     id: "weapon_katana",
     category: "weapon",
     name: "Katana",
+    nameKo: "카타나",
     image: "images/weapons/katana.png",
 
     slotSize: 2,
@@ -9049,6 +9189,7 @@ const ITEMS = [
     id: "weapon_railroad_hammer",
     category: "weapon",
     name: "Railroad Hammer",
+    nameKo: "철도 망치",
     image: "images/weapons/railroad_hammer.png",
 
     slotSize: 2,
@@ -9077,6 +9218,7 @@ const ITEMS = [
     id: "weapon_baseball_bat",
     category: "weapon",
     name: "Baseball Bat",
+    nameKo: "야구방망이",
     image: "images/weapons/baseball_bat.png",
 
     slotSize: 1,
@@ -9105,6 +9247,7 @@ const ITEMS = [
     id: "weapon_cavalry_saber",
     category: "weapon",
     name: "Cavalry Saber",
+    nameKo: "카발리 세이버",
     image: "images/weapons/cavalry_saber.png",
 
     slotSize: 1,
@@ -9133,6 +9276,7 @@ const ITEMS = [
     id: "weapon_machete",
     category: "weapon",
     name: "Machete",
+    nameKo: "마체테",
     image: "images/weapons/machete.png",
 
     slotSize: 1,
@@ -9171,6 +9315,7 @@ const ITEMS = [
     id: "tool_blank_fire_decoys",
     category: "tool",
     name: "Blank Fire Decoys",
+    nameKo: "공포탄 교란 장치",
     image: "images/tools/blank_fire_decoys.png",
     toolClass: "distraction",
     toolTags: ["throwable", "noise"],
@@ -9185,6 +9330,7 @@ const ITEMS = [
     id: "tool_decoys",
     category: "tool",
     name: "Decoys",
+    nameKo: "교란 장치",
     image: "images/tools/decoys.png",
     toolClass: "distraction",
     toolTags: ["throwable", "noise"],
@@ -9199,6 +9345,7 @@ const ITEMS = [
     id: "tool_decoy_fuses",
     category: "tool",
     name: "Decoy Fuses",
+    nameKo: "교란용 신관",
     image: "images/tools/decoy_fuses.png",
     toolClass: "distraction",
     toolTags: ["throwable", "noise"],
@@ -9215,6 +9362,7 @@ const ITEMS = [
     id: "tool_first_aid_kit",
     category: "tool",
     name: "First Aid Kit",
+    nameKo: "구급상자",
     image: "images/tools/first_aid_kit.png",
     toolClass: "healing",
     toolTags: ["healing"],
@@ -9231,6 +9379,7 @@ const ITEMS = [
     id: "tool_flare_pistol",
     category: "tool",
     name: "Flare Pistol",
+    nameKo: "신호탄 피스톨",
     image: "images/tools/flare_pistol.png",
     toolClass: "fire_light",
     toolTags: ["fire", "light", "vision"],
@@ -9250,6 +9399,7 @@ const ITEMS = [
     id: "tool_fusees",
     category: "tool",
     name: "Fusees",
+    nameKo: "화염 신호탄",
     image: "images/tools/fusees.png",
     toolClass: "fire_light",
     toolTags: ["throwable", "fire", "light", "vision"],
@@ -9266,6 +9416,7 @@ const ITEMS = [
     id: "tool_dusters",
     category: "tool",
     name: "Dusters",
+    nameKo: "너클",
     image: "images/tools/dusters.png",
     toolClass: "melee",
     toolTags: ["melee"],
@@ -9279,6 +9430,7 @@ const ITEMS = [
     id: "tool_heavy_knife",
     category: "tool",
     name: "Heavy Knife",
+    nameKo: "헤비 나이프",
     image: "images/tools/heavy_knife.png",
     toolClass: "melee",
     toolTags: ["rending", "melee"],
@@ -9292,6 +9444,7 @@ const ITEMS = [
     id: "tool_knife",
     category: "tool",
     name: "Knife",
+    nameKo: "나이프",
     image: "images/tools/knife.png",
     toolClass: "melee",
     toolTags: ["rending", "melee"],
@@ -9305,6 +9458,7 @@ const ITEMS = [
     id: "tool_knuckle_knife",
     category: "tool",
     name: "Knuckle Knife",
+    nameKo: "너클 나이프",
     image: "images/tools/knuckle_knife.png",
     toolClass: "melee",
     toolTags: ["melee"],
@@ -9320,6 +9474,7 @@ const ITEMS = [
     id: "tool_throwing_axes",
     category: "tool",
     name: "Throwing Axes",
+    nameKo: "투척 도끼",
     image: "images/tools/throwing_axes.png",
     toolClass: "throwable_melee",
     toolTags: ["throwable", "rending"],
@@ -9338,6 +9493,7 @@ const ITEMS = [
     id: "tool_throwing_knives",
     category: "tool",
     name: "Throwing Knives",
+    nameKo: "투척 나이프",
     image: "images/tools/throwing_knives.png",
     toolClass: "throwable_melee",
     toolTags: ["throwable", "rending"],
@@ -9356,6 +9512,7 @@ const ITEMS = [
     id: "tool_throwing_spear",
     category: "tool",
     name: "Throwing Spear",
+    nameKo: "투창",
     image: "images/tools/throwing_spear.png",
     toolClass: "throwable_melee",
     toolTags: ["throwable", "rending"],
@@ -9376,6 +9533,7 @@ const ITEMS = [
     id: "tool_derringer_pennyshot",
     category: "tool",
     name: "Derringer Pennyshot",
+    nameKo: "데린저 페니샷",
     image: "images/tools/derringer_pennyshot.png",
     toolClass: "pocket_pistol",
     toolTags: [], // ✅ [확인됨] 위키 자체에 해당 태그 카테고리 없음
@@ -9393,6 +9551,7 @@ const ITEMS = [
     id: "tool_quad_derringer",
     category: "tool",
     name: "Quad Derringer",
+    nameKo: "4연장 데린저",
     image: "images/tools/quad_derringer.png",
     toolClass: "pocket_pistol",
     toolTags: [],
@@ -9412,6 +9571,7 @@ const ITEMS = [
     id: "tool_alert_trip_mines",
     category: "tool",
     name: "Alert Trip Mines",
+    nameKo: "경보 인력식 지뢰",
     image: "images/tools/alert_trip_mines.png",
     toolClass: "trap",
     toolTags: ["placeable", "noise", "fire", "light"],
@@ -9426,6 +9586,7 @@ const ITEMS = [
     id: "tool_concertina_trip_mines",
     category: "tool",
     name: "Concertina Trip Mines",
+    nameKo: "윤형 철조망 인력식 지뢰",
     image: "images/tools/concertina_trip_mines.png",
     toolClass: "trap",
     toolTags: ["placeable", "rending"],
@@ -9440,6 +9601,7 @@ const ITEMS = [
     id: "tool_poison_trip_mines",
     category: "tool",
     name: "Poison Trip Mines",
+    nameKo: "독 인력식 지뢰",
     image: "images/tools/poison_trip_mines.png",
     toolClass: "trap",
     toolTags: ["placeable", "poison"],
@@ -9454,6 +9616,7 @@ const ITEMS = [
     id: "tool_bear_traps",
     category: "tool",
     name: "Bear Traps",
+    nameKo: "곰덫",
     image: "images/tools/bear_traps.png",
     toolClass: "trap",
     toolTags: ["placeable", "rending"],
@@ -9470,6 +9633,7 @@ const ITEMS = [
     id: "tool_choke_bombs",
     category: "tool",
     name: "Choke Bombs",
+    nameKo: "질식 폭탄",
     image: "images/tools/choke_bombs.png",
     toolClass: "other",
     toolTags: ["throwable"],
@@ -9484,6 +9648,7 @@ const ITEMS = [
     id: "tool_spyglass",
     category: "tool",
     name: "Spyglass",
+    nameKo: "망원경",
     image: "images/tools/spyglass.png",
     toolClass: "other",
     toolTags: [], // ✅ [확인됨] 위키 자체에 해당 태그 카테고리 없음
@@ -9510,6 +9675,7 @@ const ITEMS = [
     id: "consumable_ammo_box",
     category: "consumable",
     name: "Ammo Box",
+    nameKo: "탄약 상자",
     image: "images/consumables/ammo_box.png",
     consumableClass: "resupply",
     consumableTags: ["placeable"],
@@ -9523,6 +9689,7 @@ const ITEMS = [
     id: "consumable_tool_box",
     category: "consumable",
     name: "Tool Box",
+    nameKo: "도구 상자",
     image: "images/consumables/tool_box.png",
     consumableClass: "resupply",
     consumableTags: ["placeable"],
@@ -9538,6 +9705,7 @@ const ITEMS = [
     id: "consumable_fire_bomb",
     category: "consumable",
     name: "Fire Bomb",
+    nameKo: "화염 폭탄",
     image: "images/consumables/fire_bomb.png",
     consumableClass: "fire_light",
     consumableTags: ["throwable", "fire"],
@@ -9551,6 +9719,7 @@ const ITEMS = [
     id: "consumable_hellfire_bomb",
     category: "consumable",
     name: "Hellfire Bomb",
+    nameKo: "지옥불 폭탄",
     image: "images/consumables/hellfire_bomb.png",
     consumableClass: "fire_light",
     consumableTags: ["throwable", "fire"],
@@ -9564,6 +9733,7 @@ const ITEMS = [
     id: "consumable_liquid_fire_bomb",
     category: "consumable",
     name: "Liquid Fire Bomb",
+    nameKo: "액상 화염 폭탄",
     image: "images/consumables/liquid_fire_bomb.png",
     consumableClass: "fire_light",
     consumableTags: ["throwable", "fire"],
@@ -9579,6 +9749,7 @@ const ITEMS = [
     id: "consumable_dynamite_stick",
     category: "consumable",
     name: "Dynamite Stick",
+    nameKo: "다이너마이트",
     image: "images/consumables/dynamite_stick.png",
     consumableClass: "explosive",
     consumableTags: ["throwable", "explosive"],
@@ -9592,6 +9763,7 @@ const ITEMS = [
     id: "consumable_dynamite_bundle",
     category: "consumable",
     name: "Dynamite Bundle",
+    nameKo: "다이너마이트 다발",
     image: "images/consumables/dynamite_bundle.png",
     consumableClass: "explosive",
     consumableTags: ["throwable", "explosive"],
@@ -9605,6 +9777,7 @@ const ITEMS = [
     id: "consumable_waxed_dynamite_stick",
     category: "consumable",
     name: "Waxed Dynamite Stick",
+    nameKo: "방수 다이너마이트",
     image: "images/consumables/waxed_dynamite_stick.png",
     consumableClass: "explosive",
     consumableTags: ["throwable", "explosive"],
@@ -9618,6 +9791,7 @@ const ITEMS = [
     id: "consumable_big_dynamite_bundle",
     category: "consumable",
     name: "Big Dynamite Bundle",
+    nameKo: "큰 다이너마이트 다발",
     image: "images/consumables/big_dynamite_bundle.png",
     consumableClass: "explosive",
     consumableTags: ["throwable", "explosive"],
@@ -9631,6 +9805,7 @@ const ITEMS = [
     id: "consumable_sticky_bomb",
     category: "consumable",
     name: "Sticky Bomb",
+    nameKo: "가시 폭탄",
     image: "images/consumables/sticky_bomb.png",
     consumableClass: "explosive",
     consumableTags: ["throwable", "rending"],
@@ -9644,6 +9819,7 @@ const ITEMS = [
     id: "consumable_frag_bomb",
     category: "consumable",
     name: "Frag Bomb",
+    nameKo: "세열탄",
     image: "images/consumables/frag_bomb.png",
     consumableClass: "explosive",
     consumableTags: ["throwable", "rending"],
@@ -9657,6 +9833,7 @@ const ITEMS = [
     id: "consumable_dark_dynamite_satchel",
     category: "consumable",
     name: "Dark Dynamite Satchel",
+    nameKo: "휴대용 어둠의 다이너마이트",
     image: "images/consumables/dark_dynamite_satchel.png",
     consumableClass: "explosive",
     consumableTags: ["placeable", "explosive"],
@@ -9672,6 +9849,7 @@ const ITEMS = [
     id: "consumable_hive_bomb",
     category: "consumable",
     name: "Hive Bomb",
+    nameKo: "벌집 폭탄",
     image: "images/consumables/hive_bomb.png",
     consumableClass: "poison",
     consumableTags: ["throwable", "poison", "vision"],
@@ -9685,6 +9863,7 @@ const ITEMS = [
     id: "consumable_poison_bomb",
     category: "consumable",
     name: "Poison Bomb",
+    nameKo: "독 폭탄",
     image: "images/consumables/poison_bomb.png",
     consumableClass: "poison",
     consumableTags: ["throwable", "poison"],
@@ -9700,6 +9879,7 @@ const ITEMS = [
     id: "consumable_chaos_bomb",
     category: "consumable",
     name: "Chaos Bomb",
+    nameKo: "혼돈 폭탄",
     image: "images/consumables/chaos_bomb.png",
     consumableClass: "distraction",
     consumableTags: ["throwable", "noise"],
@@ -9715,6 +9895,7 @@ const ITEMS = [
     id: "consumable_antidote_shot",
     category: "consumable",
     name: "Antidote Shot",
+    nameKo: "해독제 주사",
     image: "images/consumables/antidote_shot.png",
     consumableClass: "over_time",
     consumableTags: ["healing"],
@@ -9728,6 +9909,7 @@ const ITEMS = [
     id: "consumable_antidote_shot_weak",
     category: "consumable",
     name: "Antidote Shot (Weak)",
+    nameKo: "소형 해독제 주사",
     image: "images/consumables/antidote_shot_weak.png",
     consumableClass: "over_time",
     consumableTags: ["healing"],
@@ -9741,6 +9923,7 @@ const ITEMS = [
     id: "consumable_regeneration_shot",
     category: "consumable",
     name: "Regeneration Shot",
+    nameKo: "재생 주사",
     image: "images/consumables/regeneration_shot.png",
     consumableClass: "over_time",
     consumableTags: ["healing"],
@@ -9754,6 +9937,7 @@ const ITEMS = [
     id: "consumable_regeneration_shot_weak",
     category: "consumable",
     name: "Regeneration Shot (Weak)",
+    nameKo: "소형 재생 주사",
     image: "images/consumables/regeneration_shot_weak.png",
     consumableClass: "over_time",
     consumableTags: ["healing"],
@@ -9767,6 +9951,7 @@ const ITEMS = [
     id: "consumable_stamina_shot",
     category: "consumable",
     name: "Stamina Shot",
+    nameKo: "기력 주사",
     image: "images/consumables/stamina_shot.png",
     consumableClass: "over_time",
     consumableTags: ["healing"],
@@ -9780,6 +9965,7 @@ const ITEMS = [
     id: "consumable_stamina_shot_weak",
     category: "consumable",
     name: "Stamina Shot (Weak)",
+    nameKo: "소형 기력 주사",
     image: "images/consumables/stamina_shot_weak.png",
     consumableClass: "over_time",
     consumableTags: ["healing"],
@@ -9795,6 +9981,7 @@ const ITEMS = [
     id: "consumable_medical_pack",
     category: "consumable",
     name: "Medical Pack",
+    nameKo: "의료 팩",
     image: "images/consumables/medical_pack.png",
     consumableClass: "healing",
     consumableTags: ["healing", "placeable"],
@@ -9808,6 +9995,7 @@ const ITEMS = [
     id: "consumable_vitality_shot",
     category: "consumable",
     name: "Vitality Shot",
+    nameKo: "활력 주사",
     image: "images/consumables/vitality_shot.png",
     consumableClass: "healing",
     consumableTags: ["healing"],
@@ -9821,6 +10009,7 @@ const ITEMS = [
     id: "consumable_vitality_shot_weak",
     category: "consumable",
     name: "Vitality Shot (Weak)",
+    nameKo: "소형 활력 주사",
     image: "images/consumables/vitality_shot_weak.png",
     consumableClass: "healing",
     consumableTags: ["healing"],
@@ -9834,6 +10023,7 @@ const ITEMS = [
     id: "consumable_recovery_shot",
     category: "consumable",
     name: "Recovery Shot",
+    nameKo: "회복 주사",
     image: "images/consumables/recovery_shot.png",
     consumableClass: "healing",
     consumableTags: ["healing"],
@@ -9849,6 +10039,7 @@ const ITEMS = [
     id: "consumable_stalker_beetle",
     category: "consumable",
     name: "Stalker Beetle",
+    nameKo: "스토커 딱정벌레",
     image: "images/consumables/stalker_beetle.png",
     consumableClass: "beetle",
     consumableTags: ["throwable", "rending", "noise", "poison"],
@@ -9862,6 +10053,7 @@ const ITEMS = [
     id: "consumable_choke_beetle",
     category: "consumable",
     name: "Choke Beetle",
+    nameKo: "질식 딱정벌레",
     image: "images/consumables/choke_beetle.png",
     consumableClass: "beetle",
     consumableTags: ["throwable", "noise"],
@@ -9875,6 +10067,7 @@ const ITEMS = [
     id: "consumable_fire_beetle",
     category: "consumable",
     name: "Fire Beetle",
+    nameKo: "화염 딱정벌레",
     image: "images/consumables/fire_beetle.png",
     consumableClass: "beetle",
     consumableTags: ["throwable", "noise", "fire"],
@@ -9890,6 +10083,7 @@ const ITEMS = [
     id: "consumable_concertina_bomb",
     category: "consumable",
     name: "Concertina Bomb",
+    nameKo: "윤형 철조망 폭탄",
     image: "images/consumables/concertina_bomb.png",
     consumableClass: "other",
     consumableTags: ["throwable", "rending"],
@@ -9903,6 +10097,7 @@ const ITEMS = [
     id: "consumable_flash_bomb",
     category: "consumable",
     name: "Flash Bomb",
+    nameKo: "섬광탄",
     image: "images/consumables/flash_bomb.png",
     consumableClass: "other",
     consumableTags: ["throwable", "light", "vision"],
@@ -9920,6 +10115,7 @@ const ITEMS = [
     id: "consumable_tarot_the_chariot",
     category: "consumable",
     name: "The Chariot",
+    nameKo: "전차",
     image: "images/consumables/tarot/the_chariot.png",
     consumableClass: "tarot",
     consumableTags: [],
@@ -9932,6 +10128,7 @@ const ITEMS = [
     id: "consumable_tarot_the_devil",
     category: "consumable",
     name: "The Devil",
+    nameKo: "악마",
     image: "images/consumables/tarot/the_devil.png",
     consumableClass: "tarot",
     consumableTags: [],
@@ -9944,6 +10141,7 @@ const ITEMS = [
     id: "consumable_tarot_the_empress",
     category: "consumable",
     name: "The Empress",
+    nameKo: "여제",
     image: "images/consumables/tarot/the_empress.png",
     consumableClass: "tarot",
     consumableTags: [],
@@ -9956,6 +10154,7 @@ const ITEMS = [
     id: "consumable_tarot_the_fool",
     category: "consumable",
     name: "The Fool",
+    nameKo: "광대",
     image: "images/consumables/tarot/the_fool.png",
     consumableClass: "tarot",
     consumableTags: [],
@@ -9968,6 +10167,7 @@ const ITEMS = [
     id: "consumable_tarot_the_garden",
     category: "consumable",
     name: "The Garden",
+    nameKo: "정원",
     image: "images/consumables/tarot/the_garden.png",
     consumableClass: "tarot",
     consumableTags: [],
@@ -9980,6 +10180,7 @@ const ITEMS = [
     id: "consumable_tarot_the_hanged_man",
     category: "consumable",
     name: "The Hanged Man",
+    nameKo: "매달린 사람",
     image: "images/consumables/tarot/the_hanged_man.png",
     consumableClass: "tarot",
     consumableTags: [],
@@ -9992,6 +10193,7 @@ const ITEMS = [
     id: "consumable_tarot_the_high_priestess",
     category: "consumable",
     name: "The High Priestess",
+    nameKo: "여사제",
     image: "images/consumables/tarot/the_high_priestess.png",
     consumableClass: "tarot",
     consumableTags: [],
@@ -10004,6 +10206,7 @@ const ITEMS = [
     id: "consumable_tarot_the_judgement",
     category: "consumable",
     name: "The Judgement",
+    nameKo: "심판",
     image: "images/consumables/tarot/the_judgement.png",
     consumableClass: "tarot",
     consumableTags: [],
@@ -10016,6 +10219,7 @@ const ITEMS = [
     id: "consumable_tarot_the_magician",
     category: "consumable",
     name: "The Magician",
+    nameKo: "마법사",
     image: "images/consumables/tarot/the_magician.png",
     consumableClass: "tarot",
     consumableTags: [],
@@ -10028,6 +10232,7 @@ const ITEMS = [
     id: "consumable_tarot_the_moon",
     category: "consumable",
     name: "The Moon",
+    nameKo: "달",
     image: "images/consumables/tarot/the_moon.png",
     consumableClass: "tarot",
     consumableTags: [],
@@ -10040,6 +10245,7 @@ const ITEMS = [
     id: "consumable_tarot_the_pathfinder",
     category: "consumable",
     name: "The Pathfinder",
+    nameKo: "길잡이",
     image: "images/consumables/tarot/the_pathfinder.png",
     consumableClass: "tarot",
     consumableTags: [],
@@ -10052,6 +10258,7 @@ const ITEMS = [
     id: "consumable_tarot_the_sun",
     category: "consumable",
     name: "The Sun",
+    nameKo: "태양",
     image: "images/consumables/tarot/the_sun.png",
     consumableClass: "tarot",
     consumableTags: [],
@@ -10064,6 +10271,7 @@ const ITEMS = [
     id: "consumable_tarot_the_tower",
     category: "consumable",
     name: "The Tower",
+    nameKo: "탑",
     image: "images/consumables/tarot/the_tower.png",
     consumableClass: "tarot",
     consumableTags: [],
@@ -10076,6 +10284,7 @@ const ITEMS = [
     id: "consumable_tarot_the_world",
     category: "consumable",
     name: "The World",
+    nameKo: "세계",
     image: "images/consumables/tarot/the_world.png",
     consumableClass: "tarot",
     consumableTags: [],
@@ -10098,6 +10307,7 @@ const ITEMS = [
     id: "trait_assailant",
     category: "trait",
     name: "Assailant",
+    nameKo: "습격자",
     image: "images/traits/trait_assailant.png",
     detailImage: "images/traits/trait_assailant_detail.png",
     traitClass: "attack",
@@ -10111,6 +10321,7 @@ const ITEMS = [
     id: "trait_berserker",
     category: "trait",
     name: "Berserker",
+    nameKo: "광전사",
     image: "images/traits/trait_berserker.png",
     detailImage: "images/traits/trait_berserker_detail.png",
     traitClass: "attack",
@@ -10124,6 +10335,7 @@ const ITEMS = [
     id: "trait_bolt_thrower",
     category: "trait",
     name: "Bolt Thrower",
+    nameKo: "볼트 던지기",
     image: "images/traits/trait_bolt_thrower.png",
     detailImage: "images/traits/trait_bolt_thrower_detail.png",
     traitClass: "attack",
@@ -10137,6 +10349,7 @@ const ITEMS = [
     id: "trait_fanning",
     category: "trait",
     name: "Fanning",
+    nameKo: "연속 발사",
     image: "images/traits/trait_fanning.png",
     detailImage: "images/traits/trait_fanning_detail.png",
     traitClass: "attack",
@@ -10150,6 +10363,7 @@ const ITEMS = [
     id: "trait_fast_fingers",
     category: "trait",
     name: "Fast Fingers",
+    nameKo: "빠른 손가락",
     image: "images/traits/trait_fast_fingers.png",
     detailImage: "images/traits/trait_fast_fingers_detail.png",
     traitClass: "attack",
@@ -10163,6 +10377,7 @@ const ITEMS = [
     id: "trait_hundred_hands",
     category: "trait",
     name: "Hundred Hands",
+    nameKo: "백 개의 손",
     image: "images/traits/trait_hundred_hands.png",
     detailImage: "images/traits/trait_hundred_hands_detail.png",
     traitClass: "attack",
@@ -10176,6 +10391,7 @@ const ITEMS = [
     id: "trait_iron_eye",
     category: "trait",
     name: "Iron Eye",
+    nameKo: "강철의 눈",
     image: "images/traits/trait_iron_eye.png",
     detailImage: "images/traits/trait_iron_eye_detail.png",
     traitClass: "attack",
@@ -10189,6 +10405,7 @@ const ITEMS = [
     id: "trait_levering",
     category: "trait",
     name: "Levering",
+    nameKo: "레버링",
     image: "images/traits/trait_levering.png",
     detailImage: "images/traits/trait_levering_detail.png",
     traitClass: "attack",
@@ -10202,6 +10419,7 @@ const ITEMS = [
     id: "trait_martialist",
     category: "trait",
     name: "Martialist",
+    nameKo: "무사",
     image: "images/traits/trait_martialist.png",
     detailImage: "images/traits/trait_martialist_detail.png",
     traitClass: "attack",
@@ -10215,6 +10433,7 @@ const ITEMS = [
     id: "trait_pitcher",
     category: "trait",
     name: "Pitcher",
+    nameKo: "투수",
     image: "images/traits/trait_pitcher.png",
     detailImage: "images/traits/trait_pitcher_detail.png",
     traitClass: "attack",
@@ -10228,6 +10447,7 @@ const ITEMS = [
     id: "trait_scopesmith",
     category: "trait",
     name: "Scopesmith",
+    nameKo: "스코프스미스",
     image: "images/traits/trait_scopesmith.png",
     detailImage: "images/traits/trait_scopesmith_detail.png",
     traitClass: "attack",
@@ -10241,6 +10461,7 @@ const ITEMS = [
     id: "trait_steady_aim",
     category: "trait",
     name: "Steady Aim",
+    nameKo: "안정된 조준",
     image: "images/traits/trait_steady_aim.png",
     detailImage: "images/traits/trait_steady_aim_detail.png",
     traitClass: "attack",
@@ -10256,6 +10477,7 @@ const ITEMS = [
     id: "trait_adrenaline",
     category: "trait",
     name: "Adrenaline",
+    nameKo: "아드레날린",
     image: "images/traits/trait_adrenaline.png",
     detailImage: "images/traits/trait_adrenaline_detail.png",
     traitClass: "defense",
@@ -10269,6 +10491,7 @@ const ITEMS = [
     id: "trait_bloodless",
     category: "trait",
     name: "Bloodless",
+    nameKo: "무혈",
     image: "images/traits/trait_bloodless.png",
     detailImage: "images/traits/trait_bloodless_detail.png",
     traitClass: "defense",
@@ -10282,6 +10505,7 @@ const ITEMS = [
     id: "trait_bulwark",
     category: "trait",
     name: "Bulwark",
+    nameKo: "방어벽",
     image: "images/traits/trait_bulwark.png",
     detailImage: "images/traits/trait_bulwark_detail.png",
     traitClass: "defense",
@@ -10295,6 +10519,7 @@ const ITEMS = [
     id: "trait_dauntless",
     category: "trait",
     name: "Dauntless",
+    nameKo: "강건함",
     image: "images/traits/trait_dauntless.png",
     detailImage: "images/traits/trait_dauntless_detail.png",
     traitClass: "defense",
@@ -10308,6 +10533,7 @@ const ITEMS = [
     id: "trait_doctor",
     category: "trait",
     name: "Doctor",
+    nameKo: "의사",
     image: "images/traits/trait_doctor.png",
     detailImage: "images/traits/trait_doctor_detail.png",
     traitClass: "defense",
@@ -10321,6 +10547,7 @@ const ITEMS = [
     id: "trait_hornskin",
     category: "trait",
     name: "Hornskin",
+    nameKo: "혼스킨",
     image: "images/traits/trait_hornskin.png",
     detailImage: "images/traits/trait_hornskin_detail.png",
     traitClass: "defense",
@@ -10334,6 +10561,7 @@ const ITEMS = [
     id: "trait_mithridatist",
     category: "trait",
     name: "Mithridatist",
+    nameKo: "만독불침",
     image: "images/traits/trait_mithridatist.png",
     detailImage: "images/traits/trait_mithridatist_detail.png",
     traitClass: "defense",
@@ -10347,6 +10575,7 @@ const ITEMS = [
     id: "trait_physician",
     category: "trait",
     name: "Physician",
+    nameKo: "내과의",
     image: "images/traits/trait_physician.png",
     detailImage: "images/traits/trait_physician_detail.png",
     traitClass: "defense",
@@ -10360,6 +10589,7 @@ const ITEMS = [
     id: "trait_salveskin",
     category: "trait",
     name: "Salveskin",
+    nameKo: "살브스킨",
     image: "images/traits/trait_salveskin.png",
     detailImage: "images/traits/trait_salveskin_detail.png",
     traitClass: "defense",
@@ -10373,6 +10603,7 @@ const ITEMS = [
     id: "trait_vigor",
     category: "trait",
     name: "Vigor",
+    nameKo: "원기",
     image: "images/traits/trait_vigor.png",
     detailImage: "images/traits/trait_vigor_detail.png",
     traitClass: "defense",
@@ -10388,6 +10619,7 @@ const ITEMS = [
     id: "trait_gator_legs",
     category: "trait",
     name: "Gator Legs",
+    nameKo: "악어 다리",
     image: "images/traits/trait_gator_legs.png",
     detailImage: "images/traits/trait_gator_legs_detail.png",
     traitClass: "movement",
@@ -10401,6 +10633,7 @@ const ITEMS = [
     id: "trait_greyhound",
     category: "trait",
     name: "Greyhound",
+    nameKo: "그레이하운드",
     image: "images/traits/trait_greyhound.png",
     detailImage: "images/traits/trait_greyhound_detail.png",
     traitClass: "movement",
@@ -10414,6 +10647,7 @@ const ITEMS = [
     id: "trait_kiteskin",
     category: "trait",
     name: "Kiteskin",
+    nameKo: "낙하산 피부",
     image: "images/traits/trait_kiteskin.png",
     detailImage: "images/traits/trait_kiteskin_detail.png",
     traitClass: "movement",
@@ -10427,6 +10661,7 @@ const ITEMS = [
     id: "trait_lightfoot",
     category: "trait",
     name: "Lightfoot",
+    nameKo: "가벼운 발걸음",
     image: "images/traits/trait_lightfoot.png",
     detailImage: "images/traits/trait_lightfoot_detail.png",
     traitClass: "movement",
@@ -10440,6 +10675,7 @@ const ITEMS = [
     id: "trait_shadow_leap",
     category: "trait",
     name: "Shadow Leap",
+    nameKo: "그림자 도약",
     image: "images/traits/trait_shadow_leap.png",
     detailImage: "images/traits/trait_shadow_leap_detail.png",
     traitClass: "movement",
@@ -10453,6 +10689,7 @@ const ITEMS = [
     id: "trait_surefoot",
     category: "trait",
     name: "Surefoot",
+    nameKo: "흔들리지 않는 걸음",
     image: "images/traits/trait_surefoot.png",
     detailImage: "images/traits/trait_surefoot_detail.png",
     traitClass: "movement",
@@ -10468,6 +10705,7 @@ const ITEMS = [
     id: "trait_ambidextrous",
     category: "trait",
     name: "Ambidextrous",
+    nameKo: "양손잡이",
     image: "images/traits/trait_ambidextrous.png",
     detailImage: "images/traits/trait_ambidextrous_detail.png",
     traitClass: "support",
@@ -10481,6 +10719,7 @@ const ITEMS = [
     id: "trait_beastface",
     category: "trait",
     name: "Beastface",
+    nameKo: "야수의 얼굴",
     image: "images/traits/trait_beastface.png",
     detailImage: "images/traits/trait_beastface_detail.png",
     traitClass: "support",
@@ -10494,6 +10733,7 @@ const ITEMS = [
     id: "trait_blade_seer",
     category: "trait",
     name: "Blade Seer",
+    nameKo: "검날을 보는 자",
     image: "images/traits/trait_blade_seer.png",
     detailImage: "images/traits/trait_blade_seer_detail.png",
     traitClass: "support",
@@ -10507,6 +10747,7 @@ const ITEMS = [
     id: "trait_blast_sense",
     category: "trait",
     name: "Blast Sense",
+    nameKo: "폭발의 감각",
     image: "images/traits/trait_blast_sense.png",
     detailImage: "images/traits/trait_blast_sense_detail.png",
     traitClass: "support",
@@ -10520,6 +10761,7 @@ const ITEMS = [
     id: "trait_bulletgrubber",
     category: "trait",
     name: "Bulletgrubber",
+    nameKo: "총알 집착",
     image: "images/traits/trait_bulletgrubber.png",
     detailImage: "images/traits/trait_bulletgrubber_detail.png",
     traitClass: "support",
@@ -10533,6 +10775,7 @@ const ITEMS = [
     id: "trait_catalyst",
     category: "trait",
     name: "Catalyst",
+    nameKo: "촉매제",
     image: "images/traits/trait_catalyst.png",
     detailImage: "images/traits/trait_catalyst_detail.png",
     traitClass: "support",
@@ -10546,6 +10789,7 @@ const ITEMS = [
     id: "trait_conduit",
     category: "trait",
     name: "Conduit",
+    nameKo: "도관",
     image: "images/traits/trait_conduit.png",
     detailImage: "images/traits/trait_conduit_detail.png",
     traitClass: "support",
@@ -10561,6 +10805,7 @@ const ITEMS = [
     id: "trait_death_cheat",
     category: "trait",
     name: "Death Cheat",
+    nameKo: "죽음 모면",
     image: "images/traits/trait_death_cheat.png",
     detailImage: "images/traits/trait_death_cheat_detail.png",
     traitClass: "support",
@@ -10574,6 +10819,7 @@ const ITEMS = [
     id: "trait_decoy_supply",
     category: "trait",
     name: "Decoy Supply",
+    nameKo: "교란 장치 보급",
     image: "images/traits/trait_decoy_supply.png",
     detailImage: "images/traits/trait_decoy_supply_detail.png",
     traitClass: "support",
@@ -10587,6 +10833,7 @@ const ITEMS = [
     id: "trait_determination",
     category: "trait",
     name: "Determination",
+    nameKo: "투지",
     image: "images/traits/trait_determination.png",
     detailImage: "images/traits/trait_determination_detail.png",
     traitClass: "support",
@@ -10600,6 +10847,7 @@ const ITEMS = [
     id: "trait_frontiersman",
     category: "trait",
     name: "Frontiersman",
+    nameKo: "개척자",
     image: "images/traits/trait_frontiersman.png",
     detailImage: "images/traits/trait_frontiersman_detail.png",
     traitClass: "support",
@@ -10613,6 +10861,7 @@ const ITEMS = [
     id: "trait_ghoul",
     category: "trait",
     name: "Ghoul",
+    nameKo: "구울",
     image: "images/traits/trait_ghoul.png",
     detailImage: "images/traits/trait_ghoul_detail.png",
     traitClass: "support",
@@ -10626,6 +10875,7 @@ const ITEMS = [
     id: "trait_magpie",
     category: "trait",
     name: "Magpie",
+    nameKo: "까치",
     image: "images/traits/trait_magpie.png",
     detailImage: "images/traits/trait_magpie_detail.png",
     traitClass: "support",
@@ -10641,6 +10891,7 @@ const ITEMS = [
     id: "trait_necromancer",
     category: "trait",
     name: "Necromancer",
+    nameKo: "네크로맨서",
     image: "images/traits/trait_necromancer.png",
     detailImage: "images/traits/trait_necromancer_detail.png",
     traitClass: "support",
@@ -10654,6 +10905,7 @@ const ITEMS = [
     id: "trait_packmule",
     category: "trait",
     name: "Packmule",
+    nameKo: "짐노새",
     image: "images/traits/trait_packmule.png",
     detailImage: "images/traits/trait_packmule_detail.png",
     traitClass: "support",
@@ -10667,6 +10919,7 @@ const ITEMS = [
     id: "trait_pain_sense",
     category: "trait",
     name: "Pain Sense",
+    nameKo: "통각",
     image: "images/traits/trait_pain_sense.png",
     detailImage: "images/traits/trait_pain_sense_detail.png",
     traitClass: "support",
@@ -10680,6 +10933,7 @@ const ITEMS = [
     id: "trait_poacher",
     category: "trait",
     name: "Poacher",
+    nameKo: "밀렵꾼",
     image: "images/traits/trait_poacher.png",
     detailImage: "images/traits/trait_poacher_detail.png",
     traitClass: "support",
@@ -10693,6 +10947,7 @@ const ITEMS = [
     id: "trait_poltergeist",
     category: "trait",
     name: "Poltergeist",
+    nameKo: "폴터가이스트",
     image: "images/traits/trait_poltergeist.png",
     detailImage: "images/traits/trait_poltergeist_detail.png",
     traitClass: "support",
@@ -10706,6 +10961,7 @@ const ITEMS = [
     id: "trait_quartermaster",
     category: "trait",
     name: "Quartermaster",
+    nameKo: "보급 장교",
     image: "images/traits/trait_quartermaster.png",
     detailImage: "images/traits/trait_quartermaster_detail.png",
     traitClass: "support",
@@ -10719,6 +10975,7 @@ const ITEMS = [
     id: "trait_rampage",
     category: "trait",
     name: "Rampage",
+    nameKo: "난동",
     image: "images/traits/trait_rampage.png",
     detailImage: "images/traits/trait_rampage_detail.png",
     traitClass: "support",
@@ -10734,6 +10991,7 @@ const ITEMS = [
     id: "trait_relentless",
     category: "trait",
     name: "Relentless",
+    nameKo: "끈질김",
     image: "images/traits/trait_relentless.png",
     detailImage: "images/traits/trait_relentless_detail.png",
     traitClass: "support",
@@ -10748,6 +11006,7 @@ const ITEMS = [
     id: "trait_remedy",
     category: "trait",
     name: "Remedy",
+    nameKo: "치료제",
     image: "images/traits/trait_remedy.png",
     detailImage: "images/traits/trait_remedy_detail.png",
     traitClass: "support",
@@ -10761,6 +11020,7 @@ const ITEMS = [
     id: "trait_resilience",
     category: "trait",
     name: "Resilience",
+    nameKo: "회복력",
     image: "images/traits/trait_resilience.png",
     detailImage: "images/traits/trait_resilience_detail.png",
     traitClass: "support",
@@ -10774,6 +11034,7 @@ const ITEMS = [
     id: "trait_serpent",
     category: "trait",
     name: "Serpent",
+    nameKo: "서펀트",
     image: "images/traits/trait_serpent.png",
     detailImage: "images/traits/trait_serpent_detail.png",
     traitClass: "support",
@@ -10788,6 +11049,7 @@ const ITEMS = [
     id: "trait_shadow",
     category: "trait",
     name: "Shadow",
+    nameKo: "그림자",
     image: "images/traits/trait_shadow.png",
     detailImage: "images/traits/trait_shadow_detail.png",
     traitClass: "support",
@@ -10801,6 +11063,7 @@ const ITEMS = [
     id: "trait_silent_killer",
     category: "trait",
     name: "Silent Killer",
+    nameKo: "고요한 살인자",
     image: "images/traits/trait_silent_killer.png",
     detailImage: "images/traits/trait_silent_killer_detail.png",
     traitClass: "support",
@@ -10814,6 +11077,7 @@ const ITEMS = [
     id: "trait_vigilant",
     category: "trait",
     name: "Vigilant",
+    nameKo: "경계",
     image: "images/traits/trait_vigilant.png",
     detailImage: "images/traits/trait_vigilant_detail.png",
     traitClass: "support",
@@ -10827,6 +11091,7 @@ const ITEMS = [
     id: "trait_vulture",
     category: "trait",
     name: "Vulture",
+    nameKo: "독수리",
     image: "images/traits/trait_vulture.png",
     detailImage: "images/traits/trait_vulture_detail.png",
     traitClass: "support",
@@ -10840,6 +11105,7 @@ const ITEMS = [
     id: "trait_whispersmith",
     category: "trait",
     name: "Whispersmith",
+    nameKo: "고요한 발톱",
     image: "images/traits/trait_whispersmith.png",
     detailImage: "images/traits/trait_whispersmith_detail.png",
     traitClass: "support",
@@ -10853,6 +11119,7 @@ const ITEMS = [
     id: "trait_witness",
     category: "trait",
     name: "Witness",
+    nameKo: "증인",
     image: "images/traits/trait_witness.png",
     detailImage: "images/traits/trait_witness_detail.png",
     traitClass: "support",
