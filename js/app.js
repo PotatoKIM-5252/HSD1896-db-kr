@@ -3169,26 +3169,34 @@ function equipRandomWeaponRow(key, row) {
   if (row.dual) state.loadout[key][1] = { item, ammoId, ammoId2 };
 }
 
-const AKIMBO_RANDOM_CHANCE = 0.3; // 아킴보 가능한 권총이 뽑혔을 때 실제로 듀얼로 만들 확률
+// 무기 후보 풀 생성 — 아킴보 가능한 권총(핸드건, noAkimbo 아님)은 "듀얼 버전"을 완전히
+// 별개의 무기 후보로 하나 더 추가해서, 페어(듀얼)가 다른 무기들과 동일한 확률로 뽑히게 함
+// (예: 나강 M1895 단일 vs 나강 M1895 듀얼 vs 반달 73C ... 전부 똑같이 1/N 확률).
+function buildWeaponRowPool(weaponPool) {
+  const rows = [];
+  weaponPool.forEach((w) => {
+    rows.push({ item: w, dual: false });
+    if (w.weaponClass === "handgun" && !w.noAkimbo) {
+      rows.push({ item: w, dual: true });
+    }
+  });
+  return rows;
+}
 
 // 무기 두 자루(행)를 무작위로 골라 반환(장착은 하지 않음). 각 행은 { item, dual } —
 // dual이면 같은 무기를 아킴보(듀얼)로 옆 칸까지 채워 칸수를 2배로 계산.
 // 칸수 합 WEAPON_SLOT_LIMIT 이하, 샷건 최대 1자루, 5칸/6칸 스위치 조건까지 만족할 때까지 재시도.
 // (재시도해도 못 찾으면 null — 스위치를 아주 좁게 걸어둔 극단적인 경우에 대한 안전장치)
-function tryPickRandomWeapons(weaponPool, allowSlot5, allowSlot6) {
-  const shuffled = shuffleArray(weaponPool);
+function tryPickRandomWeapons(weaponRowPool, allowSlot5, allowSlot6) {
+  const shuffled = shuffleArray(weaponRowPool);
   const rows = [];
-  for (const w of shuffled) {
+  for (const candidate of shuffled) {
     if (rows.length >= 2) break;
-    if (w.weaponClass === "shotgun" && rows.some((r) => r.item.weaponClass === "shotgun")) continue;
+    if (candidate.item.weaponClass === "shotgun" && rows.some((r) => r.item.weaponClass === "shotgun")) continue;
     const usedSlots = rows.reduce((sum, r) => sum + (r.item.slotSize || 0) * (r.dual ? 2 : 1), 0);
-    const canAkimbo = w.weaponClass === "handgun" && !w.noAkimbo;
-    const wantDual = canAkimbo && Math.random() < AKIMBO_RANDOM_CHANCE;
-    if (wantDual && usedSlots + (w.slotSize || 0) * 2 <= WEAPON_SLOT_LIMIT) {
-      rows.push({ item: w, dual: true });
-    } else if (usedSlots + (w.slotSize || 0) <= WEAPON_SLOT_LIMIT) {
-      rows.push({ item: w, dual: false });
-    }
+    const cost = (candidate.item.slotSize || 0) * (candidate.dual ? 2 : 1);
+    if (usedSlots + cost > WEAPON_SLOT_LIMIT) continue;
+    rows.push(candidate);
   }
   const total = rows.reduce((sum, r) => sum + (r.item.slotSize || 0) * (r.dual ? 2 : 1), 0);
   if (total === 5 && !allowSlot5) return null;
@@ -3246,6 +3254,14 @@ function hasApertureSight(item) {
   return item.name.endsWith("Aperture");
 }
 
+// 필드(도구+소모품) 안에 특정 toolClass를 가진 도구가 있는지 확인
+function fieldHasToolClass(fieldIds, toolClass) {
+  return fieldIds.some((id) => {
+    const it = ITEMS.find((i) => i.id === id);
+    return it && it.category === "tool" && it.toolClass === toolClass;
+  });
+}
+
 // trait id → 조건 판정 함수.
 // context = { weapons: [item,...](장착된 무기들), fieldIds: [...], hasAkimboPair: boolean }
 const TRAIT_WEAPON_CONDITIONS = {
@@ -3253,6 +3269,8 @@ const TRAIT_WEAPON_CONDITIONS = {
   trait_martialist: (ctx) => ctx.weapons.some((w) => (w._trueParentId || w.id) === "weapon_katana"),
   trait_bolt_thrower: (ctx) => ctx.weapons.some((w) => ["weapon_crossbow", "weapon_bomb_launcher", "weapon_hand_crossbow"].includes(w._trueParentId || w.id)),
   trait_assailant: (ctx) => ctx.fieldIds.some((id) => ["tool_throwing_knives", "tool_throwing_axes"].includes(id)),
+  trait_poacher: (ctx) => fieldHasToolClass(ctx.fieldIds, "trap"), // 덫류 도구가 있어야 유효
+  trait_decoy_supply: (ctx) => fieldHasToolClass(ctx.fieldIds, "distraction"), // 교란 장치류 도구가 있어야 유효
   trait_iron_eye: (ctx) => ctx.weapons.some((w) => ["bolt", "lever", "pump"].includes(getWeaponActionType(w))),
   trait_levering: (ctx) => ctx.weapons.some((w) => getWeaponActionType(w) === "lever"),
   trait_fanning: (ctx) => ctx.weapons.some((w) => getWeaponActionType(w) === "revolver_sa"),
@@ -3301,12 +3319,14 @@ function pickTraitsExactBudget(candidates, targetPoints) {
 function generateRandomLoadout() {
   initLoadoutState();
 
-  // 1) 무기: 주슬롯 + 보조슬롯 각 1행. 아킴보 가능한 권총은 확률적으로 듀얼(같은 무기 페어)로
-  // 채워짐. 칸수 합/샷건 중복/5·6칸 스위치 조건을 만족할 때까지 재시도.
+  // 1) 무기: 주슬롯 + 보조슬롯 각 1행. 아킴보 가능한 권총은 "듀얼 버전"이 별개의 무기 후보로
+  // 풀에 추가되어 다른 무기들과 동일한 확률로 뽑힘. 칸수 합/샷건 중복/5·6칸 스위치 조건을
+  // 만족할 때까지 재시도.
   const weaponPool = getFlattenedWeaponItems().filter((item) => item.category === "weapon");
+  const weaponRowPool = buildWeaponRowPool(weaponPool);
   let weaponRows = null;
   for (let attempt = 0; attempt < 200 && weaponRows === null; attempt++) {
-    weaponRows = tryPickRandomWeapons(weaponPool, state.randomAllowSlot5, state.randomAllowSlot6);
+    weaponRows = tryPickRandomWeapons(weaponRowPool, state.randomAllowSlot5, state.randomAllowSlot6);
   }
   if (!weaponRows) weaponRows = [];
   if (weaponRows[0]) equipRandomWeaponRow(loadoutKey("weapon", "primary"), weaponRows[0]);
