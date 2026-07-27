@@ -223,6 +223,7 @@ function init() {
   });
 
   document.getElementById("clear-loadout-btn").addEventListener("click", clearLoadout);
+  document.getElementById("random-loadout-btn").addEventListener("click", generateRandomLoadout);
   document.getElementById("goto-analysis-btn").addEventListener("click", () => switchTab("analysis"));
   document.getElementById("clear-compare-btn").addEventListener("click", () => {
     state.compareEntries = [];
@@ -3119,6 +3120,106 @@ function renderLoadoutBoard() {
 }
 
 function clearLoadout() { initLoadoutState(); renderLoadoutBoard(); }
+
+// -------------------------------------------------------------------------
+// 랜덤 로드아웃 — 아래 필수 조건을 만족하는 로드아웃을 무작위로 생성(사용자 확정 규칙)
+//   1) 구급상자(tool_first_aid_kit) 정확히 1개
+//   2) 근접무기(toolClass:"melee")와 투척무기(toolClass:"throwable_melee") 중 최소 1개
+//   3) 2번에서 근접무기가 뽑혔으면 화염 신호탄(tool_fusees) 필수 동반
+//   4) 무기 두 자루 중 하나가 샷건이면 나머지 하나는 샷건 제외
+//   5) 재생 주사/활력 주사(약한 버전 포함) 중 최소 1개
+//   6) 타로 카드는 포함될 경우 "서로 다른 2종류 1장씩" 또는 "동일 카드 2장"까지만
+// -------------------------------------------------------------------------
+function pickRandomItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function shuffleArray(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function equipRandomWeaponSlot(key, item) {
+  const primaryOptions = getPrimaryAmmoOptions(item);
+  const ammoId = primaryOptions.length ? pickRandomItem(primaryOptions) : (item.defaultAmmo || null);
+  let ammoId2 = null;
+  if (isDualAmmoWeapon(item)) {
+    const secondaryOptions = getSecondaryAmmoOptions(item);
+    ammoId2 = secondaryOptions.length ? pickRandomItem(secondaryOptions) : getDefaultSecondaryAmmo(item);
+  }
+  state.loadout[key][0] = { item, ammoId, ammoId2 };
+}
+
+function generateRandomLoadout() {
+  initLoadoutState();
+
+  // 1) 무기: 주슬롯 + 보조슬롯 각 1자루. 칸수 합 WEAPON_SLOT_LIMIT 이하, 샷건은 최대 1자루.
+  const weaponPool = shuffleArray(getFlattenedWeaponItems().filter((item) => item.category === "weapon"));
+  const chosenWeapons = [];
+  for (const w of weaponPool) {
+    if (chosenWeapons.length >= 2) break;
+    const usedSlots = chosenWeapons.reduce((sum, c) => sum + (c.slotSize || 0), 0);
+    if (usedSlots + (w.slotSize || 0) > WEAPON_SLOT_LIMIT) continue;
+    if (w.weaponClass === "shotgun" && chosenWeapons.some((c) => c.weaponClass === "shotgun")) continue;
+    chosenWeapons.push(w);
+  }
+  if (chosenWeapons[0]) equipRandomWeaponSlot(loadoutKey("weapon", "primary"), chosenWeapons[0]);
+  if (chosenWeapons[1]) equipRandomWeaponSlot(loadoutKey("weapon", "secondary"), chosenWeapons[1]);
+
+  // 2) 필드 장비(도구+소모품, 공유 8칸) — 필수 항목부터 확정
+  const field = state.loadout["field__all"];
+  const pushField = (id) => { if (id && field.length < 8) field.push(id); };
+
+  pushField("tool_first_aid_kit"); // 1) 구급상자 고정 1개
+
+  const meleeToolIds = ITEMS.filter((i) => i.category === "tool" && i.toolClass === "melee").map((i) => i.id);
+  const throwableMeleeIds = ITEMS.filter((i) => i.category === "tool" && i.toolClass === "throwable_melee").map((i) => i.id);
+  const meleeOrThrowId = pickRandomItem([...meleeToolIds, ...throwableMeleeIds]);
+  pushField(meleeOrThrowId); // 2) 근접무기 또는 투척무기 중 1개
+  if (meleeToolIds.includes(meleeOrThrowId)) pushField("tool_fusees"); // 3) 근접무기 선택 시 화염 신호탄 필수
+
+  const healShotIds = [
+    "consumable_regeneration_shot", "consumable_regeneration_shot_weak",
+    "consumable_vitality_shot", "consumable_vitality_shot_weak",
+  ];
+  pushField(pickRandomItem(healShotIds)); // 5) 재생 주사/활력 주사 중 최소 1개
+
+  // 6) 타로 카드: 40% 확률로 포함. 포함 시 "서로 다른 2종류 1장씩" 또는 "동일 카드 2장"까지만.
+  const tarotIds = ITEMS.filter((i) => i.category === "consumable" && i.consumableClass === "tarot").map((i) => i.id);
+  if (tarotIds.length && Math.random() < 0.4) {
+    if (Math.random() < 0.5) {
+      const card = pickRandomItem(tarotIds);
+      pushField(card);
+      pushField(card);
+    } else {
+      const [cardA, cardB] = shuffleArray(tarotIds);
+      pushField(cardA);
+      pushField(cardB);
+    }
+  }
+
+  // 나머지 빈 칸: 타로를 제외한 도구/소모품 중 무작위로 채움(스택 한도는 기존 규칙 그대로 준수)
+  const fillCandidates = ITEMS.filter((i) =>
+    (i.category === "tool" || i.category === "consumable") &&
+    i.consumableClass !== "tarot" &&
+    i.id !== "tool_first_aid_kit"
+  );
+  let guard = 0;
+  while (field.length < 8 && fillCandidates.length && guard < 500) {
+    guard++;
+    const cand = pickRandomItem(fillCandidates);
+    const stackGroup = getConsumableStackGroup(cand);
+    if (stackGroup) {
+      const currentCount = field.filter((id) => id === cand.id).length;
+      if (currentCount >= CONSUMABLE_STACK_MAX) continue;
+    }
+    pushField(cand.id);
+  }
+
+  renderLoadoutBoard();
+  showToast("랜덤 로드아웃을 생성했습니다.", "info");
+}
 
 // -------------------------------------------------------------------------
 // 커뮤니티 로드아웃 — 현재 로드아웃을 Firestore에 저장/공유, 남이 올린 것도 불러오기

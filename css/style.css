@@ -1344,7 +1344,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   margin-top: 22px;
 }
 
-#clear-loadout-btn, #goto-analysis-btn {
+#clear-loadout-btn, #random-loadout-btn, #goto-analysis-btn {
   border-radius: var(--radius);
   font-size: 13px;
   font-weight: 500;
@@ -1356,6 +1356,8 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 #clear-loadout-btn:hover { border-color: var(--danger); color: var(--danger-strong); }
+
+#random-loadout-btn:hover { border-color: var(--accent); color: var(--accent-strong); }
 
 #goto-analysis-btn {
   background: var(--accent);
