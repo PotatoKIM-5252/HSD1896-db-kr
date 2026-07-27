@@ -247,11 +247,13 @@ function init() {
     renderCommunityLoadoutList();
   });
   document.getElementById("community-price-min").addEventListener("input", (e) => {
+    e.target.value = e.target.value.replace(/[^0-9]/g, "");
     const v = e.target.value.trim();
     state.communityPriceMin = v === "" ? null : Number(v);
     renderCommunityLoadoutList();
   });
   document.getElementById("community-price-max").addEventListener("input", (e) => {
+    e.target.value = e.target.value.replace(/[^0-9]/g, "");
     const v = e.target.value.trim();
     state.communityPriceMax = v === "" ? null : Number(v);
     renderCommunityLoadoutList();
