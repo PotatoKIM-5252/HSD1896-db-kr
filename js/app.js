@@ -85,8 +85,7 @@ const state = {
   communityPriceMin: null,
   communityPriceMax: null,
 
-  // 랜덤 로드아웃: 무기 칸수 합이 5칸/6칸이 되는 조합을 허용할지 여부(끄면 해당 합계는 제외)
-  randomAllowSlot5: true,
+  // 랜덤 로드아웃: 무기 칸수 상한 스위치 — 켜면 6칸까지, 끄면 5칸까지만 허용
   randomAllowSlot6: true,
 };
 
@@ -228,9 +227,6 @@ function init() {
 
   document.getElementById("clear-loadout-btn").addEventListener("click", clearLoadout);
   document.getElementById("random-loadout-btn").addEventListener("click", generateRandomLoadout);
-  document.getElementById("random-allow-slot5-toggle").addEventListener("change", (e) => {
-    state.randomAllowSlot5 = e.target.checked;
-  });
   document.getElementById("random-allow-slot6-toggle").addEventListener("change", (e) => {
     state.randomAllowSlot6 = e.target.checked;
   });
@@ -3185,9 +3181,8 @@ function buildWeaponRowPool(weaponPool) {
 
 // 무기 두 자루(행)를 무작위로 골라 반환(장착은 하지 않음). 각 행은 { item, dual } —
 // dual이면 같은 무기를 아킴보(듀얼)로 옆 칸까지 채워 칸수를 2배로 계산.
-// 칸수 합 WEAPON_SLOT_LIMIT 이하, 샷건 최대 1자루, 5칸/6칸 스위치 조건까지 만족할 때까지 재시도.
-// (재시도해도 못 찾으면 null — 스위치를 아주 좁게 걸어둔 극단적인 경우에 대한 안전장치)
-function tryPickRandomWeapons(weaponRowPool, allowSlot5, allowSlot6) {
+// maxTotal(5 또는 6, 무기 칸수 스위치로 결정)을 넘지 않는 선에서, 샷건은 최대 1자루만 담음.
+function pickRandomWeapons(weaponRowPool, maxTotal) {
   const shuffled = shuffleArray(weaponRowPool);
   const rows = [];
   for (const candidate of shuffled) {
@@ -3195,12 +3190,9 @@ function tryPickRandomWeapons(weaponRowPool, allowSlot5, allowSlot6) {
     if (candidate.item.weaponClass === "shotgun" && rows.some((r) => r.item.weaponClass === "shotgun")) continue;
     const usedSlots = rows.reduce((sum, r) => sum + (r.item.slotSize || 0) * (r.dual ? 2 : 1), 0);
     const cost = (candidate.item.slotSize || 0) * (candidate.dual ? 2 : 1);
-    if (usedSlots + cost > WEAPON_SLOT_LIMIT) continue;
+    if (usedSlots + cost > maxTotal) continue;
     rows.push(candidate);
   }
-  const total = rows.reduce((sum, r) => sum + (r.item.slotSize || 0) * (r.dual ? 2 : 1), 0);
-  if (total === 5 && !allowSlot5) return null;
-  if (total === 6 && !allowSlot6) return null;
   return rows;
 }
 
@@ -3320,15 +3312,12 @@ function generateRandomLoadout() {
   initLoadoutState();
 
   // 1) 무기: 주슬롯 + 보조슬롯 각 1행. 아킴보 가능한 권총은 "듀얼 버전"이 별개의 무기 후보로
-  // 풀에 추가되어 다른 무기들과 동일한 확률로 뽑힘. 칸수 합/샷건 중복/5·6칸 스위치 조건을
-  // 만족할 때까지 재시도.
+  // 풀에 추가되어 다른 무기들과 동일한 확률로 뽑힘. 무기 칸수 스위치가 켜져 있으면 6칸까지,
+  // 꺼져 있으면 5칸까지만 허용.
   const weaponPool = getFlattenedWeaponItems().filter((item) => item.category === "weapon");
   const weaponRowPool = buildWeaponRowPool(weaponPool);
-  let weaponRows = null;
-  for (let attempt = 0; attempt < 200 && weaponRows === null; attempt++) {
-    weaponRows = tryPickRandomWeapons(weaponRowPool, state.randomAllowSlot5, state.randomAllowSlot6);
-  }
-  if (!weaponRows) weaponRows = [];
+  const maxWeaponSlotTotal = state.randomAllowSlot6 ? WEAPON_SLOT_LIMIT : 5;
+  const weaponRows = pickRandomWeapons(weaponRowPool, maxWeaponSlotTotal);
   if (weaponRows[0]) equipRandomWeaponRow(loadoutKey("weapon", "primary"), weaponRows[0]);
   if (weaponRows[1]) equipRandomWeaponRow(loadoutKey("weapon", "secondary"), weaponRows[1]);
   const chosenWeapons = weaponRows.map((r) => r.item);

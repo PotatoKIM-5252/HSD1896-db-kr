@@ -92,12 +92,15 @@
 
       </div>
       <div id="loadout-actions">
-        <div id="random-loadout-options">
-          <label><input type="checkbox" id="random-allow-slot5-toggle" checked>무기 5칸 허용</label>
-          <label><input type="checkbox" id="random-allow-slot6-toggle" checked>무기 6칸 허용</label>
-        </div>
         <button id="clear-loadout-btn" type="button">로드아웃 초기화</button>
-        <button id="random-loadout-btn" type="button">랜덤 로드아웃</button>
+        <div id="random-loadout-col">
+          <button id="random-loadout-btn" type="button">랜덤 로드아웃</button>
+          <label id="random-slot6-switch">
+            <input type="checkbox" id="random-allow-slot6-toggle" checked>
+            <span class="switch-track"><span class="switch-thumb"></span></span>
+            <span class="switch-caption" data-on="무기 6칸" data-off="무기 5칸"></span>
+          </label>
+        </div>
         <button id="goto-analysis-btn" type="button">무기 비교 탭으로 이동</button>
       </div>
 
