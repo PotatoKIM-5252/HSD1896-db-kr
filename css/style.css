@@ -2067,12 +2067,13 @@ button { font-family: var(--font-body); cursor: pointer; }
   align-items: start;
 }
 
-/* 마커를 클릭해 정보 패널이 열려있을 때만 오른쪽에 칸을 내줌 */
+/* 마커를 클릭해 정보 패널이 열려있을 때만 왼쪽에 칸을 내줌 */
 #maps-layout:has(#map-info-panel:not([hidden])) {
-  grid-template-columns: 1fr 360px;
+  grid-template-columns: 360px 1fr;
 }
 
-#maps-main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+#maps-main { display: flex; flex-direction: column; gap: 16px; min-width: 0; order: 2; }
+#map-info-panel { order: 1; }
 
 #map-select-row { display: flex; flex-wrap: wrap; gap: 8px; }
 
@@ -2133,9 +2134,12 @@ button { font-family: var(--font-body); cursor: pointer; }
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
+  display: flex;
+  justify-content: center;
 }
 
-#map-viewport { position: relative; width: 100%; aspect-ratio: 1 / 1; }
+/* 지도가 화면 세로 길이를 넘지 않고 한눈에 들어오도록 뷰포트 높이 기준으로 크기 상한을 둠 */
+#map-viewport { position: relative; width: min(100%, 62vh); aspect-ratio: 1 / 1; }
 
 #map-base-img { width: 100%; height: 100%; object-fit: contain; display: block; }
 
