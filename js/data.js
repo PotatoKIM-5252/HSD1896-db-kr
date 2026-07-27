@@ -5656,6 +5656,7 @@ const ITEMS = [
         name: "Nagant M1895 Precision",
         image: "images/weapons/variants/nagant_precision.png",
         description: "",
+        noAkimbo: true, // 정밀 조준경 부착형이라 아킴보(듀얼 웰드) 불가
         slotSize: 2,
         price: 29,
         chamber: {
@@ -5686,6 +5687,7 @@ const ITEMS = [
         name: "Nagant M1895 Deadeye",
         image: "images/weapons/variants/nagant_deadeye.png",
         description: "",
+        noAkimbo: true, // 정밀 조준경 부착형이라 아킴보(듀얼 웰드) 불가
         slotSize: 2,
         price: 30,
         chamber: {
@@ -6786,6 +6788,7 @@ const ITEMS = [
         image: "images/weapons/variants/scottfield_precision.png",
         description: "",
         weaponClass: "handgun",
+        noAkimbo: true, // 정밀 조준경 부착형이라 아킴보(듀얼 웰드) 불가
         price: 85,
         slotSize: 2,
         chamber: {
@@ -7271,6 +7274,7 @@ const ITEMS = [
         name: "Uppercut Precision",
         image: "images/weapons/variants/uppercut_precision.png",
         description: "",
+        noAkimbo: true, // 정밀 조준경 부착형이라 아킴보(듀얼 웰드) 불가
         price: 321,
         slotSize: 3,
         chamber: {
@@ -7299,6 +7303,7 @@ const ITEMS = [
         name: "Uppercut Deadeye",
         image: "images/weapons/variants/uppercut_deadeye.png",
         description: "",
+        noAkimbo: true, // 정밀 조준경 부착형이라 아킴보(듀얼 웰드) 불가
         price: 337,
         slotSize: 3,
         chamber: {

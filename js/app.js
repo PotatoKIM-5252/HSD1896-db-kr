@@ -2749,10 +2749,11 @@ function renderWeaponSlotsRow(slotDef) {
   // 슬롯은 기본 1칸. 다만 0번 칸에 권총(weaponClass==="handgun")이 들어가면 옆에
   // 같은 사이즈의 빈 칸을 하나 더 보여줘서 듀얼 구성(같은 권총 2정)을 지원함.
   // 듀얼은 권총만 가능 — 2칸짜리 소총/카빈 등은 slotSize가 작아도 듀얼 불가.
+  // 프리시전/데드아이 등 정밀 조준경 부착형(noAkimbo:true)은 권총이어도 아킴보 불가.
   let visibleCount = 1;
   if (slotDef.max > 1) {
     const firstItem = state.loadout[key][0]?.item;
-    if (firstItem && firstItem.weaponClass === "handgun") visibleCount = 2;
+    if (firstItem && firstItem.weaponClass === "handgun" && !firstItem.noAkimbo) visibleCount = 2;
   }
   const isDualPair = visibleCount === 2;
 
