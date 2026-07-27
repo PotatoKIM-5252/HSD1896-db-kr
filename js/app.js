@@ -1264,7 +1264,7 @@ function renderOhkRangeBar(ohkRange, title) {
         <span style="left:100%">${maxLabel}m</span>
       </div>
       <p class="ohk-range-legend">
-        <span><i class="ohk-swatch" style="background:var(--success)"></i>${guaranteed}m까지 ${hasUnstable ? "보장" : "한방"}</span>
+        <span><i class="ohk-swatch" style="background:var(--success)"></i>${guaranteed}m까지 보장</span>
         ${hasUnstable ? `<span><i class="ohk-swatch" style="background:#d4c25e"></i>${unstableEnd}m까지 불안정</span>` : ""}
         <span><i class="ohk-swatch" style="background:var(--danger-strong)"></i>${noneFrom}m부터 불가</span>
       </p>
