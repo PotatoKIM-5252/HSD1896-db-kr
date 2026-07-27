@@ -3185,34 +3185,29 @@ function generateRandomLoadout() {
   ];
   pushField(pickRandomItem(healShotIds)); // 5) 재생 주사/활력 주사 중 최소 1개
 
-  // 6) 타로 카드: 40% 확률로 포함. 포함 시 "서로 다른 2종류 1장씩" 또는 "동일 카드 2장"까지만.
+  // 6) 타로 카드는 다른 도구/소모품과 동일한 확률로 나머지 빈 칸을 채울 때 후보에 포함되되,
+  // 전체 타로 장수만 최대 2장으로 제한(자연히 "다른 2종류 1장씩" 또는 "동일 카드 2장"만 나옴).
+  const TAROT_RANDOM_MAX = 2;
   const tarotIds = ITEMS.filter((i) => i.category === "consumable" && i.consumableClass === "tarot").map((i) => i.id);
-  if (tarotIds.length && Math.random() < 0.4) {
-    if (Math.random() < 0.5) {
-      const card = pickRandomItem(tarotIds);
-      pushField(card);
-      pushField(card);
-    } else {
-      const [cardA, cardB] = shuffleArray(tarotIds);
-      pushField(cardA);
-      pushField(cardB);
-    }
-  }
 
-  // 나머지 빈 칸: 타로를 제외한 도구/소모품 중 무작위로 채움(스택 한도는 기존 규칙 그대로 준수)
+  // 나머지 빈 칸: 구급상자를 제외한 모든 도구/소모품(타로 포함) 중 무작위로 채움
   const fillCandidates = ITEMS.filter((i) =>
     (i.category === "tool" || i.category === "consumable") &&
-    i.consumableClass !== "tarot" &&
     i.id !== "tool_first_aid_kit"
   );
   let guard = 0;
   while (field.length < 8 && fillCandidates.length && guard < 500) {
     guard++;
     const cand = pickRandomItem(fillCandidates);
-    const stackGroup = getConsumableStackGroup(cand);
-    if (stackGroup) {
-      const currentCount = field.filter((id) => id === cand.id).length;
-      if (currentCount >= CONSUMABLE_STACK_MAX) continue;
+    if (tarotIds.includes(cand.id)) {
+      const totalTarotCount = field.filter((id) => tarotIds.includes(id)).length;
+      if (totalTarotCount >= TAROT_RANDOM_MAX) continue;
+    } else {
+      const stackGroup = getConsumableStackGroup(cand);
+      if (stackGroup) {
+        const currentCount = field.filter((id) => id === cand.id).length;
+        if (currentCount >= CONSUMABLE_STACK_MAX) continue;
+      }
     }
     pushField(cand.id);
   }
