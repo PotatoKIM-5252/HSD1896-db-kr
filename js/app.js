@@ -3261,6 +3261,10 @@ const TRAIT_WEAPON_CONDITIONS = {
   trait_martialist: (ctx) => ctx.weapons.some((w) => (w._trueParentId || w.id) === "weapon_katana"),
   trait_bolt_thrower: (ctx) => ctx.weapons.some((w) => ["weapon_crossbow", "weapon_bomb_launcher", "weapon_hand_crossbow"].includes(w._trueParentId || w.id)),
   trait_assailant: (ctx) => ctx.fieldIds.some((id) => ["tool_throwing_knives", "tool_throwing_axes"].includes(id)),
+  // 위키 기준: 볼트(크로스보우)/화살(헌팅 보우)/하푼(핸드 크로스보우)/투척 도끼/투척 나이프 필요
+  trait_blade_seer: (ctx) =>
+    ctx.weapons.some((w) => ["weapon_crossbow", "weapon_hunting_bow", "weapon_hand_crossbow"].includes(w._trueParentId || w.id)) ||
+    ctx.fieldIds.some((id) => ["tool_throwing_axes", "tool_throwing_knives"].includes(id)),
   trait_poacher: (ctx) => fieldHasToolClass(ctx.fieldIds, "trap"), // 덫류 도구가 있어야 유효
   trait_decoy_supply: (ctx) => fieldHasToolClass(ctx.fieldIds, "distraction"), // 교란 장치류 도구가 있어야 유효
   trait_iron_eye: (ctx) => ctx.weapons.some((w) => ["bolt", "lever", "pump"].includes(getWeaponActionType(w))),
