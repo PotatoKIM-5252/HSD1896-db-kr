@@ -84,6 +84,10 @@ const state = {
   communitySort: "",       // "" | "price-asc" | "price-desc"
   communityPriceMin: null,
   communityPriceMax: null,
+
+  // 랜덤 로드아웃: 무기 칸수 합이 5칸/6칸이 되는 조합을 허용할지 여부(끄면 해당 합계는 제외)
+  randomAllowSlot5: true,
+  randomAllowSlot6: true,
 };
 
 function loadoutKey(c, s) { return `${c}__${s}`; }
@@ -224,6 +228,12 @@ function init() {
 
   document.getElementById("clear-loadout-btn").addEventListener("click", clearLoadout);
   document.getElementById("random-loadout-btn").addEventListener("click", generateRandomLoadout);
+  document.getElementById("random-allow-slot5-toggle").addEventListener("change", (e) => {
+    state.randomAllowSlot5 = e.target.checked;
+  });
+  document.getElementById("random-allow-slot6-toggle").addEventListener("change", (e) => {
+    state.randomAllowSlot6 = e.target.checked;
+  });
   document.getElementById("goto-analysis-btn").addEventListener("click", () => switchTab("analysis"));
   document.getElementById("clear-compare-btn").addEventListener("click", () => {
     state.compareEntries = [];
@@ -3125,10 +3135,15 @@ function clearLoadout() { initLoadoutState(); renderLoadoutBoard(); }
 // 랜덤 로드아웃 — 아래 필수 조건을 만족하는 로드아웃을 무작위로 생성(사용자 확정 규칙)
 //   1) 구급상자(tool_first_aid_kit) 정확히 1개
 //   2) 근접무기(toolClass:"melee")와 투척무기(toolClass:"throwable_melee") 중 최소 1개
-//   3) 2번에서 근접무기가 뽑혔으면 화염 신호탄(tool_fusees) 필수 동반
+//      단, 무기 슬롯 자체에 근접무기(weaponClass:"melee")가 들어간 경우엔 이 조건 자체가 꺼짐
+//   3) 2번에서 근접무기 "도구"가 뽑혔으면 화염 신호탄(tool_fusees) 필수 동반
 //   4) 무기 두 자루 중 하나가 샷건이면 나머지 하나는 샷건 제외
 //   5) 재생 주사/활력 주사(약한 버전 포함) 중 최소 1개
 //   6) 타로 카드는 포함될 경우 "서로 다른 2종류 1장씩" 또는 "동일 카드 2장"까지만
+//   7) 도구(category:"tool")는 중복 등장 불가(같은 도구 2개 이상 X)
+//   8) 무기 칸수 합이 5칸/6칸이 되는 조합은 화면의 온/오프 스위치로 허용 여부를 조절
+//   9) 특성: 희소 특성 제외, 10포인트를 정확히 다 채움(남기지 않음), 무기 조건부 특성은
+//      해당 조건의 무기가 로드아웃에 없으면 등장하지 않음, 무기 칸수 합이 6칸이면 보급 장교 고정 등장
 // -------------------------------------------------------------------------
 function pickRandomItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 function shuffleArray(arr) {
@@ -3151,46 +3166,171 @@ function equipRandomWeaponSlot(key, item) {
   state.loadout[key][0] = { item, ammoId, ammoId2 };
 }
 
+// 무기 두 자루를 무작위로 골라 반환(장착은 하지 않음). 칸수 합 WEAPON_SLOT_LIMIT 이하,
+// 샷건 최대 1자루, 5칸/6칸 스위치 조건까지 만족하는 조합이 나올 때까지 재시도.
+// (재시도해도 못 찾으면 null — 스위치를 아주 좁게 걸어둔 극단적인 경우에 대한 안전장치)
+function tryPickRandomWeapons(weaponPool, allowSlot5, allowSlot6) {
+  const shuffled = shuffleArray(weaponPool);
+  const chosen = [];
+  for (const w of shuffled) {
+    if (chosen.length >= 2) break;
+    const usedSlots = chosen.reduce((sum, c) => sum + (c.slotSize || 0), 0);
+    const newTotal = usedSlots + (w.slotSize || 0);
+    if (newTotal > WEAPON_SLOT_LIMIT) continue;
+    if (w.weaponClass === "shotgun" && chosen.some((c) => c.weaponClass === "shotgun")) continue;
+    chosen.push(w);
+  }
+  const total = chosen.reduce((sum, c) => sum + (c.slotSize || 0), 0);
+  if (total === 5 && !allowSlot5) return null;
+  if (total === 6 && !allowSlot6) return null;
+  return chosen;
+}
+
+// -------------------------------------------------------------------------
+// 특성(무기 조건부) 판정 — 특정 무기(군)를 장착했을 때만 유효한 특성들의 조건 정의.
+// ⚠ 액션 방식(레버/볼트/펌프/단발/싱글액션 리볼버) 및 스코프 보유 여부는 실제 게임 지식을
+// 기반으로 분류했음 — 정확도가 중요한 부분이라 사용자 확인 필요(별도로 안내함).
+// -------------------------------------------------------------------------
+const WEAPON_ACTION_TYPE = {
+  // 레버액션
+  weapon_frontier_73c: "lever", weapon_infantry_73l: "lever", weapon_marathon: "lever",
+  weapon_ranger_73: "lever", weapon_vandal_73c: "lever", weapon_centennial: "lever",
+  weapon_1890_cavalry: "lever", weapon_rival78: "lever",
+
+  // 볼트액션
+  weapon_vetterli_71: "bolt", weapon_sparks: "bolt", weapon_mako_1895: "bolt",
+  weapon_krag: "bolt", weapon_lebel_1886: "bolt", weapon_mosin_nagant: "bolt",
+  weapon_berthier_1892: "bolt", weapon_mosin_obrez: "bolt",
+
+  // 펌프액션
+  weapon_romero77: "pump", weapon_terminus: "pump",
+
+  // 단발(비반복 단발 소총 — 폴링블록/트랩도어 등)
+  weapon_maynard_sniper: "single_shot", weapon_springfield_1866: "single_shot",
+  weapon_martini_henry: "single_shot", weapon_1865_carbine: "single_shot",
+
+  // 싱글액션 리볼버(패닝 대상)
+  weapon_bornheim_no3: "revolver_sa", weapon_conversion: "revolver_sa",
+  weapon_lemat: "revolver_sa", weapon_nagant_m1895: "revolver_sa",
+  weapon_new_army: "revolver_sa", weapon_scottfield: "revolver_sa",
+};
+// 파생형이 액션 방식 자체를 바꾸는 예외(모신-나강 아프토마트는 전자동 개조라 볼트액션 아님)
+const WEAPON_ACTION_TYPE_OVERRIDE = { mosinnagant_avtomat: null };
+
+function getWeaponActionType(item) {
+  const id = item.id;
+  if (Object.prototype.hasOwnProperty.call(WEAPON_ACTION_TYPE_OVERRIDE, id)) return WEAPON_ACTION_TYPE_OVERRIDE[id];
+  const parentId = item._trueParentId || id;
+  return WEAPON_ACTION_TYPE[parentId] || null;
+}
+
+// 스코프/애퍼처 보유 여부 — 파생형 이름 접미사로 판정(Deadeye/Marksman/Sniper/Precision/
+// Bullseye=스코프, Aperture=애퍼처). Sparks(LRR)는 기본형부터 스코프 내장(Pistol 파생형 제외).
+function hasScopeSight(item) {
+  const parentId = item._trueParentId || item.id;
+  if (parentId === "weapon_sparks" && !item.name.includes("Pistol")) return true;
+  return ["Deadeye", "Marksman", "Sniper", "Precision", "Bullseye"].some((suf) => item.name.endsWith(suf));
+}
+function hasApertureSight(item) {
+  return item.name.endsWith("Aperture");
+}
+
+// trait id → 조건 판정 함수. context = { weapons: [item,...](장착된 무기들), fieldIds: [...] }
+const TRAIT_WEAPON_CONDITIONS = {
+  trait_hundred_hands: (ctx) => ctx.weapons.some((w) => (w._trueParentId || w.id) === "weapon_hunting_bow"),
+  trait_martialist: (ctx) => ctx.weapons.some((w) => (w._trueParentId || w.id) === "weapon_katana"),
+  trait_bolt_thrower: (ctx) => ctx.weapons.some((w) => ["weapon_crossbow", "weapon_bomb_launcher"].includes(w._trueParentId || w.id)),
+  trait_assailant: (ctx) => ctx.fieldIds.some((id) => ["tool_throwing_knives", "tool_throwing_axes"].includes(id)),
+  trait_iron_eye: (ctx) => ctx.weapons.some((w) => ["bolt", "lever", "pump"].includes(getWeaponActionType(w))),
+  trait_levering: (ctx) => ctx.weapons.some((w) => getWeaponActionType(w) === "lever"),
+  trait_fanning: (ctx) => ctx.weapons.some((w) => getWeaponActionType(w) === "revolver_sa"),
+  trait_fast_fingers: (ctx) => ctx.weapons.some((w) => getWeaponActionType(w) === "single_shot"),
+  trait_scopesmith: (ctx) => ctx.weapons.some((w) => hasScopeSight(w)),
+  trait_steady_aim: (ctx) => ctx.weapons.some((w) => hasScopeSight(w) || hasApertureSight(w)),
+  // 아킴보(듀얼) 페어를 만들었을 때만 유효한데, 현재 랜덤 로드아웃은 듀얼 조합을 생성하지
+  // 않으므로 조건을 충족할 수 없어 항상 제외.
+  trait_ambidextrous: () => false,
+};
+
+function isTraitEligibleForRandomLoadout(trait, context) {
+  const condition = TRAIT_WEAPON_CONDITIONS[trait.id];
+  return condition ? condition(context) : true;
+}
+
+const TRAIT_RANDOM_BUDGET = 10;
+
+// 특성 후보 중에서 정확히 targetPoints를 채우는 무작위 조합을 찾는다(백트래킹, 여러 번 시도).
+function pickTraitsExactBudget(candidates, targetPoints) {
+  for (let attempt = 0; attempt < 400; attempt++) {
+    const shuffled = shuffleArray(candidates);
+    const chosen = [];
+    let remaining = targetPoints;
+    for (const t of shuffled) {
+      if (remaining <= 0) break;
+      if (t.price != null && t.price <= remaining && Math.random() < 0.6) {
+        chosen.push(t);
+        remaining -= t.price;
+      }
+    }
+    if (remaining === 0) return chosen;
+  }
+  // 400번 시도해도 정확히 못 채우면(이론상 거의 발생 안 함) 그리디로 최대한 채움(0에 최대한 근접)
+  const sorted = shuffleArray(candidates).sort((a, b) => b.price - a.price);
+  const chosen = [];
+  let remaining = targetPoints;
+  for (const t of sorted) {
+    if (t.price != null && t.price <= remaining) {
+      chosen.push(t);
+      remaining -= t.price;
+    }
+  }
+  return chosen;
+}
+
 function generateRandomLoadout() {
   initLoadoutState();
 
-  // 1) 무기: 주슬롯 + 보조슬롯 각 1자루. 칸수 합 WEAPON_SLOT_LIMIT 이하, 샷건은 최대 1자루.
-  const weaponPool = shuffleArray(getFlattenedWeaponItems().filter((item) => item.category === "weapon"));
-  const chosenWeapons = [];
-  for (const w of weaponPool) {
-    if (chosenWeapons.length >= 2) break;
-    const usedSlots = chosenWeapons.reduce((sum, c) => sum + (c.slotSize || 0), 0);
-    if (usedSlots + (w.slotSize || 0) > WEAPON_SLOT_LIMIT) continue;
-    if (w.weaponClass === "shotgun" && chosenWeapons.some((c) => c.weaponClass === "shotgun")) continue;
-    chosenWeapons.push(w);
+  // 1) 무기: 주슬롯 + 보조슬롯 각 1자루. 칸수 합/샷건 중복/5·6칸 스위치 조건을 만족할 때까지 재시도.
+  const weaponPool = getFlattenedWeaponItems().filter((item) => item.category === "weapon");
+  let chosenWeapons = null;
+  for (let attempt = 0; attempt < 200 && chosenWeapons === null; attempt++) {
+    chosenWeapons = tryPickRandomWeapons(weaponPool, state.randomAllowSlot5, state.randomAllowSlot6);
   }
+  if (!chosenWeapons) chosenWeapons = [];
   if (chosenWeapons[0]) equipRandomWeaponSlot(loadoutKey("weapon", "primary"), chosenWeapons[0]);
   if (chosenWeapons[1]) equipRandomWeaponSlot(loadoutKey("weapon", "secondary"), chosenWeapons[1]);
+  const totalWeaponSlotSize = chosenWeapons.reduce((sum, w) => sum + (w.slotSize || 0), 0);
+  const hasMeleeWeaponEquipped = chosenWeapons.some((w) => w.weaponClass === "melee");
 
   // 2) 필드 장비(도구+소모품, 공유 8칸) — 필수 항목부터 확정
   const field = state.loadout["field__all"];
-  const pushField = (id) => { if (id && field.length < 8) field.push(id); };
+  const pushField = (id) => { if (id && field.length < 8 && !field.includes(id)) field.push(id); };
+  const pushFieldAllowDup = (id) => { if (id && field.length < 8) field.push(id); };
 
   pushField("tool_first_aid_kit"); // 1) 구급상자 고정 1개
 
   const meleeToolIds = ITEMS.filter((i) => i.category === "tool" && i.toolClass === "melee").map((i) => i.id);
   const throwableMeleeIds = ITEMS.filter((i) => i.category === "tool" && i.toolClass === "throwable_melee").map((i) => i.id);
-  const meleeOrThrowId = pickRandomItem([...meleeToolIds, ...throwableMeleeIds]);
-  pushField(meleeOrThrowId); // 2) 근접무기 또는 투척무기 중 1개
-  if (meleeToolIds.includes(meleeOrThrowId)) pushField("tool_fusees"); // 3) 근접무기 선택 시 화염 신호탄 필수
+  // 무기 슬롯에 이미 근접무기(weaponClass:"melee")가 있으면 이 필수 조건 자체를 끔
+  if (!hasMeleeWeaponEquipped) {
+    const meleeOrThrowId = pickRandomItem([...meleeToolIds, ...throwableMeleeIds]);
+    pushField(meleeOrThrowId); // 2) 근접무기 또는 투척무기 중 1개
+    if (meleeToolIds.includes(meleeOrThrowId)) pushField("tool_fusees"); // 3) 근접무기 선택 시 화염 신호탄 필수
+  }
 
   const healShotIds = [
     "consumable_regeneration_shot", "consumable_regeneration_shot_weak",
     "consumable_vitality_shot", "consumable_vitality_shot_weak",
   ];
-  pushField(pickRandomItem(healShotIds)); // 5) 재생 주사/활력 주사 중 최소 1개
+  pushFieldAllowDup(pickRandomItem(healShotIds)); // 5) 재생 주사/활력 주사 중 최소 1개(소모품은 중복 가능)
 
   // 6) 타로 카드는 다른 도구/소모품과 동일한 확률로 나머지 빈 칸을 채울 때 후보에 포함되되,
   // 전체 타로 장수만 최대 2장으로 제한(자연히 "다른 2종류 1장씩" 또는 "동일 카드 2장"만 나옴).
   const TAROT_RANDOM_MAX = 2;
   const tarotIds = ITEMS.filter((i) => i.category === "consumable" && i.consumableClass === "tarot").map((i) => i.id);
 
-  // 나머지 빈 칸: 구급상자를 제외한 모든 도구/소모품(타로 포함) 중 무작위로 채움
+  // 나머지 빈 칸: 구급상자를 제외한 모든 도구/소모품(타로 포함) 중 무작위로 채움.
+  // 7) 도구(category:"tool")는 중복 등장 불가 — 소모품은 기존 스택 한도만 그대로 준수.
   const fillCandidates = ITEMS.filter((i) =>
     (i.category === "tool" || i.category === "consumable") &&
     i.id !== "tool_first_aid_kit"
@@ -3199,7 +3339,9 @@ function generateRandomLoadout() {
   while (field.length < 8 && fillCandidates.length && guard < 500) {
     guard++;
     const cand = pickRandomItem(fillCandidates);
-    if (tarotIds.includes(cand.id)) {
+    if (cand.category === "tool") {
+      if (field.includes(cand.id)) continue; // 7) 도구 중복 금지
+    } else if (tarotIds.includes(cand.id)) {
       const totalTarotCount = field.filter((id) => tarotIds.includes(id)).length;
       if (totalTarotCount >= TAROT_RANDOM_MAX) continue;
     } else {
@@ -3209,8 +3351,32 @@ function generateRandomLoadout() {
         if (currentCount >= CONSUMABLE_STACK_MAX) continue;
       }
     }
-    pushField(cand.id);
+    pushFieldAllowDup(cand.id);
   }
+
+  // 3) 특성: 희소 특성 제외 + 무기 조건부 특성 필터링 + 10포인트 정확히 채움 +
+  // 무기 칸수 합 6칸이면 보급 장교(trait_quartermaster) 고정 등장
+  const traitContext = { weapons: chosenWeapons, fieldIds: field };
+  const eligibleTraits = ITEMS.filter((i) =>
+    i.category === "trait" &&
+    !(i.traitTags || []).includes("scarce") &&
+    i.price != null &&
+    isTraitEligibleForRandomLoadout(i, traitContext)
+  );
+
+  const traitKey = loadoutKey("trait", "trait");
+  const chosenTraits = [];
+  let traitBudget = TRAIT_RANDOM_BUDGET;
+  if (totalWeaponSlotSize === 6) {
+    const quartermaster = eligibleTraits.find((t) => t.id === "trait_quartermaster");
+    if (quartermaster && quartermaster.price <= traitBudget) {
+      chosenTraits.push(quartermaster);
+      traitBudget -= quartermaster.price;
+    }
+  }
+  const remainingCandidates = eligibleTraits.filter((t) => !chosenTraits.includes(t));
+  chosenTraits.push(...pickTraitsExactBudget(remainingCandidates, traitBudget));
+  state.loadout[traitKey] = chosenTraits.map((t) => t.id);
 
   renderLoadoutBoard();
   showToast("랜덤 로드아웃을 생성했습니다.", "info");
