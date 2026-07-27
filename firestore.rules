@@ -2,30 +2,48 @@ rules_version = '2';
 
 // 커뮤니티 로드아웃(sharedLoadouts) 보안 규칙
 // - 누구나 읽을 수 있음(공개 갤러리)
-// - 새 글 작성(create)은 허용하되 이름/데이터 형식·길이를 검증
-// - 글 내용(name/data/createdAt) 수정과 삭제는 클라이언트에서 절대 불가(불변 게시물)
-// - 예외적으로 좋아요(likes)만 정확히 +1씩 증가하는 업데이트는 허용(그 외 필드는 손 못 댐)
+// - 새 글 작성(create)은 익명 인증된 사용자만, 이름/데이터 형식·길이 검증
+// - 글 내용(name/data/createdAt/ownerId)은 생성 후 절대 수정 불가
+// - 좋아요(likedBy)는 "내 uid를 정확히 하나 추가/제거"하는 것만 허용(좋아요/취소 토글)
+// - 삭제는 원래 올린 사람(ownerId == 내 uid)만 가능
 // 이 파일은 문서 보관용이며, 실제 반영은 Firebase 콘솔 > Firestore Database >
 // 규칙(Rules) 탭에 이 내용을 붙여넣고 "게시"를 눌러야 적용됩니다.
+// ⚠ Authentication에서 "Anonymous" 로그인 방법이 켜져 있어야 정상 동작합니다.
 service cloud.firestore {
   match /databases/{database}/documents {
     match /sharedLoadouts/{loadoutId} {
       allow read: if true;
 
-      allow create: if request.resource.data.keys().hasOnly(['name', 'data', 'createdAt', 'likes'])
+      allow create: if request.auth != null
+                    && request.resource.data.keys().hasOnly(['name', 'data', 'createdAt', 'likedBy', 'ownerId'])
                     && request.resource.data.name is string
                     && request.resource.data.name.size() > 0
                     && request.resource.data.name.size() <= 30
                     && request.resource.data.data is string
                     && request.resource.data.data.size() <= 4000
                     && request.resource.data.createdAt == request.time
-                    && request.resource.data.likes == 0;
+                    && request.resource.data.likedBy is list
+                    && request.resource.data.likedBy.size() == 0
+                    && request.resource.data.ownerId == request.auth.uid;
 
-      // 좋아요 버튼 전용: likes 필드만, 그것도 정확히 이전 값+1로만 바뀌는 요청만 허용
-      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes'])
-                    && request.resource.data.likes == resource.data.likes + 1;
+      allow update: if request.auth != null
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likedBy'])
+                    && request.resource.data.likedBy is list
+                    && (
+                      // 좋아요: 내 uid를 정확히 하나 추가
+                      (request.resource.data.likedBy.size() == resource.data.likedBy.size() + 1
+                       && !resource.data.likedBy.hasAny([request.auth.uid])
+                       && request.resource.data.likedBy.hasAll(resource.data.likedBy)
+                       && request.resource.data.likedBy.hasAny([request.auth.uid]))
+                      ||
+                      // 좋아요 취소: 내 uid를 정확히 하나 제거
+                      (request.resource.data.likedBy.size() == resource.data.likedBy.size() - 1
+                       && resource.data.likedBy.hasAny([request.auth.uid])
+                       && !request.resource.data.likedBy.hasAny([request.auth.uid])
+                       && resource.data.likedBy.hasAll(request.resource.data.likedBy))
+                    );
 
-      allow delete: if false;
+      allow delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
     }
   }
 }

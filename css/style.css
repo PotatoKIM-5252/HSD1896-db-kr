@@ -1513,6 +1513,20 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 .community-loadout-load-btn:hover { color: var(--text-primary); border-color: var(--accent-strong); }
 
+.community-loadout-delete-btn {
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.community-loadout-delete-btn:hover { color: var(--danger-strong); border-color: var(--danger-strong); }
+.community-loadout-delete-btn:disabled { opacity: 0.6; cursor: default; }
+
 /* ===================== 무기 비교 탭 ===================== */
 
 #compare-header {

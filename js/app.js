@@ -3188,22 +3188,6 @@ async function handleCommunitySave() {
   }
 }
 
-// 이 브라우저에서 이미 좋아요 누른 로드아웃 id 목록 — 로그인이 없는 익명 구조라
-// 완벽한 중복 방지는 아니지만, 같은 사람이 같은 브라우저에서 실수로 여러 번
-// 누르는 것 정도는 막아준다.
-function getLikedLoadoutIds() {
-  try {
-    return new Set(JSON.parse(localStorage.getItem("likedCommunityLoadouts") || "[]"));
-  } catch {
-    return new Set();
-  }
-}
-function markLoadoutLiked(id) {
-  const liked = getLikedLoadoutIds();
-  liked.add(id);
-  localStorage.setItem("likedCommunityLoadouts", JSON.stringify([...liked]));
-}
-
 async function renderCommunityLoadouts() {
   const listEl = document.getElementById("community-loadout-list");
   if (!window.LoadoutCloud) {
@@ -3253,7 +3237,6 @@ function renderCommunityLoadoutList() {
     return;
   }
 
-  const likedIds = getLikedLoadoutIds();
   entries.forEach((entry) => {
     const row = document.createElement("div");
     row.className = "community-loadout-row";
@@ -3278,22 +3261,22 @@ function renderCommunityLoadoutList() {
 
     const likeBtn = document.createElement("button");
     likeBtn.type = "button";
-    const alreadyLiked = likedIds.has(entry.id);
-    likeBtn.className = `community-loadout-like-btn${alreadyLiked ? " liked" : ""}`;
-    likeBtn.textContent = `♥ ${entry.likes ?? 0}`;
-    likeBtn.disabled = alreadyLiked;
+    likeBtn.className = `community-loadout-like-btn${entry.isLiked ? " liked" : ""}`;
+    likeBtn.textContent = `♥ ${entry.likeCount ?? 0}`;
     likeBtn.addEventListener("click", async () => {
       if (!window.LoadoutCloud) return;
       likeBtn.disabled = true;
+      const wasLiked = entry.isLiked;
       try {
-        await window.LoadoutCloud.likeLoadout(entry.id);
-        entry.likes = (entry.likes ?? 0) + 1;
-        markLoadoutLiked(entry.id);
-        likeBtn.textContent = `♥ ${entry.likes}`;
-        likeBtn.classList.add("liked");
+        await window.LoadoutCloud.toggleLike(entry.id, wasLiked);
+        entry.isLiked = !wasLiked;
+        entry.likeCount = (entry.likeCount ?? 0) + (wasLiked ? -1 : 1);
+        likeBtn.textContent = `♥ ${entry.likeCount}`;
+        likeBtn.classList.toggle("liked", entry.isLiked);
       } catch {
+        showToast(wasLiked ? "좋아요 취소에 실패했습니다." : "좋아요 반영에 실패했습니다.");
+      } finally {
         likeBtn.disabled = false;
-        showToast("좋아요 반영에 실패했습니다.");
       }
     });
 
@@ -3308,6 +3291,29 @@ function renderCommunityLoadoutList() {
 
     actions.appendChild(likeBtn);
     actions.appendChild(loadBtn);
+
+    // 내가 올린 글에만 삭제 버튼 표시 (서버가 ownerId로 판단해준 값 그대로 사용)
+    if (entry.isMine) {
+      const deleteBtn = document.createElement("button");
+      deleteBtn.type = "button";
+      deleteBtn.className = "community-loadout-delete-btn";
+      deleteBtn.textContent = "삭제";
+      deleteBtn.addEventListener("click", async () => {
+        if (!window.LoadoutCloud) return;
+        if (!confirm(`"${entry.name}" 로드아웃을 삭제할까요?`)) return;
+        deleteBtn.disabled = true;
+        try {
+          await window.LoadoutCloud.deleteLoadout(entry.id);
+          state.communityLoadouts = state.communityLoadouts.filter((e) => e.id !== entry.id);
+          renderCommunityLoadoutList();
+        } catch {
+          deleteBtn.disabled = false;
+          showToast("삭제에 실패했습니다.");
+        }
+      });
+      actions.appendChild(deleteBtn);
+    }
+
     row.appendChild(info);
     row.appendChild(actions);
     listEl.appendChild(row);
