@@ -9154,6 +9154,7 @@ const ITEMS = [
     slotSize: 1,
     ammoCategory: "special",
     weaponClass: "handgun",
+    noAkimbo: true, // 아킴보(듀얼) 불가(사용자 확인)
     dualAmmoSlot: true, // 단발식이라 탄종 2개를 동시에 넣고 교체 가능(위키 확인)
     ammoEffects: ["dragonbreath", "poison", "chaos", "choke"],
 
