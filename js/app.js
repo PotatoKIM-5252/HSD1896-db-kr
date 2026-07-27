@@ -72,6 +72,11 @@ const state = {
   statCompareSelection: [],
 
   charts: { detail: null, compare: null, bodypart: null, compareStats: null },
+
+  // 맵 탭: 현재 보고 있는 지도 id, 켜져 있는 레이어 key 집합, 클릭해서 연 마커
+  activeMapId: null,
+  activeMapLayers: null,  // Set — 최초 진입 시 MAP_LAYERS의 defaultOn 값으로 채움
+  activeMapMarker: null,
 };
 
 function loadoutKey(c, s) { return `${c}__${s}`; }
@@ -217,6 +222,11 @@ function init() {
     renderAnalysis();
   });
 
+  document.getElementById("map-info-close-btn").addEventListener("click", () => {
+    state.activeMapMarker = null;
+    document.getElementById("map-info-panel").hidden = true;
+  });
+
   // 무기 스탯(피해/재장전속도 등)에 마우스를 올리면 커서 오른쪽에 설명 표시
   // (동적으로 다시 그려지는 요소라 document에 이벤트 위임)
   const statTooltip = document.getElementById("stat-tooltip");
@@ -274,6 +284,7 @@ function switchTab(tabName) {
     btn.classList.toggle("active", btn.dataset.tab === tabName);
   });
   if (tabName === "analysis") renderAnalysis();
+  if (tabName === "maps") renderMapsTab();
 }
 
 // -------------------------------------------------------------------------
@@ -3203,6 +3214,119 @@ function renderCompareStatsSection() {
   }).join("");
 
   wrap.innerHTML = `<div class="stat-compare-grid">${blocks}</div>`;
+}
+
+// -------------------------------------------------------------------------
+// 맵 탭 — 인터랙티브 맵 (베이스 지도 + 레이어 오버레이)
+// -------------------------------------------------------------------------
+function renderMapsTab() {
+  if (!state.activeMapId && MAPS.length) state.activeMapId = MAPS[0].id;
+  if (!state.activeMapLayers) {
+    state.activeMapLayers = new Set(MAP_LAYERS.filter((l) => l.defaultOn).map((l) => l.key));
+  }
+  renderMapSelectRow();
+  renderMapLayerToggles();
+  renderMapViewport();
+}
+
+function getActiveMap() {
+  return MAPS.find((m) => m.id === state.activeMapId) || null;
+}
+
+function renderMapSelectRow() {
+  const row = document.getElementById("map-select-row");
+  row.innerHTML = MAPS.map((m) => `
+    <button class="map-select-btn ${m.id === state.activeMapId ? "active" : ""}" type="button" data-map-id="${m.id}">${m.name}</button>
+  `).join("");
+  row.querySelectorAll(".map-select-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.activeMapId = btn.dataset.mapId;
+      state.activeMapMarker = null;
+      document.getElementById("map-info-panel").hidden = true;
+      renderMapSelectRow();
+      renderMapViewport();
+    });
+  });
+}
+
+function renderMapLayerToggles() {
+  const wrap = document.getElementById("map-layer-toggles");
+  const layerBtns = MAP_LAYERS.map((l) => `
+    <button class="map-layer-btn ${state.activeMapLayers.has(l.key) ? "active" : ""}" type="button" data-layer-key="${l.key}">
+      <i class="map-layer-swatch" style="background:${l.color}"></i>${l.label}
+    </button>
+  `).join("");
+  wrap.innerHTML = `
+    ${layerBtns}
+    <span class="map-layer-actions">
+      <button class="map-layer-action-btn" type="button" id="map-show-all-btn">전체 보기</button>
+      <button class="map-layer-action-btn" type="button" id="map-hide-all-btn">전체 숨기기</button>
+    </span>
+  `;
+  wrap.querySelectorAll(".map-layer-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const key = btn.dataset.layerKey;
+      if (state.activeMapLayers.has(key)) state.activeMapLayers.delete(key);
+      else state.activeMapLayers.add(key);
+      renderMapLayerToggles();
+      renderMapViewport();
+    });
+  });
+  document.getElementById("map-show-all-btn").addEventListener("click", () => {
+    state.activeMapLayers = new Set(MAP_LAYERS.map((l) => l.key));
+    renderMapLayerToggles();
+    renderMapViewport();
+  });
+  document.getElementById("map-hide-all-btn").addEventListener("click", () => {
+    state.activeMapLayers = new Set();
+    renderMapLayerToggles();
+    renderMapViewport();
+  });
+}
+
+function renderMapViewport() {
+  const map = getActiveMap();
+  const img = document.getElementById("map-base-img");
+  const placeholder = document.getElementById("map-img-placeholder");
+  const markersLayer = document.getElementById("map-markers-layer");
+  if (!map) {
+    img.removeAttribute("src");
+    markersLayer.innerHTML = "";
+    return;
+  }
+  img.style.display = "";
+  placeholder.hidden = true;
+  img.src = map.image;
+  img.alt = map.name;
+
+  const markersHTML = MAP_LAYERS
+    .filter((l) => state.activeMapLayers.has(l.key))
+    .flatMap((l) => (map.layers[l.key] || []).map((pt, idx) => ({ ...pt, layer: l, idx })))
+    .map((pt) => `
+      <button class="map-marker" type="button" title="${pt.label ?? pt.layer.label}"
+        style="left:${pt.x}%; top:${pt.y}%; background:${pt.layer.color};"
+        data-layer-key="${pt.layer.key}" data-marker-idx="${pt.idx}"></button>
+    `).join("");
+  markersLayer.innerHTML = markersHTML;
+  markersLayer.querySelectorAll(".map-marker").forEach((el) => {
+    el.addEventListener("click", () => {
+      const layer = MAP_LAYERS.find((l) => l.key === el.dataset.layerKey);
+      const pt = map.layers[layer.key][Number(el.dataset.markerIdx)];
+      openMapInfoPanel(map, layer, pt);
+    });
+  });
+}
+
+function openMapInfoPanel(map, layer, pt) {
+  state.activeMapMarker = { mapId: map.id, layerKey: layer.key, point: pt };
+  const panel = document.getElementById("map-info-panel");
+  const content = document.getElementById("map-info-content");
+  content.innerHTML = `
+    <p class="map-info-layer" style="color:${layer.color}">${layer.label}</p>
+    <h3>${pt.label ?? layer.label}</h3>
+    ${pt.note ? `<p class="map-info-note">${pt.note}</p>` : ""}
+  `;
+  panel.hidden = false;
 }
 
 // -------------------------------------------------------------------------

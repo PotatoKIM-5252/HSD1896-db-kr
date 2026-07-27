@@ -19,6 +19,7 @@
       <button class="nav-btn" data-tab="search" type="button">DB 검색</button>
       <button class="nav-btn" data-tab="loadout" type="button">로드아웃 빌더</button>
       <button class="nav-btn" data-tab="analysis" type="button">무기 비교</button>
+      <button class="nav-btn" data-tab="maps" type="button">맵</button>
     </nav>
   </header>
 
@@ -103,6 +104,27 @@
       <div id="compare-stats-wrap"></div>
     </section>
 
+    <!-- ===================== 4. 맵 탭 (인터랙티브 맵) ===================== -->
+    <section id="tab-maps" class="tab-panel" hidden>
+      <div id="maps-layout">
+        <div id="maps-main">
+          <div id="map-select-row"></div>
+          <div id="map-layer-toggles"></div>
+          <div id="map-viewport-wrap">
+            <div id="map-viewport">
+              <img id="map-base-img" alt="" onerror="this.style.display='none'; const ph=document.getElementById('map-img-placeholder'); if(ph) ph.hidden=false;">
+              <div id="map-img-placeholder" class="map-img-placeholder" hidden>지도 이미지 준비 중</div>
+              <div id="map-markers-layer"></div>
+            </div>
+          </div>
+        </div>
+        <aside id="map-info-panel" hidden>
+          <button id="map-info-close-btn" type="button">✕</button>
+          <div id="map-info-content"></div>
+        </aside>
+      </div>
+    </section>
+
   </main>
 
   <footer id="app-footer">
@@ -141,6 +163,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
   <script src="js/data.js"></script>
+  <script src="js/maps-data.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
