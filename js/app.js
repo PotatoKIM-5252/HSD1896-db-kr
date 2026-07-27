@@ -3269,6 +3269,11 @@ const TRAIT_WEAPON_CONDITIONS = {
   trait_fast_fingers: (ctx) => ctx.weapons.some((w) => getWeaponActionType(w) === "single_shot"),
   trait_scopesmith: (ctx) => ctx.weapons.some((w) => hasScopeSight(w)),
   trait_steady_aim: (ctx) => ctx.weapons.some((w) => hasScopeSight(w) || hasApertureSight(w)),
+  // 위키 기준(사용자 확인) 적용 대상 무기(파생형 포함)
+  trait_bulletgrubber: (ctx) => ctx.weapons.some((w) => [
+    "weapon_marathon", "weapon_bornheim_no3", "weapon_berthier_1892", "weapon_lebel_1886",
+    "weapon_mosin_nagant", "weapon_mosin_obrez", "weapon_specter1882", "weapon_terminus", "weapon_dolch_96",
+  ].includes(w._trueParentId || w.id)),
   // 아킴보(듀얼) 페어를 실제로 만들었을 때만 유효
   trait_ambidextrous: (ctx) => !!ctx.hasAkimboPair,
 };
