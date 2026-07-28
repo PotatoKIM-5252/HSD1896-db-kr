@@ -2438,6 +2438,23 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 .map-layer-row:hover { background: rgba(236, 230, 211, 0.05); }
+.map-layer-row.add-active { background: rgba(236, 230, 211, 0.09); }
+
+.map-layer-add-btn {
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text-muted);
+  border-radius: 5px;
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  line-height: 1;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.map-layer-add-btn:hover { color: var(--text-primary); border-color: var(--accent-strong); }
+.map-layer-add-btn.active { color: var(--accent-text); background: var(--accent); border-color: var(--accent); }
 
 .map-layer-swatch {
   width: 10px;
@@ -2496,6 +2513,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 #map-viewport.panning { cursor: grabbing; }
+#map-viewport.add-mode { cursor: crosshair; }
 
 #map-viewport-canvas { position: absolute; inset: 0; transform-origin: 0 0; }
 

@@ -81,6 +81,7 @@ const state = {
   mapZoom: 1,
   mapPanX: 0,
   mapPanY: 0,
+  mapAddModeLayer: null,  // 켜져 있으면 지도를 클릭해 이 레이어 key에 새 포인트를 추가
 
   // 커뮤니티 로드아웃: Firestore에서 받아온 목록(파싱+가격 계산까지 끝낸 캐시) +
   // 현재 정렬/가격 필터 상태. 정렬·필터를 바꿀 때는 재조회 없이 이 캐시로만 다시 그림.
@@ -346,8 +347,10 @@ function initLoadoutState() {
   state.loadout["field__all"] = [];
 }
 
-// 맵 탭 공사중 잠금 — URL 쿼리(?mapkey=hsd1896preview)로 한 번 접속하면 이 브라우저에서는
-// localStorage에 저장되어 계속 접근 가능(관리자용). 그 외에는 클릭 시 안내창만 뜨고 못 들어감.
+// 맵 탭 공사중 잠금 — URL 쿼리(?mapkey=hsd1896preview)로 접속한 "이번 브라우저 세션" 동안만
+// 접근 가능(sessionStorage, 탭/브라우저를 닫으면 해제). 예전엔 localStorage로 영구 저장했는데,
+// 링크가 한 번이라도 새어나가면 그 브라우저는 영원히 풀려버리는 위험이 있어서 세션 단위로 변경.
+// 그 외(쿼리 없이 그냥 방문)에는 예전에 영구 저장해뒀던 값까지 강제로 지워서 다시 잠금.
 const MAPS_UNLOCK_STORAGE_KEY = "hsd_maps_unlocked";
 const MAPS_UNLOCK_QUERY_PARAM = "mapkey";
 const MAPS_UNLOCK_SECRET = "hsd1896preview";
@@ -355,11 +358,13 @@ const MAPS_UNLOCK_SECRET = "hsd1896preview";
 function checkMapsUnlockFromUrl() {
   const params = new URLSearchParams(window.location.search);
   if (params.get(MAPS_UNLOCK_QUERY_PARAM) === MAPS_UNLOCK_SECRET) {
-    localStorage.setItem(MAPS_UNLOCK_STORAGE_KEY, "1");
+    sessionStorage.setItem(MAPS_UNLOCK_STORAGE_KEY, "1");
+  } else {
+    localStorage.removeItem(MAPS_UNLOCK_STORAGE_KEY);
   }
 }
 function isMapsUnlocked() {
-  return localStorage.getItem(MAPS_UNLOCK_STORAGE_KEY) === "1";
+  return sessionStorage.getItem(MAPS_UNLOCK_STORAGE_KEY) === "1";
 }
 
 function switchTab(tabName) {
@@ -3972,6 +3977,8 @@ function renderMapSelectRow() {
     btn.addEventListener("click", () => {
       state.activeMapId = btn.dataset.mapId;
       state.activeMapMarker = null;
+      state.mapAddModeLayer = null;
+      document.getElementById("map-viewport").classList.remove("add-mode");
       document.getElementById("map-info-panel").hidden = true;
       resetMapView();
       renderMapSelectRow();
@@ -3991,11 +3998,13 @@ function renderMapLegendPanel() {
   wrap.innerHTML = MAP_LAYERS.map((l) => {
     const count = map ? (map.layers[l.key] || []).length : 0;
     const checked = state.activeMapLayers.has(l.key) ? "checked" : "";
+    const addActive = state.mapAddModeLayer === l.key;
     return `
-      <label class="map-layer-row">
+      <label class="map-layer-row ${addActive ? "add-active" : ""}">
         <i class="map-layer-swatch" style="background:${l.color}"></i>
         <span class="map-layer-label">${l.label}</span>
         <span class="map-layer-count">${count}</span>
+        <button type="button" class="map-layer-add-btn ${addActive ? "active" : ""}" data-layer-key="${l.key}" title="지도 클릭해서 이 레이어에 포인트 추가">＋</button>
         <span class="map-layer-switch" data-layer-key="${l.key}">
           <input type="checkbox" ${checked}>
           <span class="switch-track"><span class="switch-thumb"></span></span>
@@ -4009,6 +4018,17 @@ function renderMapLegendPanel() {
       const key = input.closest(".map-layer-switch").dataset.layerKey;
       if (input.checked) state.activeMapLayers.add(key);
       else state.activeMapLayers.delete(key);
+      renderMapViewport();
+    });
+  });
+
+  wrap.querySelectorAll(".map-layer-add-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const key = btn.dataset.layerKey;
+      state.mapAddModeLayer = state.mapAddModeLayer === key ? null : key;
+      if (state.mapAddModeLayer) state.activeMapLayers.add(state.mapAddModeLayer); // 추가 모드면 해당 레이어를 자동으로 켬
+      document.getElementById("map-viewport").classList.toggle("add-mode", !!state.mapAddModeLayer);
+      renderMapLegendPanel();
       renderMapViewport();
     });
   });
@@ -4146,9 +4166,9 @@ function setupMapPanZoom() {
   let moved = false;
 
   viewport.addEventListener("mousedown", (e) => {
+    moved = false;
     if (state.mapZoom <= 1) return;
     dragging = true;
-    moved = false;
     startX = e.clientX;
     startY = e.clientY;
     startPanX = state.mapPanX;
@@ -4177,6 +4197,21 @@ function setupMapPanZoom() {
       markersLayer.style.pointerEvents = "none";
       setTimeout(() => { markersLayer.style.pointerEvents = ""; }, 0);
     }
+  });
+
+  // 포인트 추가 모드일 때 배경(마커가 아닌 곳) 클릭 → 선택된 레이어에 새 포인트 추가
+  viewport.addEventListener("click", (e) => {
+    if (!state.mapAddModeLayer || moved) return;
+    if (e.target.closest(".map-marker")) return;
+    const map = getActiveMap();
+    if (!map) return;
+    const canvas = document.getElementById("map-viewport-canvas");
+    const rect = canvas.getBoundingClientRect();
+    const x = Math.round(Math.min(100, Math.max(0, ((e.clientX - rect.left) / rect.width) * 100)) * 10) / 10;
+    const y = Math.round(Math.min(100, Math.max(0, ((e.clientY - rect.top) / rect.height) * 100)) * 10) / 10;
+    map.layers[state.mapAddModeLayer].push({ x, y });
+    renderMapLegendPanel();
+    renderMapViewport();
   });
 }
 
