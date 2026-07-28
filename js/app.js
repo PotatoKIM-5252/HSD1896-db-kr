@@ -1069,10 +1069,16 @@ function openBodyPartView(parentItem, ammoId) {
   //   (※ 관통 시 추가되는 감쇠값은 아직 미반영 — 추후 여기에 곱셈으로 추가 예정)
   const hiddenWeaponDamage = baseDmg / CHEST_MULTIPLIER; // X
 
+  // 일부 탄약은 부위별 배율이 표준(BODY_PART_MULTIPLIERS)과 다름(사용자 실측 확인) —
+  // 그런 경우만 ammo.bodyPartMultiplierOverrides로 해당 부위 배율을 덮어씀
+  const partMultOverrides = ammo?.bodyPartMultiplierOverrides || {};
   const partInfo = {};
   Object.entries(BODY_PART_MULTIPLIERS).forEach(([key, def]) => {
     if (def.multiplier == null) partInfo[key] = { dmg: null };
-    else partInfo[key] = { dmg: Math.round(hiddenWeaponDamage * def.multiplier * distMult) };
+    else {
+      const mult = partMultOverrides[key] ?? def.multiplier;
+      partInfo[key] = { dmg: Math.round(hiddenWeaponDamage * mult * distMult) };
+    }
   });
 
   // 파생형 탭들
@@ -1469,10 +1475,14 @@ function refreshBodyPartDamage(currentItem, ammoId, parentItem) {
   //   부위 데미지 = X × 부위 배율 × 거리감쇠값
   const hiddenWeaponDamage = baseDmg / CHEST_MULTIPLIER; // X
 
+  const partMultOverrides = ammo?.bodyPartMultiplierOverrides || {};
   const partInfo = {};
   Object.entries(BODY_PART_MULTIPLIERS).forEach(([key, def]) => {
     if (def.multiplier == null) partInfo[key] = { dmg: null };
-    else partInfo[key] = { dmg: Math.round(hiddenWeaponDamage * def.multiplier * distMult) };
+    else {
+      const mult = partMultOverrides[key] ?? def.multiplier;
+      partInfo[key] = { dmg: Math.round(hiddenWeaponDamage * mult * distMult) };
+    }
   });
 
   // 마네킹만 다시 그리기

@@ -4725,6 +4725,9 @@ const AMMO_TYPES = {
       { label: "팔 기준 한방컷(OHK) 거리", ohkRange: { guaranteed: 29 } },
       { label: "복부 기준 한방컷(OHK) 거리", ohkRange: { guaranteed: 39 } },
     ],
+    // 하체 실측 데미지 140 확인(사용자, 가슴 260 기준) — 표준 하체 배율(0.8)로 계산하면 160이
+    // 나와서 실측과 안 맞음. 이 탄약만 하체 배율이 0.7(=140/(260/1.3))인 것으로 확인돼 덮어씀.
+    bodyPartMultiplierOverrides: { lower: 0.7 },
   },
   bomblauncher_steelball: {
     label: "강철탄",
@@ -4788,6 +4791,9 @@ const AMMO_TYPES = {
       { label: "팔 기준 한방컷(OHK) 거리", ohkRange: { guaranteed: 29 } },
       { label: "복부 기준 한방컷(OHK) 거리", ohkRange: { guaranteed: 39 } },
     ],
+    // 밤 런처와 동일 탄약군 — 하체 실측 데미지 140 확인(사용자), 표준 배율(0.8)이면 160으로
+    // 안 맞아서 이 탄약의 하체 배율만 0.7로 덮어씀
+    bodyPartMultiplierOverrides: { lower: 0.7 },
   },
   bomblance_steelball: {
     label: "강철탄",
