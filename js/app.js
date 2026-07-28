@@ -71,7 +71,7 @@ const state = {
   // 비교 목록 중 "총기 스탯 비교"에서 선택된 항목 ({ weaponId, ammoId } 쌍의 배열)
   statCompareSelection: [],
 
-  charts: { detail: null, compare: null, compareOhk: null, bodypart: null, compareStats: null },
+  charts: { detail: null, compare: null, compareOhkShotgun: null, compareOhkOther: null, bodypart: null, compareStats: null },
 
   // 맵 탭: 현재 보고 있는 지도 id, 켜져 있는 레이어 key 집합
   activeMapId: null,
@@ -3775,9 +3775,13 @@ function renderAnalysis() {
   const listEl = document.getElementById("compare-weapon-list");
   const chartWrap = document.getElementById("compare-chart-wrap");
   const ohkSection = document.getElementById("compare-ohk-section");
-  const ohkChartWrap = document.getElementById("compare-ohk-chart-wrap");
+  const ohkShotgunBlock = document.getElementById("compare-ohk-shotgun-block");
+  const ohkShotgunWrap = document.getElementById("compare-ohk-shotgun-chart-wrap");
+  const ohkOtherBlock = document.getElementById("compare-ohk-other-block");
+  const ohkOtherWrap = document.getElementById("compare-ohk-other-chart-wrap");
   if (state.charts.compare) { state.charts.compare.destroy(); state.charts.compare = null; }
-  if (state.charts.compareOhk) { state.charts.compareOhk.destroy(); state.charts.compareOhk = null; }
+  if (state.charts.compareOhkShotgun) { state.charts.compareOhkShotgun.destroy(); state.charts.compareOhkShotgun = null; }
+  if (state.charts.compareOhkOther) { state.charts.compareOhkOther.destroy(); state.charts.compareOhkOther = null; }
 
   if (state.compareEntries.length === 0) {
     listEl.innerHTML = `<p class="empty-msg">비교할 항목이 없습니다. DB 검색 → 무기 클릭 → 탄약 선택 → "비교 목록에 추가"를 눌러주세요.</p>`;
@@ -3825,8 +3829,12 @@ function renderAnalysis() {
 
   // 낙하 데미지 곡선(falloff)이 있는 일반 무기와, 없는 샷건/한방(OHK) 무기는 서로 축의
   // 의미가 달라서(거리별 "피해량" vs 거리별 "한방 가능 여부") 그래프를 완전히 분리해서 그림.
+  // OHK 무기 중에서도 샷건(사거리 짧음)과 그 외(사거리 긺)는 축 스케일 차이가 커서
+  // 한 그래프에 섞으면 짧은 막대가 안 보이므로 최대 거리 기준을 고정해 별도로 그림
+  // (사용자 확인: 샷건 최대 20m, 그 외 한방무기 최대 50m로 통일).
   const falloffDatasets = [];
-  const ohkEntries = [];
+  const shotgunOhkEntries = [];
+  const otherOhkEntries = [];
   state.compareEntries.forEach((entry, idx) => {
     const item = findItemById(entry.weaponId);
     if (!item) return;
@@ -3837,7 +3845,9 @@ function renderAnalysis() {
       return;
     }
     const ohkEntry = getOhkCompareEntry(item, entry.ammoId, color);
-    if (ohkEntry) ohkEntries.push(ohkEntry);
+    if (!ohkEntry) return;
+    const isShotgun = item.ammoCategory === "shotgun" || ohkEntry.ammo.category === "shotgun";
+    (isShotgun ? shotgunOhkEntries : otherOhkEntries).push(ohkEntry);
   });
 
   if (falloffDatasets.length > 0) {
@@ -3855,23 +3865,38 @@ function renderAnalysis() {
     chartWrap.innerHTML = "";
   }
 
-  if (ohkEntries.length > 0) {
-    ohkSection.hidden = false;
-    ohkChartWrap.innerHTML = `<canvas id="compare-ohk-chart"></canvas>`;
-    ohkChartWrap.style.height = `${Math.max(120, ohkEntries.length * 56 + 40)}px`;
-    const ohkCanvas = document.getElementById("compare-ohk-chart");
-    state.charts.compareOhk = buildOhkBarChart(ohkCanvas, ohkEntries);
+  if (shotgunOhkEntries.length > 0) {
+    ohkShotgunBlock.hidden = false;
+    ohkShotgunWrap.innerHTML = `<canvas id="compare-ohk-shotgun-chart"></canvas>`;
+    ohkShotgunWrap.style.height = `${Math.max(120, shotgunOhkEntries.length * 56 + 40)}px`;
+    const canvas = document.getElementById("compare-ohk-shotgun-chart");
+    state.charts.compareOhkShotgun = buildOhkBarChart(canvas, shotgunOhkEntries, 20);
   } else {
-    ohkSection.hidden = true;
-    ohkChartWrap.innerHTML = "";
+    ohkShotgunBlock.hidden = true;
+    ohkShotgunWrap.innerHTML = "";
   }
+
+  if (otherOhkEntries.length > 0) {
+    ohkOtherBlock.hidden = false;
+    ohkOtherWrap.innerHTML = `<canvas id="compare-ohk-other-chart"></canvas>`;
+    ohkOtherWrap.style.height = `${Math.max(120, otherOhkEntries.length * 56 + 40)}px`;
+    const canvas = document.getElementById("compare-ohk-other-chart");
+    state.charts.compareOhkOther = buildOhkBarChart(canvas, otherOhkEntries, 50);
+  } else {
+    ohkOtherBlock.hidden = true;
+    ohkOtherWrap.innerHTML = "";
+  }
+
+  ohkSection.hidden = shotgunOhkEntries.length === 0 && otherOhkEntries.length === 0;
 
   renderCompareStatsSection();
 }
 
 // 낙하 데미지 곡선이 없는 샷건/한방(OHK) 무기 전용 비교 그래프 — 거리(m) 값만 가로
 // 막대로 비교(보장 구간 실색 + 불안정 구간 옅은 색을 이어 붙인 누적 막대).
-function buildOhkBarChart(canvas, ohkEntries) {
+// maxDistance: x축 최대값을 무기군별로 고정해서(샷건 20m / 그 외 50m) 서로 다른
+// 사거리대의 무기를 나눠 그려도 항상 같은 스케일로 비교할 수 있게 함.
+function buildOhkBarChart(canvas, ohkEntries, maxDistance) {
   const labels = ohkEntries.map((e) => `${displayName(e.item)} · ${e.ammo.label}`);
   const guaranteedData = ohkEntries.map((e) => e.ohkRange.guaranteed);
   const unstableData = ohkEntries.map((e) => {
@@ -3896,7 +3921,7 @@ function buildOhkBarChart(canvas, ohkEntries) {
       maintainAspectRatio: false,
       scales: {
         x: {
-          stacked: true, beginAtZero: true,
+          stacked: true, beginAtZero: true, max: maxDistance,
           title: { display: true, text: "거리 (m)", color: "#aba894" },
           ticks: { color: "#aba894" }, grid: { color: "rgba(77, 86, 64, 0.3)" },
         },
