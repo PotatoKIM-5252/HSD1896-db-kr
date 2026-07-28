@@ -19,7 +19,7 @@ const MAP_LAYERS = [
 const MAPS = [
   {
     id: "bayou",
-    name: "Stillwater Bayou",
+    name: "스틸워터 바이유",
     image: "images/maps/Bayou_map.webp",
     layers: {
       spawn: [
@@ -52,7 +52,7 @@ const MAPS = [
   },
   {
     id: "desalle",
-    name: "DeSalle",
+    name: "드 살",
     image: "images/maps/DeSalle_map.webp",
     layers: {
       spawn: [
@@ -88,7 +88,7 @@ const MAPS = [
   },
   {
     id: "lawson_delta",
-    name: "Lawson Delta",
+    name: "로슨 델타",
     image: "images/maps/Lawson_Delta_map.webp",
     layers: {
       spawn: [
@@ -124,7 +124,7 @@ const MAPS = [
   },
   {
     id: "mammon",
-    name: "Mammon's Gulch",
+    name: "마몬의 협곡",
     image: "images/maps/Mammon_map.webp",
     layers: {
       spawn: [
