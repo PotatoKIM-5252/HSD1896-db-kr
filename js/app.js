@@ -1616,6 +1616,11 @@ function renderWeaponDetailHTML(item, selectedAmmoId) {
 // -------------------------------------------------------------------------
 const LEADSHOT_SETTINGS_KEY = "hsd_leadshot_settings";
 const LEADSHOT_DEFAULTS = { fov: 90, width: 1920, height: 1080, targetSpeed: 4.5 };
+const LEADSHOT_SPEED_PRESETS = [
+  { label: "전력질주", value: 4.5 },
+  { label: "뛰기", value: 2.5 },
+  { label: "스트레이프", value: 2 },
+];
 
 function loadLeadshotSettings() {
   try {
@@ -1648,12 +1653,21 @@ function calcLeadshotPixels({ width, height, fov, targetSpeed, muzzleVelocity })
 
 function renderLeadshotCalcHTML(muzzleVelocity) {
   const s = loadLeadshotSettings();
+  const matchedSpeed = LEADSHOT_SPEED_PRESETS.some((p) => p.value === s.targetSpeed) ? s.targetSpeed : LEADSHOT_DEFAULTS.targetSpeed;
+  const speedButtons = LEADSHOT_SPEED_PRESETS.map((p) => `
+    <button type="button" class="leadshot-speed-btn ${p.value === matchedSpeed ? "active" : ""}" data-speed="${p.value}">
+      ${p.label}<small>${p.value} m/s</small>
+    </button>
+  `).join("");
   return `
-    <h4>리드샷 계산기 <span class="leadshot-hint" title="게임 화면에 덧씌우는 도구가 아니라, 조준을 얼마나 리드해야 하는지 미리 참고하는 오프라인 계산기입니다.&#10;&#10;표시되는 픽셀 값은 타겟까지의 거리와 무관하게 항상 동일합니다. 리드에 필요한 각도가 '목표 이동속도 ÷ 탄속'으로 정해지는데, 이 각도 자체가 거리와 상관없기 때문입니다(멀어질수록 필요한 리드 거리는 커지지만, 타겟이 화면에서 차지하는 크기도 같은 비율로 작아져서 서로 상쇄됩니다).">?</span></h4>
+    <h4>리드샷 계산기 <span class="leadshot-hint" data-tooltip="표시되는 픽셀 값은 타겟과의 거리와 무관하게 항상 동일합니다.">?</span></h4>
     <div class="leadshot-calc" data-muzzle-velocity="${muzzleVelocity}">
       <div class="leadshot-inputs">
         <label>FOV<input type="text" inputmode="decimal" id="leadshot-fov" value="${s.fov}"></label>
-        <label>목표 속도(m/s)<input type="text" inputmode="decimal" id="leadshot-speed" value="${s.targetSpeed}"></label>
+        <div class="leadshot-speed-field">
+          <span class="leadshot-speed-label">목표 이동속도</span>
+          <div class="leadshot-speed-buttons">${speedButtons}</div>
+        </div>
         <label>해상도 너비<input type="text" inputmode="numeric" id="leadshot-width" value="${s.width}"></label>
         <label>해상도 높이<input type="text" inputmode="numeric" id="leadshot-height" value="${s.height}"></label>
       </div>
@@ -1669,18 +1683,23 @@ function bindLeadshotCalc(muzzleVelocity) {
   const calc = document.querySelector(".leadshot-calc");
   if (!calc) return;
   const fovInput = document.getElementById("leadshot-fov");
-  const speedInput = document.getElementById("leadshot-speed");
   const widthInput = document.getElementById("leadshot-width");
   const heightInput = document.getElementById("leadshot-height");
   const resultEl = document.getElementById("leadshot-result-px");
+  const speedBtns = calc.querySelectorAll(".leadshot-speed-btn");
 
   const sanitizeDecimal = (el) => { el.value = el.value.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1"); };
   const sanitizeInt = (el) => { el.value = el.value.replace(/[^0-9]/g, ""); };
 
+  function currentSpeed() {
+    const active = calc.querySelector(".leadshot-speed-btn.active");
+    return active ? Number(active.dataset.speed) : LEADSHOT_DEFAULTS.targetSpeed;
+  }
+
   function recalc() {
     const settings = {
       fov: Number(fovInput.value) || 0,
-      targetSpeed: Number(speedInput.value) || 0,
+      targetSpeed: currentSpeed(),
       width: Number(widthInput.value) || 0,
       height: Number(heightInput.value) || 0,
     };
@@ -1689,10 +1708,18 @@ function bindLeadshotCalc(muzzleVelocity) {
     resultEl.textContent = px != null && Number.isFinite(px) ? px : "-";
   }
 
-  [[fovInput, sanitizeDecimal], [speedInput, sanitizeDecimal], [widthInput, sanitizeInt], [heightInput, sanitizeInt]]
+  [[fovInput, sanitizeDecimal], [widthInput, sanitizeInt], [heightInput, sanitizeInt]]
     .forEach(([el, sanitize]) => {
       el.addEventListener("input", () => { sanitize(el); recalc(); });
     });
+
+  speedBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      speedBtns.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      recalc();
+    });
+  });
 
   recalc();
 }
