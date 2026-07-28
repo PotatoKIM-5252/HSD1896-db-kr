@@ -1144,7 +1144,7 @@ function openBodyPartView(parentItem, ammoId) {
 
         <!-- 총기 스탯: 탄약 바꾸면 이 자리에서 바로 갱신됨 -->
         <div class="detail-stats bp-stats-inline">
-          ${statRowSimple("피해", stats.damage, "damage")}
+          ${statRowSimple("피해", stats.damage, "damage", "정보없음")}
           ${statRowSimple("낙하 범위", stats.dropRange, "dropRange")}
           ${statRowSimple("발사속도", stats.rateOfFire, "rateOfFire")}
           ${statRowSimple("사이클 시간", stats.cycleTime, "cycleTime")}
@@ -1478,8 +1478,12 @@ function refreshBodyPartDamage(currentItem, ammoId, parentItem) {
 }
 
 // 단순 스탯 행 (자세히 보기용 — 화살표 표기 없음). key를 주면 마우스오버 시 설명 툴팁이 뜸.
-function statRowSimple(label, value, key) {
-  if (value == null) return "";
+// fallback을 주면 값이 없을 때 행 자체를 숨기는 대신 그 문구(예: "정보없음")를 표시함.
+function statRowSimple(label, value, key, fallback) {
+  if (value == null) {
+    if (fallback == null) return "";
+    return `<div class="stat-row" ${key ? `data-stat-key="${key}"` : ""}><span>${label}</span><b class="stat-nodata">${fallback}</b></div>`;
+  }
   return `<div class="stat-row" ${key ? `data-stat-key="${key}"` : ""}><span>${label}</span><b>${value}</b></div>`;
 }
 

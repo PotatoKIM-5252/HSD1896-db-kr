@@ -663,6 +663,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 .stat-row span { color: var(--text-muted); }
 .stat-row b { color: var(--text-primary); font-family: var(--font-mono); font-weight: 500; }
+.stat-row b.stat-nodata { color: var(--text-muted); font-weight: 400; font-style: italic; }
 
 .detail-meta {
   list-style: none;
