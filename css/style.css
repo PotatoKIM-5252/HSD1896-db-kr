@@ -2515,7 +2515,15 @@ button { font-family: var(--font-body); cursor: pointer; }
 #map-viewport.panning { cursor: grabbing; }
 #map-viewport.add-mode { cursor: crosshair; }
 
-#map-viewport-canvas { position: absolute; inset: 0; transform-origin: 0 0; }
+#map-viewport-canvas {
+  position: absolute;
+  inset: 0;
+  transform-origin: 0 0;
+  transition: transform 0.12s ease-out;
+}
+
+/* 드래그로 지도를 이동시키는 동안엔 트랜지션 없이 손 움직임에 바로바로 반응하게 함 */
+#map-viewport-canvas.no-transition { transition: none; }
 
 #map-base-img { width: 100%; height: 100%; object-fit: contain; display: block; -webkit-user-drag: none; user-select: none; }
 
@@ -2541,13 +2549,15 @@ button { font-family: var(--font-body); cursor: pointer; }
   border-radius: 50%;
   border: 2px solid var(--bg-panel);
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
-  transform: translate(-50%, -50%);
+  /* 지도가 확대돼도 마커 화면상 크기는 그대로 유지되도록 캔버스 배율(--map-zoom)의 역수를 곱함 */
+  transform: translate(-50%, -50%) scale(calc(1 / var(--map-zoom, 1)));
+  transform-origin: center;
   padding: 0;
   cursor: pointer;
   transition: transform 0.1s;
 }
 
-.map-marker:hover { transform: translate(-50%, -50%) scale(1.3); }
+.map-marker:hover { transform: translate(-50%, -50%) scale(calc(1.3 / var(--map-zoom, 1))); }
 
 #map-zoom-controls {
   position: absolute;

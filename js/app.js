@@ -4127,6 +4127,8 @@ const MAP_ZOOM_MAX = 4;
 function applyMapTransform() {
   const canvas = document.getElementById("map-viewport-canvas");
   canvas.style.transform = `translate(${state.mapPanX}px, ${state.mapPanY}px) scale(${state.mapZoom})`;
+  // 마커는 지도가 확대돼도 화면상 크기가 그대로 유지되도록 반대 배율을 CSS 변수로 넘김(마커 CSS에서 사용)
+  canvas.style.setProperty("--map-zoom", state.mapZoom);
 }
 
 // 확대된 캔버스가 뷰포트 바깥으로 빈 공간을 보이지 않게 팬 값을 범위 안으로 고정
@@ -4146,6 +4148,22 @@ function setMapZoom(newZoom) {
   applyMapTransform();
 }
 
+// 마우스 커서 위치를 기준으로 확대/축소 — 커서가 가리키던 지도 지점이 화면에서 그대로 유지되도록
+// 줌 배율이 바뀐 만큼 팬 값도 같이 보정한다.
+function setMapZoomAtPoint(newZoom, clientX, clientY) {
+  const viewport = document.getElementById("map-viewport");
+  const rect = viewport.getBoundingClientRect();
+  const mx = clientX - rect.left;
+  const my = clientY - rect.top;
+  const clamped = Math.min(MAP_ZOOM_MAX, Math.max(MAP_ZOOM_MIN, newZoom));
+  const ratio = clamped / state.mapZoom;
+  state.mapPanX = mx - (mx - state.mapPanX) * ratio;
+  state.mapPanY = my - (my - state.mapPanY) * ratio;
+  state.mapZoom = clamped;
+  clampMapPan();
+  applyMapTransform();
+}
+
 function resetMapView() {
   state.mapZoom = 1;
   state.mapPanX = 0;
@@ -4155,10 +4173,12 @@ function resetMapView() {
 
 function setupMapPanZoom() {
   const viewport = document.getElementById("map-viewport");
+  const canvas = document.getElementById("map-viewport-canvas");
 
+  // 휠 확대/축소는 살짝만 움직여도 자연스럽게 이어지도록 작은 단위로, 트랜지션(부드러운 애니메이션)과 함께
   viewport.addEventListener("wheel", (e) => {
     e.preventDefault();
-    setMapZoom(state.mapZoom + (e.deltaY < 0 ? 0.3 : -0.3));
+    setMapZoomAtPoint(state.mapZoom + (e.deltaY < 0 ? 0.15 : -0.15), e.clientX, e.clientY);
   }, { passive: false });
 
   let dragging = false;
@@ -4174,6 +4194,7 @@ function setupMapPanZoom() {
     startPanX = state.mapPanX;
     startPanY = state.mapPanY;
     viewport.classList.add("panning");
+    canvas.classList.add("no-transition"); // 드래그 중엔 트랜지션 없이 손 움직임에 바로 반응
   });
 
   window.addEventListener("mousemove", (e) => {
@@ -4191,6 +4212,7 @@ function setupMapPanZoom() {
     if (!dragging) return;
     dragging = false;
     viewport.classList.remove("panning");
+    canvas.classList.remove("no-transition");
     // 드래그(이동)가 실제로 있었으면 그 직후의 마커 클릭은 무시(의도치 않은 클릭 방지)
     if (moved) {
       const markersLayer = document.getElementById("map-markers-layer");
