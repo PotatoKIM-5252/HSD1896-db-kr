@@ -4165,8 +4165,9 @@ const AMMO_TYPES = {
     cost: 0,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 재실측 데이터
+    // 데미지 수치는 위키에 명시되지 않고 실측도 안 돼서 정보 없음 처리(사용자 확인)
     ohkRange: { guaranteed: 10, unstableEnd: 11, noneFrom: 12 },
-    statOverrides: {  },
+    statOverrides: { damage: null },
   },
 
   haymaker_shells: {
@@ -4178,8 +4179,9 @@ const AMMO_TYPES = {
     cost: 0,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 재실측 데이터
+    // 데미지 수치는 위키에 명시되지 않고 실측도 안 돼서 정보 없음 처리(사용자 확인)
     ohkRange: { guaranteed: 10, unstableEnd: 11, noneFrom: 12 },
-    statOverrides: {  },
+    statOverrides: { damage: null },
   },
 
   drilling_shells: {
@@ -4191,9 +4193,10 @@ const AMMO_TYPES = {
     cost: 0,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
-    // ✅ [확인됨] Drilling(콤보건)은 하부 샷건탄 데미지가 위키에 원래 명시 안 되는 게 정상 - damage 220 / spread 20은 다른 샷건 대비 추정치로 유지
+    // ✅ [확인됨] Drilling(콤보건)은 하부 샷건탄 데미지가 위키에 원래 명시 안 되는 게 정상 —
+    // 예전엔 추정치(220)를 넣어뒀지만 실측/확인된 값이 아니라 정보 없음으로 비움(사용자 확인)
     ohkRange: { guaranteed: 12, unstableEnd: 14, noneFrom: 15 },
-    statOverrides: { damage: 220, spread: 20 },
+    statOverrides: { damage: null, spread: 20 },
   },
 
   // ⚠ Drilling Shorty/Hatchet 공용 샷건쉘 — 두 파생형은 근접무기(도끼) 유무만 다를 뿐
@@ -4205,8 +4208,9 @@ const AMMO_TYPES = {
     icon: "🔫",
     description: "Shells - 하부 총열 기본 샷건탄(벅샷).",
     cost: 0,
+    // 데미지 수치는 확인된 값이 아니라 정보 없음으로 비움(사용자 확인)
     ohkRange: { guaranteed: 12, unstableEnd: 13, noneFrom: 14 },
-    statOverrides: { damage: 214, spread: 25 },
+    statOverrides: { damage: null, spread: 25 },
   },
 
   // ─────────────────────────────────────────────────────────────
