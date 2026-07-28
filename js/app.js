@@ -918,6 +918,10 @@ function renderItemDetail(item) {
     bindAmmoTabs(item);
     bindCompareButton(item, selectedAmmoId);
     bindLoadoutQuickAddButton(item, selectedAmmoId);
+    if (item.ammoCategory !== "melee") {
+      const { stats } = resolveWeaponWithAmmo(item, selectedAmmoId);
+      if (stats.muzzleVelocity) bindLeadshotCalc(stats.muzzleVelocity);
+    }
     drawWeaponChart(item, selectedAmmoId);
   } else if (item.category === "tool") {
     panel.innerHTML = renderToolDetailHTML(item);
@@ -1596,6 +1600,8 @@ function renderWeaponDetailHTML(item, selectedAmmoId) {
     <h4>거리별 피해</h4>
     <div class="detail-chart-wrap"><canvas id="detail-chart"></canvas></div>
 
+    ${stats.muzzleVelocity ? renderLeadshotCalcHTML(stats.muzzleVelocity) : ""}
+
     <div class="detail-action-row">
       <button id="detail-add-compare-btn" type="button" class="compare-btn ${inCompare ? "added" : ""}">
         ${inCompare ? "✓ 비교 목록에 추가됨 (클릭하여 제거)" : "+ 비교 목록에 추가"}
@@ -1603,6 +1609,94 @@ function renderWeaponDetailHTML(item, selectedAmmoId) {
       <button id="detail-add-loadout-btn" type="button" class="compare-btn">+ 로드아웃에 추가</button>
     </div>
   `;
+}
+
+// -------------------------------------------------------------------------
+// 리드샷(선조준) 계산기 — 게임 밖에서 참고용으로 쓰는 오프라인 계산기.
+// FOV/해상도/목표 이동속도를 입력하면 해당 무기 탄속 기준으로 화면상 리드해야 할
+// 픽셀 간격을 계산해서 보여줌(실시간 오버레이 아님, 값만 표시).
+// -------------------------------------------------------------------------
+const LEADSHOT_SETTINGS_KEY = "hsd_leadshot_settings";
+const LEADSHOT_DEFAULTS = { fov: 90, width: 1920, height: 1080, targetSpeed: 4.5 };
+
+function loadLeadshotSettings() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(LEADSHOT_SETTINGS_KEY) || "{}");
+    return { ...LEADSHOT_DEFAULTS, ...saved };
+  } catch {
+    return { ...LEADSHOT_DEFAULTS };
+  }
+}
+
+function saveLeadshotSettings(settings) {
+  localStorage.setItem(LEADSHOT_SETTINGS_KEY, JSON.stringify(settings));
+}
+
+function leadshotDegToRad(d) { return (d * Math.PI) / 180; }
+function leadshotRadToDeg(r) { return (r * 180) / Math.PI; }
+
+// 원본 C# 리드샷 계산식을 그대로 이식 (FOV 슬라이더 값 → 실제 화면 각도로 보정하는
+// vfovMultiplier=2.08 상수 포함 — 게임의 FOV 표기가 표준 각도와 다르게 매핑되는 걸 보정)
+function calcLeadshotPixels({ width, height, fov, targetSpeed, muzzleVelocity }) {
+  if (!width || !height || !fov || !targetSpeed || !muzzleVelocity) return null;
+  const VFOV_MULTIPLIER = 2.08;
+  const fixedRatioFov = 2 * leadshotRadToDeg(Math.atan(Math.tan(leadshotDegToRad(fov) / 2) / (16 / 9)));
+  const actualVfov = fixedRatioFov / VFOV_MULTIPLIER;
+  const actualHfov = 2 * leadshotRadToDeg(Math.atan(Math.tan(leadshotDegToRad(actualVfov) / 2) * (width / height)));
+  const velocityTangent = targetSpeed / muzzleVelocity;
+  const pixelInterval = (0.5 * width * velocityTangent) / Math.tan(leadshotDegToRad(actualHfov) / 2);
+  return Math.round(pixelInterval);
+}
+
+function renderLeadshotCalcHTML(muzzleVelocity) {
+  const s = loadLeadshotSettings();
+  return `
+    <h4>리드샷 계산기 <span class="leadshot-hint" title="게임 화면에 덧씌우는 도구가 아니라, 조준을 얼마나 리드해야 하는지 미리 참고하는 오프라인 계산기입니다.">?</span></h4>
+    <div class="leadshot-calc" data-muzzle-velocity="${muzzleVelocity}">
+      <div class="leadshot-inputs">
+        <label>FOV<input type="text" inputmode="decimal" id="leadshot-fov" value="${s.fov}"></label>
+        <label>목표 속도(m/s)<input type="text" inputmode="decimal" id="leadshot-speed" value="${s.targetSpeed}"></label>
+        <label>해상도 너비<input type="text" inputmode="numeric" id="leadshot-width" value="${s.width}"></label>
+        <label>해상도 높이<input type="text" inputmode="numeric" id="leadshot-height" value="${s.height}"></label>
+      </div>
+      <div class="leadshot-result">
+        리드 간격 <b id="leadshot-result-px">-</b> px
+        <span class="leadshot-result-note">(탄속 ${muzzleVelocity}m/s 기준)</span>
+      </div>
+    </div>
+  `;
+}
+
+function bindLeadshotCalc(muzzleVelocity) {
+  const calc = document.querySelector(".leadshot-calc");
+  if (!calc) return;
+  const fovInput = document.getElementById("leadshot-fov");
+  const speedInput = document.getElementById("leadshot-speed");
+  const widthInput = document.getElementById("leadshot-width");
+  const heightInput = document.getElementById("leadshot-height");
+  const resultEl = document.getElementById("leadshot-result-px");
+
+  const sanitizeDecimal = (el) => { el.value = el.value.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1"); };
+  const sanitizeInt = (el) => { el.value = el.value.replace(/[^0-9]/g, ""); };
+
+  function recalc() {
+    const settings = {
+      fov: Number(fovInput.value) || 0,
+      targetSpeed: Number(speedInput.value) || 0,
+      width: Number(widthInput.value) || 0,
+      height: Number(heightInput.value) || 0,
+    };
+    saveLeadshotSettings(settings);
+    const px = calcLeadshotPixels({ ...settings, muzzleVelocity });
+    resultEl.textContent = px != null && Number.isFinite(px) ? px : "-";
+  }
+
+  [[fovInput, sanitizeDecimal], [speedInput, sanitizeDecimal], [widthInput, sanitizeInt], [heightInput, sanitizeInt]]
+    .forEach(([el, sanitize]) => {
+      el.addEventListener("input", () => { sanitize(el); recalc(); });
+    });
+
+  recalc();
 }
 
 // 근접무기 전용 간략히 보기 — 탄약/그래프 없이 근접 스탯만 표시

@@ -700,6 +700,74 @@ button { font-family: var(--font-body); cursor: pointer; }
   color: var(--success);
 }
 
+/* ===== 리드샷 계산기 ===== */
+.leadshot-hint {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  color: var(--text-muted);
+  font-size: 10px;
+  cursor: help;
+  margin-left: 4px;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.leadshot-calc {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+}
+
+.leadshot-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 10px;
+}
+
+.leadshot-inputs label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.leadshot-inputs input {
+  background: var(--bg-input);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 7px 9px;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-family: var(--font-mono);
+}
+
+.leadshot-result {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dotted var(--border);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.leadshot-result b {
+  color: var(--accent-strong);
+  font-family: var(--font-mono);
+  font-size: 15px;
+}
+
+.leadshot-result-note {
+  color: var(--text-muted);
+  font-size: 11px;
+  margin-left: 4px;
+}
+
 /* ===================== 자세히 보기 화면 ===================== */
 
 /* 무기 카드 안의 "자세히 보기" 버튼 */
