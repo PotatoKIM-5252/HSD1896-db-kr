@@ -73,10 +73,9 @@ const state = {
 
   charts: { detail: null, compare: null, compareOhk: null, bodypart: null, compareStats: null },
 
-  // 맵 탭: 현재 보고 있는 지도 id, 켜져 있는 레이어 key 집합, 클릭해서 연 마커
+  // 맵 탭: 현재 보고 있는 지도 id, 켜져 있는 레이어 key 집합
   activeMapId: null,
   activeMapLayers: null,  // Set — 최초 진입 시 MAP_LAYERS의 defaultOn 값으로 채움
-  activeMapMarker: null,
   mapLegendCollapsed: false,
   mapZoom: 1,
   mapPanX: 0,
@@ -238,11 +237,6 @@ function init() {
   document.getElementById("clear-compare-btn").addEventListener("click", () => {
     state.compareEntries = [];
     renderAnalysis();
-  });
-
-  document.getElementById("map-info-close-btn").addEventListener("click", () => {
-    state.activeMapMarker = null;
-    document.getElementById("map-info-panel").hidden = true;
   });
 
   document.getElementById("map-legend-collapse-btn").addEventListener("click", () => {
@@ -3935,8 +3929,6 @@ function renderMapSelectRow() {
   row.querySelectorAll(".map-select-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       state.activeMapId = btn.dataset.mapId;
-      state.activeMapMarker = null;
-      document.getElementById("map-info-panel").hidden = true;
       resetMapView();
       renderMapSelectRow();
       renderMapLegendPanel();
@@ -3956,7 +3948,7 @@ function renderMapLegendPanel() {
     const count = map ? (map.layers[l.key] || []).length : 0;
     const checked = state.activeMapLayers.has(l.key) ? "checked" : "";
     const swatch = l.icon
-      ? `<span class="map-layer-swatch map-layer-swatch-icon" style="background:${l.color}"><img src="${l.icon}" alt=""></span>`
+      ? `<span class="map-layer-swatch map-layer-swatch-icon"><img src="${l.icon}" alt=""></span>`
       : `<i class="map-layer-swatch" style="background:${l.color}"></i>`;
     return `
       <div class="map-layer-row">
@@ -4000,19 +3992,11 @@ function renderMapViewport() {
     .filter((l) => state.activeMapLayers.has(l.key))
     .flatMap((l) => (map.layers[l.key] || []).map((pt, idx) => ({ ...pt, layer: l, idx })))
     .map((pt) => `
-      <button class="map-marker ${pt.layer.icon ? "map-marker-icon" : ""}" type="button" title="${pt.label ?? pt.layer.label}"
+      <div class="map-marker ${pt.layer.icon ? "map-marker-icon" : ""}" title="${pt.label ?? pt.layer.label}"
         style="left:${pt.x}%; top:${pt.y}%; ${pt.layer.icon ? "" : `background:${pt.layer.color};`}"
-        data-layer-key="${pt.layer.key}" data-marker-idx="${pt.idx}">${pt.layer.icon ? `<img src="${pt.layer.icon}" class="map-marker-icon-img" alt="">` : ""}</button>
+        >${pt.layer.icon ? `<img src="${pt.layer.icon}" class="map-marker-icon-img" alt="">` : ""}</div>
     `).join("");
   markersLayer.innerHTML = markersHTML;
-  markersLayer.querySelectorAll(".map-marker").forEach((el) => {
-    const layer = MAP_LAYERS.find((l) => l.key === el.dataset.layerKey);
-    const idx = Number(el.dataset.markerIdx);
-    el.addEventListener("click", () => {
-      const pt = map.layers[layer.key][idx];
-      openMapInfoPanel(map, layer, pt);
-    });
-  });
 }
 
 // -------------------------------------------------------------------------
@@ -4110,25 +4094,7 @@ function setupMapPanZoom() {
     dragging = false;
     viewport.classList.remove("panning");
     canvas.classList.remove("no-transition");
-    // 드래그(이동)가 실제로 있었으면 그 직후의 마커 클릭은 무시(의도치 않은 클릭 방지)
-    if (moved) {
-      const markersLayer = document.getElementById("map-markers-layer");
-      markersLayer.style.pointerEvents = "none";
-      setTimeout(() => { markersLayer.style.pointerEvents = ""; }, 0);
-    }
   });
-}
-
-function openMapInfoPanel(map, layer, pt) {
-  state.activeMapMarker = { mapId: map.id, layerKey: layer.key, point: pt };
-  const panel = document.getElementById("map-info-panel");
-  const content = document.getElementById("map-info-content");
-  content.innerHTML = `
-    <p class="map-info-layer" style="color:${layer.color}">${layer.label}</p>
-    <h3>${pt.label ?? layer.label}</h3>
-    ${pt.note ? `<p class="map-info-note">${pt.note}</p>` : ""}
-  `;
-  panel.hidden = false;
 }
 
 // -------------------------------------------------------------------------
