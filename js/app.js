@@ -90,6 +90,8 @@ const state = {
 
   // 랜덤 로드아웃: 무기 칸수 상한 스위치 — 켜면 6칸까지, 끄면 5칸까지만 허용
   randomAllowSlot6: true,
+  // 랜덤 로드아웃: 최대 가격(Hunt Dollars) 상한 — 무기+탄약+필드 장비 합산 기준(특성 포인트는 별도라 미포함)
+  randomMaxPrice: 2600,
 };
 
 function loadoutKey(c, s) { return `${c}__${s}`; }
@@ -232,6 +234,13 @@ function init() {
   document.getElementById("random-loadout-btn").addEventListener("click", generateRandomLoadout);
   document.getElementById("random-allow-slot6-toggle").addEventListener("change", (e) => {
     state.randomAllowSlot6 = e.target.checked;
+  });
+  const maxPriceRange = document.getElementById("random-maxprice-range");
+  const maxPriceValue = document.getElementById("random-maxprice-value");
+  maxPriceValue.textContent = `$${maxPriceRange.value}`;
+  maxPriceRange.addEventListener("input", (e) => {
+    state.randomMaxPrice = Number(e.target.value);
+    maxPriceValue.textContent = `$${e.target.value}`;
   });
   document.getElementById("goto-analysis-btn").addEventListener("click", () => switchTab("analysis"));
   document.getElementById("clear-compare-btn").addEventListener("click", () => {
@@ -3482,7 +3491,9 @@ function pickTraitsExactBudget(candidates, targetPoints) {
   return chosen;
 }
 
-function generateRandomLoadout() {
+// 실제 무기+필드+특성을 한 번 뽑아 state.loadout에 채우는 본체. 최대 가격 제한을 만족하는지는
+// 여기서 신경쓰지 않고, 호출하는 쪽(generateRandomLoadout)이 여러 번 시도해서 판단한다.
+function attemptRandomLoadoutOnce() {
   initLoadoutState();
 
   // 1) 무기: 주슬롯 + 보조슬롯 각 1행. 아킴보 가능한 권총은 "듀얼 버전"이 별개의 무기 후보로
@@ -3580,9 +3591,36 @@ function generateRandomLoadout() {
   const remainingCandidates = eligibleTraits.filter((t) => !chosenTraits.includes(t));
   chosenTraits.push(...pickTraitsExactBudget(remainingCandidates, traitBudget));
   state.loadout[traitKey] = chosenTraits.map((t) => t.id);
+}
 
-  renderLoadoutBoard();
-  showToast("랜덤 로드아웃을 생성했습니다.", "info");
+// 최대 가격(Hunt Dollars) 제한을 만족할 때까지 여러 번 시도해서 뽑고, 시도 횟수 안에 못 찾으면
+// 그동안 나온 것 중 가장 저렴한 조합으로 대체한다(특성은 업그레이드 포인트라 가격 합산에서 제외).
+function generateRandomLoadout() {
+  const MAX_ATTEMPTS = 300;
+  let cheapestSnapshot = null;
+  let cheapestTotal = Infinity;
+  let successSnapshot = null;
+
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    attemptRandomLoadoutOnce();
+    const total = calculateSerializedLoadoutTotal(serializeCurrentLoadout());
+    if (total <= state.randomMaxPrice) {
+      successSnapshot = serializeCurrentLoadout();
+      break;
+    }
+    if (total < cheapestTotal) {
+      cheapestTotal = total;
+      cheapestSnapshot = serializeCurrentLoadout();
+    }
+  }
+
+  if (successSnapshot) {
+    applySerializedLoadout(successSnapshot);
+    showToast("랜덤 로드아웃을 생성했습니다.", "info");
+  } else {
+    applySerializedLoadout(cheapestSnapshot);
+    showToast(`최대 가격 $${state.randomMaxPrice} 안에서 만들 수 없어 가장 저렴한 조합($${cheapestTotal})을 사용했습니다.`, "info");
+  }
 }
 
 // -------------------------------------------------------------------------
