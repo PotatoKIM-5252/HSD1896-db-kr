@@ -4604,6 +4604,8 @@ const AMMO_TYPES = {
     description: "기본탄.",
     cost: 0,
     statOverrides: {  },
+    ohkRange: { guaranteed: 43 },
+    bodyPartMultiplierOverrides: { arm: 0.525, lower: 0.5 },
   },
   nitroexpress_explosive: {
     label: "폭발탄",
