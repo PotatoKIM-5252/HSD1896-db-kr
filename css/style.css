@@ -37,6 +37,10 @@
 
 * { box-sizing: border-box; }
 
+/* 모바일 브라우저에서 화면 위쪽을 살짝 당기면(예: 카드 클릭 중 미세한 스크롤) 브라우저 자체의
+   "당겨서 새로고침" 제스처가 발동해 페이지가 새로고침되는 것처럼 보이는 문제를 막음 */
+html, body { overscroll-behavior-y: contain; }
+
 body {
   margin: 0;
   background: var(--bg-page);
