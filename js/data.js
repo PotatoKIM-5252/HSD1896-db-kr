@@ -150,6 +150,7 @@ const TOOL_FILTERS = {
   toolClass: {
     label: "분류",
     options: [
+      { value: "__all__",         label: "전체" },
       { value: "distraction",     label: "교란" },
       { value: "healing",         label: "치유" },
       { value: "fire_light",      label: "불/광원" },
@@ -196,6 +197,7 @@ const CONSUMABLE_FILTERS = {
   consumableClass: {
     label: "분류",
     options: [
+      { value: "__all__",    label: "전체" },
       { value: "resupply",   label: "재보급" },
       { value: "fire_light", label: "불/광원" },
       { value: "explosive",  label: "폭발" },
@@ -245,6 +247,7 @@ const TRAIT_FILTERS = {
   traitClass: {
     label: "분류",
     options: [
+      { value: "__all__",  label: "전체" },
       { value: "attack",   label: "공격", image: "images/ui/trait_icons/attack.png" },
       { value: "defense",  label: "방어", image: "images/ui/trait_icons/defense.png" },
       { value: "movement", label: "이동", image: "images/ui/trait_icons/movement.png" },
