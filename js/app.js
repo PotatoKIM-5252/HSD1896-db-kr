@@ -254,6 +254,11 @@ function init() {
     renderMapLegendPanel();
     renderMapViewport();
   });
+  document.getElementById("map-legend-disable-all-btn").addEventListener("click", () => {
+    state.activeMapLayers = new Set();
+    renderMapLegendPanel();
+    renderMapViewport();
+  });
 
   document.getElementById("map-zoom-in-btn").addEventListener("click", () => setMapZoom(state.mapZoom + 0.5));
   document.getElementById("map-zoom-out-btn").addEventListener("click", () => setMapZoom(state.mapZoom - 0.5));
@@ -3996,7 +4001,7 @@ function renderMapViewport() {
     .flatMap((l) => (map.layers[l.key] || []).map((pt, idx) => ({ ...pt, layer: l, idx })))
     .map((pt) => `
       <button class="map-marker ${pt.layer.icon ? "map-marker-icon" : ""}" type="button" title="${pt.label ?? pt.layer.label}"
-        style="left:${pt.x}%; top:${pt.y}%; background:${pt.layer.color};"
+        style="left:${pt.x}%; top:${pt.y}%; ${pt.layer.icon ? "" : `background:${pt.layer.color};`}"
         data-layer-key="${pt.layer.key}" data-marker-idx="${pt.idx}">${pt.layer.icon ? `<img src="${pt.layer.icon}" class="map-marker-icon-img" alt="">` : ""}</button>
     `).join("");
   markersLayer.innerHTML = markersHTML;

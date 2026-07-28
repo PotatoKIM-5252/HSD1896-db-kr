@@ -2356,20 +2356,29 @@ button { font-family: var(--font-body); cursor: pointer; }
 #map-legend-collapse-btn:hover { color: var(--text-primary); border-color: var(--text-secondary); }
 #map-legend-panel.collapsed #map-legend-collapse-btn { transform: rotate(180deg); }
 
-#map-legend-enable-all-btn {
+#map-legend-header-actions {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#map-legend-enable-all-btn,
+#map-legend-disable-all-btn {
   background: transparent;
   border: none;
   color: var(--accent-strong);
   font-size: 11px;
   cursor: pointer;
   white-space: nowrap;
+  padding: 0;
 }
 
-#map-legend-enable-all-btn:hover { color: var(--accent); text-decoration: underline; }
+#map-legend-enable-all-btn:hover,
+#map-legend-disable-all-btn:hover { color: var(--accent); text-decoration: underline; }
 
 #map-legend-panel.collapsed #map-legend-title,
-#map-legend-panel.collapsed #map-legend-enable-all-btn,
+#map-legend-panel.collapsed #map-legend-header-actions,
 #map-legend-panel.collapsed #map-layer-toggles {
   display: none;
 }
@@ -2500,14 +2509,21 @@ button { font-family: var(--font-body); cursor: pointer; }
 .map-marker:hover { transform: translate(-50%, -50%) scale(calc(1.3 / var(--map-zoom, 1))); }
 
 .map-marker-icon {
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .map-marker-icon-img {
-  width: 65%;
-  height: 65%;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 1px rgba(0, 0, 0, 0.9));
   pointer-events: none;
   -webkit-user-drag: none;
 }
