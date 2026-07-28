@@ -3222,9 +3222,10 @@ const WEAPON_ACTION_TYPE = {
   weapon_martini_henry: "single_shot", weapon_1890_cavalry: "single_shot",
 
   // 싱글액션 리볼버(패닝 대상) — 더블액션인 Officer/New Army는 제외
-  weapon_bornheim_no3: "revolver_sa", weapon_conversion: "revolver_sa",
+  weapon_conversion: "revolver_sa",
   weapon_lemat: "revolver_sa", weapon_nagant_m1895: "revolver_sa",
   weapon_scottfield: "revolver_sa",
+  // weapon_bornheim_no3, weapon_dolch_96: 반자동 권총이라 리볼버 아님(사용자 확인)
   // weapon_rival78: 받는 액션 기반 특성 없음(사용자 확인)
 };
 // 파생형이 액션 방식 자체를 바꾸는 예외(모신-나강 아프토마트는 전자동 개조라 볼트액션 아님)
