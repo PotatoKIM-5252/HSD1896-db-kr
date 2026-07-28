@@ -4000,16 +4000,16 @@ function renderMapLegendPanel() {
     const checked = state.activeMapLayers.has(l.key) ? "checked" : "";
     const addActive = state.mapAddModeLayer === l.key;
     return `
-      <label class="map-layer-row ${addActive ? "add-active" : ""}">
+      <div class="map-layer-row ${addActive ? "add-active" : ""}">
         <i class="map-layer-swatch" style="background:${l.color}"></i>
         <span class="map-layer-label">${l.label}</span>
         <span class="map-layer-count">${count}</span>
         <button type="button" class="map-layer-add-btn ${addActive ? "active" : ""}" data-layer-key="${l.key}" title="지도 클릭해서 이 레이어에 포인트 추가">＋</button>
-        <span class="map-layer-switch" data-layer-key="${l.key}">
+        <label class="map-layer-switch" data-layer-key="${l.key}">
           <input type="checkbox" ${checked}>
           <span class="switch-track"><span class="switch-thumb"></span></span>
-        </span>
-      </label>
+        </label>
+      </div>
     `;
   }).join("");
 
