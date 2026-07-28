@@ -918,10 +918,6 @@ function renderItemDetail(item) {
     bindAmmoTabs(item);
     bindCompareButton(item, selectedAmmoId);
     bindLoadoutQuickAddButton(item, selectedAmmoId);
-    if (item.ammoCategory !== "melee") {
-      const { stats } = resolveWeaponWithAmmo(item, selectedAmmoId);
-      if (stats.muzzleVelocity) bindLeadshotCalc(stats.muzzleVelocity);
-    }
     drawWeaponChart(item, selectedAmmoId);
   } else if (item.category === "tool") {
     panel.innerHTML = renderToolDetailHTML(item);
@@ -1169,6 +1165,8 @@ function openBodyPartView(parentItem, ammoId) {
             : (ammo?.description ? "" : `<p class="muted-text">이 탄약에는 특수 효과가 없습니다.</p>`)}
           ${hasAnyGraphData ? `<p class="status-effect-note">※ 계산 결과는 반올림 등으로 인해 실제와 최대 1m까지 차이가 날 수 있습니다.</p>` : ""}
         </div>
+
+        ${stats.muzzleVelocity ? renderLeadshotCalcHTML(stats.muzzleVelocity) : ""}
       </div>
     </div>
   `;
@@ -1220,6 +1218,8 @@ function openBodyPartView(parentItem, ammoId) {
       btn.classList.remove("added");
     }, 1600);
   });
+
+  if (stats.muzzleVelocity) bindLeadshotCalc(stats.muzzleVelocity);
 
   // 거리별 데미지 그래프 그리기
   drawBodyPartChart(currentItem, activeAmmoId, refRange, parentItem);
@@ -1599,8 +1599,6 @@ function renderWeaponDetailHTML(item, selectedAmmoId) {
 
     <h4>거리별 피해</h4>
     <div class="detail-chart-wrap"><canvas id="detail-chart"></canvas></div>
-
-    ${stats.muzzleVelocity ? renderLeadshotCalcHTML(stats.muzzleVelocity) : ""}
 
     <div class="detail-action-row">
       <button id="detail-add-compare-btn" type="button" class="compare-btn ${inCompare ? "added" : ""}">
