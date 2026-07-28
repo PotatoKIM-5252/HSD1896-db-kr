@@ -1829,6 +1829,42 @@ function buildFalloffDataset(item, ammoId, color, xMax = 100) {
   };
 }
 
+// 거리별 데미지 낙하 곡선(falloff)이 없는 무기(샷건 등 OHK 바 방식) 전용 —
+// 무기 비교 그래프에서 완전히 빠지지 않도록, ohkRange(보장/불안정/불가 구간)를
+// 기준으로 "한방(헌터 체력 150) 보장 구간"을 선으로 대신 그려준다.
+// 실측 낙하 데미지 곡선이 아니라 OHK 여부만 나타내는 값이라 (한방) 표시를 붙임.
+function buildOhkDataset(item, ammoId, color) {
+  const { ammo } = resolveWeaponWithAmmo(item, ammoId);
+  if (!ammo || !ammo.ohkRange) return null;
+
+  const { guaranteed, unstableEnd, noneFrom } = ammo.ohkRange;
+  const hasUnstable = unstableEnd != null && noneFrom != null;
+  const endRange = hasUnstable ? noneFrom : guaranteed;
+
+  const data = [];
+  for (let r = 0; r <= endRange; r++) data.push({ x: r, y: HUNTER_HP });
+
+  return {
+    label: `${displayName(item)} · ${ammo.label} (한방)`,
+    data,
+    borderColor: color,
+    backgroundColor: color + "22",
+    borderWidth: 2,
+    tension: 0,
+    stepped: false,
+    fill: false,
+    // 보장 구간(0~guaranteed)은 실선, 불안정 구간(guaranteed~noneFrom)은 점선으로 구분
+    segment: {
+      borderDash: (ctx) => (hasUnstable && ctx.p0.parsed.x >= guaranteed) ? [6, 4] : undefined,
+    },
+    pointRadius: (ctx) => [0, guaranteed, endRange].includes(ctx.parsed?.x) ? 3 : 0,
+    pointHoverRadius: 5,
+    pointBackgroundColor: color,
+    pointBorderColor: color,
+    pointHitRadius: 10,
+  };
+}
+
 // 키포인트 배열에서 임의의 거리 r에 해당하는 배율을 선형 보간
 // falloff 곡선에서 특정 배율(targetMult)에 도달하는 거리를 역으로 찾음.
 // falloff는 거리가 늘어날수록 배율이 같거나 줄어든다고 가정.
@@ -3704,7 +3740,10 @@ function renderAnalysis() {
   const datasets = state.compareEntries.map((entry, idx) => {
     const item = findItemById(entry.weaponId);
     if (!item) return null;
-    return buildFalloffDataset(item, entry.ammoId, COMPARE_COLORS[idx % COMPARE_COLORS.length]);
+    const color = COMPARE_COLORS[idx % COMPARE_COLORS.length];
+    // 낙하 데미지 곡선이 없는 샷건/한방(OHK) 무기는 ohkRange 기반 선으로 대체해서
+    // 비교 그래프에서 아예 빠지지 않게 함.
+    return buildFalloffDataset(item, entry.ammoId, color) || buildOhkDataset(item, entry.ammoId, color);
   }).filter(Boolean);
 
   // 비교 중 무기들 중 하나라도 데미지가 150 이상이면 OHK 라인 표시
