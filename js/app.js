@@ -91,7 +91,7 @@ const state = {
   // 랜덤 로드아웃: 무기 칸수 상한 스위치 — 켜면 6칸까지, 끄면 5칸까지만 허용
   randomAllowSlot6: true,
   // 랜덤 로드아웃: 최대 가격(Hunt Dollars) 상한 — 무기+탄약+필드 장비 합산 기준(특성 포인트는 별도라 미포함)
-  randomMaxPrice: 2600,
+  randomMaxPrice: 3000,
 };
 
 function loadoutKey(c, s) { return `${c}__${s}`; }
