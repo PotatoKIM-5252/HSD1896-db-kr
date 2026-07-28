@@ -1556,16 +1556,17 @@ button { font-family: var(--font-body); cursor: pointer; }
   white-space: nowrap;
 }
 
-#random-maxprice-input-row {
+#random-price-input-row {
   display: flex;
   align-items: center;
   gap: 3px;
 }
 
-#random-maxprice-input-row span { color: var(--text-muted); font-size: 12px; }
+#random-price-input-row span { color: var(--text-muted); font-size: 12px; }
+.random-price-tilde { margin: 0 1px; }
 
-#random-maxprice-input {
-  width: 56px;
+#random-minprice-input, #random-maxprice-input {
+  width: 52px;
   background: var(--bg-input);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius);
@@ -1576,9 +1577,10 @@ button { font-family: var(--font-body); cursor: pointer; }
   text-align: center;
 }
 
-#random-maxprice-range {
+#random-minprice-range, #random-maxprice-range {
   width: 130px;
   accent-color: var(--accent);
+  display: block;
 }
 
 #clear-loadout-btn, #random-loadout-btn, #goto-analysis-btn {

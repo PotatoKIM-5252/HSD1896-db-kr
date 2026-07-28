@@ -90,7 +90,8 @@ const state = {
 
   // 랜덤 로드아웃: 무기 칸수 상한 스위치 — 켜면 6칸까지, 끄면 5칸까지만 허용
   randomAllowSlot6: true,
-  // 랜덤 로드아웃: 최대 가격(Hunt Dollars) 상한 — 무기+탄약+필드 장비 합산 기준(특성 포인트는 별도라 미포함)
+  // 랜덤 로드아웃: 최소/최대 가격(Hunt Dollars) 범위 — 무기+탄약+필드 장비 합산 기준(특성 포인트는 별도라 미포함)
+  randomMinPrice: 0,
   randomMaxPrice: 3000,
   // 랜덤 로드아웃: 희소(Scarce, 상점 구매 불가·필드 드랍 전용) 무기/도구/소모품 포함 여부 — 기본은 제외
   randomAllowScarce: false,
@@ -240,17 +241,41 @@ function init() {
   document.getElementById("random-allow-scarce-toggle").addEventListener("change", (e) => {
     state.randomAllowScarce = e.target.checked;
   });
+  // 최소/최대 가격 — 입력창과 슬라이더를 서로 동기화하고, 최소가 최대를 넘어가면 서로 밀어서
+  // 항상 최소 <= 최대가 유지되게 함.
+  const minPriceRange = document.getElementById("random-minprice-range");
+  const minPriceInput = document.getElementById("random-minprice-input");
   const maxPriceRange = document.getElementById("random-maxprice-range");
   const maxPriceInput = document.getElementById("random-maxprice-input");
+
+  function syncMinPrice(num) {
+    state.randomMinPrice = num;
+    minPriceInput.value = num;
+    minPriceRange.value = Math.min(Number(minPriceRange.max), Math.max(Number(minPriceRange.min), num));
+  }
+  function syncMaxPrice(num) {
+    state.randomMaxPrice = num;
+    maxPriceInput.value = num;
+    maxPriceRange.value = Math.min(Number(maxPriceRange.max), Math.max(Number(maxPriceRange.min), num));
+  }
+
+  minPriceRange.addEventListener("input", () => {
+    syncMinPrice(Number(minPriceRange.value));
+    if (state.randomMinPrice > state.randomMaxPrice) syncMaxPrice(state.randomMinPrice);
+  });
+  minPriceInput.addEventListener("input", () => {
+    minPriceInput.value = minPriceInput.value.replace(/[^0-9]/g, "");
+    syncMinPrice(Number(minPriceInput.value) || 0);
+    if (state.randomMinPrice > state.randomMaxPrice) syncMaxPrice(state.randomMinPrice);
+  });
   maxPriceRange.addEventListener("input", () => {
-    state.randomMaxPrice = Number(maxPriceRange.value);
-    maxPriceInput.value = maxPriceRange.value;
+    syncMaxPrice(Number(maxPriceRange.value));
+    if (state.randomMaxPrice < state.randomMinPrice) syncMinPrice(state.randomMaxPrice);
   });
   maxPriceInput.addEventListener("input", () => {
     maxPriceInput.value = maxPriceInput.value.replace(/[^0-9]/g, "");
-    const num = Number(maxPriceInput.value) || 0;
-    state.randomMaxPrice = num;
-    maxPriceRange.value = Math.min(Number(maxPriceRange.max), Math.max(Number(maxPriceRange.min), num));
+    syncMaxPrice(Number(maxPriceInput.value) || 0);
+    if (state.randomMaxPrice < state.randomMinPrice) syncMinPrice(state.randomMaxPrice);
   });
   document.getElementById("goto-analysis-btn").addEventListener("click", () => switchTab("analysis"));
   document.getElementById("clear-compare-btn").addEventListener("click", () => {
@@ -3486,13 +3511,14 @@ function pickTraitsExactBudget(candidates, targetPoints) {
 
 // 규칙은 기존과 완전히 동일(무기 2자루 시도, 근접/투척+화염신호탄 필수, 회복 주사기 필수 등)하되,
 // 항목을 하나 확정할 때마다 예산(state.randomMaxPrice) 안에 드는지 바로 확인해서, 넘으면 그
-// 항목을 취소하고 후보를 무작위로 바꿔가며 다시 시도한다 — 예산을 초과한 조합은 절대 반영되지 않음.
+// 항목을 취소하고 후보를 무작위로 바꿔가며 다시 시도한다 — 최대 가격을 초과한 조합은 절대 반영되지 않음.
 // 도구/소모품 채우기(6번 규칙)처럼 원래도 다 못 채울 수 있던 부분은 그대로 못 채울 수 있고,
 // 무기 2번째 자리도 원래 슬롯 한도 때문에 못 들어갈 수 있던 것처럼 예산 때문에 못 들어갈 수 있다.
 // 다만 무기 최소 1자루 + 구급상자 + 회복 주사기 1개는 원래도 필수였던 항목이라, 예산 안에서
 // 고를 수 있는 후보가 있는 한 반드시 채워지고, 극단적으로 예산이 부족할 때만 최후 수단으로
 // 그중 가장 싼 후보를 예산 초과를 감수하고 넣는다(현실적으로 슬라이더 최소값에서는 발생하지 않음).
-function generateRandomLoadout() {
+// 최소 가격은 여기서는 신경쓰지 않고, 호출하는 쪽(generateRandomLoadout)이 여러 번 시도해서 판단한다.
+function buildRandomLoadoutOnce() {
   initLoadoutState();
   const cap = state.randomMaxPrice;
   const computeTotal = () => calculateSerializedLoadoutTotal(serializeCurrentLoadout());
@@ -3696,8 +3722,29 @@ function generateRandomLoadout() {
   const remainingCandidates = eligibleTraits.filter((t) => !chosenTraits.includes(t));
   chosenTraits.push(...pickTraitsExactBudget(remainingCandidates, traitBudget));
   state.loadout[traitKey] = chosenTraits.map((t) => t.id);
+}
 
-  renderLoadoutBoard();
+// 최대 가격은 buildRandomLoadoutOnce가 항상 지키므로, 여기서는 결과 총액이 최소 가격
+// (state.randomMinPrice) 이상인지만 확인해서 아니면 다시 뽑는다. 시도 안에 최소 가격을 못
+// 채우면(예: 최소~최대 범위가 너무 좁은 경우) 그동안 나온 것 중 총액이 가장 높았던 조합을 사용.
+function generateRandomLoadout() {
+  const minCap = state.randomMinPrice;
+  const MAX_ATTEMPTS = 100;
+  let bestSnapshot = null;
+  let bestTotal = -Infinity;
+
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    buildRandomLoadoutOnce();
+    const total = calculateSerializedLoadoutTotal(serializeCurrentLoadout());
+    if (total >= minCap) { bestSnapshot = null; break; } // 이미 state.loadout에 반영된 상태 그대로 사용
+    if (total > bestTotal) {
+      bestTotal = total;
+      bestSnapshot = serializeCurrentLoadout();
+    }
+  }
+
+  if (bestSnapshot) applySerializedLoadout(bestSnapshot);
+  else renderLoadoutBoard();
   showToast("랜덤 로드아웃을 생성했습니다.", "info");
 }
 
