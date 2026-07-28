@@ -3087,7 +3087,13 @@ function openFieldPicker() {
     }
     state.loadout[key].push(selectedItem.id);
     renderLoadoutBoard();
-    closePicker();
+    // 도구/소모품은 여러 칸을 연달아 채우는 경우가 많아서, 하나 고를 때마다 창이 닫히지 않고
+    // 계속 열려있게 유지 — 칸이 다 찼을 때만 자동으로 닫음.
+    if (getSharedGroupUsage("field") >= 8) {
+      closePicker();
+    } else {
+      renderPickerList(document.getElementById("picker-search-input").value.trim().toLowerCase());
+    }
   });
 }
 
