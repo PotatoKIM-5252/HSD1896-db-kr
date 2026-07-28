@@ -3343,12 +3343,19 @@ function shuffleArray(arr) {
 // 무기 행(주슬롯/보조슬롯) 하나를 장착. dual이면 같은 무기+탄약으로 옆 칸(아킴보 짝)까지 채움.
 function equipRandomWeaponRow(key, row) {
   const item = row.item;
-  const primaryOptions = getPrimaryAmmoOptions(item);
-  const ammoId = primaryOptions.length ? pickRandomItem(primaryOptions) : (item.defaultAmmo || null);
+  // 무기 자체뿐 아니라 탄약도 희소(Scarce)일 수 있어서(예: 덤덤탄), "희소 제외" 스위치가
+  // 꺼져 있으면 탄약 후보에서도 희소 탄약을 뺀다(전부 희소뿐이면 어쩔 수 없이 그대로 사용).
+  const ammoScarceOk = (id) => state.randomAllowScarce || !AMMO_TYPES[id]?.scarce;
+  const primaryOptionsAll = getPrimaryAmmoOptions(item);
+  const primaryOptions = primaryOptionsAll.filter(ammoScarceOk);
+  const primaryPool = primaryOptions.length ? primaryOptions : primaryOptionsAll;
+  const ammoId = primaryPool.length ? pickRandomItem(primaryPool) : (item.defaultAmmo || null);
   let ammoId2 = null;
   if (isDualAmmoWeapon(item)) {
-    const secondaryOptions = getSecondaryAmmoOptions(item);
-    ammoId2 = secondaryOptions.length ? pickRandomItem(secondaryOptions) : getDefaultSecondaryAmmo(item);
+    const secondaryOptionsAll = getSecondaryAmmoOptions(item);
+    const secondaryOptions = secondaryOptionsAll.filter(ammoScarceOk);
+    const secondaryPool = secondaryOptions.length ? secondaryOptions : secondaryOptionsAll;
+    ammoId2 = secondaryPool.length ? pickRandomItem(secondaryPool) : getDefaultSecondaryAmmo(item);
   }
   state.loadout[key][0] = { item, ammoId, ammoId2 };
   if (row.dual) state.loadout[key][1] = { item, ammoId, ammoId2 };
