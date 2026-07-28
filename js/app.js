@@ -1649,7 +1649,7 @@ function calcLeadshotPixels({ width, height, fov, targetSpeed, muzzleVelocity })
 function renderLeadshotCalcHTML(muzzleVelocity) {
   const s = loadLeadshotSettings();
   return `
-    <h4>리드샷 계산기 <span class="leadshot-hint" title="게임 화면에 덧씌우는 도구가 아니라, 조준을 얼마나 리드해야 하는지 미리 참고하는 오프라인 계산기입니다.&#10;&#10;표시되는 픽셀 값은 타겟까지의 거리와 무관하게 항상 동일합니다. 리드에 필요한 각도가 '목표 이동속도 ÷ 탄속'으로 정해지는데, 이 각도 자체가 거리와 상관없기 때문입니다(멀어질수록 필요한 리드 거리는 커지지만, 타겟이 화면에서 차지하는 크기도 같은 비율로 작아져서 서로 상쇄됩니다). Hunt: Showdown은 탄속 감쇠(공기저항으로 인한 탄속 감소)가 없는 게임이라 이 계산은 거리와 무관하게 정확합니다.">?</span></h4>
+    <h4>리드샷 계산기 <span class="leadshot-hint" title="게임 화면에 덧씌우는 도구가 아니라, 조준을 얼마나 리드해야 하는지 미리 참고하는 오프라인 계산기입니다.&#10;&#10;표시되는 픽셀 값은 타겟까지의 거리와 무관하게 항상 동일합니다. 리드에 필요한 각도가 '목표 이동속도 ÷ 탄속'으로 정해지는데, 이 각도 자체가 거리와 상관없기 때문입니다(멀어질수록 필요한 리드 거리는 커지지만, 타겟이 화면에서 차지하는 크기도 같은 비율로 작아져서 서로 상쇄됩니다).">?</span></h4>
     <div class="leadshot-calc" data-muzzle-velocity="${muzzleVelocity}">
       <div class="leadshot-inputs">
         <label>FOV<input type="text" inputmode="decimal" id="leadshot-fov" value="${s.fov}"></label>
