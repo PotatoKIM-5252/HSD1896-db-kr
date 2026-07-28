@@ -11,7 +11,7 @@
 const MAP_LAYERS = [
   { key: "spawn", label: "스폰 포인트", color: "#7ba0c4", defaultOn: true },
   { key: "extraction", label: "탈출구", color: "#5c8a63", defaultOn: true },
-  { key: "boss", label: "보스 위치", color: "#c25b4d", defaultOn: false },
+  { key: "boss", label: "사냥탑", color: "#c25b4d", defaultOn: false },
   { key: "watchtower", label: "감시탑", color: "#d4c25e", defaultOn: false },
   { key: "armory", label: "무기고", color: "#b48ec4", defaultOn: false },
 ];

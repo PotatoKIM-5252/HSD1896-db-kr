@@ -71,7 +71,7 @@ const state = {
   // 비교 목록 중 "총기 스탯 비교"에서 선택된 항목 ({ weaponId, ammoId } 쌍의 배열)
   statCompareSelection: [],
 
-  charts: { detail: null, compare: null, bodypart: null, compareStats: null },
+  charts: { detail: null, compare: null, compareOhk: null, bodypart: null, compareStats: null },
 
   // 맵 탭: 현재 보고 있는 지도 id, 켜져 있는 레이어 key 집합, 클릭해서 연 마커
   activeMapId: null,
@@ -1829,40 +1829,13 @@ function buildFalloffDataset(item, ammoId, color, xMax = 100) {
   };
 }
 
-// 거리별 데미지 낙하 곡선(falloff)이 없는 무기(샷건 등 OHK 바 방식) 전용 —
-// 무기 비교 그래프에서 완전히 빠지지 않도록, ohkRange(보장/불안정/불가 구간)를
-// 기준으로 "한방(헌터 체력 150) 보장 구간"을 선으로 대신 그려준다.
-// 실측 낙하 데미지 곡선이 아니라 OHK 여부만 나타내는 값이라 (한방) 표시를 붙임.
-function buildOhkDataset(item, ammoId, color) {
+// 거리별 데미지 낙하 곡선(falloff)이 없는 무기(샷건 등 OHK 바 방식)인지 확인하고,
+// 있다면 { item, ammo, color, ohkRange } 형태로 반환. falloff가 있으면(=일반 낙하 그래프
+// 대상이면) null — 낙하 곡선 그래프와 OHK 거리 비교 그래프는 서로 겹치지 않게 분리해서 그림.
+function getOhkCompareEntry(item, ammoId, color) {
   const { ammo } = resolveWeaponWithAmmo(item, ammoId);
-  if (!ammo || !ammo.ohkRange) return null;
-
-  const { guaranteed, unstableEnd, noneFrom } = ammo.ohkRange;
-  const hasUnstable = unstableEnd != null && noneFrom != null;
-  const endRange = hasUnstable ? noneFrom : guaranteed;
-
-  const data = [];
-  for (let r = 0; r <= endRange; r++) data.push({ x: r, y: HUNTER_HP });
-
-  return {
-    label: `${displayName(item)} · ${ammo.label} (한방)`,
-    data,
-    borderColor: color,
-    backgroundColor: color + "22",
-    borderWidth: 2,
-    tension: 0,
-    stepped: false,
-    fill: false,
-    // 보장 구간(0~guaranteed)은 실선, 불안정 구간(guaranteed~noneFrom)은 점선으로 구분
-    segment: {
-      borderDash: (ctx) => (hasUnstable && ctx.p0.parsed.x >= guaranteed) ? [6, 4] : undefined,
-    },
-    pointRadius: (ctx) => [0, guaranteed, endRange].includes(ctx.parsed?.x) ? 3 : 0,
-    pointHoverRadius: 5,
-    pointBackgroundColor: color,
-    pointBorderColor: color,
-    pointHitRadius: 10,
-  };
+  if (!ammo || ammo.falloff || !ammo.ohkRange) return null;
+  return { item, ammo, color, ohkRange: ammo.ohkRange };
 }
 
 // 키포인트 배열에서 임의의 거리 r에 해당하는 배율을 선형 보간
@@ -3691,11 +3664,16 @@ const COMPARE_COLORS = ["#ece6d3", "#5c8a63", "#c25b4d", "#7ba0c4", "#b48ec4", "
 function renderAnalysis() {
   const listEl = document.getElementById("compare-weapon-list");
   const chartWrap = document.getElementById("compare-chart-wrap");
+  const ohkSection = document.getElementById("compare-ohk-section");
+  const ohkChartWrap = document.getElementById("compare-ohk-chart-wrap");
   if (state.charts.compare) { state.charts.compare.destroy(); state.charts.compare = null; }
+  if (state.charts.compareOhk) { state.charts.compareOhk.destroy(); state.charts.compareOhk = null; }
 
   if (state.compareEntries.length === 0) {
     listEl.innerHTML = `<p class="empty-msg">비교할 항목이 없습니다. DB 검색 → 무기 클릭 → 탄약 선택 → "비교 목록에 추가"를 눌러주세요.</p>`;
     chartWrap.innerHTML = "";
+    ohkSection.hidden = true;
+    ohkChartWrap.innerHTML = "";
     state.statCompareSelection = [];
     renderCompareStatsSection();
     return;
@@ -3735,28 +3713,95 @@ function renderAnalysis() {
     listEl.appendChild(chip);
   });
 
-  chartWrap.innerHTML = `<canvas id="compare-chart"></canvas>`;
-  const canvas = document.getElementById("compare-chart");
-  const datasets = state.compareEntries.map((entry, idx) => {
+  // 낙하 데미지 곡선(falloff)이 있는 일반 무기와, 없는 샷건/한방(OHK) 무기는 서로 축의
+  // 의미가 달라서(거리별 "피해량" vs 거리별 "한방 가능 여부") 그래프를 완전히 분리해서 그림.
+  const falloffDatasets = [];
+  const ohkEntries = [];
+  state.compareEntries.forEach((entry, idx) => {
     const item = findItemById(entry.weaponId);
-    if (!item) return null;
+    if (!item) return;
     const color = COMPARE_COLORS[idx % COMPARE_COLORS.length];
-    // 낙하 데미지 곡선이 없는 샷건/한방(OHK) 무기는 ohkRange 기반 선으로 대체해서
-    // 비교 그래프에서 아예 빠지지 않게 함.
-    return buildFalloffDataset(item, entry.ammoId, color) || buildOhkDataset(item, entry.ammoId, color);
-  }).filter(Boolean);
-
-  // 비교 중 무기들 중 하나라도 데미지가 150 이상이면 OHK 라인 표시
-  const anyOHK = datasets.some((ds) => ds.data.some((d) => d.y >= HUNTER_HP));
-
-  state.charts.compare = new Chart(canvas.getContext("2d"), {
-    type: "line",
-    data: { datasets },
-    options: chartOptions("거리 (m)", "피해", { showOHK: anyOHK }),
-    plugins: [btkLinesPlugin],
+    const falloffDs = buildFalloffDataset(item, entry.ammoId, color);
+    if (falloffDs) {
+      falloffDatasets.push(falloffDs);
+      return;
+    }
+    const ohkEntry = getOhkCompareEntry(item, entry.ammoId, color);
+    if (ohkEntry) ohkEntries.push(ohkEntry);
   });
 
+  if (falloffDatasets.length > 0) {
+    chartWrap.innerHTML = `<canvas id="compare-chart"></canvas>`;
+    const canvas = document.getElementById("compare-chart");
+    // 비교 중 무기들 중 하나라도 데미지가 150 이상이면 OHK 라인 표시
+    const anyOHK = falloffDatasets.some((ds) => ds.data.some((d) => d.y >= HUNTER_HP));
+    state.charts.compare = new Chart(canvas.getContext("2d"), {
+      type: "line",
+      data: { datasets: falloffDatasets },
+      options: chartOptions("거리 (m)", "피해", { showOHK: anyOHK }),
+      plugins: [btkLinesPlugin],
+    });
+  } else {
+    chartWrap.innerHTML = "";
+  }
+
+  if (ohkEntries.length > 0) {
+    ohkSection.hidden = false;
+    ohkChartWrap.innerHTML = `<canvas id="compare-ohk-chart"></canvas>`;
+    ohkChartWrap.style.height = `${Math.max(120, ohkEntries.length * 56 + 40)}px`;
+    const ohkCanvas = document.getElementById("compare-ohk-chart");
+    state.charts.compareOhk = buildOhkBarChart(ohkCanvas, ohkEntries);
+  } else {
+    ohkSection.hidden = true;
+    ohkChartWrap.innerHTML = "";
+  }
+
   renderCompareStatsSection();
+}
+
+// 낙하 데미지 곡선이 없는 샷건/한방(OHK) 무기 전용 비교 그래프 — 거리(m) 값만 가로
+// 막대로 비교(보장 구간 실색 + 불안정 구간 옅은 색을 이어 붙인 누적 막대).
+function buildOhkBarChart(canvas, ohkEntries) {
+  const labels = ohkEntries.map((e) => `${displayName(e.item)} · ${e.ammo.label}`);
+  const guaranteedData = ohkEntries.map((e) => e.ohkRange.guaranteed);
+  const unstableData = ohkEntries.map((e) => {
+    const { guaranteed, unstableEnd, noneFrom } = e.ohkRange;
+    const hasUnstable = unstableEnd != null && noneFrom != null;
+    return hasUnstable ? noneFrom - guaranteed : 0;
+  });
+  const colors = ohkEntries.map((e) => e.color);
+
+  return new Chart(canvas.getContext("2d"), {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [
+        { label: "보장", data: guaranteedData, backgroundColor: colors, stack: "ohk", borderRadius: 3 },
+        { label: "불안정", data: unstableData, backgroundColor: colors.map((c) => c + "55"), stack: "ohk", borderRadius: 3 },
+      ],
+    },
+    options: {
+      indexAxis: "y",
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          stacked: true, beginAtZero: true,
+          title: { display: true, text: "거리 (m)", color: "#aba894" },
+          ticks: { color: "#aba894" }, grid: { color: "rgba(77, 86, 64, 0.3)" },
+        },
+        y: { stacked: true, ticks: { color: "#aba894" }, grid: { display: false } },
+      },
+      plugins: {
+        legend: { labels: { color: "#aba894" } },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `${ctx.dataset.label}: ${ctx.raw}m`,
+          },
+        },
+      },
+    },
+  });
 }
 
 // 총기 스탯 비교 (칩 클릭으로 선택된 항목만 대상)

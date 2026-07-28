@@ -1666,6 +1666,21 @@ button { font-family: var(--font-body); cursor: pointer; }
   height: 480px;
 }
 
+#compare-ohk-section { margin-top: 18px; }
+
+#compare-ohk-title {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin: 0 0 10px;
+}
+
+#compare-ohk-chart-wrap {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
 #compare-stats-header {
   margin-top: 28px;
   margin-bottom: 12px;
