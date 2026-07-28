@@ -1493,7 +1493,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   gap: 6px;
 }
 
-#random-slot6-switch {
+#random-slot6-switch, #random-scarce-switch {
   display: flex;
   align-items: center;
   gap: 7px;
@@ -1502,9 +1502,9 @@ button { font-family: var(--font-body); cursor: pointer; }
   color: var(--text-secondary);
 }
 
-#random-slot6-switch input { display: none; }
+#random-slot6-switch input, #random-scarce-switch input { display: none; }
 
-#random-slot6-switch .switch-track {
+#random-slot6-switch .switch-track, #random-scarce-switch .switch-track {
   position: relative;
   width: 32px;
   height: 17px;
@@ -1515,7 +1515,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   flex-shrink: 0;
 }
 
-#random-slot6-switch .switch-thumb {
+#random-slot6-switch .switch-thumb, #random-scarce-switch .switch-thumb {
   position: absolute;
   top: 1px;
   left: 1px;
@@ -1526,18 +1526,21 @@ button { font-family: var(--font-body); cursor: pointer; }
   transition: transform 0.15s, background 0.15s;
 }
 
-#random-slot6-switch input:checked + .switch-track {
+#random-slot6-switch input:checked + .switch-track,
+#random-scarce-switch input:checked + .switch-track {
   background: var(--accent);
   border-color: var(--accent);
 }
 
-#random-slot6-switch input:checked + .switch-track .switch-thumb {
+#random-slot6-switch input:checked + .switch-track .switch-thumb,
+#random-scarce-switch input:checked + .switch-track .switch-thumb {
   transform: translateX(15px);
   background: var(--accent-text);
 }
 
-#random-slot6-switch .switch-caption::after { content: attr(data-off); }
-#random-slot6-switch input:checked ~ .switch-caption::after { content: attr(data-on); }
+#random-slot6-switch .switch-caption::after, #random-scarce-switch .switch-caption::after { content: attr(data-off); }
+#random-slot6-switch input:checked ~ .switch-caption::after,
+#random-scarce-switch input:checked ~ .switch-caption::after { content: attr(data-on); }
 
 #random-maxprice-row {
   display: flex;
@@ -1553,9 +1556,24 @@ button { font-family: var(--font-body); cursor: pointer; }
   white-space: nowrap;
 }
 
-#random-maxprice-value {
-  font-family: var(--font-mono);
+#random-maxprice-input-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+#random-maxprice-input-row span { color: var(--text-muted); font-size: 12px; }
+
+#random-maxprice-input {
+  width: 56px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 4px 6px;
   color: var(--accent-strong);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  text-align: center;
 }
 
 #random-maxprice-range {

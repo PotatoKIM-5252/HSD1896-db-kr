@@ -92,6 +92,8 @@ const state = {
   randomAllowSlot6: true,
   // 랜덤 로드아웃: 최대 가격(Hunt Dollars) 상한 — 무기+탄약+필드 장비 합산 기준(특성 포인트는 별도라 미포함)
   randomMaxPrice: 3000,
+  // 랜덤 로드아웃: 희소(Scarce, 상점 구매 불가·필드 드랍 전용) 무기/도구/소모품 포함 여부 — 기본은 제외
+  randomAllowScarce: false,
 };
 
 function loadoutKey(c, s) { return `${c}__${s}`; }
@@ -235,12 +237,20 @@ function init() {
   document.getElementById("random-allow-slot6-toggle").addEventListener("change", (e) => {
     state.randomAllowSlot6 = e.target.checked;
   });
+  document.getElementById("random-allow-scarce-toggle").addEventListener("change", (e) => {
+    state.randomAllowScarce = e.target.checked;
+  });
   const maxPriceRange = document.getElementById("random-maxprice-range");
-  const maxPriceValue = document.getElementById("random-maxprice-value");
-  maxPriceValue.textContent = `$${maxPriceRange.value}`;
-  maxPriceRange.addEventListener("input", (e) => {
-    state.randomMaxPrice = Number(e.target.value);
-    maxPriceValue.textContent = `$${e.target.value}`;
+  const maxPriceInput = document.getElementById("random-maxprice-input");
+  maxPriceRange.addEventListener("input", () => {
+    state.randomMaxPrice = Number(maxPriceRange.value);
+    maxPriceInput.value = maxPriceRange.value;
+  });
+  maxPriceInput.addEventListener("input", () => {
+    maxPriceInput.value = maxPriceInput.value.replace(/[^0-9]/g, "");
+    const num = Number(maxPriceInput.value) || 0;
+    state.randomMaxPrice = num;
+    maxPriceRange.value = Math.min(Number(maxPriceRange.max), Math.max(Number(maxPriceRange.min), num));
   });
   document.getElementById("goto-analysis-btn").addEventListener("click", () => switchTab("analysis"));
   document.getElementById("clear-compare-btn").addEventListener("click", () => {
@@ -3336,23 +3346,6 @@ function buildWeaponRowPool(weaponPool) {
   return rows;
 }
 
-// 무기 두 자루(행)를 무작위로 골라 반환(장착은 하지 않음). 각 행은 { item, dual } —
-// dual이면 같은 무기를 아킴보(듀얼)로 옆 칸까지 채워 칸수를 2배로 계산.
-// maxTotal(5 또는 6, 무기 칸수 스위치로 결정)을 넘지 않는 선에서, 샷건은 최대 1자루만 담음.
-function pickRandomWeapons(weaponRowPool, maxTotal) {
-  const shuffled = shuffleArray(weaponRowPool);
-  const rows = [];
-  for (const candidate of shuffled) {
-    if (rows.length >= 2) break;
-    if (candidate.item.weaponClass === "shotgun" && rows.some((r) => r.item.weaponClass === "shotgun")) continue;
-    const usedSlots = rows.reduce((sum, r) => sum + (r.item.slotSize || 0) * (r.dual ? 2 : 1), 0);
-    const cost = (candidate.item.slotSize || 0) * (candidate.dual ? 2 : 1);
-    if (usedSlots + cost > maxTotal) continue;
-    rows.push(candidate);
-  }
-  return rows;
-}
-
 // -------------------------------------------------------------------------
 // 특성(무기 조건부) 판정 — 특정 무기(군)를 장착했을 때만 유효한 특성들의 조건 정의.
 // 액션 방식(레버/볼트/펌프/단발/싱글액션 리볼버) 및 스코프 보유 여부는 사용자 확인을 거쳐
@@ -3491,50 +3484,160 @@ function pickTraitsExactBudget(candidates, targetPoints) {
   return chosen;
 }
 
-// 실제 무기+필드+특성을 한 번 뽑아 state.loadout에 채우는 본체. 최대 가격 제한을 만족하는지는
-// 여기서 신경쓰지 않고, 호출하는 쪽(generateRandomLoadout)이 여러 번 시도해서 판단한다.
-function attemptRandomLoadoutOnce() {
+// 규칙은 기존과 완전히 동일(무기 2자루 시도, 근접/투척+화염신호탄 필수, 회복 주사기 필수 등)하되,
+// 항목을 하나 확정할 때마다 예산(state.randomMaxPrice) 안에 드는지 바로 확인해서, 넘으면 그
+// 항목을 취소하고 후보를 무작위로 바꿔가며 다시 시도한다 — 예산을 초과한 조합은 절대 반영되지 않음.
+// 도구/소모품 채우기(6번 규칙)처럼 원래도 다 못 채울 수 있던 부분은 그대로 못 채울 수 있고,
+// 무기 2번째 자리도 원래 슬롯 한도 때문에 못 들어갈 수 있던 것처럼 예산 때문에 못 들어갈 수 있다.
+// 다만 무기 최소 1자루 + 구급상자 + 회복 주사기 1개는 원래도 필수였던 항목이라, 예산 안에서
+// 고를 수 있는 후보가 있는 한 반드시 채워지고, 극단적으로 예산이 부족할 때만 최후 수단으로
+// 그중 가장 싼 후보를 예산 초과를 감수하고 넣는다(현실적으로 슬라이더 최소값에서는 발생하지 않음).
+function generateRandomLoadout() {
   initLoadoutState();
+  const cap = state.randomMaxPrice;
+  const computeTotal = () => calculateSerializedLoadoutTotal(serializeCurrentLoadout());
 
-  // 1) 무기: 주슬롯 + 보조슬롯 각 1행. 아킴보 가능한 권총은 "듀얼 버전"이 별개의 무기 후보로
-  // 풀에 추가되어 다른 무기들과 동일한 확률로 뽑힘. 무기 칸수 스위치가 켜져 있으면 6칸까지,
-  // 꺼져 있으면 5칸까지만 허용.
-  const weaponPool = getFlattenedWeaponItems().filter((item) => item.category === "weapon");
-  const weaponRowPool = buildWeaponRowPool(weaponPool);
-  const maxWeaponSlotTotal = state.randomAllowSlot6 ? WEAPON_SLOT_LIMIT : 5;
-  const weaponRows = pickRandomWeapons(weaponRowPool, maxWeaponSlotTotal);
-  if (weaponRows[0]) equipRandomWeaponRow(loadoutKey("weapon", "primary"), weaponRows[0]);
-  if (weaponRows[1]) equipRandomWeaponRow(loadoutKey("weapon", "secondary"), weaponRows[1]);
-  const chosenWeapons = weaponRows.map((r) => r.item);
-  const totalWeaponSlotSize = weaponRows.reduce((sum, r) => sum + (r.item.slotSize || 0) * (r.dual ? 2 : 1), 0);
-  const hasMeleeWeaponEquipped = chosenWeapons.some((w) => w.weaponClass === "melee");
-  const hasAkimboPair = weaponRows.some((r) => r.dual);
+  // 희소(Scarce, 상점 구매 불가·필드 드랍 전용) 무기/도구/소모품은 스위치가 꺼져 있으면
+  // 후보 풀에서 아예 제외한다(특성의 희소 제외는 이 스위치와 무관하게 항상 적용되는 별개 규칙).
+  const scarceOk = (item) => state.randomAllowScarce || !item.scarce;
 
-  // 2) 필드 장비(도구+소모품, 공유 8칸) — 필수 항목부터 확정
-  const field = state.loadout["field__all"];
-  const pushField = (id) => { if (id && field.length < 8 && !field.includes(id)) field.push(id); };
-  const pushFieldAllowDup = (id) => { if (id && field.length < 8) field.push(id); };
-
-  pushField("tool_first_aid_kit"); // 1) 구급상자 고정 1개
-
-  const meleeToolIds = ITEMS.filter((i) => i.category === "tool" && i.toolClass === "melee").map((i) => i.id);
-  const throwableMeleeIds = ITEMS.filter((i) => i.category === "tool" && i.toolClass === "throwable_melee").map((i) => i.id);
-  // 무기 슬롯에 이미 근접무기(weaponClass:"melee")가 있으면: 도구칸의 근접무기(나이프류)는
-  // 절대 등장하지 않고, 대신 투척무기 또는 화염 신호탄 중 최소 1개가 필수로 들어감.
-  if (hasMeleeWeaponEquipped) {
-    const throwOrFlareId = pickRandomItem([...throwableMeleeIds, "tool_fusees"]);
-    pushField(throwOrFlareId);
-  } else {
-    const meleeOrThrowId = pickRandomItem([...meleeToolIds, ...throwableMeleeIds]);
-    pushField(meleeOrThrowId); // 2) 근접무기 또는 투척무기 중 1개
-    if (meleeToolIds.includes(meleeOrThrowId)) pushField("tool_fusees"); // 3) 근접무기 선택 시 화염 신호탄 필수
-  }
-
+  // 필드 쪽 필수 항목(구급상자+근접·투척무기(+화염신호탄)+회복 주사기)은 무기와 무관하게 최소
+  // 비용이 정해져 있으므로, 무기를 고르기 전에 그 최소 비용만큼을 미리 예산에서 떼어놓는다.
+  // 이렇게 해야 무기 하나만으로 예산을 거의 다 써버려서 뒤이어 나오는 필수 필드 항목이
+  // 강제로 예산을 초과하게 되는 상황을 막을 수 있다(무기 선택이 필드보다 먼저 일어나기 때문).
+  const meleeToolIds = ITEMS.filter((i) => i.category === "tool" && i.toolClass === "melee" && scarceOk(i)).map((i) => i.id);
+  const throwableMeleeIds = ITEMS.filter((i) => i.category === "tool" && i.toolClass === "throwable_melee" && scarceOk(i)).map((i) => i.id);
+  const fuseesOk = scarceOk(findItemById("tool_fusees"));
   const healShotIds = [
     "consumable_regeneration_shot", "consumable_regeneration_shot_weak",
     "consumable_vitality_shot", "consumable_vitality_shot_weak",
-  ];
-  pushFieldAllowDup(pickRandomItem(healShotIds)); // 5) 재생 주사/활력 주사 중 최소 1개(소모품은 중복 가능)
+  ].filter((id) => scarceOk(findItemById(id)));
+
+  const priceOf = (id) => findItemById(id)?.price ?? Infinity;
+  const medkitPrice = priceOf("tool_first_aid_kit");
+  const cheapestHealShotPrice = Math.min(...healShotIds.map(priceOf));
+  const fuseesPrice = fuseesOk ? priceOf("tool_fusees") : 0;
+  // 근접무기 장착 여부에 따라 필요한 후보군이 달라지므로(장착 시 투척무기만, 미장착 시 근접+투척무기),
+  // 아직 무기를 고르기 전이라 어느 쪽이 될지 모름 — 두 경우 중 비용이 더 큰 쪽 기준으로 안전하게 예약.
+  const cheapestThrowOrFusees = Math.min(...throwableMeleeIds.map(priceOf), ...(fuseesOk ? [fuseesPrice] : []));
+  const cheapestMeleeOrThrowPlusFusees = Math.min(...meleeToolIds.map(priceOf), ...throwableMeleeIds.map(priceOf)) + fuseesPrice;
+  const meleeOrThrowReserve = Math.max(cheapestThrowOrFusees, cheapestMeleeOrThrowPlusFusees);
+  const fieldMandatoryReserve = [medkitPrice, cheapestHealShotPrice, meleeOrThrowReserve]
+    .reduce((sum, v) => sum + (Number.isFinite(v) ? v : 0), 0);
+  const weaponCap = Math.max(0, cap - fieldMandatoryReserve);
+
+  // 무기 한 자리(주슬롯/보조슬롯)를 예산 안에서 채운다. 후보를 무작위 순서로 하나씩 실제로
+  // 장착해보고(탄약까지 랜덤 배정된 뒤에야 정확한 가격을 알 수 있음) targetCap 초과면 되돌리고 다음 후보를 시도.
+  // mandatory=true면 targetCap 안에 드는 후보가 하나도 없어도 그중 가장 쌌던 조합을 강제로 확정한다.
+  function fillWeaponSlot(key, candidateRows, mandatory, targetCap) {
+    const shuffled = shuffleArray(candidateRows);
+    let cheapest = null;
+    for (const row of shuffled) {
+      equipRandomWeaponRow(key, row);
+      const total = computeTotal();
+      if (total <= targetCap) return row;
+      const slot0 = state.loadout[key][0] ? { ...state.loadout[key][0] } : null;
+      const slot1 = row.dual ? (state.loadout[key][1] ? { ...state.loadout[key][1] } : null) : null;
+      if (!cheapest || total < cheapest.total) cheapest = { row, slot0, slot1, total };
+      state.loadout[key][0] = null;
+      state.loadout[key][1] = null;
+    }
+    if (mandatory && cheapest) {
+      state.loadout[key][0] = cheapest.slot0;
+      state.loadout[key][1] = cheapest.slot1;
+      return cheapest.row;
+    }
+    return null;
+  }
+
+  // 1) 무기: 주슬롯(필수, 최소 1자루 보장) + 보조슬롯(기존처럼 시도하되 슬롯 한도·샷건 1자루 제한·
+  // 예산을 넘으면 원래도 그랬듯 못 들어갈 수 있음). 아킴보 가능한 권총은 "듀얼 버전"이 별개의
+  // 무기 후보로 풀에 추가되어 다른 무기들과 동일한 확률로 뽑힘. 무기 칸수 스위치가 켜져 있으면
+  // 6칸까지, 꺼져 있으면 5칸까지만 허용.
+  const weaponPool = getFlattenedWeaponItems().filter((item) => item.category === "weapon" && scarceOk(item));
+  const weaponRowPool = buildWeaponRowPool(weaponPool);
+  const maxWeaponSlotTotal = state.randomAllowSlot6 ? WEAPON_SLOT_LIMIT : 5;
+
+  const chosenWeapons = [];
+  let usedSlotSize = 0;
+  let hasAkimboPair = false;
+
+  const primaryCandidates = weaponRowPool.filter((r) => (r.item.slotSize || 0) * (r.dual ? 2 : 1) <= maxWeaponSlotTotal);
+  const primaryRow = fillWeaponSlot(loadoutKey("weapon", "primary"), primaryCandidates, true, weaponCap);
+  if (primaryRow) {
+    chosenWeapons.push(primaryRow.item);
+    usedSlotSize += (primaryRow.item.slotSize || 0) * (primaryRow.dual ? 2 : 1);
+    if (primaryRow.dual) hasAkimboPair = true;
+  }
+
+  const secondaryCandidates = weaponRowPool.filter((r) => {
+    const cost = (r.item.slotSize || 0) * (r.dual ? 2 : 1);
+    if (usedSlotSize + cost > maxWeaponSlotTotal) return false;
+    if (r.item.weaponClass === "shotgun" && chosenWeapons.some((w) => w.weaponClass === "shotgun")) return false;
+    return true;
+  });
+  const secondaryRow = fillWeaponSlot(loadoutKey("weapon", "secondary"), secondaryCandidates, false, weaponCap);
+  if (secondaryRow) {
+    chosenWeapons.push(secondaryRow.item);
+    usedSlotSize += (secondaryRow.item.slotSize || 0) * (secondaryRow.dual ? 2 : 1);
+    if (secondaryRow.dual) hasAkimboPair = true;
+  }
+
+  const totalWeaponSlotSize = usedSlotSize;
+  const hasMeleeWeaponEquipped = chosenWeapons.some((w) => w.weaponClass === "melee");
+
+  // 2) 필드 장비(도구+소모품, 공유 8칸) — 필수 항목부터 확정
+  const field = state.loadout["field__all"];
+
+  // 예산과 무관하게 강제 포함(단일 고정 항목이라 후보 검색 자체가 필요 없음)
+  field.push("tool_first_aid_kit"); // 1) 구급상자 고정 1개
+
+  // 선택 항목 하나를 예산 안에서 추가 시도. 넘으면 되돌리고 실패 반환(호출부가 다음 후보로 넘어감).
+  function tryAddOptionalField(id) {
+    if (!id || field.length >= 8) return false;
+    field.push(id);
+    if (computeTotal() <= cap) return true;
+    field.pop();
+    return false;
+  }
+
+  // 필수 항목 하나를 candidateIds 중에서 targetCap 안에 드는 걸로 확정(무작위 순서로 시도하다
+  // 처음 맞는 걸 채택 — 반드시 가장 싼 것은 아니라서, targetCap은 이 뒤에 아직 채워야 할 다른
+  // 필수 항목들의 최소 비용까지 미리 빼둔 값이어야 함. 하나도 안 들어가면 그중 가장 쌌던 걸
+  // targetCap 초과를 감수하고 강제로 넣는다(항상 필수였던 항목이므로). 반환값: 실제로 확정된 id.
+  function addMandatoryField(candidateIds, targetCap) {
+    const shuffled = shuffleArray(candidateIds);
+    let cheapestId = null;
+    let cheapestTotal = Infinity;
+    for (const id of shuffled) {
+      field.push(id);
+      const total = computeTotal();
+      if (total <= targetCap) return id;
+      field.pop();
+      if (total < cheapestTotal) { cheapestTotal = total; cheapestId = id; }
+    }
+    if (cheapestId) field.push(cheapestId);
+    return cheapestId;
+  }
+
+  // 아직 채워야 할 필수 항목이 남아있는 동안은 그만큼을 예산에서 미리 빼둔 목표치를 써서,
+  // 지금 항목이 "일단 맞으니까" 남은 항목 몫까지 다 써버리는 일이 없게 한다.
+  // (근접/투척무기 단계 → 화염신호탄(필요시) → 회복 주사기 순서로 확정되므로 역순으로 미리 뺌)
+  const meleeStepTarget = cap - fuseesPrice - cheapestHealShotPrice;
+  const fuseesStepTarget = cap - cheapestHealShotPrice;
+  const healShotStepTarget = cap; // 마지막 필수 항목이라 더 뺄 게 없음
+
+  // 무기 슬롯에 이미 근접무기(weaponClass:"melee")가 있으면: 도구칸의 근접무기(나이프류)는
+  // 절대 등장하지 않고, 대신 투척무기 또는 화염 신호탄 중 최소 1개가 필수로 들어감.
+  if (hasMeleeWeaponEquipped) {
+    addMandatoryField([...throwableMeleeIds, ...(fuseesOk ? ["tool_fusees"] : [])], fuseesStepTarget);
+  } else {
+    // 2) 근접무기 또는 투척무기 중 1개는 필수
+    const pickedId = addMandatoryField([...meleeToolIds, ...throwableMeleeIds], meleeStepTarget);
+    if (meleeToolIds.includes(pickedId) && fuseesOk) addMandatoryField(["tool_fusees"], fuseesStepTarget); // 3) 근접무기 선택 시 화염 신호탄 필수
+  }
+
+  addMandatoryField(healShotIds, healShotStepTarget); // 5) 재생 주사/활력 주사 중 최소 1개(소모품은 중복 가능)
 
   // 6) 타로 카드는 다른 도구/소모품과 동일한 확률로 나머지 빈 칸을 채울 때 후보에 포함되되,
   // 전체 타로 장수만 최대 2장으로 제한(자연히 "다른 2종류 1장씩" 또는 "동일 카드 2장"만 나옴).
@@ -3547,10 +3650,11 @@ function attemptRandomLoadoutOnce() {
   const fillCandidates = ITEMS.filter((i) =>
     (i.category === "tool" || i.category === "consumable") &&
     i.id !== "tool_first_aid_kit" &&
-    !(hasMeleeWeaponEquipped && meleeToolIds.includes(i.id))
+    !(hasMeleeWeaponEquipped && meleeToolIds.includes(i.id)) &&
+    scarceOk(i)
   );
   let guard = 0;
-  while (field.length < 8 && fillCandidates.length && guard < 500) {
+  while (field.length < 8 && fillCandidates.length && guard < 2000) {
     guard++;
     const cand = pickRandomItem(fillCandidates);
     if (cand.category === "tool") {
@@ -3565,11 +3669,12 @@ function attemptRandomLoadoutOnce() {
         if (currentCount >= CONSUMABLE_STACK_MAX) continue;
       }
     }
-    pushFieldAllowDup(cand.id);
+    tryAddOptionalField(cand.id); // 예산을 넘으면 자동으로 취소되고 다음 후보로 계속 시도
   }
 
   // 3) 특성: 희소 특성 제외 + 무기 조건부 특성 필터링 + 10포인트 정확히 채움 +
   // 무기 칸수 합 6칸이면 보급 장교(trait_quartermaster) 고정 등장
+  // (특성은 업그레이드 포인트 예산이라 이 가격 합산과 무관 — 예산 제한과 상관없이 항상 기존 로직대로 채움)
   const traitContext = { weapons: chosenWeapons, fieldIds: field, hasAkimboPair };
   const eligibleTraits = ITEMS.filter((i) =>
     i.category === "trait" &&
@@ -3591,36 +3696,9 @@ function attemptRandomLoadoutOnce() {
   const remainingCandidates = eligibleTraits.filter((t) => !chosenTraits.includes(t));
   chosenTraits.push(...pickTraitsExactBudget(remainingCandidates, traitBudget));
   state.loadout[traitKey] = chosenTraits.map((t) => t.id);
-}
 
-// 최대 가격(Hunt Dollars) 제한을 만족할 때까지 여러 번 시도해서 뽑고, 시도 횟수 안에 못 찾으면
-// 그동안 나온 것 중 가장 저렴한 조합으로 대체한다(특성은 업그레이드 포인트라 가격 합산에서 제외).
-function generateRandomLoadout() {
-  const MAX_ATTEMPTS = 300;
-  let cheapestSnapshot = null;
-  let cheapestTotal = Infinity;
-  let successSnapshot = null;
-
-  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-    attemptRandomLoadoutOnce();
-    const total = calculateSerializedLoadoutTotal(serializeCurrentLoadout());
-    if (total <= state.randomMaxPrice) {
-      successSnapshot = serializeCurrentLoadout();
-      break;
-    }
-    if (total < cheapestTotal) {
-      cheapestTotal = total;
-      cheapestSnapshot = serializeCurrentLoadout();
-    }
-  }
-
-  if (successSnapshot) {
-    applySerializedLoadout(successSnapshot);
-    showToast("랜덤 로드아웃을 생성했습니다.", "info");
-  } else {
-    applySerializedLoadout(cheapestSnapshot);
-    showToast(`최대 가격 $${state.randomMaxPrice} 안에서 만들 수 없어 가장 저렴한 조합($${cheapestTotal})을 사용했습니다.`, "info");
-  }
+  renderLoadoutBoard();
+  showToast("랜덤 로드아웃을 생성했습니다.", "info");
 }
 
 // -------------------------------------------------------------------------
