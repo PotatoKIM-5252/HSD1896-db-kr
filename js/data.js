@@ -2022,6 +2022,65 @@ const AMMO_TYPES = {
     statOverrides: { damage: 104, dropRange: 70, verticalRecoil: 12, muzzleVelocity: 405, ammoExtra: 8 },
   },
 
+  // 팍스 트루샷 전용 — 트루샷은 기본 팍스와 총구속도 등 기본 스탯이 달라서(스코프 부착)
+  // 위키에 트루샷 기준으로 별도 명시된 오버라이드 값을 그대로 사용(사용자 확인, wiki 원문 기준)
+  pax_trueshot_dumdum: {
+    label: "덤덤탄(출혈)",
+    category: "medium",
+    effect: "bleed",
+    image: "images/ui/ammo_effects/ammo_medium_bleed.png",
+    icon: "🩸",
+    description: "덤덤탄 - 명중 시 중급 출혈 효과. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.553],
+      [80, 0.47],
+      [100, 0.47],
+    ],
+    statOverrides: { dropRange: 75, muzzleVelocity: 405 },
+    specialEffects: ["중급 출혈 효과 발생"],
+  },
+
+  pax_trueshot_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "medium",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_medium_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [70, 0.5535],
+      [80, 0.4924],
+      [100, 0.4924],
+    ],
+    statOverrides: { dropRange: 75, verticalRecoil: 18, muzzleVelocity: 405 },
+    specialEffects: ["40m부터 피해 감소 시작"],
+  },
+
+  pax_trueshot_high_velocity: {
+    label: "고속탄",
+    category: "medium",
+    effect: "high_velocity",
+    image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.5464],
+      [80, 0.4732],
+      [100, 0.4732],
+    ],
+    statOverrides: { damage: 108, dropRange: 90, verticalRecoil: 20, muzzleVelocity: 510, ammoExtra: 8 },
+  },
+
   pax_incendiary: {
     label: "소이탄",
     category: "medium",
@@ -6790,6 +6849,11 @@ const ITEMS = [
           muzzleVelocity: 410,
           staminaConsumption: 20,
         },
+        // 트루샷은 기본 팍스와 기본 스탯이 달라서 덤덤/FMJ/고속탄은 위키에 트루샷 기준으로
+        // 따로 명시된 전용 탄약(pax_trueshot_*)을 씀 — 소이탄/중독탄은 스탯 오버라이드가
+        // 없어서(효과만 있음) 기본 팍스와 공용 탄약을 그대로 씀(사용자 확인).
+        ammoTypes: ["pax_medium", "pax_trueshot_dumdum", "pax_trueshot_fmj", "pax_trueshot_high_velocity", "pax_incendiary", "pax_poison"],
+        defaultAmmo: "pax_medium",
       },
     ],
   },
