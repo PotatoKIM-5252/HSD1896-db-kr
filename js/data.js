@@ -4097,8 +4097,9 @@ const AMMO_TYPES = {
     description: "Shells - 하부 총열 기본 샷건탄(벅샷).",
     cost: 0,
     // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    // 데미지 수치는 위키에 명시되지 않고 실측도 안 돼서 정보 없음 처리(사용자 확인)
     ohkRange: { guaranteed: 11, unstableEnd: 12, noneFrom: 13 },
-    statOverrides: {  },
+    statOverrides: { damage: null },
   },
 
   lemat_starshell: {
