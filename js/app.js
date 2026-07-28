@@ -3347,8 +3347,12 @@ function generateRandomLoadout() {
 
   const meleeToolIds = ITEMS.filter((i) => i.category === "tool" && i.toolClass === "melee").map((i) => i.id);
   const throwableMeleeIds = ITEMS.filter((i) => i.category === "tool" && i.toolClass === "throwable_melee").map((i) => i.id);
-  // 무기 슬롯에 이미 근접무기(weaponClass:"melee")가 있으면 이 필수 조건 자체를 끔
-  if (!hasMeleeWeaponEquipped) {
+  // 무기 슬롯에 이미 근접무기(weaponClass:"melee")가 있으면: 도구칸의 근접무기(나이프류)는
+  // 절대 등장하지 않고, 대신 투척무기 또는 화염 신호탄 중 최소 1개가 필수로 들어감.
+  if (hasMeleeWeaponEquipped) {
+    const throwOrFlareId = pickRandomItem([...throwableMeleeIds, "tool_fusees"]);
+    pushField(throwOrFlareId);
+  } else {
     const meleeOrThrowId = pickRandomItem([...meleeToolIds, ...throwableMeleeIds]);
     pushField(meleeOrThrowId); // 2) 근접무기 또는 투척무기 중 1개
     if (meleeToolIds.includes(meleeOrThrowId)) pushField("tool_fusees"); // 3) 근접무기 선택 시 화염 신호탄 필수
@@ -3367,9 +3371,11 @@ function generateRandomLoadout() {
 
   // 나머지 빈 칸: 구급상자를 제외한 모든 도구/소모품(타로 포함) 중 무작위로 채움.
   // 7) 도구(category:"tool")는 중복 등장 불가 — 소모품은 기존 스택 한도만 그대로 준수.
+  // 무기 슬롯에 근접무기가 있으면 도구칸의 근접무기(나이프류)는 여기서도 절대 등장하지 않음.
   const fillCandidates = ITEMS.filter((i) =>
     (i.category === "tool" || i.category === "consumable") &&
-    i.id !== "tool_first_aid_kit"
+    i.id !== "tool_first_aid_kit" &&
+    !(hasMeleeWeaponEquipped && meleeToolIds.includes(i.id))
   );
   let guard = 0;
   while (field.length < 8 && fillCandidates.length && guard < 500) {
