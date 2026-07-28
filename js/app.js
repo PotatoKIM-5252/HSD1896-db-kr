@@ -1362,7 +1362,7 @@ function renderOhkRangeBar(ohkRange, maxDisplay, title) {
       <p class="ohk-range-legend">
         <span><i class="ohk-swatch" style="background:var(--success)"></i>${guaranteed}m까지 한방</span>
         ${hasUnstable ? `<span><i class="ohk-swatch" style="background:#d4c25e"></i>${unstableEnd}m까지 불안정</span>` : ""}
-        <span><i class="ohk-swatch" style="background:var(--danger-strong)"></i>${noneFrom}m부터 불가</span>
+        <span><i class="ohk-swatch" style="background:var(--danger-strong)"></i>${noneFrom}m 이후부터 불가</span>
       </p>
       <p class="status-effect-note">※ 실측 기반 참고용 수치이며, ${hasUnstable ? "펠릿 분산 특성상 " : ""}오차가 있을 수 있습니다.</p>
     </div>
