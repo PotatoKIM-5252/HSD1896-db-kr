@@ -4882,6 +4882,8 @@ const AMMO_TYPES = {
     description: "기본 볼트.",
     cost: 0,
     statOverrides: {  },
+    // 사용자 실측: 불안정 구간 없이 보장거리에서 바로 불가로 전환
+    ohkRange: { guaranteed: 11 },
   },
   chukonu_explosive: {
     label: "폭발 볼트",
@@ -4951,7 +4953,7 @@ const AMMO_TYPES = {
     cost: 0,
     statOverrides: {  },
     // 사용자 실측: 불안정 구간 없이 보장거리에서 바로 불가로 전환
-    ohkRange: { guaranteed: 11 },
+    ohkRange: { guaranteed: 15 },
   },
   handcrossbow_chaos: {
     label: "카오스 볼트",
