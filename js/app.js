@@ -209,10 +209,18 @@ function addToLoadoutQuick(item, ammoId = null) {
 
 // -------------------------------------------------------------------------
 function init() {
+  checkMapsUnlockFromUrl();
   initLoadoutState();
 
   document.querySelectorAll(".nav-btn").forEach((btn) => {
     btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+  });
+
+  document.getElementById("maps-lock-close-btn").addEventListener("click", () => {
+    document.getElementById("maps-lock-overlay").hidden = true;
+  });
+  document.getElementById("maps-lock-overlay").addEventListener("click", (e) => {
+    if (e.target.id === "maps-lock-overlay") e.currentTarget.hidden = true;
   });
 
   document.getElementById("search-input").addEventListener("input", (e) => {
@@ -306,7 +314,27 @@ function initLoadoutState() {
   state.loadout["field__all"] = [];
 }
 
+// 맵 탭 공사중 잠금 — URL 쿼리(?mapkey=hsd1896preview)로 한 번 접속하면 이 브라우저에서는
+// localStorage에 저장되어 계속 접근 가능(관리자용). 그 외에는 클릭 시 안내창만 뜨고 못 들어감.
+const MAPS_UNLOCK_STORAGE_KEY = "hsd_maps_unlocked";
+const MAPS_UNLOCK_QUERY_PARAM = "mapkey";
+const MAPS_UNLOCK_SECRET = "hsd1896preview";
+
+function checkMapsUnlockFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get(MAPS_UNLOCK_QUERY_PARAM) === MAPS_UNLOCK_SECRET) {
+    localStorage.setItem(MAPS_UNLOCK_STORAGE_KEY, "1");
+  }
+}
+function isMapsUnlocked() {
+  return localStorage.getItem(MAPS_UNLOCK_STORAGE_KEY) === "1";
+}
+
 function switchTab(tabName) {
+  if (tabName === "maps" && !isMapsUnlocked()) {
+    document.getElementById("maps-lock-overlay").hidden = false;
+    return;
+  }
   state.activeTab = tabName;
   const statTooltip = document.getElementById("stat-tooltip");
   if (statTooltip) statTooltip.hidden = true;
