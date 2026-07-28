@@ -81,7 +81,6 @@ const state = {
   mapZoom: 1,
   mapPanX: 0,
   mapPanY: 0,
-  mapAddModeLayer: null,  // 켜져 있으면 지도를 클릭해 이 레이어 key에 새 포인트를 추가
 
   // 커뮤니티 로드아웃: Firestore에서 받아온 목록(파싱+가격 계산까지 끝낸 캐시) +
   // 현재 정렬/가격 필터 상태. 정렬·필터를 바꿀 때는 재조회 없이 이 캐시로만 다시 그림.
@@ -268,19 +267,6 @@ function init() {
   document.getElementById("map-zoom-out-btn").addEventListener("click", () => setMapZoom(state.mapZoom - 0.5));
   document.getElementById("map-zoom-reset-btn").addEventListener("click", () => resetMapView());
   setupMapPanZoom();
-
-  document.getElementById("map-export-coords-btn").addEventListener("click", async () => {
-    const map = getActiveMap();
-    if (!map) return;
-    const text = exportMapLayersText(map);
-    try {
-      await navigator.clipboard.writeText(text);
-      showToast("좌표가 클립보드에 복사됐습니다.", "info");
-    } catch {
-      console.log(text);
-      showToast("클립보드 복사 실패 — 콘솔에 출력했습니다.");
-    }
-  });
 
   document.getElementById("community-save-btn").addEventListener("click", handleCommunitySave);
   document.getElementById("community-sort-select").addEventListener("change", (e) => {
@@ -3977,8 +3963,6 @@ function renderMapSelectRow() {
     btn.addEventListener("click", () => {
       state.activeMapId = btn.dataset.mapId;
       state.activeMapMarker = null;
-      state.mapAddModeLayer = null;
-      document.getElementById("map-viewport").classList.remove("add-mode");
       document.getElementById("map-info-panel").hidden = true;
       resetMapView();
       renderMapSelectRow();
@@ -3998,13 +3982,14 @@ function renderMapLegendPanel() {
   wrap.innerHTML = MAP_LAYERS.map((l) => {
     const count = map ? (map.layers[l.key] || []).length : 0;
     const checked = state.activeMapLayers.has(l.key) ? "checked" : "";
-    const addActive = state.mapAddModeLayer === l.key;
+    const swatch = l.icon
+      ? `<span class="map-layer-swatch map-layer-swatch-icon" style="background:${l.color}"><img src="${l.icon}" alt=""></span>`
+      : `<i class="map-layer-swatch" style="background:${l.color}"></i>`;
     return `
-      <div class="map-layer-row ${addActive ? "add-active" : ""}">
-        <i class="map-layer-swatch" style="background:${l.color}"></i>
+      <div class="map-layer-row">
+        ${swatch}
         <span class="map-layer-label">${l.label}</span>
         <span class="map-layer-count">${count}</span>
-        <button type="button" class="map-layer-add-btn ${addActive ? "active" : ""}" data-layer-key="${l.key}" title="지도 클릭해서 이 레이어에 포인트 추가">＋</button>
         <label class="map-layer-switch" data-layer-key="${l.key}">
           <input type="checkbox" ${checked}>
           <span class="switch-track"><span class="switch-thumb"></span></span>
@@ -4018,17 +4003,6 @@ function renderMapLegendPanel() {
       const key = input.closest(".map-layer-switch").dataset.layerKey;
       if (input.checked) state.activeMapLayers.add(key);
       else state.activeMapLayers.delete(key);
-      renderMapViewport();
-    });
-  });
-
-  wrap.querySelectorAll(".map-layer-add-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const key = btn.dataset.layerKey;
-      state.mapAddModeLayer = state.mapAddModeLayer === key ? null : key;
-      if (state.mapAddModeLayer) state.activeMapLayers.add(state.mapAddModeLayer); // 추가 모드면 해당 레이어를 자동으로 켬
-      document.getElementById("map-viewport").classList.toggle("add-mode", !!state.mapAddModeLayer);
-      renderMapLegendPanel();
       renderMapViewport();
     });
   });
@@ -4053,69 +4027,19 @@ function renderMapViewport() {
     .filter((l) => state.activeMapLayers.has(l.key))
     .flatMap((l) => (map.layers[l.key] || []).map((pt, idx) => ({ ...pt, layer: l, idx })))
     .map((pt) => `
-      <button class="map-marker" type="button" title="${pt.label ?? pt.layer.label}"
+      <button class="map-marker ${pt.layer.icon ? "map-marker-icon" : ""}" type="button" title="${pt.label ?? pt.layer.label}"
         style="left:${pt.x}%; top:${pt.y}%; background:${pt.layer.color};"
-        data-layer-key="${pt.layer.key}" data-marker-idx="${pt.idx}"></button>
+        data-layer-key="${pt.layer.key}" data-marker-idx="${pt.idx}">${pt.layer.icon ? `<img src="${pt.layer.icon}" class="map-marker-icon-img" alt="">` : ""}</button>
     `).join("");
   markersLayer.innerHTML = markersHTML;
   markersLayer.querySelectorAll(".map-marker").forEach((el) => {
     const layer = MAP_LAYERS.find((l) => l.key === el.dataset.layerKey);
     const idx = Number(el.dataset.markerIdx);
-    makeMarkerDraggable(el, map, layer, idx);
-  });
-}
-
-// 마커를 드래그로 옮길 수 있게 함(좌표 미세조정용 — 현재 맵 탭은 관리자만 접근 가능해서
-// 별도 편집 모드 없이 항상 드래그 가능. 실제로 움직인 경우엔 클릭(정보 패널 열기)을 막음.
-function makeMarkerDraggable(el, map, layer, idx) {
-  let wasDragged = false;
-
-  el.addEventListener("mousedown", (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    wasDragged = false;
-
-    const onMove = (ev) => {
-      const canvas = document.getElementById("map-viewport-canvas");
-      const rect = canvas.getBoundingClientRect();
-      const x = Math.min(100, Math.max(0, ((ev.clientX - rect.left) / rect.width) * 100));
-      const y = Math.min(100, Math.max(0, ((ev.clientY - rect.top) / rect.height) * 100));
+    el.addEventListener("click", () => {
       const pt = map.layers[layer.key][idx];
-      if (!wasDragged && (Math.abs(x - pt.x) > 0.2 || Math.abs(y - pt.y) > 0.2)) wasDragged = true;
-      pt.x = x;
-      pt.y = y;
-      el.style.left = `${x}%`;
-      el.style.top = `${y}%`;
-    };
-    const onUp = () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
-    };
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
+      openMapInfoPanel(map, layer, pt);
+    });
   });
-
-  el.addEventListener("click", (e) => {
-    if (wasDragged) {
-      e.preventDefault();
-      wasDragged = false;
-      return;
-    }
-    const pt = map.layers[layer.key][idx];
-    openMapInfoPanel(map, layer, pt);
-  });
-}
-
-// 현재 맵의 레이어 좌표를 maps-data.js에 그대로 붙여넣을 수 있는 형태로 클립보드에 복사
-function exportMapLayersText(map) {
-  const lines = [`// ${map.name} (${map.id})`, "layers: {"];
-  MAP_LAYERS.forEach((l) => {
-    const pts = map.layers[l.key] || [];
-    const ptsStr = pts.map((p) => `{ x: ${Number(p.x.toFixed(1))}, y: ${Number(p.y.toFixed(1))} }`).join(", ");
-    lines.push(`  ${l.key}: [${ptsStr}],`);
-  });
-  lines.push("},");
-  return lines.join("\n");
 }
 
 // -------------------------------------------------------------------------
@@ -4219,21 +4143,6 @@ function setupMapPanZoom() {
       markersLayer.style.pointerEvents = "none";
       setTimeout(() => { markersLayer.style.pointerEvents = ""; }, 0);
     }
-  });
-
-  // 포인트 추가 모드일 때 배경(마커가 아닌 곳) 클릭 → 선택된 레이어에 새 포인트 추가
-  viewport.addEventListener("click", (e) => {
-    if (!state.mapAddModeLayer || moved) return;
-    if (e.target.closest(".map-marker")) return;
-    const map = getActiveMap();
-    if (!map) return;
-    const canvas = document.getElementById("map-viewport-canvas");
-    const rect = canvas.getBoundingClientRect();
-    const x = Math.round(Math.min(100, Math.max(0, ((e.clientX - rect.left) / rect.width) * 100)) * 10) / 10;
-    const y = Math.round(Math.min(100, Math.max(0, ((e.clientY - rect.top) / rect.height) * 100)) * 10) / 10;
-    map.layers[state.mapAddModeLayer].push({ x, y });
-    renderMapLegendPanel();
-    renderMapViewport();
   });
 }
 

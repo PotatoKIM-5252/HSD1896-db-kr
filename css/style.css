@@ -2330,22 +2330,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 /* ===================== 맵 탭 (인터랙티브 맵) ===================== */
 
-#map-admin-row { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
-#map-select-row { display: flex; flex-wrap: wrap; gap: 8px; }
-
-#map-export-coords-btn {
-  margin-left: auto;
-  background: transparent;
-  border: 1px solid var(--border-strong);
-  color: var(--text-muted);
-  border-radius: 999px;
-  padding: 6px 14px;
-  font-size: 12px;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-#map-export-coords-btn:hover { color: var(--text-primary); border-color: var(--accent-strong); }
+#map-select-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
 
 .map-select-btn {
   background: var(--bg-panel);
@@ -2438,23 +2423,6 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 .map-layer-row:hover { background: rgba(236, 230, 211, 0.05); }
-.map-layer-row.add-active { background: rgba(236, 230, 211, 0.09); }
-
-.map-layer-add-btn {
-  background: transparent;
-  border: 1px solid var(--border-strong);
-  color: var(--text-muted);
-  border-radius: 5px;
-  width: 20px;
-  height: 20px;
-  font-size: 12px;
-  line-height: 1;
-  flex-shrink: 0;
-  cursor: pointer;
-}
-
-.map-layer-add-btn:hover { color: var(--text-primary); border-color: var(--accent-strong); }
-.map-layer-add-btn.active { color: var(--accent-text); background: var(--accent); border-color: var(--accent); }
 
 .map-layer-swatch {
   width: 10px;
@@ -2463,6 +2431,16 @@ button { font-family: var(--font-body); cursor: pointer; }
   display: inline-block;
   flex-shrink: 0;
 }
+
+.map-layer-swatch-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.map-layer-swatch-icon img { width: 10px; height: 10px; object-fit: contain; }
 
 .map-layer-label { font-size: 13px; color: var(--text-secondary); flex: 1; overflow: hidden; text-overflow: ellipsis; }
 .map-layer-row:has(.map-layer-switch input:checked) .map-layer-label { color: var(--text-primary); }
@@ -2513,7 +2491,6 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 #map-viewport.panning { cursor: grabbing; }
-#map-viewport.add-mode { cursor: crosshair; }
 
 #map-viewport-canvas {
   position: absolute;
@@ -2558,6 +2535,19 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 .map-marker:hover { transform: translate(-50%, -50%) scale(calc(1.3 / var(--map-zoom, 1))); }
+
+.map-marker-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.map-marker-icon-img {
+  width: 65%;
+  height: 65%;
+  object-fit: contain;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
 
 #map-zoom-controls {
   position: absolute;
