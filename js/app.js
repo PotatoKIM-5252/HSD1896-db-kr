@@ -213,18 +213,10 @@ function addToLoadoutQuick(item, ammoId = null) {
 
 // -------------------------------------------------------------------------
 function init() {
-  checkMapsUnlockFromUrl();
   initLoadoutState();
 
   document.querySelectorAll(".nav-btn").forEach((btn) => {
     btn.addEventListener("click", () => switchTab(btn.dataset.tab));
-  });
-
-  document.getElementById("maps-lock-close-btn").addEventListener("click", () => {
-    document.getElementById("maps-lock-overlay").hidden = true;
-  });
-  document.getElementById("maps-lock-overlay").addEventListener("click", (e) => {
-    if (e.target.id === "maps-lock-overlay") e.currentTarget.hidden = true;
   });
 
   document.getElementById("search-input").addEventListener("input", (e) => {
@@ -333,31 +325,7 @@ function initLoadoutState() {
   state.loadout["field__all"] = [];
 }
 
-// 맵 탭 공사중 잠금 — URL 쿼리(?mapkey=hsd1896preview)로 접속한 "이번 브라우저 세션" 동안만
-// 접근 가능(sessionStorage, 탭/브라우저를 닫으면 해제). 예전엔 localStorage로 영구 저장했는데,
-// 링크가 한 번이라도 새어나가면 그 브라우저는 영원히 풀려버리는 위험이 있어서 세션 단위로 변경.
-// 그 외(쿼리 없이 그냥 방문)에는 예전에 영구 저장해뒀던 값까지 강제로 지워서 다시 잠금.
-const MAPS_UNLOCK_STORAGE_KEY = "hsd_maps_unlocked";
-const MAPS_UNLOCK_QUERY_PARAM = "mapkey";
-const MAPS_UNLOCK_SECRET = "hsd1896preview";
-
-function checkMapsUnlockFromUrl() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get(MAPS_UNLOCK_QUERY_PARAM) === MAPS_UNLOCK_SECRET) {
-    sessionStorage.setItem(MAPS_UNLOCK_STORAGE_KEY, "1");
-  } else {
-    localStorage.removeItem(MAPS_UNLOCK_STORAGE_KEY);
-  }
-}
-function isMapsUnlocked() {
-  return sessionStorage.getItem(MAPS_UNLOCK_STORAGE_KEY) === "1";
-}
-
 function switchTab(tabName) {
-  if (tabName === "maps" && !isMapsUnlocked()) {
-    document.getElementById("maps-lock-overlay").hidden = false;
-    return;
-  }
   state.activeTab = tabName;
   const statTooltip = document.getElementById("stat-tooltip");
   if (statTooltip) statTooltip.hidden = true;
