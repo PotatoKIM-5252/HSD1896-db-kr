@@ -4951,7 +4951,7 @@ const AMMO_TYPES = {
     cost: 0,
     statOverrides: {  },
     // 사용자 실측: 불안정 구간 없이 보장거리에서 바로 불가로 전환
-    ohkRange: { guaranteed: 15 },
+    ohkRange: { guaranteed: 11 },
   },
   handcrossbow_chaos: {
     label: "카오스 볼트",
