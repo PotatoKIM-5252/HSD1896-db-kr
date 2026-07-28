@@ -1330,12 +1330,11 @@ function getOhkRangeForCurrentAmmo(item, ammoId) {
 // 슬러그처럼 펠릿 분산이 없는 단일 탄자 탄약은 불안정 구간이 존재하지 않음 —
 // ohkRange에 unstableEnd를 안 주면(guaranteed만 있으면) 노랑 구간 없이 보장→불가로 바로 전환되는
 // 2단 막대로 표시(불안정 관련 눈금/범례도 생략).
-function renderOhkRangeBar(ohkRange, title) {
+function renderOhkRangeBar(ohkRange, maxDisplay, title) {
   const { guaranteed } = ohkRange;
   const hasUnstable = ohkRange.unstableEnd != null && ohkRange.noneFrom != null;
   const unstableEnd = hasUnstable ? ohkRange.unstableEnd : guaranteed;
   const noneFrom = hasUnstable ? ohkRange.noneFrom : guaranteed;
-  const maxDisplay = Math.max(noneFrom + 3, 15);
   const gPct = (guaranteed / maxDisplay) * 100;
   const nPct = (noneFrom / maxDisplay) * 100;
   const maxLabel = Math.ceil(maxDisplay);
@@ -1367,12 +1366,16 @@ function renderOhkRangeBar(ohkRange, title) {
 // 탄약 하나에 딸린 OHK 막대를 전부 이어붙여 렌더링:
 // - ammo.ohkRange: 기본(가슴 정조준 기준) 막대 1개
 // - ammo.ohkRangeVariants: [{ label, ohkRange }, ...] 부위별/특성 적용 시 등 추가 막대(기본 막대 바로 아래 순서대로 표시)
-function renderOhkRangeSection(ammo) {
+// 최대 거리는 샷건 20m / 그 외 한방무기 50m로 고정(무기비교 그래프와 동일한 스케일 통일 규칙 —
+// 무기마다 막대 스케일이 다르면 비교가 어려워서 자세히 보기에서도 동일하게 고정함).
+function renderOhkRangeSection(ammo, item) {
+  const isShotgun = item?.ammoCategory === "shotgun" || ammo.category === "shotgun";
+  const maxDisplay = isShotgun ? 20 : 50;
   let html = "";
-  if (ammo.ohkRange) html += renderOhkRangeBar(ammo.ohkRange);
+  if (ammo.ohkRange) html += renderOhkRangeBar(ammo.ohkRange, maxDisplay);
   if (ammo.ohkRangeVariants) {
     ammo.ohkRangeVariants.forEach((v) => {
-      html += renderOhkRangeBar(v.ohkRange, v.label);
+      html += renderOhkRangeBar(v.ohkRange, maxDisplay, v.label);
     });
   }
   return html;
@@ -1391,7 +1394,7 @@ function drawBodyPartChart(currentItem, ammoId, refRange, parentItem) {
   // 샷건류(낙하곡선 없음): 한방컷 보장거리 데이터가 있으면 그래프 대신 색상 막대로 표시
   const ohkAmmo = getOhkRangeForCurrentAmmo(currentItem, ammoId);
   if (ohkAmmo) {
-    canvas.outerHTML = renderOhkRangeSection(ohkAmmo);
+    canvas.outerHTML = renderOhkRangeSection(ohkAmmo, currentItem);
     return;
   }
 
@@ -2041,7 +2044,7 @@ function drawWeaponChart(item, ammoId) {
   // 샷건류(낙하곡선 없음): 한방컷 보장거리 데이터가 있으면 그래프 대신 색상 막대로 표시
   const ohkAmmo = getOhkRangeForCurrentAmmo(item, ammoId);
   if (ohkAmmo) {
-    canvas.outerHTML = renderOhkRangeSection(ohkAmmo);
+    canvas.outerHTML = renderOhkRangeSection(ohkAmmo, item);
     return;
   }
 
