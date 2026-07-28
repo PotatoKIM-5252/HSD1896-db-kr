@@ -279,7 +279,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 #trait-filters[hidden] { display: none; }
 
-.trait-tag-badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 8px; }
+.trait-tag-badges { display: flex; flex-wrap: nowrap; gap: 6px; margin: 4px 0 8px; }
 .trait-tag-badge {
   font-size: 11px;
   color: var(--text-secondary);
@@ -464,6 +464,9 @@ button { font-family: var(--font-body); cursor: pointer; }
   font-size: 14px;
   font-weight: 500;
   color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .item-card-category {

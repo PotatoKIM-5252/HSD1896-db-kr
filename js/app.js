@@ -852,7 +852,7 @@ function createItemCard(item) {
   if (item.category === "weapon") {
     card.innerHTML = `
       ${imgHTML}
-      <div class="item-card-name">${displayName(item)}</div>
+      <div class="item-card-name" title="${displayName(item)}">${displayName(item)}</div>
       <div class="item-card-meta">
         <span class="item-card-slots"><img src="images/ui/slot_${item.slotSize || 1}.png" alt="${item.slotSize}칸" class="slot-icon"></span>
         ${item.scarce
@@ -876,7 +876,7 @@ function createItemCard(item) {
       .filter(Boolean);
     card.innerHTML = `
       ${imgHTML}
-      <div class="item-card-name">${displayName(item)}</div>
+      <div class="item-card-name" title="${displayName(item)}">${displayName(item)}</div>
       <div class="item-card-meta">
         <div class="item-card-trait-tags">${tagIcons.map((t) => `<img src="${t.image}" alt="${t.label}" title="${t.label}" class="trait-tag-icon">`).join("")}</div>
         ${item.traitTags && item.traitTags.includes("scarce")
@@ -886,7 +886,7 @@ function createItemCard(item) {
   } else {
     card.innerHTML = `
       ${imgHTML}
-      <div class="item-card-name">${displayName(item)}</div>
+      <div class="item-card-name" title="${displayName(item)}">${displayName(item)}</div>
       <div class="item-card-category">${cat ? cat.label : item.category}</div>`;
   }
 
