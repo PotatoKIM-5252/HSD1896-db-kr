@@ -77,6 +77,10 @@ const state = {
   activeMapId: null,
   activeMapLayers: null,  // Set — 최초 진입 시 MAP_LAYERS의 defaultOn 값으로 채움
   activeMapMarker: null,
+  mapLegendCollapsed: false,
+  mapZoom: 1,
+  mapPanX: 0,
+  mapPanY: 0,
 
   // 커뮤니티 로드아웃: Firestore에서 받아온 목록(파싱+가격 계산까지 끝낸 캐시) +
   // 현재 정렬/가격 필터 상태. 정렬·필터를 바꿀 때는 재조회 없이 이 캐시로만 다시 그림.
@@ -248,6 +252,21 @@ function init() {
     state.activeMapMarker = null;
     document.getElementById("map-info-panel").hidden = true;
   });
+
+  document.getElementById("map-legend-collapse-btn").addEventListener("click", () => {
+    state.mapLegendCollapsed = !state.mapLegendCollapsed;
+    renderMapLegendPanel();
+  });
+  document.getElementById("map-legend-enable-all-btn").addEventListener("click", () => {
+    state.activeMapLayers = new Set(MAP_LAYERS.map((l) => l.key));
+    renderMapLegendPanel();
+    renderMapViewport();
+  });
+
+  document.getElementById("map-zoom-in-btn").addEventListener("click", () => setMapZoom(state.mapZoom + 0.5));
+  document.getElementById("map-zoom-out-btn").addEventListener("click", () => setMapZoom(state.mapZoom - 0.5));
+  document.getElementById("map-zoom-reset-btn").addEventListener("click", () => resetMapView());
+  setupMapPanZoom();
 
   document.getElementById("community-save-btn").addEventListener("click", handleCommunitySave);
   document.getElementById("community-sort-select").addEventListener("change", (e) => {
@@ -3923,7 +3942,7 @@ function renderMapsTab() {
     state.activeMapLayers = new Set(MAP_LAYERS.filter((l) => l.defaultOn).map((l) => l.key));
   }
   renderMapSelectRow();
-  renderMapLayerToggles();
+  renderMapLegendPanel();
   renderMapViewport();
 }
 
@@ -3941,44 +3960,44 @@ function renderMapSelectRow() {
       state.activeMapId = btn.dataset.mapId;
       state.activeMapMarker = null;
       document.getElementById("map-info-panel").hidden = true;
+      resetMapView();
       renderMapSelectRow();
+      renderMapLegendPanel();
       renderMapViewport();
     });
   });
 }
 
-function renderMapLayerToggles() {
+// 왼쪽 접이식 범례(필터) 패널 — 레이어별 아이콘/이름/마커 개수/온오프 스위치
+function renderMapLegendPanel() {
+  const panel = document.getElementById("map-legend-panel");
+  panel.classList.toggle("collapsed", state.mapLegendCollapsed);
+
+  const map = getActiveMap();
   const wrap = document.getElementById("map-layer-toggles");
-  const layerBtns = MAP_LAYERS.map((l) => `
-    <button class="map-layer-btn ${state.activeMapLayers.has(l.key) ? "active" : ""}" type="button" data-layer-key="${l.key}">
-      <i class="map-layer-swatch" style="background:${l.color}"></i>${l.label}
-    </button>
-  `).join("");
-  wrap.innerHTML = `
-    ${layerBtns}
-    <span class="map-layer-actions">
-      <button class="map-layer-action-btn" type="button" id="map-show-all-btn">전체 보기</button>
-      <button class="map-layer-action-btn" type="button" id="map-hide-all-btn">전체 숨기기</button>
-    </span>
-  `;
-  wrap.querySelectorAll(".map-layer-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const key = btn.dataset.layerKey;
-      if (state.activeMapLayers.has(key)) state.activeMapLayers.delete(key);
-      else state.activeMapLayers.add(key);
-      renderMapLayerToggles();
+  wrap.innerHTML = MAP_LAYERS.map((l) => {
+    const count = map ? (map.layers[l.key] || []).length : 0;
+    const checked = state.activeMapLayers.has(l.key) ? "checked" : "";
+    return `
+      <label class="map-layer-row">
+        <i class="map-layer-swatch" style="background:${l.color}"></i>
+        <span class="map-layer-label">${l.label}</span>
+        <span class="map-layer-count">${count}</span>
+        <span class="map-layer-switch" data-layer-key="${l.key}">
+          <input type="checkbox" ${checked}>
+          <span class="switch-track"><span class="switch-thumb"></span></span>
+        </span>
+      </label>
+    `;
+  }).join("");
+
+  wrap.querySelectorAll(".map-layer-switch input").forEach((input) => {
+    input.addEventListener("change", () => {
+      const key = input.closest(".map-layer-switch").dataset.layerKey;
+      if (input.checked) state.activeMapLayers.add(key);
+      else state.activeMapLayers.delete(key);
       renderMapViewport();
     });
-  });
-  document.getElementById("map-show-all-btn").addEventListener("click", () => {
-    state.activeMapLayers = new Set(MAP_LAYERS.map((l) => l.key));
-    renderMapLayerToggles();
-    renderMapViewport();
-  });
-  document.getElementById("map-hide-all-btn").addEventListener("click", () => {
-    state.activeMapLayers = new Set();
-    renderMapLayerToggles();
-    renderMapViewport();
   });
 }
 
@@ -4012,6 +4031,88 @@ function renderMapViewport() {
       const pt = map.layers[layer.key][Number(el.dataset.markerIdx)];
       openMapInfoPanel(map, layer, pt);
     });
+  });
+}
+
+// -------------------------------------------------------------------------
+// 맵 확대/축소 + 드래그 이동
+// -------------------------------------------------------------------------
+const MAP_ZOOM_MIN = 1;
+const MAP_ZOOM_MAX = 4;
+
+function applyMapTransform() {
+  const canvas = document.getElementById("map-viewport-canvas");
+  canvas.style.transform = `translate(${state.mapPanX}px, ${state.mapPanY}px) scale(${state.mapZoom})`;
+}
+
+// 확대된 캔버스가 뷰포트 바깥으로 빈 공간을 보이지 않게 팬 값을 범위 안으로 고정
+function clampMapPan() {
+  const viewport = document.getElementById("map-viewport");
+  const w = viewport.clientWidth;
+  const h = viewport.clientHeight;
+  const minX = -(state.mapZoom - 1) * w;
+  const minY = -(state.mapZoom - 1) * h;
+  state.mapPanX = Math.min(0, Math.max(minX, state.mapPanX));
+  state.mapPanY = Math.min(0, Math.max(minY, state.mapPanY));
+}
+
+function setMapZoom(newZoom) {
+  state.mapZoom = Math.min(MAP_ZOOM_MAX, Math.max(MAP_ZOOM_MIN, newZoom));
+  clampMapPan();
+  applyMapTransform();
+}
+
+function resetMapView() {
+  state.mapZoom = 1;
+  state.mapPanX = 0;
+  state.mapPanY = 0;
+  applyMapTransform();
+}
+
+function setupMapPanZoom() {
+  const viewport = document.getElementById("map-viewport");
+
+  viewport.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    setMapZoom(state.mapZoom + (e.deltaY < 0 ? 0.3 : -0.3));
+  }, { passive: false });
+
+  let dragging = false;
+  let startX = 0, startY = 0, startPanX = 0, startPanY = 0;
+  let moved = false;
+
+  viewport.addEventListener("mousedown", (e) => {
+    if (state.mapZoom <= 1) return;
+    dragging = true;
+    moved = false;
+    startX = e.clientX;
+    startY = e.clientY;
+    startPanX = state.mapPanX;
+    startPanY = state.mapPanY;
+    viewport.classList.add("panning");
+  });
+
+  window.addEventListener("mousemove", (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+    state.mapPanX = startPanX + dx;
+    state.mapPanY = startPanY + dy;
+    clampMapPan();
+    applyMapTransform();
+  });
+
+  window.addEventListener("mouseup", () => {
+    if (!dragging) return;
+    dragging = false;
+    viewport.classList.remove("panning");
+    // 드래그(이동)가 실제로 있었으면 그 직후의 마커 클릭은 무시(의도치 않은 클릭 방지)
+    if (moved) {
+      const markersLayer = document.getElementById("map-markers-layer");
+      markersLayer.style.pointerEvents = "none";
+      setTimeout(() => { markersLayer.style.pointerEvents = ""; }, 0);
+    }
   });
 }
 

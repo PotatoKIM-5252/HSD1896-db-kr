@@ -148,15 +148,29 @@
 
     <!-- ===================== 4. 맵 탭 (인터랙티브 맵) ===================== -->
     <section id="tab-maps" class="tab-panel" hidden>
+      <div id="map-select-row"></div>
       <div id="maps-layout">
-        <div id="maps-main">
-          <div id="map-select-row"></div>
+        <aside id="map-legend-panel">
+          <div id="map-legend-header">
+            <button id="map-legend-collapse-btn" type="button" title="범례 접기/펴기">◀</button>
+            <span id="map-legend-title">필터</span>
+            <button id="map-legend-enable-all-btn" type="button">전체 켜기</button>
+          </div>
           <div id="map-layer-toggles"></div>
+        </aside>
+        <div id="maps-main">
           <div id="map-viewport-wrap">
+            <div id="map-zoom-controls">
+              <button id="map-zoom-in-btn" type="button" title="확대">＋</button>
+              <button id="map-zoom-out-btn" type="button" title="축소">－</button>
+              <button id="map-zoom-reset-btn" type="button" title="원래 크기로">⟲</button>
+            </div>
             <div id="map-viewport">
-              <img id="map-base-img" alt="" onerror="this.style.display='none'; const ph=document.getElementById('map-img-placeholder'); if(ph) ph.hidden=false;">
-              <div id="map-img-placeholder" class="map-img-placeholder" hidden>지도 이미지 준비 중</div>
-              <div id="map-markers-layer"></div>
+              <div id="map-viewport-canvas">
+                <img id="map-base-img" alt="" onerror="this.style.display='none'; const ph=document.getElementById('map-img-placeholder'); if(ph) ph.hidden=false;">
+                <div id="map-img-placeholder" class="map-img-placeholder" hidden>지도 이미지 준비 중</div>
+                <div id="map-markers-layer"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -204,8 +218,7 @@
   <!-- ===================== 맵 탭 공사중 안내(관리자만 접근 가능) ===================== -->
   <div id="maps-lock-overlay" hidden>
     <div id="maps-lock-content">
-      <h3>공사중입니다</h3>
-      <p>맵 기능은 아직 준비 중이에요. 완성되면 공개할게요!</p>
+      <h3>공사중</h3>
       <button id="maps-lock-close-btn" type="button">확인</button>
     </div>
   </div>
