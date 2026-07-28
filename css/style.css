@@ -2330,7 +2330,22 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 /* ===================== 맵 탭 (인터랙티브 맵) ===================== */
 
-#map-select-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+#map-admin-row { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+#map-select-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+#map-export-coords-btn {
+  margin-left: auto;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 12px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+#map-export-coords-btn:hover { color: var(--text-primary); border-color: var(--accent-strong); }
 
 .map-select-btn {
   background: var(--bg-panel);

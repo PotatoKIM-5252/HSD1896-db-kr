@@ -268,6 +268,19 @@ function init() {
   document.getElementById("map-zoom-reset-btn").addEventListener("click", () => resetMapView());
   setupMapPanZoom();
 
+  document.getElementById("map-export-coords-btn").addEventListener("click", async () => {
+    const map = getActiveMap();
+    if (!map) return;
+    const text = exportMapLayersText(map);
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast("좌표가 클립보드에 복사됐습니다.", "info");
+    } catch {
+      console.log(text);
+      showToast("클립보드 복사 실패 — 콘솔에 출력했습니다.");
+    }
+  });
+
   document.getElementById("community-save-btn").addEventListener("click", handleCommunitySave);
   document.getElementById("community-sort-select").addEventListener("change", (e) => {
     state.communitySort = e.target.value;
@@ -4026,12 +4039,63 @@ function renderMapViewport() {
     `).join("");
   markersLayer.innerHTML = markersHTML;
   markersLayer.querySelectorAll(".map-marker").forEach((el) => {
-    el.addEventListener("click", () => {
-      const layer = MAP_LAYERS.find((l) => l.key === el.dataset.layerKey);
-      const pt = map.layers[layer.key][Number(el.dataset.markerIdx)];
-      openMapInfoPanel(map, layer, pt);
-    });
+    const layer = MAP_LAYERS.find((l) => l.key === el.dataset.layerKey);
+    const idx = Number(el.dataset.markerIdx);
+    makeMarkerDraggable(el, map, layer, idx);
   });
+}
+
+// 마커를 드래그로 옮길 수 있게 함(좌표 미세조정용 — 현재 맵 탭은 관리자만 접근 가능해서
+// 별도 편집 모드 없이 항상 드래그 가능. 실제로 움직인 경우엔 클릭(정보 패널 열기)을 막음.
+function makeMarkerDraggable(el, map, layer, idx) {
+  let wasDragged = false;
+
+  el.addEventListener("mousedown", (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    wasDragged = false;
+
+    const onMove = (ev) => {
+      const canvas = document.getElementById("map-viewport-canvas");
+      const rect = canvas.getBoundingClientRect();
+      const x = Math.min(100, Math.max(0, ((ev.clientX - rect.left) / rect.width) * 100));
+      const y = Math.min(100, Math.max(0, ((ev.clientY - rect.top) / rect.height) * 100));
+      const pt = map.layers[layer.key][idx];
+      if (!wasDragged && (Math.abs(x - pt.x) > 0.2 || Math.abs(y - pt.y) > 0.2)) wasDragged = true;
+      pt.x = x;
+      pt.y = y;
+      el.style.left = `${x}%`;
+      el.style.top = `${y}%`;
+    };
+    const onUp = () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  });
+
+  el.addEventListener("click", (e) => {
+    if (wasDragged) {
+      e.preventDefault();
+      wasDragged = false;
+      return;
+    }
+    const pt = map.layers[layer.key][idx];
+    openMapInfoPanel(map, layer, pt);
+  });
+}
+
+// 현재 맵의 레이어 좌표를 maps-data.js에 그대로 붙여넣을 수 있는 형태로 클립보드에 복사
+function exportMapLayersText(map) {
+  const lines = [`// ${map.name} (${map.id})`, "layers: {"];
+  MAP_LAYERS.forEach((l) => {
+    const pts = map.layers[l.key] || [];
+    const ptsStr = pts.map((p) => `{ x: ${Number(p.x.toFixed(1))}, y: ${Number(p.y.toFixed(1))} }`).join(", ");
+    lines.push(`  ${l.key}: [${ptsStr}],`);
+  });
+  lines.push("},");
+  return lines.join("\n");
 }
 
 // -------------------------------------------------------------------------
