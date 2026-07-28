@@ -3257,6 +3257,20 @@ function fieldHasToolClass(fieldIds, toolClass) {
   });
 }
 
+// 출혈/중독/화상 중 하나라도 일으킬 수 있는 장비(무기 탄약 효과 or 도구·소모품 태그)가
+// 로드아웃에 있는지 확인 — 통각(Pain Sense) 특성 조건에 사용.
+const AFFLICTION_AMMO_EFFECTS = ["bleed", "poison", "incendiary", "dragonbreath"];
+const AFFLICTION_TAGS = ["rending", "poison", "fire"];
+function hasAfflictionCausingGear(ctx) {
+  const weaponHasEffect = ctx.weapons.some((w) => (w.ammoEffects || []).some((e) => AFFLICTION_AMMO_EFFECTS.includes(e)));
+  const fieldHasEffect = ctx.fieldIds.some((id) => {
+    const it = ITEMS.find((i) => i.id === id);
+    const tags = it ? (it.toolTags || it.consumableTags || []) : [];
+    return tags.some((t) => AFFLICTION_TAGS.includes(t));
+  });
+  return weaponHasEffect || fieldHasEffect;
+}
+
 // trait id → 조건 판정 함수.
 // context = { weapons: [item,...](장착된 무기들), fieldIds: [...], hasAkimboPair: boolean }
 const TRAIT_WEAPON_CONDITIONS = {
@@ -3271,6 +3285,7 @@ const TRAIT_WEAPON_CONDITIONS = {
     ctx.fieldIds.some((id) => ["tool_throwing_axes", "tool_throwing_knives", "tool_throwing_spear"].includes(id)),
   trait_poacher: (ctx) => fieldHasToolClass(ctx.fieldIds, "trap"), // 덫류 도구가 있어야 유효
   trait_decoy_supply: (ctx) => fieldHasToolClass(ctx.fieldIds, "distraction"), // 교란 장치류 도구가 있어야 유효
+  trait_pain_sense: (ctx) => hasAfflictionCausingGear(ctx), // 출혈/중독/화상을 일으킬 수 있는 장비가 있어야 유효
   trait_iron_eye: (ctx) => ctx.weapons.some((w) => ["bolt", "lever", "pump"].includes(getWeaponActionType(w))),
   trait_levering: (ctx) => ctx.weapons.some((w) => getWeaponActionType(w) === "lever"),
   trait_fanning: (ctx) => ctx.weapons.some((w) => getWeaponActionType(w) === "revolver_sa"),
