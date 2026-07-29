@@ -2834,6 +2834,31 @@ button { font-family: var(--font-body); cursor: pointer; }
   font-family: var(--font-body);
 }
 
+#report-captcha-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+#report-captcha-row[hidden] { display: none; }
+
+#report-captcha-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+#report-captcha-input {
+  width: 70px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 7px 10px;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
 #report-modal-footer {
   display: flex;
   align-items: center;

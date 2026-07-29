@@ -364,11 +364,28 @@ function setupReportWidget() {
   const charCount = document.getElementById("report-char-count");
   const submitBtn = document.getElementById("report-submit-btn");
   const msgEl = document.getElementById("report-modal-msg");
+  const captchaRow = document.getElementById("report-captcha-row");
+  const captchaLabel = document.getElementById("report-captcha-label");
+  const captchaInput = document.getElementById("report-captcha-input");
   const REPORT_MAX_LEN = 1000;
+
+  // 같은 브라우저에서 10회 넘게 제보하면, 다음 문제를 풀어야 제출 가능
+  // (서버가 없는 정적 사이트라 스크립트 공격까진 못 막지만, 사람이 UI로 반복 제출하는 건 막아줌)
+  let captchaAnswer = null;
+  const rollCaptcha = () => {
+    const a = 1 + Math.floor(Math.random() * 9);
+    const b = 1 + Math.floor(Math.random() * 9);
+    captchaAnswer = a + b;
+    captchaLabel.textContent = `스팸 방지: ${a} + ${b} = ?`;
+    captchaInput.value = "";
+  };
 
   const openModal = () => {
     overlay.hidden = false;
     msgEl.hidden = true;
+    const needsCaptcha = window.LoadoutCloud?.reportNeedsCaptcha?.();
+    captchaRow.hidden = !needsCaptcha;
+    if (needsCaptcha) rollCaptcha();
     textarea.focus();
   };
   const closeModal = () => { overlay.hidden = true; };
@@ -391,6 +408,13 @@ function setupReportWidget() {
       msgEl.hidden = false;
       return;
     }
+    if (!captchaRow.hidden && Number(captchaInput.value) !== captchaAnswer) {
+      msgEl.textContent = "확인 문제 답이 올바르지 않습니다.";
+      msgEl.classList.add("error");
+      msgEl.hidden = false;
+      rollCaptcha();
+      return;
+    }
     submitBtn.disabled = true;
     try {
       await window.LoadoutCloud.submitReport(textarea.value, state.activeTab);
@@ -399,6 +423,7 @@ function setupReportWidget() {
       msgEl.textContent = "제보가 접수되었습니다. 감사합니다!";
       msgEl.classList.remove("error");
       msgEl.hidden = false;
+      if (!captchaRow.hidden) rollCaptcha();
     } catch (err) {
       msgEl.textContent = err.message || "제출에 실패했습니다.";
       msgEl.classList.add("error");

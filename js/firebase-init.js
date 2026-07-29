@@ -56,6 +56,8 @@ const REPORTS_COLLECTION = "reports";
 const MAX_REPORT_LEN = 1000;
 const REPORT_COOLDOWN_MS = 60 * 1000;
 const REPORT_COOLDOWN_KEY = "hsddb_report_last_submit";
+const REPORT_COUNT_KEY = "hsddb_report_count";
+const REPORT_CAPTCHA_THRESHOLD = 10;
 
 // 이름/데이터 길이 등은 UX용 1차 검증일 뿐, 실제 강제는 Firestore 보안 규칙에서 함
 async function saveLoadout(name, dataStr) {
@@ -125,6 +127,19 @@ async function submitReport(message, context) {
     ownerId: uid,
   });
   localStorage.setItem(REPORT_COOLDOWN_KEY, String(now));
+  localStorage.setItem(REPORT_COUNT_KEY, String(reportSubmitCount() + 1));
 }
 
-window.LoadoutCloud = { saveLoadout, listLoadouts, toggleLike, deleteLoadout, submitReport };
+// 이 브라우저에서 지금까지 제출한 횟수 — 일정 횟수 넘으면 UI에서 간단한 확인(캡챠)을 추가로 요구함
+function reportSubmitCount() {
+  return Number(localStorage.getItem(REPORT_COUNT_KEY) || 0);
+}
+
+function reportNeedsCaptcha() {
+  return reportSubmitCount() >= REPORT_CAPTCHA_THRESHOLD;
+}
+
+window.LoadoutCloud = {
+  saveLoadout, listLoadouts, toggleLike, deleteLoadout,
+  submitReport, reportNeedsCaptcha,
+};
