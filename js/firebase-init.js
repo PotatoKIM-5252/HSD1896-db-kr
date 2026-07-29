@@ -170,7 +170,34 @@ async function listReports() {
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
+// 제보 댓글 — 규칙상 해당 제보를 올린 본인과 운영자만 작성 가능(자세한 조건은 firestore.rules 참고).
+// 운영자 uid는 비밀값이 아님(규칙 파일에도 그대로 노출) — 댓글 작성자가 운영자인지 표시하는 용도로만 씀.
+const OPERATOR_UID = "2S8L0VeihHaUFRkOWOeypEe2Guk1";
+const MAX_COMMENT_LEN = 500;
+
+async function listComments(reportId) {
+  const q = query(collection(db, REPORTS_COLLECTION, reportId, "comments"), orderBy("createdAt", "asc"));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}
+
+async function addComment(reportId, text) {
+  const trimmed = (text || "").trim().slice(0, MAX_COMMENT_LEN);
+  if (!trimmed) throw new Error("댓글 내용을 입력해주세요.");
+  const uid = await getUid();
+  await addDoc(collection(db, REPORTS_COLLECTION, reportId, "comments"), {
+    text: trimmed,
+    createdAt: serverTimestamp(),
+    ownerId: uid,
+  });
+}
+
+async function getCurrentUid() {
+  return getUid();
+}
+
 window.LoadoutCloud = {
   saveLoadout, listLoadouts, toggleLike, deleteLoadout,
   submitReport, reportNeedsCaptcha, listReports,
+  listComments, addComment, getCurrentUid, OPERATOR_UID,
 };

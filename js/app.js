@@ -455,12 +455,81 @@ function setupReportWidget() {
 
   // 제보내역 보기 — 문의 및 오류 제보 창은 그대로 두고 내용만 내역 화면으로 전환.
   // "돌아가기"를 누르면 전체 창을 닫는 게 아니라 제출 화면으로만 돌아옴.
-  const renderHistoryList = (reports) => {
+  // 댓글은 해당 제보를 올린 본인과 운영자만 작성 가능(Firestore 규칙이 실제로 강제) —
+  // 여기서는 그 조건에 맞는 사람에게만 입력창을 보여줌(다른 사람은 읽기만 가능).
+  const renderComments = (wrap, reportId, comments, currentUid, operatorUid) => {
+    wrap.innerHTML = "";
+    comments.forEach((c) => {
+      const row = document.createElement("div");
+      row.className = "reportbox-comment";
+
+      const authorEl = document.createElement("span");
+      authorEl.className = "reportbox-comment-author";
+      authorEl.textContent = c.ownerId === operatorUid ? "운영자" : "제보자";
+
+      const textEl = document.createElement("span");
+      textEl.className = "reportbox-comment-text";
+      textEl.textContent = c.text || "";
+
+      row.appendChild(authorEl);
+      row.appendChild(textEl);
+      wrap.appendChild(row);
+    });
+  };
+
+  const renderCommentSection = async (item, report, currentUid, operatorUid) => {
+    const section = document.createElement("div");
+    section.className = "reportbox-comments";
+    item.appendChild(section);
+
+    try {
+      const comments = await window.LoadoutCloud.listComments(report.id);
+      renderComments(section, report.id, comments, currentUid, operatorUid);
+    } catch {
+      // 댓글 로딩 실패는 조용히 무시(제보 본문은 이미 보임)
+    }
+
+    const canComment = currentUid && (currentUid === operatorUid || currentUid === report.ownerId);
+    if (!canComment) return;
+
+    const form = document.createElement("div");
+    form.className = "reportbox-comment-form";
+    const input = document.createElement("input");
+    input.type = "text";
+    input.maxLength = 500;
+    input.placeholder = "댓글 남기기...";
+    const sendBtn = document.createElement("button");
+    sendBtn.type = "button";
+    sendBtn.textContent = "등록";
+    form.appendChild(input);
+    form.appendChild(sendBtn);
+    item.appendChild(form);
+
+    sendBtn.addEventListener("click", async () => {
+      if (!input.value.trim()) return;
+      sendBtn.disabled = true;
+      try {
+        await window.LoadoutCloud.addComment(report.id, input.value);
+        input.value = "";
+        const comments = await window.LoadoutCloud.listComments(report.id);
+        renderComments(section, report.id, comments, currentUid, operatorUid);
+      } catch (err) {
+        showToast(err.message || "댓글 등록에 실패했습니다.");
+      } finally {
+        sendBtn.disabled = false;
+      }
+    });
+  };
+
+  const renderHistoryList = async (reports) => {
     historyListEl.innerHTML = "";
     if (reports.length === 0) {
       historyListEl.textContent = "아직 접수된 제보가 없습니다.";
       return;
     }
+    const currentUid = await window.LoadoutCloud.getCurrentUid().catch(() => null);
+    const operatorUid = window.LoadoutCloud.OPERATOR_UID;
+
     reports.forEach((r) => {
       const item = document.createElement("div");
       item.className = "reportbox-item";
@@ -478,6 +547,8 @@ function setupReportWidget() {
       item.appendChild(meta);
       item.appendChild(textEl);
       historyListEl.appendChild(item);
+
+      renderCommentSection(item, r, currentUid, operatorUid);
     });
   };
 
@@ -492,7 +563,7 @@ function setupReportWidget() {
     }
     try {
       const reports = await window.LoadoutCloud.listReports();
-      renderHistoryList(reports);
+      await renderHistoryList(reports);
       historyLoaded = true;
     } catch {
       historyListEl.textContent = "제보내역을 불러오지 못했습니다.";

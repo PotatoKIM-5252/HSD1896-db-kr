@@ -2874,6 +2874,61 @@ button { font-family: var(--font-body); cursor: pointer; }
   word-break: break-word;
 }
 
+.reportbox-comments {
+  margin-top: 8px;
+  padding-left: 10px;
+  border-left: 2px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.reportbox-comment {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.reportbox-comment-author {
+  color: var(--accent);
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.reportbox-comment-text {
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.reportbox-comment-form {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.reportbox-comment-form input {
+  flex: 1;
+  background: var(--bg-input);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 6px 10px;
+  color: var(--text-primary);
+  font-size: 12px;
+}
+
+.reportbox-comment-form button {
+  border-radius: var(--radius);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+.reportbox-comment-form button:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+.reportbox-comment-form button:disabled { opacity: 0.6; cursor: default; }
+
 #report-textarea {
   width: 100%;
   min-height: 120px;

@@ -69,6 +69,26 @@ service cloud.firestore {
 
       allow update: if false;
       allow delete: if isOperator();
+
+      // 댓글 — 해당 제보를 올린 본인(ownerId 일치)과 운영자만 작성 가능. 읽기는 제보와 마찬가지로 공개.
+      match /comments/{commentId} {
+        allow read: if true;
+
+        allow create: if request.auth != null
+                      && request.resource.data.keys().hasOnly(['text', 'createdAt', 'ownerId'])
+                      && request.resource.data.text is string
+                      && request.resource.data.text.size() > 0
+                      && request.resource.data.text.size() <= 500
+                      && request.resource.data.createdAt == request.time
+                      && request.resource.data.ownerId == request.auth.uid
+                      && (
+                        isOperator()
+                        || request.auth.uid == get(/databases/$(database)/documents/reports/$(reportId)).data.ownerId
+                      );
+
+        allow update: if false;
+        allow delete: if isOperator();
+      }
     }
   }
 }
