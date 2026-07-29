@@ -218,6 +218,7 @@ function addToLoadoutQuick(item, ammoId = null) {
 // -------------------------------------------------------------------------
 // 사이트 업데이트 내역 — 새 항목은 배열 맨 앞에 추가(최신순으로 그대로 출력됨)
 const CHANGELOG = [
+  { date: "7.29", text: "로드아웃 빌더 특성 칸도 도구/소모품처럼 하나 고를 때마다 선택창이 닫히지 않고 계속 고를 수 있도록 수정" },
   { date: "7.29", text: "오류제보 탭 이름을 \"문의 및 오류 제보\"로 변경" },
   { date: "7.29", text: "우측 하단 업데이트 내역 탭 신설" },
   { date: "7.29", text: "우측 하단 오류제보 탭 신설" },
@@ -3434,7 +3435,13 @@ function renderTraitSection() {
       }
       state.loadout[key].push(selectedItem.id);
       renderLoadoutBoard();
-      closePicker();
+      // 도구/소모품과 동일하게, 하나 고를 때마다 창이 닫히지 않고 계속 열려있게 유지
+      // — 칸이 다 찼을 때만 자동으로 닫음.
+      if (state.loadout[key].length >= TRAIT_MAX_COUNT) {
+        closePicker();
+      } else {
+        renderPickerList(document.getElementById("picker-search-input").value.trim().toLowerCase());
+      }
     });
   }
 
