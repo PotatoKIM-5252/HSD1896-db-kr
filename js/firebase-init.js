@@ -54,6 +54,8 @@ const LIST_LIMIT = 60;
 
 const REPORTS_COLLECTION = "reports";
 const MAX_REPORT_LEN = 1000;
+const REPORT_COOLDOWN_MS = 60 * 1000;
+const REPORT_COOLDOWN_KEY = "hsddb_report_last_submit";
 
 // 이름/데이터 길이 등은 UX용 1차 검증일 뿐, 실제 강제는 Firestore 보안 규칙에서 함
 async function saveLoadout(name, dataStr) {
@@ -102,9 +104,18 @@ async function deleteLoadout(id) {
 
 // 오류 제보: 익명으로 자유 텍스트를 저장. 어떤 화면(탭)에서 눌렀는지도 같이 남겨서
 // 나중에 확인할 때 재현에 참고할 수 있게 함.
+// 매크로/연타 스팸 완화용 최소한의 클라이언트 쿨다운(브라우저당 1분에 1회) —
+// 작정하고 Firestore에 직접 요청을 보내는 사람은 못 막지만, 실수로 여러 번
+// 누르거나 가벼운 반복 제출은 걸러줌.
 async function submitReport(message, context) {
   const trimmed = (message || "").trim().slice(0, MAX_REPORT_LEN);
   if (!trimmed) throw new Error("내용을 입력해주세요.");
+  const last = Number(localStorage.getItem(REPORT_COOLDOWN_KEY) || 0);
+  const now = Date.now();
+  if (now - last < REPORT_COOLDOWN_MS) {
+    const waitSec = Math.ceil((REPORT_COOLDOWN_MS - (now - last)) / 1000);
+    throw new Error(`너무 빠르게 제출하셨습니다. ${waitSec}초 후 다시 시도해주세요.`);
+  }
   const uid = await getUid();
   await addDoc(collection(db, REPORTS_COLLECTION), {
     message: trimmed,
@@ -113,6 +124,7 @@ async function submitReport(message, context) {
     createdAt: serverTimestamp(),
     ownerId: uid,
   });
+  localStorage.setItem(REPORT_COOLDOWN_KEY, String(now));
 }
 
 window.LoadoutCloud = { saveLoadout, listLoadouts, toggleLike, deleteLoadout, submitReport };
