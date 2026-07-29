@@ -216,6 +216,13 @@ function addToLoadoutQuick(item, ammoId = null) {
 }
 
 // -------------------------------------------------------------------------
+// 사이트 업데이트 내역 — 새 항목은 배열 맨 앞에 추가(최신순으로 그대로 출력됨)
+const CHANGELOG = [
+  { date: "2026-07-29", text: "우측 하단 오류 제보 탭 신설" },
+  { date: "2026-07-28", text: "로드아웃 랜덤에 희소 아이템 제외를 켰음에도 희소 탄약이 계속 나오던 문제 수정" },
+  { date: "2026-07-28", text: "도구/소모품 카테고리에 \"전체\" 필터 추가 — 이제 도구나 소모품을 누르면 전체가 보인 상태로 필터링 가능" },
+];
+
 function init() {
   initLoadoutState();
 
@@ -354,6 +361,8 @@ function init() {
   renderLoadoutBoard();
 
   setupReportWidget();
+  setupChangelogWidget();
+  setupReportboxWidget();
 }
 
 function setupReportWidget() {
@@ -431,6 +440,100 @@ function setupReportWidget() {
     } finally {
       submitBtn.disabled = false;
     }
+  });
+}
+
+function setupChangelogWidget() {
+  const fabBtn = document.getElementById("changelog-fab-btn");
+  const overlay = document.getElementById("changelog-modal-overlay");
+  const closeBtn = document.getElementById("changelog-modal-close-btn");
+  const listEl = document.getElementById("changelog-list");
+
+  listEl.innerHTML = "";
+  CHANGELOG.forEach((entry) => {
+    const item = document.createElement("div");
+    item.className = "changelog-item";
+
+    const dateEl = document.createElement("span");
+    dateEl.className = "changelog-date";
+    dateEl.textContent = entry.date;
+
+    const textEl = document.createElement("span");
+    textEl.className = "changelog-text";
+    textEl.textContent = entry.text;
+
+    item.appendChild(dateEl);
+    item.appendChild(textEl);
+    listEl.appendChild(item);
+  });
+
+  const openModal = () => { overlay.hidden = false; };
+  const closeModal = () => { overlay.hidden = true; };
+
+  fabBtn.addEventListener("click", openModal);
+  closeBtn.addEventListener("click", closeModal);
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) closeModal(); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !overlay.hidden) closeModal();
+  });
+}
+
+function setupReportboxWidget() {
+  const fabBtn = document.getElementById("reportbox-fab-btn");
+  const overlay = document.getElementById("reportbox-modal-overlay");
+  const closeBtn = document.getElementById("reportbox-modal-close-btn");
+  const listEl = document.getElementById("reportbox-list");
+  let loaded = false;
+
+  const renderList = (reports) => {
+    listEl.innerHTML = "";
+    if (reports.length === 0) {
+      listEl.textContent = "아직 접수된 제보가 없습니다.";
+      return;
+    }
+    reports.forEach((r) => {
+      const item = document.createElement("div");
+      item.className = "reportbox-item";
+
+      const meta = document.createElement("div");
+      meta.className = "reportbox-meta";
+      const dateStr = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleString("ko-KR") : "";
+      meta.textContent = [dateStr, r.context].filter(Boolean).join(" · ");
+
+      // 남이 남긴 자유 텍스트라 반드시 textContent로만 그린다(XSS 방지)
+      const textEl = document.createElement("div");
+      textEl.className = "reportbox-text";
+      textEl.textContent = r.message || "";
+
+      item.appendChild(meta);
+      item.appendChild(textEl);
+      listEl.appendChild(item);
+    });
+  };
+
+  const openModal = async () => {
+    overlay.hidden = false;
+    if (loaded) return;
+    listEl.textContent = "불러오는 중...";
+    if (!window.LoadoutCloud) {
+      listEl.textContent = "기능을 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.";
+      return;
+    }
+    try {
+      const reports = await window.LoadoutCloud.listReports();
+      renderList(reports);
+      loaded = true;
+    } catch {
+      listEl.textContent = "제보함을 불러오지 못했습니다.";
+    }
+  };
+  const closeModal = () => { overlay.hidden = true; };
+
+  fabBtn.addEventListener("click", openModal);
+  closeBtn.addEventListener("click", closeModal);
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) closeModal(); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !overlay.hidden) closeModal();
   });
 }
 

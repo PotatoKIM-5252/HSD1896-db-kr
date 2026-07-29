@@ -139,7 +139,15 @@ function reportNeedsCaptcha() {
   return reportSubmitCount() >= REPORT_CAPTCHA_THRESHOLD;
 }
 
+const REPORT_LIST_LIMIT = 100;
+
+async function listReports() {
+  const q = query(collection(db, REPORTS_COLLECTION), orderBy("createdAt", "desc"), limit(REPORT_LIST_LIMIT));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}
+
 window.LoadoutCloud = {
   saveLoadout, listLoadouts, toggleLike, deleteLoadout,
-  submitReport, reportNeedsCaptcha,
+  submitReport, reportNeedsCaptcha, listReports,
 };

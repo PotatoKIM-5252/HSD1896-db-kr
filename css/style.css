@@ -2752,13 +2752,20 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 #map-zoom-controls button:hover { color: var(--text-primary); border-color: var(--accent-strong); }
 
-/* ===================== 오류 제보 ===================== */
+/* ===================== 우측 하단 유틸리티 버튼 (업데이트 내역 / 제보함 / 오류 제보) ===================== */
 
-#report-fab-btn {
+#site-utility-bar {
   position: fixed;
   right: 22px;
   bottom: 22px;
   z-index: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.utility-fab-btn {
   border-radius: 999px;
   border: 1px solid var(--border-strong);
   background: var(--bg-panel);
@@ -2770,9 +2777,9 @@ button { font-family: var(--font-body); cursor: pointer; }
   transition: border-color 0.15s, color 0.15s;
 }
 
-#report-fab-btn:hover { border-color: var(--accent); color: var(--accent-strong); }
+.utility-fab-btn:hover { border-color: var(--accent); color: var(--accent-strong); }
 
-#report-modal-overlay {
+#report-modal-overlay, #changelog-modal-overlay, #reportbox-modal-overlay {
   position: fixed;
   inset: 0;
   z-index: 2200;
@@ -2783,11 +2790,13 @@ button { font-family: var(--font-body); cursor: pointer; }
   padding: 20px;
 }
 
-#report-modal-overlay[hidden] { display: none; }
+#report-modal-overlay[hidden], #changelog-modal-overlay[hidden], #reportbox-modal-overlay[hidden] { display: none; }
 
-#report-modal {
+#report-modal, #changelog-modal, #reportbox-modal {
   width: 100%;
   max-width: 420px;
+  max-height: min(600px, 80vh);
+  overflow-y: auto;
   background: var(--bg-panel);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius);
@@ -2795,16 +2804,21 @@ button { font-family: var(--font-body); cursor: pointer; }
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
 }
 
-#report-modal-header {
+.utility-modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 10px;
+  position: sticky;
+  top: -20px;
+  background: var(--bg-panel);
+  padding-top: 20px;
+  margin-top: -20px;
 }
 
-#report-modal-header h3 { margin: 0; font-size: 15px; color: var(--text-primary); }
+.utility-modal-header h3 { margin: 0; font-size: 15px; color: var(--text-primary); }
 
-#report-modal-close-btn {
+#report-modal-close-btn, #changelog-modal-close-btn, #reportbox-modal-close-btn {
   font-size: 12px;
   color: var(--text-muted);
   border: 1px solid var(--border);
@@ -2812,13 +2826,52 @@ button { font-family: var(--font-body); cursor: pointer; }
   padding: 5px 10px;
 }
 
-#report-modal-close-btn:hover { color: var(--text-primary); border-color: var(--accent); }
+#report-modal-close-btn:hover, #changelog-modal-close-btn:hover, #reportbox-modal-close-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--accent);
+}
 
-#report-modal-desc {
+.utility-modal-desc {
   margin: 0 0 12px;
   font-size: 12px;
   line-height: 1.5;
   color: var(--text-secondary);
+}
+
+#changelog-list, #reportbox-list { display: flex; flex-direction: column; }
+
+.changelog-item, .reportbox-item {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.changelog-item:last-child, .reportbox-item:last-child { border-bottom: none; }
+
+.changelog-date {
+  display: block;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--accent);
+  margin-bottom: 3px;
+}
+
+.changelog-text { font-size: 13px; color: var(--text-primary); line-height: 1.5; }
+
+.reportbox-meta {
+  display: flex;
+  gap: 8px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.reportbox-text {
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 #report-textarea {
@@ -2905,5 +2958,6 @@ button { font-family: var(--font-body); cursor: pointer; }
   #map-legend-panel.collapsed #map-legend-header-actions,
   #map-legend-panel.collapsed #map-layer-toggles { display: flex; }
   #map-legend-panel.collapsed #map-layer-toggles { flex-direction: column; }
-  #report-fab-btn { right: 14px; bottom: 14px; padding: 9px 13px; font-size: 12px; }
+  #site-utility-bar { right: 14px; bottom: 14px; gap: 6px; }
+  .utility-fab-btn { padding: 9px 13px; font-size: 12px; }
 }
