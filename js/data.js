@@ -1071,6 +1071,27 @@ const AMMO_TYPES = {
     specialEffects: ["30m부터 피해 감소 시작"],
   },
 
+  // 르맷 카빈 전용 — 르맷(권총)과 총열 길이가 달라 dropRange/verticalRecoil/muzzleVelocity가
+  // 다름(위키 확인). 피해 감소 시작 시점(30m)과 감쇠 곡선 모양은 동일하다고 봐서 그대로 사용.
+  lemat_carbine_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "compact",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_compact_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.5473],
+      [70, 0.4974],
+      [100, 0.4974],
+    ],
+    statOverrides: { dropRange: 120, verticalRecoil: 4.5, muzzleVelocity: 415 },
+    specialEffects: ["30m부터 피해 감소 시작"],
+  },
+
   lemat_incendiary: {
     label: "소이탄",
     category: "compact",
@@ -4146,7 +4167,12 @@ const AMMO_TYPES = {
     description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
     cost: 10,
     ohkRange: { guaranteed: 4 },
-    statOverrides: { damage: 40, spread: 150, muzzleVelocity: 100 },
+    // 르맷 카빈 하부 총열(샷건) 전용 스탯 — 위키 확인(damage/spread/muzzleVelocity는 드래곤브레스 자체
+    // 오버라이드, 나머지는 하부 총열 공용 기준치)
+    statOverrides: {
+      damage: 50, spread: 125, muzzleVelocity: 100,
+      dropRange: 25, rateOfFire: 10, cycleTime: 6.3, verticalRecoil: 15, reloadSpeed: 5,
+    },
     specialEffects: ["중급 화상 효과 발생"],
   },
 
@@ -4164,8 +4190,7 @@ const AMMO_TYPES = {
     ohkRange: { guaranteed: 10 },
   },
 
-  // 르맷 카빈 전용 — 르맷(권총)과 총열 길이가 달라 슬러그 한방컷 보장거리가 다름(사용자 실측),
-  // 그 외 스탯은 르맷과 동일한 하부 총열 탄약이라 lemat_slug와 완전히 동일하게 둠
+  // 르맷 카빈 전용 — 르맷(권총)과 총열 길이가 달라 슬러그 자체 스탯·한방컷 보장거리가 다름(위키 확인)
   lemat_carbine_slug: {
     label: "슬러그",
     category: "shotgun",
@@ -4174,12 +4199,17 @@ const AMMO_TYPES = {
     icon: "●",
     description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
     cost: 65,
-    statOverrides: { damage: 157, spread: 115, ammoExtra: 2 },
+    // 나머지(dropRange/rateOfFire/cycleTime/verticalRecoil/reloadSpeed/muzzleVelocity)는
+    // 하부 총열 공용 기준치를 그대로 씀(슬러그 자체는 그 값들을 추가로 바꾸지 않음)
+    statOverrides: {
+      damage: 165, spread: 95, ammoExtra: 4,
+      dropRange: 25, rateOfFire: 10, cycleTime: 6.3, verticalRecoil: 15, reloadSpeed: 5, muzzleVelocity: 425,
+    },
     ohkRange: { guaranteed: 13 },
   },
 
   // 르맷 카빈 전용 — 르맷(권총)과 총열 길이가 달라 기본 샷건쉘 한방컷도 다름(사용자 실측),
-  // 그 외 스탯은 르맷과 동일한 하부 총열 탄약이라 lemat_shells와 완전히 동일하게 둠
+  // 데미지 수치는 위키에도 명시되지 않고("unspecified") 실측도 안 돼서 정보 없음 처리
   lemat_carbine_shells: {
     label: "Shells",
     category: "shotgun",
@@ -4187,10 +4217,14 @@ const AMMO_TYPES = {
     icon: "🔫",
     description: "Shells - 하부 총열 기본 샷건탄(벅샷).",
     cost: 0,
+    // 하부 총열(샷건 모드) 전용 스탯 — 위키 확인. 데미지는 위키에 명시되지 않고
+    // 실측도 안 돼서 정보 없음 처리(사용자 확인)
+    statOverrides: {
+      damage: null,
+      dropRange: 25, rateOfFire: 10, cycleTime: 6.3, verticalRecoil: 15, reloadSpeed: 5, muzzleVelocity: 425,
+    },
     // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
-    // 데미지 수치는 위키에 명시되지 않고 실측도 안 돼서 정보 없음 처리(사용자 확인)
     ohkRange: { guaranteed: 11, unstableEnd: 12, noneFrom: 13 },
-    statOverrides: { damage: null },
   },
 
   lemat_starshell: {
@@ -4203,6 +4237,23 @@ const AMMO_TYPES = {
     cost: 5,
     // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
     statOverrides: { damage: 1, spread: 50, verticalRecoil: 5, muzzleVelocity: 75 },
+    specialEffects: ["강한(intense) 화상 효과 발생"],
+  },
+
+  // 르맷 카빈 전용 — damage/spread/verticalRecoil/muzzleVelocity는 르맷과 동일하게 확인됐지만,
+  // dropRange/rateOfFire/cycleTime/reloadSpeed는 르맷 카빈 하부 총열 공용 기준치를 따로 적용해야 해서 분리
+  lemat_carbine_starshell: {
+    label: "신호탄",
+    category: "shotgun",
+    effect: "flare",
+    image: "images/ui/ammo_effect_icons/flare_shelltight.png",
+    icon: "🌟",
+    description: "신호탄 - 조명탄 발사, 명중한 대상에 강한 화상 효과.",
+    cost: 5,
+    statOverrides: {
+      damage: 1, spread: 50, verticalRecoil: 5, muzzleVelocity: 75,
+      dropRange: 25, rateOfFire: 10, cycleTime: 6.3, reloadSpeed: 5,
+    },
     specialEffects: ["강한(intense) 화상 효과 발생"],
   },
 
@@ -5701,7 +5752,7 @@ const ITEMS = [
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
         slotSize: 3,
-        ammoTypes: ["lemat_carbine_compact", "lemat_fmj", "lemat_incendiary", "lemat_carbine_shells", "lemat_carbine_dragonbreath", "lemat_carbine_slug", "lemat_starshell"],
+        ammoTypes: ["lemat_carbine_compact", "lemat_carbine_fmj", "lemat_incendiary", "lemat_carbine_shells", "lemat_carbine_dragonbreath", "lemat_carbine_slug", "lemat_carbine_starshell"],
         defaultAmmo: "lemat_carbine_compact",
         price: 115,
         stats: {
@@ -5724,7 +5775,7 @@ const ITEMS = [
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
         slotSize: 3,
-        ammoTypes: ["lemat_carbine_compact", "lemat_fmj", "lemat_incendiary", "lemat_carbine_shells", "lemat_carbine_dragonbreath", "lemat_carbine_slug", "lemat_starshell"],
+        ammoTypes: ["lemat_carbine_compact", "lemat_carbine_fmj", "lemat_incendiary", "lemat_carbine_shells", "lemat_carbine_dragonbreath", "lemat_carbine_slug", "lemat_carbine_starshell"],
         defaultAmmo: "lemat_carbine_compact",
         price: 127,
         stats: {
