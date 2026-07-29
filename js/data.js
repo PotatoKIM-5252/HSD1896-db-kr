@@ -4128,7 +4128,23 @@ const AMMO_TYPES = {
     description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
     cost: 10,
     // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
-    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터(르맷/르맷 카빈 공용)
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    ohkRange: { guaranteed: 4 },
+    statOverrides: { damage: 40, spread: 150, muzzleVelocity: 100 },
+    specialEffects: ["중급 화상 효과 발생"],
+  },
+  // 르맷 카빈(총열이 긴 파생형) 전용 — 컴팩트탄/셸/슬러그처럼 총열 길이에 따라 데미지·분산이
+  // 달라질 것으로 보여 기본 르맷과 분리함. 한방컷 거리는 실측으로 4m 확인, 나머지 스탯
+  // (데미지/분산/탄속)은 아직 카빈 전용 확정치가 없어 기본 르맷 값을 임시로 그대로 사용 중 —
+  // 확인되면 갱신 필요.
+  lemat_carbine_dragonbreath: {
+    label: "드래곤브레스",
+    category: "shotgun",
+    effect: "dragonbreath",
+    image: "images/ui/ammo_effect_icons/dragonbreath_shell_shelltight.png",
+    icon: "🔥",
+    description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
+    cost: 10,
     ohkRange: { guaranteed: 4 },
     statOverrides: { damage: 40, spread: 150, muzzleVelocity: 100 },
     specialEffects: ["중급 화상 효과 발생"],
@@ -5685,7 +5701,7 @@ const ITEMS = [
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
         slotSize: 3,
-        ammoTypes: ["lemat_carbine_compact", "lemat_fmj", "lemat_incendiary", "lemat_carbine_shells", "lemat_dragonbreath", "lemat_carbine_slug", "lemat_starshell"],
+        ammoTypes: ["lemat_carbine_compact", "lemat_fmj", "lemat_incendiary", "lemat_carbine_shells", "lemat_carbine_dragonbreath", "lemat_carbine_slug", "lemat_starshell"],
         defaultAmmo: "lemat_carbine_compact",
         price: 115,
         stats: {
@@ -5708,7 +5724,7 @@ const ITEMS = [
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
         slotSize: 3,
-        ammoTypes: ["lemat_carbine_compact", "lemat_fmj", "lemat_incendiary", "lemat_carbine_shells", "lemat_dragonbreath", "lemat_carbine_slug", "lemat_starshell"],
+        ammoTypes: ["lemat_carbine_compact", "lemat_fmj", "lemat_incendiary", "lemat_carbine_shells", "lemat_carbine_dragonbreath", "lemat_carbine_slug", "lemat_starshell"],
         defaultAmmo: "lemat_carbine_compact",
         price: 127,
         stats: {
