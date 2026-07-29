@@ -2752,7 +2752,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 #map-zoom-controls button:hover { color: var(--text-primary); border-color: var(--accent-strong); }
 
-/* ===================== 우측 하단 유틸리티 버튼 (업데이트 내역 / 제보함 / 오류 제보) ===================== */
+/* ===================== 우측 하단 유틸리티 버튼 (업데이트 내역 / 오류 제보) ===================== */
 
 #site-utility-bar {
   position: fixed;
@@ -2779,7 +2779,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 .utility-fab-btn:hover { border-color: var(--accent); color: var(--accent-strong); }
 
-#report-modal-overlay, #changelog-modal-overlay, #reportbox-modal-overlay {
+#report-modal-overlay, #changelog-modal-overlay {
   position: fixed;
   inset: 0;
   z-index: 2200;
@@ -2790,9 +2790,9 @@ button { font-family: var(--font-body); cursor: pointer; }
   padding: 20px;
 }
 
-#report-modal-overlay[hidden], #changelog-modal-overlay[hidden], #reportbox-modal-overlay[hidden] { display: none; }
+#report-modal-overlay[hidden], #changelog-modal-overlay[hidden] { display: none; }
 
-#report-modal, #changelog-modal, #reportbox-modal {
+#report-modal, #changelog-modal {
   width: 100%;
   max-width: 420px;
   max-height: min(600px, 80vh);
@@ -2818,7 +2818,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 .utility-modal-header h3 { margin: 0; font-size: 15px; color: var(--text-primary); }
 
-#report-modal-close-btn, #changelog-modal-close-btn, #reportbox-modal-close-btn {
+#report-modal-close-btn, #changelog-modal-close-btn {
   font-size: 12px;
   color: var(--text-muted);
   border: 1px solid var(--border);
@@ -2826,7 +2826,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   padding: 5px 10px;
 }
 
-#report-modal-close-btn:hover, #changelog-modal-close-btn:hover, #reportbox-modal-close-btn:hover {
+#report-modal-close-btn:hover, #changelog-modal-close-btn:hover {
   color: var(--text-primary);
   border-color: var(--accent);
 }
@@ -2838,7 +2838,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   color: var(--text-secondary);
 }
 
-#changelog-list, #reportbox-list { display: flex; flex-direction: column; }
+#changelog-list, #report-history-list { display: flex; flex-direction: column; }
 
 .changelog-item, .reportbox-item {
   padding: 10px 0;
@@ -2921,6 +2921,20 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 #report-char-count { font-size: 11px; color: var(--text-muted); }
 
+#report-footer-actions { display: flex; gap: 8px; }
+
+#report-history-btn {
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 9px 14px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+}
+
+#report-history-btn:hover { border-color: var(--accent); color: var(--accent-strong); }
+
 #report-submit-btn {
   border-radius: var(--radius);
   font-size: 13px;
@@ -2941,6 +2955,27 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 #report-modal-msg.error { color: var(--danger-strong); }
+
+#report-history-view[hidden] { display: none; }
+
+#report-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+#report-history-header h4 { margin: 0; font-size: 13px; color: var(--text-primary); }
+
+#report-history-close-btn {
+  font-size: 12px;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 5px 10px;
+}
+
+#report-history-close-btn:hover { color: var(--text-primary); border-color: var(--accent); }
 
 /* ===================== 반응형 ===================== */
 

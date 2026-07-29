@@ -17,7 +17,7 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getAuth, signInAnonymously, onAuthStateChanged,
+  getAuth, signInAnonymously, onAuthStateChanged, setPersistence, browserLocalPersistence,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, collection, addDoc, getDocs, query, orderBy, limit, serverTimestamp,
@@ -39,8 +39,31 @@ const auth = getAuth(firebaseApp);
 
 let resolveAuthReady;
 const authReady = new Promise((resolve) => { resolveAuthReady = resolve; });
-onAuthStateChanged(auth, (user) => { if (user) resolveAuthReady(user.uid); });
-signInAnonymously(auth).catch((err) => console.error("[LoadoutCloud] 익명 로그인 실패:", err));
+
+// 방문할 때마다 uid가 유지되는지 콘솔에서 눈으로 확인할 수 있게 이전 방문의 uid와 비교해서 남김
+// (같은 브라우저인데도 "본인 글" 인식이 며칠 지나면 사라진다는 제보가 있어 원인 추적용으로 추가)
+onAuthStateChanged(auth, (user) => {
+  if (!user) return;
+  resolveAuthReady(user.uid);
+  try {
+    const prevUid = localStorage.getItem("hsddb_debug_last_uid");
+    if (prevUid && prevUid !== user.uid) {
+      console.warn(`[LoadoutCloud] 익명 uid가 이전 방문과 달라졌습니다. 이전: ${prevUid} / 지금: ${user.uid}`);
+    } else {
+      console.info(`[LoadoutCloud] 익명 uid: ${user.uid}`);
+    }
+    localStorage.setItem("hsddb_debug_last_uid", user.uid);
+  } catch (err) {
+    console.error("[LoadoutCloud] uid 디버그 기록 실패:", err);
+  }
+});
+
+// 로그인 상태를 브라우저에 최대한 오래 유지(기본값이지만 명시적으로 지정) — 그 다음에 익명 로그인 시도
+setPersistence(auth, browserLocalPersistence)
+  .catch((err) => console.error("[LoadoutCloud] persistence 설정 실패:", err))
+  .finally(() => {
+    signInAnonymously(auth).catch((err) => console.error("[LoadoutCloud] 익명 로그인 실패:", err));
+  });
 
 async function getUid() {
   if (auth.currentUser) return auth.currentUser.uid;

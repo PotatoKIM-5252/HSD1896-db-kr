@@ -362,13 +362,13 @@ function init() {
 
   setupReportWidget();
   setupChangelogWidget();
-  setupReportboxWidget();
 }
 
 function setupReportWidget() {
   const fabBtn = document.getElementById("report-fab-btn");
   const overlay = document.getElementById("report-modal-overlay");
   const closeBtn = document.getElementById("report-modal-close-btn");
+  const formView = document.getElementById("report-form-view");
   const textarea = document.getElementById("report-textarea");
   const charCount = document.getElementById("report-char-count");
   const submitBtn = document.getElementById("report-submit-btn");
@@ -376,7 +376,12 @@ function setupReportWidget() {
   const captchaRow = document.getElementById("report-captcha-row");
   const captchaLabel = document.getElementById("report-captcha-label");
   const captchaInput = document.getElementById("report-captcha-input");
+  const historyBtn = document.getElementById("report-history-btn");
+  const historyView = document.getElementById("report-history-view");
+  const historyCloseBtn = document.getElementById("report-history-close-btn");
+  const historyListEl = document.getElementById("report-history-list");
   const REPORT_MAX_LEN = 1000;
+  let historyLoaded = false;
 
   // 같은 브라우저에서 10회 넘게 제보하면, 다음 문제를 풀어야 제출 가능
   // (서버가 없는 정적 사이트라 스크립트 공격까진 못 막지만, 사람이 UI로 반복 제출하는 건 막아줌)
@@ -392,6 +397,8 @@ function setupReportWidget() {
   const openModal = () => {
     overlay.hidden = false;
     msgEl.hidden = true;
+    historyView.hidden = true;
+    formView.hidden = false;
     const needsCaptcha = window.LoadoutCloud?.reportNeedsCaptcha?.();
     captchaRow.hidden = !needsCaptcha;
     if (needsCaptcha) rollCaptcha();
@@ -432,6 +439,7 @@ function setupReportWidget() {
       msgEl.textContent = "제보가 접수되었습니다. 감사합니다!";
       msgEl.classList.remove("error");
       msgEl.hidden = false;
+      historyLoaded = false; // 방금 제출한 내용이 내역에 바로 반영되도록 다음에 열 때 새로 불러옴
       if (!captchaRow.hidden) rollCaptcha();
     } catch (err) {
       msgEl.textContent = err.message || "제출에 실패했습니다.";
@@ -440,6 +448,57 @@ function setupReportWidget() {
     } finally {
       submitBtn.disabled = false;
     }
+  });
+
+  // 제보내역 보기 — 오류 제보 창은 그대로 두고 내용만 내역 화면으로 전환.
+  // "돌아가기"를 누르면 전체 창을 닫는 게 아니라 제출 화면으로만 돌아옴.
+  const renderHistoryList = (reports) => {
+    historyListEl.innerHTML = "";
+    if (reports.length === 0) {
+      historyListEl.textContent = "아직 접수된 제보가 없습니다.";
+      return;
+    }
+    reports.forEach((r) => {
+      const item = document.createElement("div");
+      item.className = "reportbox-item";
+
+      const meta = document.createElement("div");
+      meta.className = "reportbox-meta";
+      const dateStr = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleString("ko-KR") : "";
+      meta.textContent = [dateStr, r.context].filter(Boolean).join(" · ");
+
+      // 남이 남긴 자유 텍스트라 반드시 textContent로만 그린다(XSS 방지)
+      const textEl = document.createElement("div");
+      textEl.className = "reportbox-text";
+      textEl.textContent = r.message || "";
+
+      item.appendChild(meta);
+      item.appendChild(textEl);
+      historyListEl.appendChild(item);
+    });
+  };
+
+  historyBtn.addEventListener("click", async () => {
+    formView.hidden = true;
+    historyView.hidden = false;
+    if (historyLoaded) return;
+    historyListEl.textContent = "불러오는 중...";
+    if (!window.LoadoutCloud) {
+      historyListEl.textContent = "기능을 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.";
+      return;
+    }
+    try {
+      const reports = await window.LoadoutCloud.listReports();
+      renderHistoryList(reports);
+      historyLoaded = true;
+    } catch {
+      historyListEl.textContent = "제보내역을 불러오지 못했습니다.";
+    }
+  });
+
+  historyCloseBtn.addEventListener("click", () => {
+    historyView.hidden = true;
+    formView.hidden = false;
   });
 }
 
@@ -468,65 +527,6 @@ function setupChangelogWidget() {
   });
 
   const openModal = () => { overlay.hidden = false; };
-  const closeModal = () => { overlay.hidden = true; };
-
-  fabBtn.addEventListener("click", openModal);
-  closeBtn.addEventListener("click", closeModal);
-  overlay.addEventListener("click", (e) => { if (e.target === overlay) closeModal(); });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && !overlay.hidden) closeModal();
-  });
-}
-
-function setupReportboxWidget() {
-  const fabBtn = document.getElementById("reportbox-fab-btn");
-  const overlay = document.getElementById("reportbox-modal-overlay");
-  const closeBtn = document.getElementById("reportbox-modal-close-btn");
-  const listEl = document.getElementById("reportbox-list");
-  let loaded = false;
-
-  const renderList = (reports) => {
-    listEl.innerHTML = "";
-    if (reports.length === 0) {
-      listEl.textContent = "아직 접수된 제보가 없습니다.";
-      return;
-    }
-    reports.forEach((r) => {
-      const item = document.createElement("div");
-      item.className = "reportbox-item";
-
-      const meta = document.createElement("div");
-      meta.className = "reportbox-meta";
-      const dateStr = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleString("ko-KR") : "";
-      meta.textContent = [dateStr, r.context].filter(Boolean).join(" · ");
-
-      // 남이 남긴 자유 텍스트라 반드시 textContent로만 그린다(XSS 방지)
-      const textEl = document.createElement("div");
-      textEl.className = "reportbox-text";
-      textEl.textContent = r.message || "";
-
-      item.appendChild(meta);
-      item.appendChild(textEl);
-      listEl.appendChild(item);
-    });
-  };
-
-  const openModal = async () => {
-    overlay.hidden = false;
-    if (loaded) return;
-    listEl.textContent = "불러오는 중...";
-    if (!window.LoadoutCloud) {
-      listEl.textContent = "기능을 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.";
-      return;
-    }
-    try {
-      const reports = await window.LoadoutCloud.listReports();
-      renderList(reports);
-      loaded = true;
-    } catch {
-      listEl.textContent = "제보함을 불러오지 못했습니다.";
-    }
-  };
   const closeModal = () => { overlay.hidden = true; };
 
   fabBtn.addEventListener("click", openModal);
