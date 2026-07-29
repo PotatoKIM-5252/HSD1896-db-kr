@@ -3310,6 +3310,8 @@ const AMMO_TYPES = {
     description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
     cost: 20,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    ohkRange: { guaranteed: 8 },
     statOverrides: { damage: 149, spread: 55, muzzleVelocity: 125 },
     specialEffects: ["중급 화상 효과 발생"],
   },
@@ -3374,6 +3376,8 @@ const AMMO_TYPES = {
     description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
     cost: 20,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    ohkRange: { guaranteed: 8 },
     statOverrides: { damage: 113, spread: 80, muzzleVelocity: 100 },
     specialEffects: ["중급 화상 효과 발생"],
   },
@@ -3487,6 +3491,8 @@ const AMMO_TYPES = {
     icon: "🔥",
     description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
     cost: 20,
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    ohkRange: { guaranteed: 6 },
     statOverrides: { damage: 89, spread: 160, muzzleVelocity: 100 },
     specialEffects: ["중급 화상 효과 발생"],
   },
@@ -3552,6 +3558,8 @@ const AMMO_TYPES = {
     description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
     cost: 10,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    ohkRange: { guaranteed: 8 },
     statOverrides: { damage: 144, spread: 50, muzzleVelocity: 100 },
     specialEffects: ["중급 화상 효과 발생"],
   },
@@ -3667,6 +3675,8 @@ const AMMO_TYPES = {
     icon: "🔥",
     description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
     cost: 10,
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    ohkRange: { guaranteed: 4 },
     statOverrides: { damage: 115, spread: 120, muzzleVelocity: 100 },
     specialEffects: ["중급 화상 효과 발생"],
   },
@@ -3882,6 +3892,8 @@ const AMMO_TYPES = {
     icon: "🔥",
     description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
     cost: 20,
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    ohkRange: { guaranteed: 4 },
     statOverrides: { damage: 92, spread: 145, muzzleVelocity: 100 },
     specialEffects: ["중급 화상 효과 발생"],
   },
@@ -4008,6 +4020,8 @@ const AMMO_TYPES = {
     icon: "🔥",
     description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
     cost: 20,
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    ohkRange: { guaranteed: 4, unstableEnd: 5, noneFrom: 6 },
     statOverrides: { damage: 77, spread: 150, muzzleVelocity: 100 },
     specialEffects: ["중급 화상 효과 발생"],
   },
@@ -4114,6 +4128,8 @@ const AMMO_TYPES = {
     description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
     cost: 10,
     // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터(르맷/르맷 카빈 공용)
+    ohkRange: { guaranteed: 4 },
     statOverrides: { damage: 40, spread: 150, muzzleVelocity: 100 },
     specialEffects: ["중급 화상 효과 발생"],
   },
@@ -4183,6 +4199,8 @@ const AMMO_TYPES = {
     description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
     cost: 10,
     // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    ohkRange: { guaranteed: 4 },
     statOverrides: { damage: 45, spread: 150, muzzleVelocity: 100 },
     specialEffects: ["중급 화상 효과 발생"],
   },
