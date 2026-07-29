@@ -352,6 +352,61 @@ function init() {
   renderTraitFilters();
   renderItemGrid();
   renderLoadoutBoard();
+
+  setupReportWidget();
+}
+
+function setupReportWidget() {
+  const fabBtn = document.getElementById("report-fab-btn");
+  const overlay = document.getElementById("report-modal-overlay");
+  const closeBtn = document.getElementById("report-modal-close-btn");
+  const textarea = document.getElementById("report-textarea");
+  const charCount = document.getElementById("report-char-count");
+  const submitBtn = document.getElementById("report-submit-btn");
+  const msgEl = document.getElementById("report-modal-msg");
+  const REPORT_MAX_LEN = 1000;
+
+  const openModal = () => {
+    overlay.hidden = false;
+    msgEl.hidden = true;
+    textarea.focus();
+  };
+  const closeModal = () => { overlay.hidden = true; };
+
+  fabBtn.addEventListener("click", openModal);
+  closeBtn.addEventListener("click", closeModal);
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) closeModal(); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !overlay.hidden) closeModal();
+  });
+
+  textarea.addEventListener("input", () => {
+    charCount.textContent = `${textarea.value.length} / ${REPORT_MAX_LEN}`;
+  });
+
+  submitBtn.addEventListener("click", async () => {
+    if (!window.LoadoutCloud) {
+      msgEl.textContent = "기능을 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.";
+      msgEl.classList.add("error");
+      msgEl.hidden = false;
+      return;
+    }
+    submitBtn.disabled = true;
+    try {
+      await window.LoadoutCloud.submitReport(textarea.value, state.activeTab);
+      textarea.value = "";
+      charCount.textContent = `0 / ${REPORT_MAX_LEN}`;
+      msgEl.textContent = "제보가 접수되었습니다. 감사합니다!";
+      msgEl.classList.remove("error");
+      msgEl.hidden = false;
+    } catch (err) {
+      msgEl.textContent = err.message || "제출에 실패했습니다.";
+      msgEl.classList.add("error");
+      msgEl.hidden = false;
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
 }
 
 function initLoadoutState() {

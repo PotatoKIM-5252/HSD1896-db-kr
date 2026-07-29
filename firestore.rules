@@ -45,5 +45,23 @@ service cloud.firestore {
 
       allow delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
     }
+
+    // 이용자 신고/건의 (reports) 보안 규칙
+    // - 운영자(개발자)가 나중에 확인할 용도라 읽기도 열어둠(별도 관리자 화면 없이 콘솔/스크립트로 조회)
+    // - 작성은 익명 인증된 사용자만, 메시지 길이 제한
+    // - 생성 후 수정/삭제는 클라이언트에서 불가(운영자가 콘솔에서 직접 처리)
+    match /reports/{reportId} {
+      allow read: if true;
+
+      allow create: if request.auth != null
+                    && request.resource.data.keys().hasOnly(['message', 'context', 'userAgent', 'createdAt', 'ownerId'])
+                    && request.resource.data.message is string
+                    && request.resource.data.message.size() > 0
+                    && request.resource.data.message.size() <= 1000
+                    && request.resource.data.createdAt == request.time
+                    && request.resource.data.ownerId == request.auth.uid;
+
+      allow update, delete: if false;
+    }
   }
 }

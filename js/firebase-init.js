@@ -52,6 +52,9 @@ const MAX_NAME_LEN = 30;
 const MAX_DATA_LEN = 4000;
 const LIST_LIMIT = 60;
 
+const REPORTS_COLLECTION = "reports";
+const MAX_REPORT_LEN = 1000;
+
 // 이름/데이터 길이 등은 UX용 1차 검증일 뿐, 실제 강제는 Firestore 보안 규칙에서 함
 async function saveLoadout(name, dataStr) {
   const trimmedName = (name || "").trim().slice(0, MAX_NAME_LEN);
@@ -97,4 +100,19 @@ async function deleteLoadout(id) {
   await deleteDoc(doc(db, LOADOUTS_COLLECTION, id));
 }
 
-window.LoadoutCloud = { saveLoadout, listLoadouts, toggleLike, deleteLoadout };
+// 오류 제보: 익명으로 자유 텍스트를 저장. 어떤 화면(탭)에서 눌렀는지도 같이 남겨서
+// 나중에 확인할 때 재현에 참고할 수 있게 함.
+async function submitReport(message, context) {
+  const trimmed = (message || "").trim().slice(0, MAX_REPORT_LEN);
+  if (!trimmed) throw new Error("내용을 입력해주세요.");
+  const uid = await getUid();
+  await addDoc(collection(db, REPORTS_COLLECTION), {
+    message: trimmed,
+    context: (context || "").slice(0, 50),
+    userAgent: (navigator.userAgent || "").slice(0, 200),
+    createdAt: serverTimestamp(),
+    ownerId: uid,
+  });
+}
+
+window.LoadoutCloud = { saveLoadout, listLoadouts, toggleLike, deleteLoadout, submitReport };

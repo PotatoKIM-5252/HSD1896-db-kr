@@ -2752,6 +2752,118 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 #map-zoom-controls button:hover { color: var(--text-primary); border-color: var(--accent-strong); }
 
+/* ===================== 오류 제보 ===================== */
+
+#report-fab-btn {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 500;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-panel);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 16px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  transition: border-color 0.15s, color 0.15s;
+}
+
+#report-fab-btn:hover { border-color: var(--accent); color: var(--accent-strong); }
+
+#report-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2200;
+  background: rgba(10, 12, 7, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+#report-modal-overlay[hidden] { display: none; }
+
+#report-modal {
+  width: 100%;
+  max-width: 420px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+}
+
+#report-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+#report-modal-header h3 { margin: 0; font-size: 15px; color: var(--text-primary); }
+
+#report-modal-close-btn {
+  font-size: 12px;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 5px 10px;
+}
+
+#report-modal-close-btn:hover { color: var(--text-primary); border-color: var(--accent); }
+
+#report-modal-desc {
+  margin: 0 0 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+#report-textarea {
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+  background: var(--bg-input);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: var(--font-body);
+}
+
+#report-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+#report-char-count { font-size: 11px; color: var(--text-muted); }
+
+#report-submit-btn {
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 9px 18px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+#report-submit-btn:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+#report-submit-btn:disabled { opacity: 0.6; cursor: default; }
+
+#report-modal-msg {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: var(--success);
+}
+
+#report-modal-msg.error { color: var(--danger-strong); }
+
 /* ===================== 반응형 ===================== */
 
 @media (max-width: 880px) {
@@ -2768,4 +2880,5 @@ button { font-family: var(--font-body); cursor: pointer; }
   #map-legend-panel.collapsed #map-legend-header-actions,
   #map-legend-panel.collapsed #map-layer-toggles { display: flex; }
   #map-legend-panel.collapsed #map-layer-toggles { flex-direction: column; }
+  #report-fab-btn { right: 14px; bottom: 14px; padding: 9px 13px; font-size: 12px; }
 }
