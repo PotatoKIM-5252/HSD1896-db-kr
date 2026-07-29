@@ -55,7 +55,8 @@ service cloud.firestore {
     // 이용자 신고/건의 (reports) 보안 규칙
     // - 운영자(개발자)가 나중에 확인할 용도라 읽기도 열어둠(별도 관리자 화면 없이 콘솔/스크립트로 조회)
     // - 작성은 익명 인증된 사용자만, 메시지 길이 제한
-    // - 내용 수정은 아무도 불가. 삭제는 운영자 계정(isOperator)만 가능(스팸/테스트 글 정리용)
+    // - 내용 수정은 불가하지만, 운영자는 resolved(해결 표시) 필드 하나만 바꿀 수 있음
+    // - 삭제는 운영자 계정(isOperator)만 가능(스팸/테스트 글 정리용)
     match /reports/{reportId} {
       allow read: if true;
 
@@ -67,7 +68,9 @@ service cloud.firestore {
                     && request.resource.data.createdAt == request.time
                     && request.resource.data.ownerId == request.auth.uid;
 
-      allow update: if false;
+      allow update: if isOperator()
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['resolved'])
+                    && request.resource.data.resolved is bool;
       allow delete: if isOperator();
 
       // 댓글 — 해당 제보를 올린 본인(ownerId 일치)과 운영자만 작성 가능. 읽기는 제보와 마찬가지로 공개.

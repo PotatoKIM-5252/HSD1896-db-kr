@@ -2874,6 +2874,26 @@ button { font-family: var(--font-body); cursor: pointer; }
   word-break: break-word;
 }
 
+.reportbox-resolved-badge {
+  color: var(--success);
+  font-weight: 600;
+  border: 1px solid var(--success);
+  border-radius: 999px;
+  padding: 1px 8px;
+}
+
+.reportbox-resolve-btn {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px 9px;
+}
+
+.reportbox-resolve-btn:hover { color: var(--text-primary); border-color: var(--accent); }
+.reportbox-resolve-btn:disabled { opacity: 0.6; cursor: default; }
+
 .reportbox-comments {
   margin-top: 8px;
   padding-left: 10px;
@@ -3022,7 +3042,9 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 #report-history-header h4 { margin: 0; font-size: 13px; color: var(--text-primary); }
 
-#report-history-close-btn {
+#report-history-header-actions { display: flex; gap: 6px; }
+
+#report-history-close-btn, #report-operator-mode-btn {
   font-size: 12px;
   color: var(--text-muted);
   border: 1px solid var(--border);
@@ -3030,7 +3052,8 @@ button { font-family: var(--font-body); cursor: pointer; }
   padding: 5px 10px;
 }
 
-#report-history-close-btn:hover { color: var(--text-primary); border-color: var(--accent); }
+#report-history-close-btn:hover, #report-operator-mode-btn:hover { color: var(--text-primary); border-color: var(--accent); }
+#report-operator-mode-btn.active { color: var(--accent-strong); border-color: var(--accent); }
 
 /* ===================== 반응형 ===================== */
 

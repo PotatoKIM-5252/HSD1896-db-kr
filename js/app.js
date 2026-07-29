@@ -216,6 +216,93 @@ function addToLoadoutQuick(item, ammoId = null) {
 }
 
 // -------------------------------------------------------------------------
+// 운영자 모드 — 제보 댓글에 "운영자" 자격으로 답글을 달기 위한 최소 기능.
+// Firebase Auth SDK의 로그인 세션을 바꾸는 대신, 운영자 전용 refresh token을
+// 브라우저에 붙여넣어 저장해두고 Firestore REST API를 직접 호출해서 댓글만 씀
+// (권한은 딱 "댓글 작성" 하나뿐 — firestore.rules의 isOperator()가 그 외엔 전부 막아줌).
+const OPERATOR_TOKEN_KEY = "hsddb_operator_refresh_token";
+const FIREBASE_API_KEY = "AIzaSyD3SbLMnzxnDypLXa4kLizKJQkn30bl3CU";
+const FIRESTORE_PROJECT_ID = "hsd-db-1a8d7";
+
+function getOperatorRefreshToken() {
+  return localStorage.getItem(OPERATOR_TOKEN_KEY) || null;
+}
+function setOperatorRefreshToken(token) {
+  if (token) localStorage.setItem(OPERATOR_TOKEN_KEY, token.trim());
+  else localStorage.removeItem(OPERATOR_TOKEN_KEY);
+}
+
+// 저장된 refresh token으로 짧게 유효한 idToken을 새로 발급받음. 토큰이 없거나
+// 만료/무효면 null (일반 방문자와 똑같이 취급되어 조용히 댓글창만 안 보임).
+async function operatorAuthenticate() {
+  const refreshToken = getOperatorRefreshToken();
+  if (!refreshToken) return null;
+  try {
+    const res = await fetch(`https://securetoken.googleapis.com/v1/token?key=${FIREBASE_API_KEY}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `grant_type=refresh_token&refresh_token=${encodeURIComponent(refreshToken)}`,
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return { idToken: data.id_token, uid: data.user_id };
+  } catch {
+    return null;
+  }
+}
+
+function randomFirestoreDocId() {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let id = "";
+  for (let i = 0; i < 20; i++) id += chars[Math.floor(Math.random() * chars.length)];
+  return id;
+}
+
+// Firebase JS SDK 없이 Firestore REST API를 직접 호출해서 댓글 문서를 만듦
+// (createdAt은 서버 시각과 정확히 일치해야 하는 규칙이라 updateTransforms로 지정).
+async function addCommentAsOperator(reportId, text, operatorAuth) {
+  const docId = randomFirestoreDocId();
+  const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents:commit`;
+  const body = {
+    writes: [{
+      update: {
+        name: `projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/reports/${reportId}/comments/${docId}`,
+        fields: {
+          text: { stringValue: text },
+          ownerId: { stringValue: operatorAuth.uid },
+        },
+      },
+      updateTransforms: [{ fieldPath: "createdAt", setToServerValue: "REQUEST_TIME" }],
+      currentDocument: { exists: false },
+    }],
+  };
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${operatorAuth.idToken}` },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.error?.message || "댓글 등록에 실패했습니다.");
+  }
+}
+
+// 제보에 "해결됨" 표시를 붙이거나 뗌 — resolved 필드 하나만 부분 수정(updateMask)해서
+// 다른 필드는 손대지 않음(규칙도 이 필드 하나만 바꾸는 요청만 허용).
+async function setReportResolvedAsOperator(reportId, resolved, operatorAuth) {
+  const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/reports/${reportId}?updateMask.fieldPaths=resolved`;
+  const res = await fetch(url, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${operatorAuth.idToken}` },
+    body: JSON.stringify({ fields: { resolved: { booleanValue: resolved } } }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.error?.message || "해결 표시 변경에 실패했습니다.");
+  }
+}
+
+// -------------------------------------------------------------------------
 // 사이트 업데이트 내역 — 새 항목은 배열 맨 앞에 추가(최신순으로 그대로 출력됨)
 const CHANGELOG = [
   { date: "7.29", text: "로드아웃 빌더 특성 칸도 도구/소모품처럼 하나 고를 때마다 선택창이 닫히지 않고 계속 고를 수 있도록 수정" },
@@ -453,11 +540,43 @@ function setupReportWidget() {
     }
   });
 
+  // 운영자 모드 — 톱니 버튼으로 refresh token을 붙여넣어 저장(로그인)하거나 지움(로그아웃).
+  // 저장된 토큰이 유효하면 다른 사람 제보에도 댓글/해결 표시를 남길 수 있음.
+  const opModeBtn = document.getElementById("report-operator-mode-btn");
+  const refreshOpModeBtn = async () => {
+    const auth = await operatorAuthenticate();
+    opModeBtn.classList.toggle("active", !!auth);
+  };
+  refreshOpModeBtn();
+  opModeBtn.addEventListener("click", async () => {
+    if (getOperatorRefreshToken()) {
+      if (confirm("운영자 모드를 끌까요?")) {
+        setOperatorRefreshToken(null);
+        await refreshOpModeBtn();
+        showToast("운영자 모드를 껐습니다.", "info");
+      }
+      return;
+    }
+    const token = prompt("운영자 refresh token을 붙여넣어주세요.");
+    if (!token) return;
+    setOperatorRefreshToken(token);
+    const auth = await operatorAuthenticate();
+    if (!auth) {
+      setOperatorRefreshToken(null);
+      showToast("토큰이 유효하지 않습니다.");
+      return;
+    }
+    await refreshOpModeBtn();
+    showToast("운영자 모드가 켜졌습니다.", "info");
+    historyLoaded = false;
+    if (!historyView.hidden) historyBtn.click();
+  });
+
   // 제보내역 보기 — 문의 및 오류 제보 창은 그대로 두고 내용만 내역 화면으로 전환.
   // "돌아가기"를 누르면 전체 창을 닫는 게 아니라 제출 화면으로만 돌아옴.
   // 댓글은 해당 제보를 올린 본인과 운영자만 작성 가능(Firestore 규칙이 실제로 강제) —
   // 여기서는 그 조건에 맞는 사람에게만 입력창을 보여줌(다른 사람은 읽기만 가능).
-  const renderComments = (wrap, reportId, comments, currentUid, operatorUid) => {
+  const renderComments = (wrap, comments, operatorUid) => {
     wrap.innerHTML = "";
     comments.forEach((c) => {
       const row = document.createElement("div");
@@ -477,19 +596,19 @@ function setupReportWidget() {
     });
   };
 
-  const renderCommentSection = async (item, report, currentUid, operatorUid) => {
+  const renderCommentSection = async (item, report, currentUid, operatorUid, operatorAuth) => {
     const section = document.createElement("div");
     section.className = "reportbox-comments";
     item.appendChild(section);
 
     try {
       const comments = await window.LoadoutCloud.listComments(report.id);
-      renderComments(section, report.id, comments, currentUid, operatorUid);
+      renderComments(section, comments, operatorUid);
     } catch {
       // 댓글 로딩 실패는 조용히 무시(제보 본문은 이미 보임)
     }
 
-    const canComment = currentUid && (currentUid === operatorUid || currentUid === report.ownerId);
+    const canComment = !!operatorAuth || (currentUid && currentUid === report.ownerId);
     if (!canComment) return;
 
     const form = document.createElement("div");
@@ -509,10 +628,11 @@ function setupReportWidget() {
       if (!input.value.trim()) return;
       sendBtn.disabled = true;
       try {
-        await window.LoadoutCloud.addComment(report.id, input.value);
+        if (operatorAuth) await addCommentAsOperator(report.id, input.value, operatorAuth);
+        else await window.LoadoutCloud.addComment(report.id, input.value);
         input.value = "";
         const comments = await window.LoadoutCloud.listComments(report.id);
-        renderComments(section, report.id, comments, currentUid, operatorUid);
+        renderComments(section, comments, operatorUid);
       } catch (err) {
         showToast(err.message || "댓글 등록에 실패했습니다.");
       } finally {
@@ -529,6 +649,7 @@ function setupReportWidget() {
     }
     const currentUid = await window.LoadoutCloud.getCurrentUid().catch(() => null);
     const operatorUid = window.LoadoutCloud.OPERATOR_UID;
+    const operatorAuth = await operatorAuthenticate();
 
     reports.forEach((r) => {
       const item = document.createElement("div");
@@ -538,6 +659,12 @@ function setupReportWidget() {
       meta.className = "reportbox-meta";
       const dateStr = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleString("ko-KR") : "";
       meta.textContent = [dateStr, r.context].filter(Boolean).join(" · ");
+      if (r.resolved) {
+        const badge = document.createElement("span");
+        badge.className = "reportbox-resolved-badge";
+        badge.textContent = "해결됨";
+        meta.appendChild(badge);
+      }
 
       // 남이 남긴 자유 텍스트라 반드시 textContent로만 그린다(XSS 방지)
       const textEl = document.createElement("div");
@@ -546,9 +673,31 @@ function setupReportWidget() {
 
       item.appendChild(meta);
       item.appendChild(textEl);
-      historyListEl.appendChild(item);
 
-      renderCommentSection(item, r, currentUid, operatorUid);
+      // 운영자 모드일 때만 해결/미해결 토글 버튼 노출
+      if (operatorAuth) {
+        const resolveBtn = document.createElement("button");
+        resolveBtn.type = "button";
+        resolveBtn.className = "reportbox-resolve-btn";
+        resolveBtn.textContent = r.resolved ? "해결 취소" : "해결 처리";
+        resolveBtn.addEventListener("click", async () => {
+          resolveBtn.disabled = true;
+          try {
+            const next = !r.resolved;
+            await setReportResolvedAsOperator(r.id, next, operatorAuth);
+            r.resolved = next;
+            historyLoaded = false;
+            await renderHistoryList(reports);
+          } catch (err) {
+            showToast(err.message || "해결 표시 변경에 실패했습니다.");
+            resolveBtn.disabled = false;
+          }
+        });
+        item.appendChild(resolveBtn);
+      }
+
+      historyListEl.appendChild(item);
+      renderCommentSection(item, r, currentUid, operatorUid, operatorAuth);
     });
   };
 
