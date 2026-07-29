@@ -11,6 +11,12 @@ rules_version = '2';
 // ⚠ Authentication에서 "Anonymous" 로그인 방법이 켜져 있어야 정상 동작합니다.
 service cloud.firestore {
   match /databases/{database}/documents {
+    // 운영자 전용 익명 계정의 uid — 이 uid로 로그인한 세션만 reports를 임의로 삭제할 수 있음
+    // (운영자가 콘솔에 매번 안 들어가도 스크립트로 스팸/테스트 글을 지울 수 있게 하기 위함)
+    function isOperator() {
+      return request.auth != null && request.auth.uid == "2S8L0VeihHaUFRkOWOeypEe2Guk1";
+    }
+
     match /sharedLoadouts/{loadoutId} {
       allow read: if true;
 
@@ -49,7 +55,7 @@ service cloud.firestore {
     // 이용자 신고/건의 (reports) 보안 규칙
     // - 운영자(개발자)가 나중에 확인할 용도라 읽기도 열어둠(별도 관리자 화면 없이 콘솔/스크립트로 조회)
     // - 작성은 익명 인증된 사용자만, 메시지 길이 제한
-    // - 생성 후 수정/삭제는 클라이언트에서 불가(운영자가 콘솔에서 직접 처리)
+    // - 내용 수정은 아무도 불가. 삭제는 운영자 계정(isOperator)만 가능(스팸/테스트 글 정리용)
     match /reports/{reportId} {
       allow read: if true;
 
@@ -61,7 +67,8 @@ service cloud.firestore {
                     && request.resource.data.createdAt == request.time
                     && request.resource.data.ownerId == request.auth.uid;
 
-      allow update, delete: if false;
+      allow update: if false;
+      allow delete: if isOperator();
     }
   }
 }
