@@ -4091,11 +4091,14 @@ function buildRandomLoadoutOnce() {
 
   // 나머지 빈 칸: 구급상자를 제외한 모든 도구/소모품(타로 포함) 중 무작위로 채움.
   // 7) 도구(category:"tool")는 중복 등장 불가 — 소모품은 기존 스택 한도만 그대로 준수.
-  // 무기 슬롯에 근접무기가 있으면 도구칸의 근접무기(나이프류)는 여기서도 절대 등장하지 않음.
+  // 근접무기(나이프류)·투척무기는 위에서 이미 "최소 1개"가 확정됐으므로(2번 규칙), 여기서
+  // 같은 두 toolClass의 도구가 추가로 더 뽑히지 않게 완전히 제외한다(나이프+헤비나이프+
+  // 투척도끼가 한꺼번에 나오는 문제 방지).
   const fillCandidates = ITEMS.filter((i) =>
     (i.category === "tool" || i.category === "consumable") &&
     i.id !== "tool_first_aid_kit" &&
-    !(hasMeleeWeaponEquipped && meleeToolIds.includes(i.id)) &&
+    i.toolClass !== "melee" &&
+    i.toolClass !== "throwable_melee" &&
     scarceOk(i)
   );
   let guard = 0;
