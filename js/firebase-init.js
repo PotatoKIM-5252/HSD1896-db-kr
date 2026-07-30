@@ -73,7 +73,7 @@ async function getUid() {
 const LOADOUTS_COLLECTION = "sharedLoadouts";
 const MAX_NAME_LEN = 30;
 const MAX_DATA_LEN = 4000;
-const LIST_LIMIT = 60;
+const LIST_LIMIT = 200; // 클라이언트에서 20개씩 페이지 나눠 보여주므로 넉넉하게 가져옴
 
 const REPORTS_COLLECTION = "reports";
 const MAX_REPORT_LEN = 1000;

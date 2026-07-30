@@ -1732,7 +1732,40 @@ button { font-family: var(--font-body); cursor: pointer; }
   white-space: nowrap;
 }
 
+.community-loadout-date {
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
 .community-loadout-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+#community-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+#community-pagination button {
+  border-radius: var(--radius);
+  font-size: 12px;
+  padding: 6px 12px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+}
+
+#community-pagination button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent-strong); }
+#community-pagination button:disabled { opacity: 0.4; cursor: default; }
+
+.community-pagination-label {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
 
 .community-loadout-like-btn {
   background: transparent;

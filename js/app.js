@@ -84,9 +84,10 @@ const state = {
   // 커뮤니티 로드아웃: Firestore에서 받아온 목록(파싱+가격 계산까지 끝낸 캐시) +
   // 현재 정렬/가격 필터 상태. 정렬·필터를 바꿀 때는 재조회 없이 이 캐시로만 다시 그림.
   communityLoadouts: [],
-  communitySort: "",       // "" | "price-asc" | "price-desc"
+  communitySort: "",       // "" | "date-asc" | "likes-desc" | "price-asc" | "price-desc"
   communityPriceMin: null,
   communityPriceMax: null,
+  communityPage: 0,
 
   // 랜덤 로드아웃: 무기 칸수 상한 스위치 — 켜면 6칸까지, 끄면 5칸까지만 허용
   randomAllowSlot6: true,
@@ -407,18 +408,21 @@ function init() {
   document.getElementById("community-save-btn").addEventListener("click", handleCommunitySave);
   document.getElementById("community-sort-select").addEventListener("change", (e) => {
     state.communitySort = e.target.value;
+    state.communityPage = 0;
     renderCommunityLoadoutList();
   });
   document.getElementById("community-price-min").addEventListener("input", (e) => {
     e.target.value = e.target.value.replace(/[^0-9]/g, "");
     const v = e.target.value.trim();
     state.communityPriceMin = v === "" ? null : Number(v);
+    state.communityPage = 0;
     renderCommunityLoadoutList();
   });
   document.getElementById("community-price-max").addEventListener("input", (e) => {
     e.target.value = e.target.value.replace(/[^0-9]/g, "");
     const v = e.target.value.trim();
     state.communityPriceMax = v === "" ? null : Number(v);
+    state.communityPage = 0;
     renderCommunityLoadoutList();
   });
   renderCommunityLoadouts();
@@ -4282,21 +4286,35 @@ function renderCommunityLoadoutList() {
   if (state.communityPriceMax != null) {
     entries = entries.filter((e) => e.totalCost <= state.communityPriceMax);
   }
+  const createdAtMs = (e) => e.createdAt?.toMillis ? e.createdAt.toMillis() : 0;
   if (state.communitySort === "price-asc") {
     entries = [...entries].sort((a, b) => a.totalCost - b.totalCost);
   } else if (state.communitySort === "price-desc") {
     entries = [...entries].sort((a, b) => b.totalCost - a.totalCost);
+  } else if (state.communitySort === "likes-desc") {
+    entries = [...entries].sort((a, b) => (b.likeCount ?? 0) - (a.likeCount ?? 0));
+  } else if (state.communitySort === "date-asc") {
+    entries = [...entries].sort((a, b) => createdAtMs(a) - createdAtMs(b));
   }
+  // 정렬/필터 없는 기본값("")은 Firestore 조회 자체가 이미 최신순(createdAt desc)이라 그대로 둠
 
+  const pageEl = document.getElementById("community-pagination");
   listEl.innerHTML = "";
   if (entries.length === 0) {
     listEl.textContent = state.communityLoadouts.length === 0
       ? "아직 올라온 로드아웃이 없습니다."
       : "조건에 맞는 로드아웃이 없습니다.";
+    pageEl.innerHTML = "";
     return;
   }
 
-  entries.forEach((entry) => {
+  const PAGE_SIZE = 20;
+  const totalPages = Math.max(1, Math.ceil(entries.length / PAGE_SIZE));
+  if (state.communityPage >= totalPages) state.communityPage = totalPages - 1;
+  if (state.communityPage < 0) state.communityPage = 0;
+  const pageEntries = entries.slice(state.communityPage * PAGE_SIZE, (state.communityPage + 1) * PAGE_SIZE);
+
+  pageEntries.forEach((entry) => {
     const row = document.createElement("div");
     row.className = "community-loadout-row";
 
@@ -4314,6 +4332,14 @@ function renderCommunityLoadoutList() {
 
     info.appendChild(nameSpan);
     info.appendChild(priceSpan);
+
+    // 패치마다 밸런스가 바뀌니 언제 올라온 로드아웃인지 알 수 있게 날짜 표시(예전에 올라온 것은 날짜 없이 표시)
+    if (entry.createdAt?.toDate) {
+      const dateSpan = document.createElement("span");
+      dateSpan.className = "community-loadout-date";
+      dateSpan.textContent = entry.createdAt.toDate().toLocaleDateString("ko-KR");
+      info.appendChild(dateSpan);
+    }
 
     const actions = document.createElement("div");
     actions.className = "community-loadout-actions";
@@ -4377,6 +4403,30 @@ function renderCommunityLoadoutList() {
     row.appendChild(actions);
     listEl.appendChild(row);
   });
+
+  // 20개 넘게 있으면 페이지 넘김 버튼 표시
+  pageEl.innerHTML = "";
+  if (totalPages > 1) {
+    const prevBtn = document.createElement("button");
+    prevBtn.type = "button";
+    prevBtn.textContent = "‹ 이전";
+    prevBtn.disabled = state.communityPage === 0;
+    prevBtn.addEventListener("click", () => { state.communityPage--; renderCommunityLoadoutList(); });
+
+    const label = document.createElement("span");
+    label.className = "community-pagination-label";
+    label.textContent = `${state.communityPage + 1} / ${totalPages}`;
+
+    const nextBtn = document.createElement("button");
+    nextBtn.type = "button";
+    nextBtn.textContent = "다음 ›";
+    nextBtn.disabled = state.communityPage >= totalPages - 1;
+    nextBtn.addEventListener("click", () => { state.communityPage++; renderCommunityLoadoutList(); });
+
+    pageEl.appendChild(prevBtn);
+    pageEl.appendChild(label);
+    pageEl.appendChild(nextBtn);
+  }
 }
 
 // -------------------------------------------------------------------------
