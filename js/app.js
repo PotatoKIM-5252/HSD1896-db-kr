@@ -2268,6 +2268,8 @@ function bindWeaponReviewSection(item, options = {}) {
   const sortByAgreeThenRecent = (a, b) =>
     b.agreeCount - a.agreeCount || (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0);
 
+  let myUid = null;
+
   const renderCommentRow = (r, showAgree) => {
     const row = document.createElement("div");
     row.className = "weapon-review-item";
@@ -2276,6 +2278,10 @@ function bindWeaponReviewSection(item, options = {}) {
     // 남이 남긴 자유 텍스트라 반드시 textContent로만 그린다(XSS 방지)
     textEl.textContent = r.text;
     row.appendChild(textEl);
+
+    const actions = document.createElement("div");
+    actions.className = "weapon-review-item-actions";
+
     if (showAgree) {
       const agreeBtn = document.createElement("button");
       agreeBtn.type = "button";
@@ -2293,8 +2299,30 @@ function bindWeaponReviewSection(item, options = {}) {
           agreeBtn.disabled = false;
         }
       });
-      row.appendChild(agreeBtn);
+      actions.appendChild(agreeBtn);
     }
+
+    // 본인이 남긴 한줄평에만 삭제 버튼 표시(하트는 그대로 두고 한줄평 텍스트만 지움)
+    if (myUid && r.id === myUid) {
+      const delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.className = "weapon-review-delete-btn";
+      delBtn.textContent = "삭제";
+      delBtn.addEventListener("click", async () => {
+        if (!window.LoadoutCloud) return;
+        delBtn.disabled = true;
+        try {
+          await window.LoadoutCloud.saveWeaponComment(weaponId, "");
+          await refresh();
+        } catch {
+          showToast("삭제에 실패했습니다.");
+          delBtn.disabled = false;
+        }
+      });
+      actions.appendChild(delBtn);
+    }
+
+    row.appendChild(actions);
     return row;
   };
 
@@ -2327,6 +2355,7 @@ function bindWeaponReviewSection(item, options = {}) {
   const refresh = async () => {
     if (!window.LoadoutCloud) return;
     try {
+      if (myUid == null) myUid = await window.LoadoutCloud.getCurrentUid().catch(() => null);
       const { reviews, likeCount, myReview } = await window.LoadoutCloud.getWeaponReviews(weaponId);
       heartBtn.textContent = `♥ ${likeCount}`;
       heartBtn.classList.toggle("liked", !!myReview?.liked);

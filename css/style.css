@@ -797,6 +797,13 @@ button { font-family: var(--font-body); cursor: pointer; }
   flex: 1;
 }
 
+.weapon-review-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
 .weapon-review-agree-btn {
   flex-shrink: 0;
   border-radius: var(--radius);
@@ -811,6 +818,20 @@ button { font-family: var(--font-body); cursor: pointer; }
 .weapon-review-agree-btn:hover { border-color: var(--accent); color: var(--accent-strong); }
 .weapon-review-agree-btn.agreed { border-color: var(--accent); color: var(--accent-strong); background: rgba(236, 230, 211, 0.08); }
 .weapon-review-agree-btn:disabled { opacity: 0.6; cursor: default; }
+
+.weapon-review-delete-btn {
+  flex-shrink: 0;
+  border-radius: var(--radius);
+  font-size: 11px;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.weapon-review-delete-btn:hover { border-color: var(--danger-strong); color: var(--danger-strong); }
+.weapon-review-delete-btn:disabled { opacity: 0.6; cursor: default; }
 
 #weapon-review-more-btn {
   align-self: flex-start;
