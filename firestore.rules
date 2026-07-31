@@ -94,18 +94,47 @@ service cloud.firestore {
       }
     }
 
-    // 무기 평가(하트+댓글) — 문서 id 자체가 작성자 uid라서 "무기당 1인 1개"가 구조적으로
-    // 강제됨(다시 쓰면 덮어쓰기). 반대(싫어요) 개념 없음 — 존재하면 좋아요로 집계.
+    // 무기 평가 — 문서 id 자체가 작성자 uid라서 "무기당 1인 1개"가 구조적으로 강제됨.
+    // liked(하트)/text(한줄평)는 독립적(하나 지운다고 다른 게 같이 안 지워짐). 반대(싫어요)
+    // 개념 없음 — liked만 집계. agreedBy는 한줄평에 대한 공감(👍)이라 무기 하트와 별개로,
+    // 작성자 아닌 사람도 자기 uid만 추가/제거 가능.
     match /weaponReviews/{weaponId}/reviews/{reviewOwnerUid} {
       allow read: if true;
 
-      allow create, update: if request.auth != null
-                            && request.auth.uid == reviewOwnerUid
-                            && request.resource.data.keys().hasOnly(['text', 'createdAt', 'ownerId'])
-                            && request.resource.data.text is string
-                            && request.resource.data.text.size() <= 300
-                            && request.resource.data.createdAt == request.time
-                            && request.resource.data.ownerId == request.auth.uid;
+      allow create: if request.auth != null
+                    && request.auth.uid == reviewOwnerUid
+                    && request.resource.data.keys().hasOnly(['liked', 'text', 'agreedBy', 'createdAt', 'ownerId'])
+                    && request.resource.data.liked is bool
+                    && request.resource.data.text is string
+                    && request.resource.data.text.size() <= 300
+                    && request.resource.data.agreedBy is list
+                    && request.resource.data.agreedBy.size() == 0
+                    && request.resource.data.createdAt == request.time
+                    && request.resource.data.ownerId == request.auth.uid;
+
+      // 본인 하트/한줄평 수정
+      allow update: if request.auth != null && request.auth.uid == reviewOwnerUid
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['liked', 'text', 'createdAt'])
+                    && request.resource.data.liked is bool
+                    && request.resource.data.text is string
+                    && request.resource.data.text.size() <= 300
+                    && request.resource.data.createdAt == request.time;
+
+      // 한줄평 공감(👍) — 작성자 포함 누구나 자기 uid를 정확히 하나 추가/제거하는 것만 허용
+      allow update: if request.auth != null
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['agreedBy'])
+                    && request.resource.data.agreedBy is list
+                    && (
+                      (request.resource.data.agreedBy.size() == resource.data.agreedBy.size() + 1
+                       && !resource.data.agreedBy.hasAny([request.auth.uid])
+                       && request.resource.data.agreedBy.hasAll(resource.data.agreedBy)
+                       && request.resource.data.agreedBy.hasAny([request.auth.uid]))
+                      ||
+                      (request.resource.data.agreedBy.size() == resource.data.agreedBy.size() - 1
+                       && resource.data.agreedBy.hasAny([request.auth.uid])
+                       && !request.resource.data.agreedBy.hasAny([request.auth.uid])
+                       && resource.data.agreedBy.hasAll(request.resource.data.agreedBy))
+                    );
 
       allow delete: if request.auth != null && request.auth.uid == reviewOwnerUid;
     }

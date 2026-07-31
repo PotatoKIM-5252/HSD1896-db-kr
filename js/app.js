@@ -1352,7 +1352,7 @@ function renderItemDetail(item) {
     bindAmmoTabs(item);
     bindCompareButton(item, selectedAmmoId);
     bindLoadoutQuickAddButton(item, selectedAmmoId);
-    bindWeaponReviewSection(item);
+    bindWeaponReviewSection(item, { root: panel });
     drawWeaponChart(item, selectedAmmoId);
   } else if (item.category === "tool") {
     panel.innerHTML = renderToolDetailHTML(item);
@@ -1610,6 +1610,8 @@ function openBodyPartView(parentItem, ammoId) {
         ${stats.muzzleVelocity ? renderLeadshotCalcHTML(stats.muzzleVelocity) : ""}
       </div>
     </div>
+
+    ${renderWeaponReviewSectionHTML()}
   `;
 
   overlay.hidden = false;
@@ -1662,6 +1664,8 @@ function openBodyPartView(parentItem, ammoId) {
 
   if (stats.muzzleVelocity) bindLeadshotCalc(stats.muzzleVelocity);
 
+  bindWeaponReviewSection(currentItem, { full: true, root: content });
+
   // 거리별 데미지 그래프 그리기
   drawBodyPartChart(currentItem, activeAmmoId, refRange, parentItem);
 }
@@ -1706,6 +1710,8 @@ function renderMeleeBodyPartView(item, overlay, content) {
         </div>
       </div>
     </div>
+
+    ${renderWeaponReviewSectionHTML()}
   `;
 
   overlay.hidden = false;
@@ -1724,6 +1730,8 @@ function renderMeleeBodyPartView(item, overlay, content) {
     }
     renderMeleeBodyPartView(item, overlay, content);
   });
+
+  bindWeaponReviewSection(item, { full: true, root: content });
 
   document.getElementById("bp-add-loadout-btn")?.addEventListener("click", (e) => {
     const btn = e.currentTarget;
@@ -2217,10 +2225,11 @@ function renderMeleeDetailHTML(item) {
 }
 
 // -------------------------------------------------------------------------
-// 무기 평가(하트+댓글) — DB 검색에서 무기 클릭 시 오른쪽 간략히보기 패널 전용.
-// 반대(싫어요) 개념 없이 하트 존재 여부만 집계(뉴비가 부정 수치만 보고 반사적으로
-// 거르지 않게 하기 위함 — 사용자 확인). 댓글은 하트에 딸린 선택 사항이라, 댓글을
-// 남기면 자동으로 하트도 함께 켜짐. 무기당 1인 1개(다시 쓰면 덮어씀).
+// 무기 평가 — 오른쪽 간략히보기 패널(compact: 대표 한줄평 1개 + 더보기)과
+// 자세히 보기 오버레이(full: 전체 한줄평 목록 + 각 한줄평 공감(👍)) 양쪽에서 공용으로 씀.
+// 하트(무기 자체에 대한 좋아요)와 한줄평은 서로 완전히 독립 — 하나를 끄거나 지워도
+// 다른 하나는 그대로 남음(사용자 확인). 반대(싫어요) 개념 없이 하트만 집계.
+// 무기당(파생형 포함) 1인 1개.
 // -------------------------------------------------------------------------
 function renderWeaponReviewSectionHTML() {
   return `
@@ -2228,6 +2237,8 @@ function renderWeaponReviewSectionHTML() {
       <h4>무기 평가</h4>
       <div id="weapon-review-heart-row">
         <button id="weapon-review-heart-btn" type="button" disabled>♥ -</button>
+      </div>
+      <div id="weapon-review-comment-row">
         <input type="text" id="weapon-review-comment-input" maxlength="300" placeholder="한줄평 남기기 (선택)" disabled>
         <button id="weapon-review-comment-submit-btn" type="button" disabled>저장</button>
       </div>
@@ -2236,41 +2247,88 @@ function renderWeaponReviewSectionHTML() {
   `;
 }
 
-function bindWeaponReviewSection(item) {
-  const heartBtn = document.getElementById("weapon-review-heart-btn");
-  const input = document.getElementById("weapon-review-comment-input");
-  const submitBtn = document.getElementById("weapon-review-comment-submit-btn");
-  const listEl = document.getElementById("weapon-review-list");
+// root: 이 안에서만 id를 찾음 — 오른쪽 간략히보기 패널과 자세히 보기 오버레이가
+// 동시에 DOM에 떠 있을 때(오버레이는 패널 위에 겹쳐 뜸) 같은 id(#weapon-review-*)가
+// 문서에 두 벌 존재하게 되어, document.getElementById만 쓰면 항상 먼저 나오는 쪽(패널)만
+// 잡혀서 오버레이 쪽 하트/한줄평/공감이 반영 안 되는 버그가 있었음 — 컨테이너로 범위를 좁혀서 해결.
+function bindWeaponReviewSection(item, options = {}) {
+  const full = !!options.full;
+  const root = options.root || document;
+  const heartBtn = root.querySelector("#weapon-review-heart-btn");
+  const input = root.querySelector("#weapon-review-comment-input");
+  const submitBtn = root.querySelector("#weapon-review-comment-submit-btn");
+  const listEl = root.querySelector("#weapon-review-list");
   if (!heartBtn) return;
 
   // 파생형마다 스탯이 실제로 다른 별개 무기 취급이라(예: 르맷 vs 르맷 카빈), 평가도
   // 파생형별로 따로 집계한다(item.id 자체가 이미 파생형까지 구분된 값).
   const weaponId = item.id;
-  let myReview = null;
+
+  const sortByAgreeThenRecent = (a, b) =>
+    b.agreeCount - a.agreeCount || (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0);
+
+  const renderCommentRow = (r, showAgree) => {
+    const row = document.createElement("div");
+    row.className = "weapon-review-item";
+    const textEl = document.createElement("span");
+    textEl.className = "weapon-review-item-text";
+    // 남이 남긴 자유 텍스트라 반드시 textContent로만 그린다(XSS 방지)
+    textEl.textContent = r.text;
+    row.appendChild(textEl);
+    if (showAgree) {
+      const agreeBtn = document.createElement("button");
+      agreeBtn.type = "button";
+      agreeBtn.className = `weapon-review-agree-btn${r.iAgreed ? " agreed" : ""}`;
+      agreeBtn.textContent = `👍 ${r.agreeCount}`;
+      agreeBtn.addEventListener("click", async () => {
+        if (!window.LoadoutCloud) return;
+        agreeBtn.disabled = true;
+        try {
+          await window.LoadoutCloud.toggleWeaponCommentAgree(weaponId, r.id, r.iAgreed);
+          await refresh();
+        } catch {
+          showToast("처리에 실패했습니다.");
+        } finally {
+          agreeBtn.disabled = false;
+        }
+      });
+      row.appendChild(agreeBtn);
+    }
+    return row;
+  };
 
   const renderList = (reviews) => {
     const withText = reviews.filter((r) => r.text);
+    listEl.innerHTML = "";
     if (withText.length === 0) {
       listEl.textContent = "아직 한줄평이 없습니다.";
       return;
     }
-    listEl.innerHTML = "";
-    withText.forEach((r) => {
-      const row = document.createElement("div");
-      row.className = "weapon-review-item";
-      // 남이 남긴 자유 텍스트라 반드시 textContent로만 그린다(XSS 방지)
-      row.textContent = r.text;
-      listEl.appendChild(row);
+    const sorted = [...withText].sort(sortByAgreeThenRecent);
+    if (full) {
+      sorted.forEach((r) => listEl.appendChild(renderCommentRow(r, true)));
+      return;
+    }
+    // 간략히보기: 공감 많이 받은 대표 한줄평 1개만 + 자세히 보기로 이동하는 링크
+    listEl.appendChild(renderCommentRow(sorted[0], false));
+    const moreBtn = document.createElement("button");
+    moreBtn.type = "button";
+    moreBtn.id = "weapon-review-more-btn";
+    moreBtn.textContent = `한줄평 ${withText.length}개 전체 보기 →`;
+    moreBtn.addEventListener("click", () => {
+      const parent = ITEMS.find((i) => i.id === (item._trueParentId || item.id)) || item;
+      state.selectedVariantIdx[parent.id] = item._variantIndex || 0;
+      openBodyPartView(parent, item.defaultAmmo || (item.ammoTypes && item.ammoTypes[0]));
     });
+    listEl.appendChild(moreBtn);
   };
 
   const refresh = async () => {
     if (!window.LoadoutCloud) return;
     try {
-      const { reviews, likeCount, myReview: mine } = await window.LoadoutCloud.getWeaponReviews(weaponId);
-      myReview = mine;
+      const { reviews, likeCount, myReview } = await window.LoadoutCloud.getWeaponReviews(weaponId);
       heartBtn.textContent = `♥ ${likeCount}`;
-      heartBtn.classList.toggle("liked", !!myReview);
+      heartBtn.classList.toggle("liked", !!myReview?.liked);
       heartBtn.disabled = false;
       input.disabled = false;
       submitBtn.disabled = false;
@@ -2285,8 +2343,8 @@ function bindWeaponReviewSection(item) {
     if (!window.LoadoutCloud) return;
     heartBtn.disabled = true;
     try {
-      if (myReview) await window.LoadoutCloud.deleteWeaponReview(weaponId);
-      else await window.LoadoutCloud.submitWeaponReview(weaponId, "");
+      const currentlyLiked = heartBtn.classList.contains("liked");
+      await window.LoadoutCloud.setWeaponHeart(weaponId, !currentlyLiked);
       await refresh();
     } catch {
       showToast("처리에 실패했습니다.");
@@ -2298,7 +2356,7 @@ function bindWeaponReviewSection(item) {
     if (!window.LoadoutCloud) return;
     submitBtn.disabled = true;
     try {
-      await window.LoadoutCloud.submitWeaponReview(weaponId, input.value);
+      await window.LoadoutCloud.saveWeaponComment(weaponId, input.value);
       await refresh();
     } catch {
       showToast("저장에 실패했습니다.");
