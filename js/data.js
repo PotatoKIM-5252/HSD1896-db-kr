@@ -4919,9 +4919,16 @@ const AMMO_TYPES = {
     // 사용자 실측: 불안정 구간 없이 보장거리에서 바로 불가로 전환
     ohkRange: { guaranteed: 28 },
     // "백 개의 손(Hundred Hands)" 특성 장착 시 데미지가 늘어나 한방컷 거리가 달라짐(사용자 실측) —
-    // 0~7m는 부위 무관 항상 한방, 7~34m는 부위에 따라 한방 가능(불안정), 34m 초과부터 불가
+    // 0~7m는 부위 무관 항상 한방, 7~34m는 가슴 정조준 시에만 한방(랜덤 불안정 구간 아님),
+    // 34m 초과부터 불가
     ohkRangeVariants: [
-      { label: "Hundred Hands 착용 시 한방컷(OHK) 거리", ohkRange: { guaranteed: 7, unstableEnd: 34, noneFrom: 35 } },
+      {
+        label: "Hundred Hands 착용 시 한방컷(OHK) 거리",
+        ohkRange: {
+          guaranteed: 7, unstableEnd: 34, noneFrom: 35,
+          middleZoneColor: "#7ba0c4", middleZoneLabel: "가슴 한방",
+        },
+      },
     ],
   },
   huntingbow_concertina: {

@@ -1770,12 +1770,18 @@ function renderOhkRangeBar(ohkRange, maxDisplay, title) {
   const nPct = (noneFrom / maxDisplay) * 100;
   const maxLabel = Math.ceil(maxDisplay);
 
+  // 중간 구간이 펠릿 분산 등으로 인한 "불안정(랜덤)" 구간이 아니라, 활의 Hundred Hands처럼
+  // "부위에 따라 확정적으로 한방(예: 가슴만 보장)"인 경우 등을 위한 커스터마이즈 — 지정 안 하면
+  // 기존처럼 노란색 "불안정"으로 표시됨(사용자 확인).
+  const middleColor = ohkRange.middleZoneColor ?? "#d4c25e";
+  const middleLabel = ohkRange.middleZoneLabel ?? "불안정";
+
   return `
     <div class="ohk-range-box">
       <h4 class="ohk-range-title">${title ?? "가슴 정조준 기준 한방컷(OHK) 거리"}</h4>
       <div class="ohk-range-bar" style="background: linear-gradient(to right,
         var(--success) 0%, var(--success) ${gPct}%,
-        #d4c25e ${gPct}%,
+        ${middleColor} ${gPct}%,
         var(--danger-strong) ${nPct}%,
         var(--danger-strong) 100%);"></div>
       <div class="ohk-range-ticks">
@@ -1786,10 +1792,10 @@ function renderOhkRangeBar(ohkRange, maxDisplay, title) {
       </div>
       <p class="ohk-range-legend">
         <span><i class="ohk-swatch" style="background:var(--success)"></i>${guaranteed}m까지 한방</span>
-        ${hasUnstable ? `<span><i class="ohk-swatch" style="background:#d4c25e"></i>${unstableEnd}m까지 불안정</span>` : ""}
+        ${hasUnstable ? `<span><i class="ohk-swatch" style="background:${middleColor}"></i>${unstableEnd}m까지 ${middleLabel}</span>` : ""}
         <span><i class="ohk-swatch" style="background:var(--danger-strong)"></i>${noneFrom}m 이후부터 불가</span>
       </p>
-      <p class="status-effect-note">※ 실측 기반 참고용 수치이며, ${hasUnstable ? "펠릿 분산 특성상 " : ""}오차가 있을 수 있습니다.</p>
+      <p class="status-effect-note">※ 실측 기반 참고용 수치이며, ${hasUnstable && middleLabel === "불안정" ? "펠릿 분산 특성상 " : ""}오차가 있을 수 있습니다.</p>
     </div>
   `;
 }
