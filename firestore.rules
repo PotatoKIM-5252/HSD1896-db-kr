@@ -93,5 +93,21 @@ service cloud.firestore {
         allow delete: if isOperator();
       }
     }
+
+    // 무기 평가(하트+댓글) — 문서 id 자체가 작성자 uid라서 "무기당 1인 1개"가 구조적으로
+    // 강제됨(다시 쓰면 덮어쓰기). 반대(싫어요) 개념 없음 — 존재하면 좋아요로 집계.
+    match /weaponReviews/{weaponId}/reviews/{reviewOwnerUid} {
+      allow read: if true;
+
+      allow create, update: if request.auth != null
+                            && request.auth.uid == reviewOwnerUid
+                            && request.resource.data.keys().hasOnly(['text', 'createdAt', 'ownerId'])
+                            && request.resource.data.text is string
+                            && request.resource.data.text.size() <= 300
+                            && request.resource.data.createdAt == request.time
+                            && request.resource.data.ownerId == request.auth.uid;
+
+      allow delete: if request.auth != null && request.auth.uid == reviewOwnerUid;
+    }
   }
 }

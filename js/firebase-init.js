@@ -21,7 +21,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, collection, addDoc, getDocs, query, orderBy, limit, serverTimestamp,
-  doc, updateDoc, deleteDoc, arrayUnion, arrayRemove,
+  doc, updateDoc, deleteDoc, arrayUnion, arrayRemove, setDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -196,8 +196,43 @@ async function getCurrentUid() {
   return getUid();
 }
 
+// 무기 평가(하트+댓글) — 문서 id가 곧 작성자 uid라서 무기당 1개만 존재(다시 쓰면 덮어씀).
+// 반대(싫어요) 개념 없이 "존재하면 좋아요"로 집계 — 뉴비가 숫자만 보고 반사적으로 거르는 걸
+// 막기 위해 부정적 카운트 자체를 안 둠(사용자 확인).
+const WEAPON_REVIEWS_COLLECTION = "weaponReviews";
+const MAX_WEAPON_REVIEW_LEN = 300;
+
+async function getWeaponReviews(weaponId) {
+  const uid = await getUid();
+  const q = query(collection(db, WEAPON_REVIEWS_COLLECTION, weaponId, "reviews"), orderBy("createdAt", "desc"));
+  const snap = await getDocs(q);
+  const reviews = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  return {
+    reviews,
+    likeCount: reviews.length,
+    myReview: reviews.find((r) => r.id === uid) || null,
+  };
+}
+
+// text가 비어있으면 "댓글 없는 하트"만 남김. 이미 있으면 덮어씀(무기당 1개 유지).
+async function submitWeaponReview(weaponId, text) {
+  const trimmed = (text || "").trim().slice(0, MAX_WEAPON_REVIEW_LEN);
+  const uid = await getUid();
+  await setDoc(doc(db, WEAPON_REVIEWS_COLLECTION, weaponId, "reviews", uid), {
+    text: trimmed,
+    createdAt: serverTimestamp(),
+    ownerId: uid,
+  });
+}
+
+async function deleteWeaponReview(weaponId) {
+  const uid = await getUid();
+  await deleteDoc(doc(db, WEAPON_REVIEWS_COLLECTION, weaponId, "reviews", uid));
+}
+
 window.LoadoutCloud = {
   saveLoadout, listLoadouts, toggleLike, deleteLoadout,
   submitReport, reportNeedsCaptcha, listReports,
   listComments, addComment, getCurrentUid, OPERATOR_UID,
+  getWeaponReviews, submitWeaponReview, deleteWeaponReview,
 };

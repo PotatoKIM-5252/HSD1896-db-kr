@@ -708,6 +708,81 @@ button { font-family: var(--font-body); cursor: pointer; }
   color: var(--success);
 }
 
+#weapon-review-section {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+#weapon-review-section h4 { margin: 0 0 8px; }
+
+#weapon-review-heart-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+#weapon-review-heart-btn {
+  border-radius: var(--radius);
+  font-size: 13px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+#weapon-review-heart-btn.liked {
+  border-color: var(--danger-strong);
+  color: var(--danger-strong);
+  background: rgba(176, 88, 76, 0.1);
+}
+
+#weapon-review-heart-btn:disabled { opacity: 0.6; cursor: default; }
+
+#weapon-review-comment-input {
+  flex: 1;
+  min-width: 0;
+  background: var(--bg-input);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+#weapon-review-comment-submit-btn {
+  border-radius: var(--radius);
+  font-size: 13px;
+  padding: 8px 14px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-text);
+  white-space: nowrap;
+}
+
+#weapon-review-comment-submit-btn:disabled { opacity: 0.6; cursor: default; }
+
+#weapon-review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.weapon-review-item {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  padding: 8px 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 /* ===== 리드샷 계산기 ===== */
 .leadshot-hint {
   position: relative;

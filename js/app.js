@@ -1351,6 +1351,7 @@ function renderItemDetail(item) {
     bindAmmoTabs(item);
     bindCompareButton(item, selectedAmmoId);
     bindLoadoutQuickAddButton(item, selectedAmmoId);
+    bindWeaponReviewSection(item);
     drawWeaponChart(item, selectedAmmoId);
   } else if (item.category === "tool") {
     panel.innerHTML = renderToolDetailHTML(item);
@@ -2056,6 +2057,8 @@ function renderWeaponDetailHTML(item, selectedAmmoId) {
       </button>
       <button id="detail-add-loadout-btn" type="button" class="compare-btn">+ 로드아웃에 추가</button>
     </div>
+
+    ${renderWeaponReviewSectionHTML()}
   `;
 }
 
@@ -2207,7 +2210,103 @@ function renderMeleeDetailHTML(item) {
       </button>
       <button id="detail-add-loadout-btn" type="button" class="compare-btn">+ 로드아웃에 추가</button>
     </div>
+
+    ${renderWeaponReviewSectionHTML()}
   `;
+}
+
+// -------------------------------------------------------------------------
+// 무기 평가(하트+댓글) — DB 검색에서 무기 클릭 시 오른쪽 간략히보기 패널 전용.
+// 반대(싫어요) 개념 없이 하트 존재 여부만 집계(뉴비가 부정 수치만 보고 반사적으로
+// 거르지 않게 하기 위함 — 사용자 확인). 댓글은 하트에 딸린 선택 사항이라, 댓글을
+// 남기면 자동으로 하트도 함께 켜짐. 무기당 1인 1개(다시 쓰면 덮어씀).
+// -------------------------------------------------------------------------
+function renderWeaponReviewSectionHTML() {
+  return `
+    <div id="weapon-review-section">
+      <h4>무기 평가</h4>
+      <div id="weapon-review-heart-row">
+        <button id="weapon-review-heart-btn" type="button" disabled>♥ -</button>
+        <input type="text" id="weapon-review-comment-input" maxlength="300" placeholder="한줄평 남기기 (선택)" disabled>
+        <button id="weapon-review-comment-submit-btn" type="button" disabled>저장</button>
+      </div>
+      <div id="weapon-review-list">불러오는 중...</div>
+    </div>
+  `;
+}
+
+function bindWeaponReviewSection(item) {
+  const heartBtn = document.getElementById("weapon-review-heart-btn");
+  const input = document.getElementById("weapon-review-comment-input");
+  const submitBtn = document.getElementById("weapon-review-comment-submit-btn");
+  const listEl = document.getElementById("weapon-review-list");
+  if (!heartBtn) return;
+
+  // 파생형마다 스탯이 실제로 다른 별개 무기 취급이라(예: 르맷 vs 르맷 카빈), 평가도
+  // 파생형별로 따로 집계한다(item.id 자체가 이미 파생형까지 구분된 값).
+  const weaponId = item.id;
+  let myReview = null;
+
+  const renderList = (reviews) => {
+    const withText = reviews.filter((r) => r.text);
+    if (withText.length === 0) {
+      listEl.textContent = "아직 한줄평이 없습니다.";
+      return;
+    }
+    listEl.innerHTML = "";
+    withText.forEach((r) => {
+      const row = document.createElement("div");
+      row.className = "weapon-review-item";
+      // 남이 남긴 자유 텍스트라 반드시 textContent로만 그린다(XSS 방지)
+      row.textContent = r.text;
+      listEl.appendChild(row);
+    });
+  };
+
+  const refresh = async () => {
+    if (!window.LoadoutCloud) return;
+    try {
+      const { reviews, likeCount, myReview: mine } = await window.LoadoutCloud.getWeaponReviews(weaponId);
+      myReview = mine;
+      heartBtn.textContent = `♥ ${likeCount}`;
+      heartBtn.classList.toggle("liked", !!myReview);
+      heartBtn.disabled = false;
+      input.disabled = false;
+      submitBtn.disabled = false;
+      input.value = myReview?.text || "";
+      renderList(reviews);
+    } catch {
+      listEl.textContent = "평가를 불러오지 못했습니다.";
+    }
+  };
+
+  heartBtn.addEventListener("click", async () => {
+    if (!window.LoadoutCloud) return;
+    heartBtn.disabled = true;
+    try {
+      if (myReview) await window.LoadoutCloud.deleteWeaponReview(weaponId);
+      else await window.LoadoutCloud.submitWeaponReview(weaponId, "");
+      await refresh();
+    } catch {
+      showToast("처리에 실패했습니다.");
+      heartBtn.disabled = false;
+    }
+  });
+
+  submitBtn.addEventListener("click", async () => {
+    if (!window.LoadoutCloud) return;
+    submitBtn.disabled = true;
+    try {
+      await window.LoadoutCloud.submitWeaponReview(weaponId, input.value);
+      await refresh();
+    } catch {
+      showToast("저장에 실패했습니다.");
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  refresh();
 }
 
 // 도구(Tool) 스탯 표시 순서/라벨 — 무기 스탯란(STAT_DEFS)과 동일한 스타일로,
