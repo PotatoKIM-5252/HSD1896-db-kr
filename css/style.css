@@ -534,7 +534,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   background: var(--bg-panel);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 20px;
+  padding: 20px 20px 110px;
   max-height: calc(100vh - 40px);
   overflow-y: auto;
 }
@@ -2948,6 +2948,9 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 .utility-fab-btn:hover { border-color: var(--accent); color: var(--accent-strong); }
+
+/* 자세히 보기 등 전체화면 오버레이가 열려있을 땐 우측 하단 유틸리티 버튼이 내용과 겹치므로 숨김 */
+body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 
 #report-modal-overlay, #changelog-modal-overlay {
   position: fixed;
