@@ -43,15 +43,24 @@ const authReady = new Promise((resolve) => { resolveAuthReady = resolve; });
 
 // 방문할 때마다 uid가 유지되는지 콘솔에서 눈으로 확인할 수 있게 이전 방문의 uid와 비교해서 남김
 // (같은 브라우저인데도 "본인 글" 인식이 며칠 지나면 사라진다는 제보가 있어 원인 추적용으로 추가)
+//
+// ⚠ user가 null일 때만 signInAnonymously를 호출해야 한다 — 예전엔 setPersistence 뒤에
+//   무조건 signInAnonymously를 불렀는데, 이러면 스팀 로그인(Custom Token)으로 이미 복원된
+//   세션이 있어도 그걸 무시하고 새 익명 계정으로 덮어써버려서, 스팀 인증이 조용히 풀리는
+//   버그가 있었다(재로그인 없이 새로고침만 해도 사무소 글쓰기가 전부 permission-denied로
+//   실패하던 원인).
 onAuthStateChanged(auth, (user) => {
-  if (!user) return;
+  if (!user) {
+    signInAnonymously(auth).catch((err) => console.error("[LoadoutCloud] 익명 로그인 실패:", err));
+    return;
+  }
   resolveAuthReady(user.uid);
   try {
     const prevUid = localStorage.getItem("hsddb_debug_last_uid");
     if (prevUid && prevUid !== user.uid) {
-      console.warn(`[LoadoutCloud] 익명 uid가 이전 방문과 달라졌습니다. 이전: ${prevUid} / 지금: ${user.uid}`);
+      console.warn(`[LoadoutCloud] uid가 이전 방문과 달라졌습니다. 이전: ${prevUid} / 지금: ${user.uid}`);
     } else {
-      console.info(`[LoadoutCloud] 익명 uid: ${user.uid}`);
+      console.info(`[LoadoutCloud] uid: ${user.uid}`);
     }
     localStorage.setItem("hsddb_debug_last_uid", user.uid);
   } catch (err) {
@@ -59,12 +68,9 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// 로그인 상태를 브라우저에 최대한 오래 유지(기본값이지만 명시적으로 지정) — 그 다음에 익명 로그인 시도
+// 로그인 상태를 브라우저에 최대한 오래 유지(기본값이지만 명시적으로 지정)
 setPersistence(auth, browserLocalPersistence)
-  .catch((err) => console.error("[LoadoutCloud] persistence 설정 실패:", err))
-  .finally(() => {
-    signInAnonymously(auth).catch((err) => console.error("[LoadoutCloud] 익명 로그인 실패:", err));
-  });
+  .catch((err) => console.error("[LoadoutCloud] persistence 설정 실패:", err));
 
 async function getUid() {
   if (auth.currentUser) return auth.currentUser.uid;
