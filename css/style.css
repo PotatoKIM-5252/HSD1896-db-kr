@@ -3228,6 +3228,76 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 #report-history-close-btn:hover, #report-operator-mode-btn:hover { color: var(--text-primary); border-color: var(--accent); }
 #report-operator-mode-btn.active { color: var(--accent-strong); border-color: var(--accent); }
 
+/* ===================== 사무소 탭 ===================== */
+
+#tab-office { max-width: 640px; }
+
+#office-loading { color: var(--text-muted); font-size: 13px; }
+
+#office-intro-view h2 { font-size: 18px; margin: 0 0 6px; color: var(--text-primary); }
+
+#office-rules-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  margin: 16px 0;
+}
+
+#office-rules-box ol { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; }
+#office-rules-box li { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
+#office-pledge-row, #office-steamid-row { margin-bottom: 16px; }
+
+#office-pledge-row label, #office-steamid-row label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+#office-pledge-sample {
+  font-size: 13px;
+  color: var(--text-primary);
+  background: var(--bg-input);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin: 0 0 8px;
+}
+
+#office-pledge-input, #office-steamid-input {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+#office-steamid-row .muted-text { margin-top: 6px; }
+
+#office-register-btn {
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 18px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+#office-register-btn:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+#office-register-btn:disabled { opacity: 0.6; cursor: default; }
+
+#office-intro-msg { margin: 10px 0 0; font-size: 12px; color: var(--success); }
+#office-intro-msg.error { color: var(--danger-strong); }
+
+#office-member-status { font-size: 14px; color: var(--text-primary); margin: 0 0 6px; }
+
+#office-banned-view p { color: var(--danger-strong); font-size: 13px; }
+
 /* ===================== 반응형 ===================== */
 
 @media (max-width: 880px) {

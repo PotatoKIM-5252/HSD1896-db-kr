@@ -20,7 +20,7 @@ import {
   getAuth, signInAnonymously, onAuthStateChanged, setPersistence, browserLocalPersistence,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
-  getFirestore, collection, addDoc, getDocs, getDoc, query, orderBy, limit, serverTimestamp,
+  getFirestore, collection, addDoc, getDocs, getDoc, query, orderBy, limit, where, serverTimestamp,
   doc, updateDoc, deleteDoc, arrayUnion, arrayRemove, setDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -251,9 +251,58 @@ async function toggleWeaponCommentAgree(weaponId, reviewOwnerUid, currentlyAgree
   });
 }
 
+// 사무소(매칭 게시판) 이용 등록 — 정식 스팀 로그인(OpenID) 연동 없이, 사용자가 붙여넣은
+// 스팀 프로필 URL/SteamID64를 그대로 신뢰하는 방식이다. 대신 문서 ID를 SteamID64 자체로
+// 써서, 같은 스팀ID로는 다른 uid(쿠키·저장소 초기화로 새로 발급된 익명 계정 포함)가 중복
+// 등록할 수 없도록 Firestore 규칙이 구조적으로 막는다(officeMembers/{steamId64}는 최초 1회만
+// 생성 가능, 이후 같은 경로 쓰기는 "생성"이 아닌 "수정"으로 취급되어 규칙상 거부됨).
+// ⚠ 등록한 프로필과 실제 게임 내 이용자가 다른 경우는 기술적으로 막을 수 없어 신고(커뮤니티
+//   제보)로 걸러내는 것을 전제로 한다 — 자세한 인증 강화는 추후 논의.
+const OFFICE_MEMBERS_COLLECTION = "officeMembers";
+const STEAM_ID64_RE = /(\d{17})/;
+const OFFICE_PLEDGE_TEXT = "나는 위 이용 규칙을 확인했으며, 등록하는 스팀 프로필이 본인의 것임을 선서합니다.";
+
+function extractSteamId64(input) {
+  const match = (input || "").match(STEAM_ID64_RE);
+  return match ? match[1] : null;
+}
+
+// 지금 uid로 이미 등록된 사무소 회원인지 조회 (없으면 null)
+async function getMyOfficeMembership() {
+  const uid = await getUid();
+  const q = query(collection(db, OFFICE_MEMBERS_COLLECTION), where("ownerId", "==", uid), limit(1));
+  const snap = await getDocs(q);
+  if (snap.empty) return null;
+  const d = snap.docs[0];
+  return { steamId: d.id, ...d.data() };
+}
+
+async function registerOfficeMember(steamProfileInput, pledgeInput) {
+  if ((pledgeInput || "").trim() !== OFFICE_PLEDGE_TEXT) {
+    throw new Error("선서문을 위 문장과 정확히 같게 입력해주세요.");
+  }
+  const steamId = extractSteamId64(steamProfileInput);
+  if (!steamId) throw new Error("스팀 프로필 URL 또는 17자리 SteamID64를 정확히 입력해주세요.");
+  const uid = await getUid();
+  const trimmedUrl = (steamProfileInput || "").trim().slice(0, 200);
+  try {
+    await setDoc(doc(db, OFFICE_MEMBERS_COLLECTION, steamId), {
+      ownerId: uid,
+      steamProfileUrl: trimmedUrl,
+      pledgeAgreedAt: serverTimestamp(),
+      createdAt: serverTimestamp(),
+      banned: false,
+    });
+  } catch {
+    throw new Error("이미 등록된 스팀 계정이거나 처리할 수 없습니다. 본인 계정인데 등록이 안 된다면 문의해주세요.");
+  }
+  return steamId;
+}
+
 window.LoadoutCloud = {
   saveLoadout, listLoadouts, toggleLike, deleteLoadout,
   submitReport, reportNeedsCaptcha, listReports,
   listComments, addComment, getCurrentUid, OPERATOR_UID,
   getWeaponReviews, setWeaponHeart, saveWeaponComment, toggleWeaponCommentAgree,
+  getMyOfficeMembership, registerOfficeMember, OFFICE_PLEDGE_TEXT,
 };

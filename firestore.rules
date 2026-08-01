@@ -138,5 +138,32 @@ service cloud.firestore {
 
       allow delete: if request.auth != null && request.auth.uid == reviewOwnerUid;
     }
+
+    // 사무소(매칭 게시판) 이용 등록 — 문서 ID를 SteamID64 자체로 써서 "같은 스팀ID로 중복
+    // 등록"을 구조적으로 막는다: 이미 존재하는 경로에 다시 쓰면 "생성"이 아니라 "수정"으로
+    // 취급되고, 아래에는 banned 필드 하나만 바꾸는 운영자용 update 규칙만 있어서 자동 거부됨.
+    // - 읽기는 본인(ownerId 일치) 또는 운영자만 가능(스팀ID는 개인 식별 정보라 공개하지 않음)
+    // - banned(이용 제한)는 운영자만 켤 수 있음
+    match /officeMembers/{steamId} {
+      allow read: if request.auth != null
+                  && (resource.data.ownerId == request.auth.uid || isOperator());
+
+      allow create: if request.auth != null
+                    && steamId.matches('^7656119[0-9]{10}$')
+                    && request.resource.data.keys().hasOnly(['ownerId', 'steamProfileUrl', 'pledgeAgreedAt', 'createdAt', 'banned'])
+                    && request.resource.data.ownerId == request.auth.uid
+                    && request.resource.data.steamProfileUrl is string
+                    && request.resource.data.steamProfileUrl.size() > 0
+                    && request.resource.data.steamProfileUrl.size() <= 200
+                    && request.resource.data.pledgeAgreedAt == request.time
+                    && request.resource.data.createdAt == request.time
+                    && request.resource.data.banned == false;
+
+      allow update: if isOperator()
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['banned'])
+                    && request.resource.data.banned is bool;
+
+      allow delete: if isOperator();
+    }
   }
 }

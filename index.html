@@ -29,6 +29,7 @@
       <button class="nav-btn" data-tab="loadout" type="button">로드아웃 빌더</button>
       <button class="nav-btn" data-tab="analysis" type="button">무기 비교</button>
       <button class="nav-btn" data-tab="maps" type="button">맵</button>
+      <button class="nav-btn" data-tab="office" type="button">사무소</button>
     </nav>
   </header>
 
@@ -203,6 +204,49 @@
             </div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- ===================== 5. 사무소 탭 (매칭/파티 - 시범 운영) ===================== -->
+    <section id="tab-office" class="tab-panel" hidden>
+      <div id="office-loading">불러오는 중...</div>
+
+      <div id="office-intro-view" hidden>
+        <h2>사무소 이용 안내</h2>
+        <p class="muted-text">사무소는 시범 운영 중인 매칭 게시판입니다. 이용 전 아래 규칙을 확인해주세요.</p>
+
+        <div id="office-rules-box">
+          <ol>
+            <li>스팀 계정 하나당 사무소 이용 자격은 하나입니다. 등록한 스팀 프로필과 실제 게임 내 이용자가 다르면 신고 대상이며, 확인 시 이용이 제한됩니다.</li>
+            <li>파티·이력서에 남긴 정보로 타인에게 불쾌감을 주는 행위(욕설, 사칭, 도배 등)를 하지 않습니다.</li>
+            <li>부적절한 행위는 짧은 영상 등 증거와 함께 우측 하단 "문의 및 오류 제보"로 신고해주세요. 확인 후 이용이 제한될 수 있습니다.</li>
+            <li>사무소는 시범 운영 중이며, 운영 방식은 예고 없이 변경될 수 있습니다.</li>
+          </ol>
+        </div>
+
+        <div id="office-pledge-row">
+          <label for="office-pledge-input">아래 문장을 그대로 입력해 동의를 확인해주세요.</label>
+          <p id="office-pledge-sample">나는 위 이용 규칙을 확인했으며, 등록하는 스팀 프로필이 본인의 것임을 선서합니다.</p>
+          <input type="text" id="office-pledge-input" placeholder="위 문장을 그대로 입력">
+        </div>
+
+        <div id="office-steamid-row">
+          <label for="office-steamid-input">본인 스팀 프로필 URL (또는 17자리 SteamID64)</label>
+          <input type="text" id="office-steamid-input" placeholder="예) https://steamcommunity.com/profiles/76561198074784088/">
+          <p class="muted-text">주소창이 steamcommunity.com/id/닉네임 형태라면, steamID.io 같은 조회 사이트에서 숫자로 된 프로필 링크를 확인해주세요.</p>
+        </div>
+
+        <button id="office-register-btn" type="button">동의하고 인증하기</button>
+        <p id="office-intro-msg" hidden></p>
+      </div>
+
+      <div id="office-member-view" hidden>
+        <p id="office-member-status"></p>
+        <p class="muted-text">파티 생성·이력서 게시판 기능은 다음 단계에서 추가될 예정입니다.</p>
+      </div>
+
+      <div id="office-banned-view" hidden>
+        <p>이용이 제한된 계정입니다. 문의사항은 우측 하단 "문의 및 오류 제보"로 남겨주세요.</p>
       </div>
     </section>
 

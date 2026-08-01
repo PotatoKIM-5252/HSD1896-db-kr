@@ -464,6 +464,7 @@ function init() {
 
   setupReportWidget();
   setupChangelogWidget();
+  setupOfficeTab();
 }
 
 function setupReportWidget() {
@@ -769,6 +770,74 @@ function setupChangelogWidget() {
   overlay.addEventListener("click", (e) => { if (e.target === overlay) closeModal(); });
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && !overlay.hidden) closeModal();
+  });
+}
+
+// 사무소 탭 — 처음엔 규칙/선서/스팀ID 등록 화면, 이미 등록된 uid면 바로 등록 완료 화면.
+// 등록 여부 조회는 Firestore 요청이 들어가므로 사무소 탭을 처음 열 때만 지연 로딩한다.
+function setupOfficeTab() {
+  const navBtn = document.querySelector('.nav-btn[data-tab="office"]');
+  const loadingEl = document.getElementById("office-loading");
+  const introView = document.getElementById("office-intro-view");
+  const memberView = document.getElementById("office-member-view");
+  const bannedView = document.getElementById("office-banned-view");
+  const memberStatusEl = document.getElementById("office-member-status");
+  const pledgeInput = document.getElementById("office-pledge-input");
+  const steamIdInput = document.getElementById("office-steamid-input");
+  const registerBtn = document.getElementById("office-register-btn");
+  const introMsgEl = document.getElementById("office-intro-msg");
+  let loaded = false;
+
+  const showView = (view) => {
+    loadingEl.hidden = true;
+    introView.hidden = view !== "intro";
+    memberView.hidden = view !== "member";
+    bannedView.hidden = view !== "banned";
+  };
+
+  const loadMembership = async () => {
+    if (loaded) return;
+    loadingEl.hidden = false;
+    introView.hidden = true;
+    memberView.hidden = true;
+    bannedView.hidden = true;
+    if (!window.LoadoutCloud) {
+      loadingEl.textContent = "기능을 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.";
+      return;
+    }
+    try {
+      const membership = await window.LoadoutCloud.getMyOfficeMembership();
+      if (!membership) {
+        showView("intro");
+      } else if (membership.banned) {
+        showView("banned");
+      } else {
+        memberStatusEl.textContent = `인증 완료 · SteamID: ${membership.steamId}`;
+        showView("member");
+      }
+      loaded = true;
+    } catch {
+      loadingEl.textContent = "사무소 정보를 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.";
+    }
+  };
+
+  navBtn.addEventListener("click", loadMembership);
+
+  registerBtn.addEventListener("click", async () => {
+    if (!window.LoadoutCloud) return;
+    registerBtn.disabled = true;
+    introMsgEl.hidden = true;
+    try {
+      const steamId = await window.LoadoutCloud.registerOfficeMember(steamIdInput.value, pledgeInput.value);
+      memberStatusEl.textContent = `인증 완료 · SteamID: ${steamId}`;
+      showView("member");
+    } catch (err) {
+      introMsgEl.textContent = err.message || "등록에 실패했습니다.";
+      introMsgEl.classList.add("error");
+      introMsgEl.hidden = false;
+    } finally {
+      registerBtn.disabled = false;
+    }
   });
 }
 
