@@ -139,10 +139,14 @@ service cloud.firestore {
       allow delete: if request.auth != null && request.auth.uid == reviewOwnerUid;
     }
 
-    // 사무소(매칭 게시판) 이용 등록 — 문서 ID를 SteamID64 자체로 써서 "같은 스팀ID로 중복
-    // 등록"을 구조적으로 막는다: 이미 존재하는 경로에 다시 쓰면 "생성"이 아니라 "수정"으로
-    // 취급되고, 아래에는 banned 필드 하나만 바꾸는 운영자용 update 규칙만 있어서 자동 거부됨.
-    // - 읽기는 본인(ownerId 일치) 또는 운영자만 가능(스팀ID는 개인 식별 정보라 공개하지 않음)
+    // 사무소(매칭 게시판) 이용 등록 — 문서 ID이자 auth uid가 모두 "실제 스팀 로그인(OpenID)으로
+    // 검증된 SteamID64"다. 이 uid는 Cloudflare Worker가 스팀에 직접 물어봐서(check_authentication)
+    // 로그인이 진짜임을 확인한 뒤에만 Firebase 로그인 토큰으로 발급해주므로, 클라이언트가
+    // Firestore에 직접 요청을 보내도 검증 없이는 원하는 SteamID의 uid를 가질 수 없다.
+    // - 문서 ID를 SteamID64로 고정해서 "같은 스팀ID로 중복 등록"도 구조적으로 막힘(이미
+    //   존재하는 경로에 다시 쓰면 "생성"이 아니라 "수정"으로 취급되고, 아래엔 운영자용
+    //   update 규칙만 있어서 자동 거부됨)
+    // - 읽기는 본인(ownerId 일치) 또는 운영자만 가능
     // - banned(이용 제한)는 운영자만 켤 수 있음
     match /officeMembers/{steamId} {
       allow read: if request.auth != null
@@ -150,11 +154,9 @@ service cloud.firestore {
 
       allow create: if request.auth != null
                     && steamId.matches('^7656119[0-9]{10}$')
-                    && request.resource.data.keys().hasOnly(['ownerId', 'steamProfileUrl', 'pledgeAgreedAt', 'createdAt', 'banned'])
+                    && request.auth.uid == steamId
+                    && request.resource.data.keys().hasOnly(['ownerId', 'pledgeAgreedAt', 'createdAt', 'banned'])
                     && request.resource.data.ownerId == request.auth.uid
-                    && request.resource.data.steamProfileUrl is string
-                    && request.resource.data.steamProfileUrl.size() > 0
-                    && request.resource.data.steamProfileUrl.size() <= 200
                     && request.resource.data.pledgeAgreedAt == request.time
                     && request.resource.data.createdAt == request.time
                     && request.resource.data.banned == false;

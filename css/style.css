@@ -3287,36 +3287,16 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 #office-rules-box ol { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; }
 #office-rules-box li { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
 
-#office-pledge-row, #office-steamid-row { margin-bottom: 16px; }
+#office-pledge-row { margin-bottom: 16px; }
 
-#office-pledge-row label, #office-steamid-row label {
-  display: block;
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-bottom: 6px;
-}
-
-#office-pledge-sample {
+#office-agree-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 13px;
-  color: var(--text-primary);
-  background: var(--bg-input);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
-  padding: 10px 12px;
-  margin: 0 0 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
 }
-
-#office-pledge-input, #office-steamid-input {
-  width: 100%;
-  background: var(--bg-input);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
-  padding: 10px 12px;
-  color: var(--text-primary);
-  font-size: 13px;
-}
-
-#office-steamid-row .muted-text { margin-top: 6px; }
 
 #office-register-btn {
   border-radius: var(--radius);

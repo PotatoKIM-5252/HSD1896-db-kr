@@ -225,18 +225,13 @@
         </div>
 
         <div id="office-pledge-row">
-          <label for="office-pledge-input">아래 문장을 그대로 입력해 동의를 확인해주세요.</label>
-          <p id="office-pledge-sample">나는 위 이용 규칙을 확인했으며, 등록하는 스팀 프로필이 본인의 것임을 선서합니다.</p>
-          <input type="text" id="office-pledge-input" placeholder="위 문장을 그대로 입력">
+          <label id="office-agree-label">
+            <input type="checkbox" id="office-agree-checkbox">
+            위 이용 규칙을 확인했으며, 스팀으로 로그인해 본인 확인에 동의합니다.
+          </label>
         </div>
 
-        <div id="office-steamid-row">
-          <label for="office-steamid-input">본인 스팀 프로필 URL (또는 17자리 SteamID64)</label>
-          <input type="text" id="office-steamid-input" placeholder="예) https://steamcommunity.com/profiles/76561198074784088/">
-          <p class="muted-text">주소창이 steamcommunity.com/id/닉네임 형태라면, steamID.io 같은 조회 사이트에서 숫자로 된 프로필 링크를 확인해주세요.</p>
-        </div>
-
-        <button id="office-register-btn" type="button">동의하고 인증하기</button>
+        <button id="office-register-btn" type="button" disabled>스팀으로 로그인하고 인증하기</button>
         <p id="office-intro-msg" hidden></p>
       </div>
 

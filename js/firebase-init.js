@@ -17,10 +17,11 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getAuth, signInAnonymously, onAuthStateChanged, setPersistence, browserLocalPersistence,
+  getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged,
+  setPersistence, browserLocalPersistence,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
-  getFirestore, collection, addDoc, getDocs, getDoc, query, orderBy, limit, where, serverTimestamp,
+  getFirestore, collection, addDoc, getDocs, getDoc, query, orderBy, limit, serverTimestamp,
   doc, updateDoc, deleteDoc, arrayUnion, arrayRemove, setDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -251,52 +252,76 @@ async function toggleWeaponCommentAgree(weaponId, reviewOwnerUid, currentlyAgree
   });
 }
 
-// 사무소(매칭 게시판) 이용 등록 — 정식 스팀 로그인(OpenID) 연동 없이, 사용자가 붙여넣은
-// 스팀 프로필 URL/SteamID64를 그대로 신뢰하는 방식이다. 대신 문서 ID를 SteamID64 자체로
-// 써서, 같은 스팀ID로는 다른 uid(쿠키·저장소 초기화로 새로 발급된 익명 계정 포함)가 중복
-// 등록할 수 없도록 Firestore 규칙이 구조적으로 막는다(officeMembers/{steamId64}는 최초 1회만
-// 생성 가능, 이후 같은 경로 쓰기는 "생성"이 아닌 "수정"으로 취급되어 규칙상 거부됨).
-// ⚠ 등록한 프로필과 실제 게임 내 이용자가 다른 경우는 기술적으로 막을 수 없어 신고(커뮤니티
-//   제보)로 걸러내는 것을 전제로 한다 — 자세한 인증 강화는 추후 논의.
+// 사무소(매칭 게시판) 이용 등록 — 진짜 스팀 로그인(OpenID)으로 검증된 SteamID64를 그대로
+// Firebase Auth의 uid로 쓴다. 검증은 Cloudflare Worker가 스팀에 직접 물어봐서
+// (check_authentication) 확인한 뒤에만 로그인 토큰(Custom Token)을 발급해주므로, 이 uid를
+// 가지려면 반드시 그 스팀 계정으로 실제 로그인을 통과해야 한다 — 클라이언트가 Firestore에
+// 직접 요청을 보내도 검증 없이는 원하는 SteamID를 위조할 수 없다(자세한 이유는
+// firestore.rules의 officeMembers 규칙 주석 참고).
+// 문서 ID도 SteamID64라서 같은 스팀ID로 중복 등록도 구조적으로 막힌다.
 const OFFICE_MEMBERS_COLLECTION = "officeMembers";
-const STEAM_ID64_RE = /(\d{17})/;
-const OFFICE_PLEDGE_TEXT = "나는 위 이용 규칙을 확인했으며, 등록하는 스팀 프로필이 본인의 것임을 선서합니다.";
+const STEAM_ID64_FORMAT_RE = /^\d{17}$/;
+// ⚠ Cloudflare Worker 배포 후 실제 주소로 바꿔야 함 (cloudflare-worker/steam-openid-verify.js 참고)
+const STEAM_VERIFY_WORKER_URL = "https://REPLACE-ME.workers.dev";
 
-function extractSteamId64(input) {
-  const match = (input || "").match(STEAM_ID64_RE);
-  return match ? match[1] : null;
+function buildSteamLoginUrl() {
+  const returnTo = `${location.origin}${location.pathname}?steamAuth=1`;
+  const params = new URLSearchParams({
+    "openid.ns": "http://specs.openid.net/auth/2.0",
+    "openid.mode": "checkid_setup",
+    "openid.return_to": returnTo,
+    "openid.realm": `${location.origin}/`,
+    "openid.identity": "http://specs.openid.net/auth/2.0/identifier_select",
+    "openid.claimed_id": "http://specs.openid.net/auth/2.0/identifier_select",
+  });
+  return `https://steamcommunity.com/openid/login?${params.toString()}`;
 }
 
-// 지금 uid로 이미 등록된 사무소 회원인지 조회 (없으면 null)
+// 스팀에서 돌아온 직후(콜백)인지 URL 쿼리로 판단 — 맞으면 openid.* 파라미터를 그대로 반환
+function getSteamOpenIdParamsFromUrl() {
+  const params = new URLSearchParams(location.search);
+  if (params.get("steamAuth") !== "1" || params.get("openid.mode") !== "id_res") return null;
+  const out = {};
+  params.forEach((value, key) => { out[key] = value; });
+  return out;
+}
+
+// Cloudflare Worker에 검증을 맡기고, 통과하면 받은 토큰으로 실제 로그인까지 마친다.
+// 로그인에 성공하면 이후 getUid()가 돌려주는 uid가 이 SteamID64로 바뀐다.
+async function verifySteamLoginAndSignIn(openidParams) {
+  const res = await fetch(STEAM_VERIFY_WORKER_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(openidParams),
+  }).catch(() => null);
+  if (!res || !res.ok) throw new Error("스팀 인증 확인에 실패했습니다. 잠시 후 다시 시도해주세요.");
+  const data = await res.json();
+  if (!data.valid || !data.steamId || !data.token) throw new Error("스팀 로그인 검증에 실패했습니다.");
+  await signInWithCustomToken(auth, data.token);
+  return data.steamId;
+}
+
+// 지금 로그인된 uid가 스팀 인증을 마친 상태인지, 등록된 사무소 회원인지 조회 (아니면 null)
 async function getMyOfficeMembership() {
   const uid = await getUid();
-  const q = query(collection(db, OFFICE_MEMBERS_COLLECTION), where("ownerId", "==", uid), limit(1));
-  const snap = await getDocs(q);
-  if (snap.empty) return null;
-  const d = snap.docs[0];
-  return { steamId: d.id, ...d.data() };
+  if (!STEAM_ID64_FORMAT_RE.test(uid)) return null; // 아직 스팀 로그인 전(익명 uid)
+  const snap = await getDoc(doc(db, OFFICE_MEMBERS_COLLECTION, uid));
+  return snap.exists() ? { steamId: uid, ...snap.data() } : null;
 }
 
-async function registerOfficeMember(steamProfileInput, pledgeInput) {
-  if ((pledgeInput || "").trim() !== OFFICE_PLEDGE_TEXT) {
-    throw new Error("선서문을 위 문장과 정확히 같게 입력해주세요.");
-  }
-  const steamId = extractSteamId64(steamProfileInput);
-  if (!steamId) throw new Error("스팀 프로필 URL 또는 17자리 SteamID64를 정확히 입력해주세요.");
-  const uid = await getUid();
-  const trimmedUrl = (steamProfileInput || "").trim().slice(0, 200);
-  try {
-    await setDoc(doc(db, OFFICE_MEMBERS_COLLECTION, steamId), {
-      ownerId: uid,
-      steamProfileUrl: trimmedUrl,
-      pledgeAgreedAt: serverTimestamp(),
-      createdAt: serverTimestamp(),
-      banned: false,
-    });
-  } catch {
-    throw new Error("이미 등록된 스팀 계정이거나 처리할 수 없습니다. 본인 계정인데 등록이 안 된다면 문의해주세요.");
-  }
-  return steamId;
+// 스팀 로그인까지 마친 uid(=steamId64) 기준으로 사무소 등록 문서를 만든다.
+// 이미 등록돼 있으면(재로그인 등) 새로 쓰지 않고 기존 상태 그대로 반환.
+async function ensureOfficeMembership(steamId) {
+  const ref = doc(db, OFFICE_MEMBERS_COLLECTION, steamId);
+  const snap = await getDoc(ref);
+  if (snap.exists()) return { steamId, ...snap.data() };
+  await setDoc(ref, {
+    ownerId: steamId,
+    pledgeAgreedAt: serverTimestamp(),
+    createdAt: serverTimestamp(),
+    banned: false,
+  });
+  return { steamId, ownerId: steamId, banned: false };
 }
 
 window.LoadoutCloud = {
@@ -304,5 +329,6 @@ window.LoadoutCloud = {
   submitReport, reportNeedsCaptcha, listReports,
   listComments, addComment, getCurrentUid, OPERATOR_UID,
   getWeaponReviews, setWeaponHeart, saveWeaponComment, toggleWeaponCommentAgree,
-  getMyOfficeMembership, registerOfficeMember, OFFICE_PLEDGE_TEXT,
+  buildSteamLoginUrl, getSteamOpenIdParamsFromUrl, verifySteamLoginAndSignIn,
+  getMyOfficeMembership, ensureOfficeMembership,
 };
