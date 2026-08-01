@@ -3501,7 +3501,7 @@ label.office-field-checkbox input[type="checkbox"] { width: auto; }
   color: var(--text-muted);
 }
 
-#office-myparty-actions { display: flex; gap: 8px; margin-top: 10px; }
+#office-myparty-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 
 .office-blocked-msg { font-size: 12px; color: var(--danger-strong); margin: 0 0 12px; }
 
@@ -3534,7 +3534,7 @@ label.office-field-checkbox input[type="checkbox"] { width: auto; }
 .office-myapp-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .office-myapp-status { font-size: 13px; color: var(--text-primary); }
 
-#office-myresume-actions { display: flex; gap: 8px; }
+#office-myresume-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 
 #office-myresume-msg { margin: 10px 0 0; font-size: 12px; color: var(--success); }
 #office-myresume-msg.error { color: var(--danger-strong); }
