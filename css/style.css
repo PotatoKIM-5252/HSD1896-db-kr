@@ -3368,7 +3368,19 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 
 #office-col-write, #office-col-list { min-width: 0; }
 
-#office-col-list h3 { font-size: 14px; margin: 0 0 12px; color: var(--text-primary); }
+.office-list-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+#office-col-list h3 { font-size: 14px; margin: 0; color: var(--text-primary); }
+
+.office-list-header button {
+  font-size: 12px;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 5px 10px;
+  white-space: nowrap;
+}
+
+.office-list-header button:hover { color: var(--text-primary); border-color: var(--accent); }
 #office-resume-count { font-size: 12px; color: var(--text-muted); font-weight: 400; }
 
 #office-party-list, #office-applicant-list, #office-myapps-list, #office-resume-list { display: flex; flex-direction: column; gap: 10px; }

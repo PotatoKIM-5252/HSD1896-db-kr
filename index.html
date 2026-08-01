@@ -378,11 +378,17 @@
           <!-- 오른쪽: 목록구간 -->
           <div id="office-col-list">
             <div id="office-list-party" class="office-mode-panel">
-              <h3>파티 목록</h3>
+              <div class="office-list-header">
+                <h3>파티 목록</h3>
+                <button id="office-party-refresh-btn" type="button" title="새로고침">새로고침</button>
+              </div>
               <div id="office-party-list"></div>
             </div>
             <div id="office-list-resume" class="office-mode-panel" hidden>
-              <h3>인력 목록 <span id="office-resume-count"></span></h3>
+              <div class="office-list-header">
+                <h3>인력 목록 <span id="office-resume-count"></span></h3>
+                <button id="office-resume-refresh-btn" type="button" title="새로고침">새로고침</button>
+              </div>
               <div id="office-resume-list"></div>
             </div>
           </div>

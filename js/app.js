@@ -920,6 +920,9 @@ function setupOfficePartyBoard() {
     });
   });
 
+  document.getElementById("office-party-refresh-btn").addEventListener("click", renderPartyList);
+  document.getElementById("office-resume-refresh-btn").addEventListener("click", renderResumeList);
+
   const saveMsgEl = document.getElementById("office-myparty-msg");
 
   const readMyPartyForm = () => ({
@@ -939,6 +942,7 @@ function setupOfficePartyBoard() {
       saveMsgEl.classList.remove("error");
       saveMsgEl.hidden = false;
       renderMyParty();
+      renderPartyList();
     } catch (err) {
       saveMsgEl.textContent = err.message || "저장에 실패했습니다.";
       saveMsgEl.classList.add("error");
@@ -950,6 +954,7 @@ function setupOfficePartyBoard() {
     try {
       await window.LoadoutCloud.setMyPartyStatus("closed");
       renderMyParty();
+      renderPartyList();
     } catch (err) {
       showToast(err.message || "처리에 실패했습니다.");
     }
@@ -959,6 +964,7 @@ function setupOfficePartyBoard() {
     try {
       await window.LoadoutCloud.setMyPartyStatus("open");
       renderMyParty();
+      renderPartyList();
     } catch (err) {
       showToast(err.message || "처리에 실패했습니다.");
     }
