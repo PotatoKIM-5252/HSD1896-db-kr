@@ -1013,7 +1013,7 @@ function formatResumeFields(r) {
   ].filter(Boolean).join(" · ");
 }
 
-// 파티 목록 — 다른 사람이 올린 모집 중인 파티만 보여주고, 신청 버튼을 단다.
+// 파티 목록 — 모집 중인 파티를 전부 보여준다(내 파티도 포함, "내 파티" 표시만 붙임).
 // 신청자의 uid는 화면 어디에도 노출하지 않는다(메시지 내용만 보여줌).
 async function renderPartyList() {
   const listEl = document.getElementById("office-party-list");
@@ -1024,19 +1024,19 @@ async function renderPartyList() {
       window.LoadoutCloud.listOpenParties(),
       window.LoadoutCloud.getCurrentUid(),
     ]);
-    const others = parties.filter((p) => p.leaderId !== myUid);
     listEl.innerHTML = "";
-    if (others.length === 0) {
+    if (parties.length === 0) {
       listEl.textContent = "현재 모집 중인 파티가 없습니다.";
       return;
     }
-    others.forEach((party) => {
+    parties.forEach((party) => {
+      const isMine = party.leaderId === myUid;
       const item = document.createElement("div");
       item.className = "office-party-item";
 
       const descEl = document.createElement("p");
       descEl.className = "office-party-desc";
-      descEl.textContent = formatPartyFields(party);
+      descEl.textContent = (isMine ? "[내 파티] " : "") + formatPartyFields(party);
       item.appendChild(descEl);
 
       if (party.codePublic) {
@@ -1050,30 +1050,32 @@ async function renderPartyList() {
         });
       }
 
-      const applyRow = document.createElement("div");
-      applyRow.className = "office-party-apply-row";
-      const input = document.createElement("input");
-      input.type = "text";
-      input.maxLength = 200;
-      input.placeholder = "간단한 메시지(선택)";
-      const applyBtn = document.createElement("button");
-      applyBtn.type = "button";
-      applyBtn.textContent = "참가 신청";
-      applyRow.appendChild(input);
-      applyRow.appendChild(applyBtn);
-      item.appendChild(applyRow);
+      if (!isMine) {
+        const applyRow = document.createElement("div");
+        applyRow.className = "office-party-apply-row";
+        const input = document.createElement("input");
+        input.type = "text";
+        input.maxLength = 200;
+        input.placeholder = "간단한 메시지(선택)";
+        const applyBtn = document.createElement("button");
+        applyBtn.type = "button";
+        applyBtn.textContent = "참가 신청";
+        applyRow.appendChild(input);
+        applyRow.appendChild(applyBtn);
+        item.appendChild(applyRow);
 
-      applyBtn.addEventListener("click", async () => {
-        applyBtn.disabled = true;
-        try {
-          await window.LoadoutCloud.applyToParty(party.leaderId, input.value);
-          applyBtn.textContent = "신청 완료";
-          input.disabled = true;
-        } catch (err) {
-          showToast(err.message || "신청에 실패했습니다.");
-          applyBtn.disabled = false;
-        }
-      });
+        applyBtn.addEventListener("click", async () => {
+          applyBtn.disabled = true;
+          try {
+            await window.LoadoutCloud.applyToParty(party.leaderId, input.value);
+            applyBtn.textContent = "신청 완료";
+            input.disabled = true;
+          } catch (err) {
+            showToast(err.message || "신청에 실패했습니다.");
+            applyBtn.disabled = false;
+          }
+        });
+      }
 
       listEl.appendChild(item);
     });
