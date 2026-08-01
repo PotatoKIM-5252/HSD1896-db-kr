@@ -261,8 +261,7 @@ async function toggleWeaponCommentAgree(weaponId, reviewOwnerUid, currentlyAgree
 // 문서 ID도 SteamID64라서 같은 스팀ID로 중복 등록도 구조적으로 막힌다.
 const OFFICE_MEMBERS_COLLECTION = "officeMembers";
 const STEAM_ID64_FORMAT_RE = /^\d{17}$/;
-// ⚠ Cloudflare Worker 배포 후 실제 주소로 바꿔야 함 (cloudflare-worker/steam-openid-verify.js 참고)
-const STEAM_VERIFY_WORKER_URL = "https://REPLACE-ME.workers.dev";
+const STEAM_VERIFY_WORKER_URL = "https://potatokim.cisd456.workers.dev";
 
 function buildSteamLoginUrl() {
   const returnTo = `${location.origin}${location.pathname}?steamAuth=1`;
