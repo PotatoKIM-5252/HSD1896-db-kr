@@ -364,15 +364,18 @@ async function getMyParty() {
   return snap.exists() ? { leaderId: uid, ...snap.data() } : null;
 }
 
-// 파티 등록/수정 — 처음 만들 때는 생성(코드 공개여부는 기본 비공개), 이미 있으면 모집
-// 정보만 수정(코드/공개여부는 setMyPartyCode에서 따로 다룸)
+// 파티 등록/수정 — 처음 만들 때는 생성, 이미 있으면 모집 정보만 수정.
+// ⚠ 규칙은 update 시에도 결과 문서 전체(codePublic 포함)가 유효해야 한다고 검증하므로,
+//   과거(이 필드가 생기기 전)에 만들어진 문서처럼 codePublic이 아예 없는 경우를 대비해
+//   항상 기존 값을 읽어서 같이 채워 보낸다(없으면 false로 기본값 처리).
 async function saveMyParty(fields) {
   const sanitized = sanitizePartyFields(fields);
   const uid = await getUid();
   const ref = doc(db, OFFICE_PARTIES_COLLECTION, uid);
   const snap = await getDoc(ref);
   if (snap.exists()) {
-    await updateDoc(ref, sanitized);
+    const existing = snap.data();
+    await updateDoc(ref, { ...sanitized, codePublic: typeof existing.codePublic === "boolean" ? existing.codePublic : false });
   } else {
     await setDoc(ref, { leaderId: uid, ...sanitized, codePublic: false, status: "open", createdAt: serverTimestamp() });
   }
