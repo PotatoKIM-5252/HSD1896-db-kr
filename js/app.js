@@ -1053,13 +1053,13 @@ function setupOfficePartyBoard() {
   });
 
   document.getElementById("office-myresume-delete-btn").addEventListener("click", async () => {
-    if (!confirm("이력서를 삭제할까요?")) return;
+    if (!confirm("프로필을 삭제할까요?")) return;
     try {
       await window.LoadoutCloud.deleteMyResume();
       renderMyResume();
       renderResumeList();
     } catch (err) {
-      showToast(err.message || "이력서 삭제에 실패했습니다.");
+      showToast(err.message || "프로필 삭제에 실패했습니다.");
     }
   });
 }
@@ -1222,10 +1222,10 @@ async function renderMyParty() {
 
       const resumeEl = document.createElement("p");
       resumeEl.className = "office-applicant-resume";
-      resumeEl.textContent = "이력서 불러오는 중...";
+      resumeEl.textContent = "프로필 불러오는 중...";
       infoWrap.appendChild(resumeEl);
       window.LoadoutCloud.getApplicantResume(a.applicantId).then((resume) => {
-        resumeEl.textContent = resume ? formatResumeFields(resume) : "이력서를 작성하지 않은 신청자입니다.";
+        resumeEl.textContent = resume ? formatResumeFields(resume) : "프로필을 작성하지 않은 신청자입니다.";
       });
 
       if (a.message) {
@@ -1328,7 +1328,7 @@ async function renderResumeList() {
     countEl.textContent = `(${resumes.length}명)`;
     listEl.innerHTML = "";
     if (resumes.length === 0) {
-      listEl.textContent = "등록된 이력서가 없습니다.";
+      listEl.textContent = "등록된 프로필이 없습니다.";
       return;
     }
     resumes.forEach((resume) => {

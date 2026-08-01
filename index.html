@@ -316,8 +316,9 @@
                 <label>게임 모드
                   <select id="office-myparty-mode">
                     <option value="" disabled selected>선택</option>
-                    <option value="바운티 헌트">바운티 헌트</option>
                     <option value="결전">결전</option>
+                    <option value="사냥">사냥</option>
+                    <option value="상관없음">상관없음</option>
                   </select>
                 </label>
                 <label>활동서버
@@ -366,8 +367,8 @@
 
             <!-- 인력 모드: 내 이력서 작성 — 오른쪽 "인력 목록"에 공개되고, 신청 시 파티장에게도 보임 -->
             <div id="office-mode-resume" class="office-mode-panel" hidden>
-              <p class="muted-text">아래 내용은 사무소 회원 전체에게 "인력 목록"으로 공개됩니다(신원 정보는 제외).</p>
-              <p id="office-myresume-blocked-msg" class="office-blocked-msg" hidden>파티를 등록한 상태에서는 이력서를 작성할 수 없습니다. 먼저 "파티" 탭에서 파티를 취소해주세요.</p>
+              <p class="muted-text">아래 내용은 사무소 회원 전체에게 "프로필 목록"으로 공개됩니다(신원 정보는 제외).</p>
+              <p id="office-myresume-blocked-msg" class="office-blocked-msg" hidden>파티를 등록한 상태에서는 프로필을 작성할 수 없습니다. 먼저 "파티" 탭에서 파티를 취소해주세요.</p>
               <div class="office-field-form">
                 <label>선호 인원
                   <select id="office-myresume-type">
@@ -379,8 +380,9 @@
                 <label>선호 게임 모드
                   <select id="office-myresume-mode">
                     <option value="" disabled selected>선택</option>
-                    <option value="바운티 헌트">바운티 헌트</option>
                     <option value="결전">결전</option>
+                    <option value="사냥">사냥</option>
+                    <option value="상관없음">상관없음</option>
                   </select>
                 </label>
                 <label>선호 서버
@@ -401,8 +403,8 @@
                 <label class="office-field-checkbox"><input type="checkbox" id="office-myresume-voice"> 음성 사용</label>
               </div>
               <div id="office-myresume-actions">
-                <button id="office-myresume-save-btn" type="button">이력서 저장</button>
-                <button id="office-myresume-delete-btn" type="button" hidden>이력서 삭제</button>
+                <button id="office-myresume-save-btn" type="button">프로필 저장</button>
+                <button id="office-myresume-delete-btn" type="button" hidden>프로필 삭제</button>
               </div>
               <p id="office-myresume-msg" hidden></p>
             </div>
@@ -419,7 +421,7 @@
             </div>
             <div id="office-list-resume" class="office-mode-panel" hidden>
               <div class="office-list-header">
-                <h3>이력서 목록 <span id="office-resume-count"></span></h3>
+                <h3>프로필 목록 <span id="office-resume-count"></span></h3>
                 <button id="office-resume-refresh-btn" type="button" title="새로고침">새로고침</button>
               </div>
               <div id="office-resume-list"></div>

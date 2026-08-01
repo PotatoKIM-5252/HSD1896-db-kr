@@ -338,7 +338,7 @@ const OFFICE_PARTIES_COLLECTION = "officeParties";
 const PARTY_FIELD_KEYS = ["activeServer", "partyMmr", "minKda", "combatStyle", "voice", "partyType", "gameMode"];
 const OFFICE_SERVERS = ["유럽", "러시아", "미국서부", "미국동부", "남미", "아시아", "오세아니아"];
 const PARTY_TYPES = ["듀오", "트리오"];
-const GAME_MODES = ["바운티 헌트", "결전"];
+const GAME_MODES = ["결전", "사냥", "상관없음"];
 const MAX_PARTY_FIELD_LEN = 100;
 const MAX_APPLICATION_MSG_LEN = 200;
 const PARTY_CODE_RE = /^\d{6}$/;
@@ -515,7 +515,7 @@ async function saveMyResume(fields) {
   const sanitized = sanitizeResumeFields(fields);
   const uid = await getUid();
   const partySnap = await getDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid));
-  if (partySnap.exists()) throw new Error("파티를 등록한 상태에서는 이력서를 작성할 수 없습니다. 먼저 파티를 취소해주세요.");
+  if (partySnap.exists()) throw new Error("파티를 등록한 상태에서는 프로필을 작성할 수 없습니다. 먼저 파티를 취소해주세요.");
   await setDoc(doc(db, OFFICE_RESUMES_COLLECTION, uid), { ...sanitized, updatedAt: serverTimestamp() });
 }
 
