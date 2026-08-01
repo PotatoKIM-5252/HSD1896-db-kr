@@ -3293,16 +3293,32 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 
 #office-intro-view h2 { font-size: 18px; margin: 0 0 6px; color: var(--text-primary); }
 
-#office-rules-box {
+#office-rules-box, #office-consent-box {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 14px 18px;
   margin: 16px 0;
+  max-height: min(400px, 50vh);
+  overflow-y: auto;
 }
 
-#office-rules-box ol { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; }
+#office-rules-box ol { margin: 0 0 16px; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; }
+#office-rules-box ol:last-child { margin-bottom: 0; }
 #office-rules-box li { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+#office-rules-box p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 8px; }
+#office-rules-box p:last-child { margin-bottom: 0; }
+
+.office-rules-heading { font-size: 13px; font-weight: 600; color: var(--text-primary) !important; margin: 16px 0 8px !important; }
+.office-rules-heading:first-child { margin-top: 0 !important; }
+
+#office-consent-box h4 { font-size: 14px; margin: 0 0 8px; color: var(--text-primary); }
+#office-consent-box p { font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 8px; }
+#office-consent-box ul { margin: 0 0 8px; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+#office-consent-box li { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+.office-consent-heading { font-size: 13px; font-weight: 600; color: var(--text-primary) !important; margin: 14px 0 6px !important; }
+.office-consent-heading:first-of-type { margin-top: 0 !important; }
+.office-consent-note { color: var(--text-muted) !important; }
 
 #office-pledge-row { margin-bottom: 16px; }
 
