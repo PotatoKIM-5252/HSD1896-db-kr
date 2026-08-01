@@ -48,7 +48,10 @@ function base64UrlEncodeJson(obj) {
 }
 
 function pemToArrayBuffer(pem) {
+  // Firebase 서비스계정 JSON을 그대로 복사하면 줄바꿈이 실제 개행이 아니라 "\n" 두 글자
+  // 그대로 붙여넣어질 수 있어서, 둘 다 처리되게 먼저 실제 개행으로 바꿔준다.
   const b64 = pem
+    .replace(/\\n/g, "\n")
     .replace(/-----BEGIN PRIVATE KEY-----/, "")
     .replace(/-----END PRIVATE KEY-----/, "")
     .replace(/\s+/g, "");
