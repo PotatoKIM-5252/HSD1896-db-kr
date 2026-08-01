@@ -3451,6 +3451,9 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
   padding: 3px 10px;
 }
 
+/* display:inline-flex가 있으면 [hidden]의 기본 display:none이 밀려나므로 명시적으로 되살림 */
+.office-headcount-badge[hidden] { display: none; }
+
 .office-party-apply-row { display: flex; gap: 8px; }
 
 .office-party-apply-row input {

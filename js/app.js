@@ -1214,6 +1214,7 @@ async function renderMyParty() {
   const applicantListEl = document.getElementById("office-applicant-list");
   const headcountEl = document.getElementById("office-myparty-headcount");
 
+  headcountEl.hidden = true;
   headcountEl.textContent = "";
   try {
     const party = await window.LoadoutCloud.getMyParty();
@@ -1234,6 +1235,7 @@ async function renderMyParty() {
       const code = await window.LoadoutCloud.getPartyCode(party.leaderId).catch(() => null);
       document.getElementById("office-myparty-code-input").value = code || "";
       headcountEl.textContent = `현재 인원: ${1 + (party.acceptedCount || 0)}/${partyMaxSize(party.partyType)}명`;
+      headcountEl.hidden = false;
     }
   } catch {
     // 조회 실패해도 새로 만들기 폼은 그대로 씀
