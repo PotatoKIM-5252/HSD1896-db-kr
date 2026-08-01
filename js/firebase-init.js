@@ -21,7 +21,7 @@ import {
   setPersistence, browserLocalPersistence,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
-  getFirestore, collection, addDoc, getDocs, getDoc, query, orderBy, limit, serverTimestamp,
+  getFirestore, collection, collectionGroup, addDoc, getDocs, getDoc, query, orderBy, where, limit, serverTimestamp,
   doc, updateDoc, deleteDoc, arrayUnion, arrayRemove, setDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -323,6 +323,103 @@ async function ensureOfficeMembership(steamId) {
   return { steamId, ownerId: steamId, banned: false };
 }
 
+// 파티 모집 — 문서 ID = 파티장 uid(=steamId64)라서 "한 사람당 활성 파티 1개"가 구조적으로
+// 강제됨. 모집 글(description)은 사무소 회원이면 누구나 보지만, 합류 코드(private/code)와
+// 지원자 목록(applications)은 각각 별도 하위 경로라 Firestore 규칙이 따로 접근을 제한한다
+// (코드는 파티장 본인과 "수락된" 지원자만, 지원자 목록은 파티장만).
+const OFFICE_PARTIES_COLLECTION = "officeParties";
+const MAX_PARTY_DESC_LEN = 200;
+const MAX_APPLICATION_MSG_LEN = 200;
+const MAX_PARTY_CODE_LEN = 100;
+
+async function listOpenParties() {
+  const q = query(collection(db, OFFICE_PARTIES_COLLECTION), where("status", "==", "open"), orderBy("createdAt", "desc"));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ leaderId: d.id, ...d.data() }));
+}
+
+async function getMyParty() {
+  const uid = await getUid();
+  const snap = await getDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid));
+  return snap.exists() ? { leaderId: uid, ...snap.data() } : null;
+}
+
+// 파티 등록/수정 — 처음 만들 때는 생성, 이미 있으면 내용만 수정(둘 다 같은 문서 하나만 씀)
+async function saveMyParty(description) {
+  const trimmed = (description || "").trim().slice(0, MAX_PARTY_DESC_LEN);
+  if (!trimmed) throw new Error("모집 내용을 입력해주세요.");
+  const uid = await getUid();
+  const ref = doc(db, OFFICE_PARTIES_COLLECTION, uid);
+  const snap = await getDoc(ref);
+  if (snap.exists()) {
+    await updateDoc(ref, { description: trimmed });
+  } else {
+    await setDoc(ref, { leaderId: uid, description: trimmed, status: "open", createdAt: serverTimestamp() });
+  }
+}
+
+async function setMyPartyStatus(status) {
+  const uid = await getUid();
+  await updateDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid), { status });
+}
+
+async function setMyPartyCode(code) {
+  const trimmed = (code || "").trim().slice(0, MAX_PARTY_CODE_LEN);
+  if (!trimmed) throw new Error("코드를 입력해주세요.");
+  const uid = await getUid();
+  await setDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid, "private", "code"), { code: trimmed });
+}
+
+// 내가 만든 파티에 들어온 신청 목록 (신청자 식별값(uid)은 화면에 노출하지 않고 메시지만 보여줄 것)
+async function listApplicationsForMyParty() {
+  const uid = await getUid();
+  const q = query(collection(db, OFFICE_PARTIES_COLLECTION, uid, "applications"), orderBy("createdAt", "desc"));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ applicantId: d.id, ...d.data() }));
+}
+
+async function applyToParty(leaderId, message) {
+  const trimmed = (message || "").trim().slice(0, MAX_APPLICATION_MSG_LEN);
+  const uid = await getUid();
+  try {
+    await setDoc(doc(db, OFFICE_PARTIES_COLLECTION, leaderId, "applications", uid), {
+      applicantId: uid,
+      message: trimmed,
+      status: "pending",
+      createdAt: serverTimestamp(),
+      respondedAt: null,
+    });
+  } catch {
+    throw new Error("신청에 실패했습니다. 이미 신청했거나 마감된 파티일 수 있습니다.");
+  }
+}
+
+async function respondToApplication(applicantId, accepted) {
+  const uid = await getUid();
+  await updateDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid, "applications", applicantId), {
+    status: accepted ? "accepted" : "declined",
+    respondedAt: serverTimestamp(),
+  });
+}
+
+// 내가 신청한 파티 목록 — 여러 파티에 걸쳐 있는 applications 하위 컬렉션을 한 번에 조회
+async function listMyApplications() {
+  const uid = await getUid();
+  const q = query(collectionGroup(db, "applications"), where("applicantId", "==", uid));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ leaderId: d.ref.parent.parent.id, ...d.data() }));
+}
+
+// 수락된 신청자만 읽을 수 있는 합류 코드 — 아직 수락 전이면 규칙이 거부하므로 null로 처리
+async function getPartyCode(leaderId) {
+  try {
+    const snap = await getDoc(doc(db, OFFICE_PARTIES_COLLECTION, leaderId, "private", "code"));
+    return snap.exists() ? snap.data().code : null;
+  } catch {
+    return null;
+  }
+}
+
 window.LoadoutCloud = {
   saveLoadout, listLoadouts, toggleLike, deleteLoadout,
   submitReport, reportNeedsCaptcha, listReports,
@@ -330,4 +427,6 @@ window.LoadoutCloud = {
   getWeaponReviews, setWeaponHeart, saveWeaponComment, toggleWeaponCommentAgree,
   buildSteamLoginUrl, getSteamOpenIdParamsFromUrl, verifySteamLoginAndSignIn,
   getMyOfficeMembership, ensureOfficeMembership,
+  listOpenParties, getMyParty, saveMyParty, setMyPartyStatus, setMyPartyCode,
+  listApplicationsForMyParty, applyToParty, respondToApplication, listMyApplications, getPartyCode,
 };

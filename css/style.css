@@ -3335,6 +3335,124 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 
 #office-banned-view p { color: var(--danger-strong); font-size: 13px; }
 
+#office-subnav { display: flex; gap: 6px; margin: 16px 0; border-bottom: 1px solid var(--border); }
+
+.office-subnav-btn {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 8px 14px;
+  border-bottom: 2px solid transparent;
+}
+
+.office-subnav-btn:hover { color: var(--text-primary); }
+.office-subnav-btn.active { color: var(--accent-strong); border-bottom-color: var(--accent); }
+
+#office-party-list, #office-applicant-list, #office-myapps-list { display: flex; flex-direction: column; gap: 10px; }
+
+.office-party-item, .office-applicant-item, .office-myapp-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+
+.office-party-desc { margin: 0 0 10px; font-size: 13px; color: var(--text-primary); white-space: pre-wrap; }
+
+.office-party-apply-row { display: flex; gap: 8px; }
+
+.office-party-apply-row input {
+  flex: 1;
+  background: var(--bg-input);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  color: var(--text-primary);
+  font-size: 12px;
+}
+
+.office-party-apply-row button, .office-applicant-item button {
+  border-radius: var(--radius);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 8px 14px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-text);
+  white-space: nowrap;
+}
+
+.office-party-apply-row button:hover, .office-applicant-item button:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+.office-party-apply-row button:disabled { opacity: 0.6; cursor: default; }
+
+#office-myparty-desc {
+  width: 100%;
+  min-height: 90px;
+  resize: vertical;
+  background: var(--bg-input);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: var(--font-body);
+}
+
+#office-myparty-actions { display: flex; gap: 8px; margin-top: 10px; }
+
+#office-myparty-actions button {
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 9px 16px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+#office-myparty-actions button:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+
+#office-myparty-msg { margin: 10px 0 0; font-size: 12px; color: var(--success); }
+#office-myparty-msg.error { color: var(--danger-strong); }
+
+#office-myparty-code-row { margin: 20px 0; }
+
+#office-myparty-code-row label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+
+#office-myparty-code-input-row { display: flex; gap: 8px; }
+
+#office-myparty-code-input {
+  flex: 1;
+  background: var(--bg-input);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 9px 12px;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+#office-myparty-code-save-btn {
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 9px 16px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+#office-myparty-code-save-btn:hover { border-color: var(--accent); color: var(--accent-strong); }
+
+#office-myparty-view h4 { font-size: 13px; color: var(--text-muted); margin: 20px 0 10px; }
+
+.office-applicant-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.office-applicant-msg { font-size: 13px; color: var(--text-primary); }
+.office-applicant-status { font-size: 12px; color: var(--text-muted); }
+
+.office-myapp-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.office-myapp-status { font-size: 13px; color: var(--text-primary); }
+.office-myapp-code { font-size: 13px; color: var(--accent-strong); font-family: var(--font-mono); }
+
 /* ===================== 반응형 ===================== */
 
 @media (max-width: 880px) {

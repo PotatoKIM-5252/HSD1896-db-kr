@@ -804,6 +804,18 @@ function setupOfficeTab() {
     if (!window.LoadoutCloud || !agreeCheckbox.checked) return;
     window.location.href = window.LoadoutCloud.buildSteamLoginUrl();
   });
+
+  setupOfficePartyBoard();
+}
+
+// 인증된 회원 화면으로 전환 + 기본 서브뷰(파티 목록) 렌더 — loadOfficeMembership과
+// handleSteamOpenIdCallback 양쪽에서 공통으로 씀
+function showOfficeMemberView(steamId) {
+  document.getElementById("office-member-status").textContent = `인증 완료 · SteamID: ${steamId}`;
+  document.getElementById("office-member-view").hidden = false;
+  document.querySelectorAll(".office-subnav-btn").forEach((b) => b.classList.toggle("active", b.dataset.officeView === "browse"));
+  document.querySelectorAll(".office-subview").forEach((el) => { el.hidden = el.id !== "office-browse-view"; });
+  renderPartyList();
 }
 
 async function loadOfficeMembership() {
@@ -812,7 +824,6 @@ async function loadOfficeMembership() {
   const introView = document.getElementById("office-intro-view");
   const memberView = document.getElementById("office-member-view");
   const bannedView = document.getElementById("office-banned-view");
-  const memberStatusEl = document.getElementById("office-member-status");
 
   loadingEl.hidden = false;
   introView.hidden = true;
@@ -830,8 +841,7 @@ async function loadOfficeMembership() {
     } else if (membership.banned) {
       bannedView.hidden = false;
     } else {
-      memberStatusEl.textContent = `인증 완료 · SteamID: ${membership.steamId}`;
-      memberView.hidden = false;
+      showOfficeMemberView(membership.steamId);
     }
     officeMembershipLoaded = true;
   } catch {
@@ -856,7 +866,6 @@ async function handleSteamOpenIdCallback() {
   const introView = document.getElementById("office-intro-view");
   const memberView = document.getElementById("office-member-view");
   const bannedView = document.getElementById("office-banned-view");
-  const memberStatusEl = document.getElementById("office-member-status");
   const introMsgEl = document.getElementById("office-intro-msg");
 
   loadingEl.hidden = false;
@@ -872,8 +881,7 @@ async function handleSteamOpenIdCallback() {
     if (membership.banned) {
       bannedView.hidden = false;
     } else {
-      memberStatusEl.textContent = `인증 완료 · SteamID: ${steamId}`;
-      memberView.hidden = false;
+      showOfficeMemberView(steamId);
     }
   } catch (err) {
     loadingEl.hidden = true;
@@ -881,6 +889,240 @@ async function handleSteamOpenIdCallback() {
     introMsgEl.textContent = err.message || "스팀 인증에 실패했습니다.";
     introMsgEl.classList.add("error");
     introMsgEl.hidden = false;
+  }
+}
+
+// 사무소 파티 게시판 — 서브탭 전환 + 파티 만들기/코드 저장 버튼 배선.
+// 각 탭의 실제 목록 렌더링(renderPartyList/renderMyParty/renderMyApplications)은
+// 서브탭 클릭 시, 그리고 회원 화면에 처음 들어갈 때(showOfficeMemberView)도 호출된다.
+function setupOfficePartyBoard() {
+  document.querySelectorAll(".office-subnav-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".office-subnav-btn").forEach((b) => b.classList.toggle("active", b === btn));
+      const view = btn.dataset.officeView;
+      document.getElementById("office-browse-view").hidden = view !== "browse";
+      document.getElementById("office-myparty-view").hidden = view !== "myparty";
+      document.getElementById("office-myapps-view").hidden = view !== "myapps";
+      if (view === "browse") renderPartyList();
+      if (view === "myparty") renderMyParty();
+      if (view === "myapps") renderMyApplications();
+    });
+  });
+
+  const descTextarea = document.getElementById("office-myparty-desc");
+  const saveMsgEl = document.getElementById("office-myparty-msg");
+
+  document.getElementById("office-myparty-save-btn").addEventListener("click", async () => {
+    if (!window.LoadoutCloud) return;
+    saveMsgEl.hidden = true;
+    try {
+      await window.LoadoutCloud.saveMyParty(descTextarea.value);
+      saveMsgEl.textContent = "저장했습니다.";
+      saveMsgEl.classList.remove("error");
+      saveMsgEl.hidden = false;
+      renderMyParty();
+    } catch (err) {
+      saveMsgEl.textContent = err.message || "저장에 실패했습니다.";
+      saveMsgEl.classList.add("error");
+      saveMsgEl.hidden = false;
+    }
+  });
+
+  document.getElementById("office-myparty-close-btn").addEventListener("click", async () => {
+    try {
+      await window.LoadoutCloud.setMyPartyStatus("closed");
+      renderMyParty();
+    } catch (err) {
+      showToast(err.message || "처리에 실패했습니다.");
+    }
+  });
+
+  document.getElementById("office-myparty-reopen-btn").addEventListener("click", async () => {
+    try {
+      await window.LoadoutCloud.setMyPartyStatus("open");
+      renderMyParty();
+    } catch (err) {
+      showToast(err.message || "처리에 실패했습니다.");
+    }
+  });
+
+  document.getElementById("office-myparty-code-save-btn").addEventListener("click", async () => {
+    const input = document.getElementById("office-myparty-code-input");
+    try {
+      await window.LoadoutCloud.setMyPartyCode(input.value);
+      showToast("코드를 저장했습니다.", "info");
+    } catch (err) {
+      showToast(err.message || "코드 저장에 실패했습니다.");
+    }
+  });
+}
+
+// 파티 목록 — 다른 사람이 올린 모집 중인 파티만 보여주고, 신청 버튼을 단다.
+// 신청자의 uid는 화면 어디에도 노출하지 않는다(메시지 내용만 보여줌).
+async function renderPartyList() {
+  const listEl = document.getElementById("office-party-list");
+  if (!window.LoadoutCloud) return;
+  listEl.textContent = "불러오는 중...";
+  try {
+    const [parties, myUid] = await Promise.all([
+      window.LoadoutCloud.listOpenParties(),
+      window.LoadoutCloud.getCurrentUid(),
+    ]);
+    const others = parties.filter((p) => p.leaderId !== myUid);
+    listEl.innerHTML = "";
+    if (others.length === 0) {
+      listEl.textContent = "현재 모집 중인 파티가 없습니다.";
+      return;
+    }
+    others.forEach((party) => {
+      const item = document.createElement("div");
+      item.className = "office-party-item";
+
+      const descEl = document.createElement("p");
+      descEl.className = "office-party-desc";
+      descEl.textContent = party.description;
+      item.appendChild(descEl);
+
+      const applyRow = document.createElement("div");
+      applyRow.className = "office-party-apply-row";
+      const input = document.createElement("input");
+      input.type = "text";
+      input.maxLength = 200;
+      input.placeholder = "간단한 메시지(선택)";
+      const applyBtn = document.createElement("button");
+      applyBtn.type = "button";
+      applyBtn.textContent = "참가 신청";
+      applyRow.appendChild(input);
+      applyRow.appendChild(applyBtn);
+      item.appendChild(applyRow);
+
+      applyBtn.addEventListener("click", async () => {
+        applyBtn.disabled = true;
+        try {
+          await window.LoadoutCloud.applyToParty(party.leaderId, input.value);
+          applyBtn.textContent = "신청 완료";
+          input.disabled = true;
+        } catch (err) {
+          showToast(err.message || "신청에 실패했습니다.");
+          applyBtn.disabled = false;
+        }
+      });
+
+      listEl.appendChild(item);
+    });
+  } catch {
+    listEl.textContent = "파티 목록을 불러오지 못했습니다.";
+  }
+}
+
+// 내 파티 — 모집 글/상태 + 받은 신청 목록. 지원자 표시는 메시지 내용만(uid 비노출).
+async function renderMyParty() {
+  if (!window.LoadoutCloud) return;
+  const descTextarea = document.getElementById("office-myparty-desc");
+  const closeBtn = document.getElementById("office-myparty-close-btn");
+  const reopenBtn = document.getElementById("office-myparty-reopen-btn");
+  const applicantListEl = document.getElementById("office-applicant-list");
+
+  try {
+    const party = await window.LoadoutCloud.getMyParty();
+    closeBtn.hidden = !party || party.status !== "open";
+    reopenBtn.hidden = !party || party.status !== "closed";
+    if (party && !descTextarea.matches(":focus")) descTextarea.value = party.description;
+  } catch {
+    // 조회 실패해도 새로 만들기 폼은 그대로 씀
+  }
+
+  applicantListEl.textContent = "불러오는 중...";
+  try {
+    const applicants = await window.LoadoutCloud.listApplicationsForMyParty();
+    applicantListEl.innerHTML = "";
+    if (applicants.length === 0) {
+      applicantListEl.textContent = "받은 신청이 없습니다.";
+      return;
+    }
+    applicants.forEach((a) => {
+      const item = document.createElement("div");
+      item.className = "office-applicant-item";
+
+      const msgEl = document.createElement("span");
+      msgEl.className = "office-applicant-msg";
+      msgEl.textContent = a.message || "(메시지 없음)";
+      item.appendChild(msgEl);
+
+      if (a.status === "pending") {
+        const acceptBtn = document.createElement("button");
+        acceptBtn.type = "button";
+        acceptBtn.textContent = "수락";
+        acceptBtn.addEventListener("click", async () => {
+          try {
+            await window.LoadoutCloud.respondToApplication(a.applicantId, true);
+            renderMyParty();
+          } catch (err) {
+            showToast(err.message || "처리에 실패했습니다.");
+          }
+        });
+        const declineBtn = document.createElement("button");
+        declineBtn.type = "button";
+        declineBtn.textContent = "거절";
+        declineBtn.addEventListener("click", async () => {
+          try {
+            await window.LoadoutCloud.respondToApplication(a.applicantId, false);
+            renderMyParty();
+          } catch (err) {
+            showToast(err.message || "처리에 실패했습니다.");
+          }
+        });
+        item.appendChild(acceptBtn);
+        item.appendChild(declineBtn);
+      } else {
+        const statusEl = document.createElement("span");
+        statusEl.className = "office-applicant-status";
+        statusEl.textContent = a.status === "accepted" ? "수락됨" : "거절됨";
+        item.appendChild(statusEl);
+      }
+
+      applicantListEl.appendChild(item);
+    });
+  } catch {
+    applicantListEl.textContent = "신청 목록을 불러오지 못했습니다.";
+  }
+}
+
+// 내 신청 현황 — 수락된 건에 한해서만 합류 코드를 추가로 불러와 보여줌
+async function renderMyApplications() {
+  const listEl = document.getElementById("office-myapps-list");
+  if (!window.LoadoutCloud) return;
+  listEl.textContent = "불러오는 중...";
+  try {
+    const apps = await window.LoadoutCloud.listMyApplications();
+    listEl.innerHTML = "";
+    if (apps.length === 0) {
+      listEl.textContent = "신청한 파티가 없습니다.";
+      return;
+    }
+    for (const a of apps) {
+      const item = document.createElement("div");
+      item.className = "office-myapp-item";
+
+      const statusEl = document.createElement("span");
+      statusEl.className = "office-myapp-status";
+      statusEl.textContent = a.status === "pending" ? "대기중" : a.status === "accepted" ? "수락됨" : "거절됨";
+      item.appendChild(statusEl);
+
+      if (a.status === "accepted") {
+        const codeEl = document.createElement("span");
+        codeEl.className = "office-myapp-code";
+        codeEl.textContent = "코드 확인 중...";
+        item.appendChild(codeEl);
+        window.LoadoutCloud.getPartyCode(a.leaderId).then((code) => {
+          codeEl.textContent = code ? `합류 코드: ${code}` : "파티장이 아직 코드를 등록하지 않았습니다.";
+        });
+      }
+
+      listEl.appendChild(item);
+    }
+  } catch {
+    listEl.textContent = "신청 현황을 불러오지 못했습니다.";
   }
 }
 

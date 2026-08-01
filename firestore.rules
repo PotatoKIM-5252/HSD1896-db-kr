@@ -172,5 +172,83 @@ service cloud.firestore {
 
       allow delete: if isOperator();
     }
+
+    // 등록된(=밴 안 된) 사무소 회원인지 — 파티/신청 관련 규칙에서 반복 사용
+    function isActiveMember(uid) {
+      return exists(/databases/$(database)/documents/officeMembers/$(uid))
+          && get(/databases/$(database)/documents/officeMembers/$(uid)).data.banned == false;
+    }
+
+    // 파티 모집 — 문서 ID = 파티장의 uid(=SteamID64)라서 "한 사람당 활성 파티 1개"가
+    // 구조적으로 강제됨. description(모집 글)은 사무소 회원이면 누구나 볼 수 있지만,
+    // 실제 합류 코드(private/code)와 지원자 목록(applications)은 별도 하위 경로로 분리해서
+    // 각각 다른 접근 권한을 준다 — 파티장 본인과, "수락된" 지원자만 코드를 볼 수 있음.
+    match /officeParties/{leaderId} {
+      allow read: if request.auth != null && isActiveMember(request.auth.uid);
+
+      allow create: if request.auth != null
+                    && request.auth.uid == leaderId
+                    && isActiveMember(request.auth.uid)
+                    && request.resource.data.keys().hasOnly(['leaderId', 'description', 'status', 'createdAt'])
+                    && request.resource.data.leaderId == request.auth.uid
+                    && request.resource.data.description is string
+                    && request.resource.data.description.size() > 0
+                    && request.resource.data.description.size() <= 200
+                    && request.resource.data.status == 'open'
+                    && request.resource.data.createdAt == request.time;
+
+      allow update: if request.auth != null && request.auth.uid == leaderId
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['description', 'status'])
+                    && request.resource.data.description is string
+                    && request.resource.data.description.size() > 0
+                    && request.resource.data.description.size() <= 200
+                    && request.resource.data.status in ['open', 'closed'];
+
+      allow delete: if request.auth != null && (request.auth.uid == leaderId || isOperator());
+
+      // 합류 코드 — 파티장 본인이거나, 이 파티에 "수락된" 지원자만 읽을 수 있음
+      match /private/code {
+        allow read: if request.auth != null
+                    && (request.auth.uid == leaderId
+                        || (exists(/databases/$(database)/documents/officeParties/$(leaderId)/applications/$(request.auth.uid))
+                            && get(/databases/$(database)/documents/officeParties/$(leaderId)/applications/$(request.auth.uid)).data.status == 'accepted'));
+
+        allow create, update: if request.auth != null && request.auth.uid == leaderId
+                      && request.resource.data.keys().hasOnly(['code'])
+                      && request.resource.data.code is string
+                      && request.resource.data.code.size() > 0
+                      && request.resource.data.code.size() <= 100;
+
+        allow delete: if request.auth != null && request.auth.uid == leaderId;
+      }
+
+      // 참가 신청 — 문서 ID = 신청자 uid라서 "한 파티에 한 사람당 신청 1개"가 구조적으로 강제됨.
+      // 읽기는 신청자 본인과 파티장만. 수락/거절은 파티장만, pending 상태에서만 가능.
+      match /applications/{applicantId} {
+        allow read: if request.auth != null
+                    && (request.auth.uid == applicantId || request.auth.uid == leaderId);
+
+        allow create: if request.auth != null
+                      && request.auth.uid == applicantId
+                      && applicantId != leaderId
+                      && isActiveMember(request.auth.uid)
+                      && get(/databases/$(database)/documents/officeParties/$(leaderId)).data.status == 'open'
+                      && request.resource.data.keys().hasOnly(['applicantId', 'message', 'status', 'createdAt', 'respondedAt'])
+                      && request.resource.data.applicantId == request.auth.uid
+                      && request.resource.data.message is string
+                      && request.resource.data.message.size() <= 200
+                      && request.resource.data.status == 'pending'
+                      && request.resource.data.createdAt == request.time
+                      && request.resource.data.respondedAt == null;
+
+        allow update: if request.auth != null && request.auth.uid == leaderId
+                      && resource.data.status == 'pending'
+                      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'respondedAt'])
+                      && request.resource.data.status in ['accepted', 'declined']
+                      && request.resource.data.respondedAt == request.time;
+
+        allow delete: if request.auth != null && (request.auth.uid == applicantId || request.auth.uid == leaderId);
+      }
+    }
   }
 }

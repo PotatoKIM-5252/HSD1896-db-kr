@@ -239,7 +239,44 @@
 
       <div id="office-member-view" hidden>
         <p id="office-member-status"></p>
-        <p class="muted-text">파티 생성·이력서 게시판 기능은 다음 단계에서 추가될 예정입니다.</p>
+
+        <div id="office-subnav">
+          <button class="office-subnav-btn active" data-office-view="browse" type="button">파티 목록</button>
+          <button class="office-subnav-btn" data-office-view="myparty" type="button">내 파티</button>
+          <button class="office-subnav-btn" data-office-view="myapps" type="button">내 신청 현황</button>
+        </div>
+
+        <!-- 파티 목록: 열려있는 다른 사람 파티 보고 신청 -->
+        <div id="office-browse-view" class="office-subview">
+          <div id="office-party-list"></div>
+        </div>
+
+        <!-- 내 파티: 만들기/수정, 합류 코드 설정, 지원자 관리 -->
+        <div id="office-myparty-view" class="office-subview" hidden>
+          <textarea id="office-myparty-desc" maxlength="200" placeholder="모집 내용을 적어주세요 (게임모드, 인원, 시간대 등)"></textarea>
+          <div id="office-myparty-actions">
+            <button id="office-myparty-save-btn" type="button">파티 등록/수정</button>
+            <button id="office-myparty-close-btn" type="button" hidden>모집 마감</button>
+            <button id="office-myparty-reopen-btn" type="button" hidden>모집 재개</button>
+          </div>
+          <p id="office-myparty-msg" hidden></p>
+
+          <div id="office-myparty-code-row">
+            <label for="office-myparty-code-input">합류 코드 (수락된 신청자에게만 공개됩니다)</label>
+            <div id="office-myparty-code-input-row">
+              <input type="text" id="office-myparty-code-input" maxlength="100" placeholder="예) 로비 코드, 초대 링크 등">
+              <button id="office-myparty-code-save-btn" type="button">코드 저장</button>
+            </div>
+          </div>
+
+          <h4>받은 신청</h4>
+          <div id="office-applicant-list"></div>
+        </div>
+
+        <!-- 내 신청 현황 -->
+        <div id="office-myapps-view" class="office-subview" hidden>
+          <div id="office-myapps-list"></div>
+        </div>
       </div>
 
       <div id="office-banned-view" hidden>
