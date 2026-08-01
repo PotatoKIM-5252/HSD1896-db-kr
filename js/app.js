@@ -808,14 +808,19 @@ function setupOfficeTab() {
   setupOfficePartyBoard();
 }
 
-// 인증된 회원 화면으로 전환 + 기본 서브뷰(파티 목록) 렌더 — loadOfficeMembership과
+// 인증된 회원 화면으로 전환 + 기본 모드(파티) 렌더 — loadOfficeMembership과
 // handleSteamOpenIdCallback 양쪽에서 공통으로 씀
 function showOfficeMemberView(steamId) {
   document.getElementById("office-member-status").textContent = `인증 완료 · SteamID: ${steamId}`;
   document.getElementById("office-member-view").hidden = false;
-  document.querySelectorAll(".office-subnav-btn").forEach((b) => b.classList.toggle("active", b.dataset.officeView === "browse"));
-  document.querySelectorAll(".office-subview").forEach((el) => { el.hidden = el.id !== "office-browse-view"; });
+  document.querySelectorAll(".office-mode-btn").forEach((b) => b.classList.toggle("active", b.dataset.officeMode === "party"));
+  document.getElementById("office-mode-party").hidden = false;
+  document.getElementById("office-mode-resume").hidden = true;
+  document.getElementById("office-list-party").hidden = false;
+  document.getElementById("office-list-resume").hidden = true;
   renderPartyList();
+  renderMyParty();
+  renderMyApplications();
 }
 
 async function loadOfficeMembership() {
@@ -892,22 +897,26 @@ async function handleSteamOpenIdCallback() {
   }
 }
 
-// 사무소 파티 게시판 — 서브탭 전환 + 파티 만들기/코드 저장 버튼 배선.
-// 각 탭의 실제 목록 렌더링(renderPartyList/renderMyParty/renderMyApplications)은
-// 서브탭 클릭 시, 그리고 회원 화면에 처음 들어갈 때(showOfficeMemberView)도 호출된다.
+// 사무소 파티 게시판 — 파티/인력 모드 전환(왼쪽 작성구간 + 오른쪽 목록구간이 같이 바뀜) +
+// 파티 만들기/코드 저장/이력서 저장 버튼 배선. 각 모드의 실제 렌더링은 전환 시,
+// 그리고 회원 화면에 처음 들어갈 때(showOfficeMemberView)도 호출된다.
 function setupOfficePartyBoard() {
-  document.querySelectorAll(".office-subnav-btn").forEach((btn) => {
+  document.querySelectorAll(".office-mode-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll(".office-subnav-btn").forEach((b) => b.classList.toggle("active", b === btn));
-      const view = btn.dataset.officeView;
-      document.getElementById("office-browse-view").hidden = view !== "browse";
-      document.getElementById("office-myparty-view").hidden = view !== "myparty";
-      document.getElementById("office-myapps-view").hidden = view !== "myapps";
-      document.getElementById("office-myresume-view").hidden = view !== "myresume";
-      if (view === "browse") renderPartyList();
-      if (view === "myparty") renderMyParty();
-      if (view === "myapps") renderMyApplications();
-      if (view === "myresume") renderMyResume();
+      document.querySelectorAll(".office-mode-btn").forEach((b) => b.classList.toggle("active", b === btn));
+      const mode = btn.dataset.officeMode;
+      document.getElementById("office-mode-party").hidden = mode !== "party";
+      document.getElementById("office-mode-resume").hidden = mode !== "resume";
+      document.getElementById("office-list-party").hidden = mode !== "party";
+      document.getElementById("office-list-resume").hidden = mode !== "resume";
+      if (mode === "party") {
+        renderPartyList();
+        renderMyParty();
+        renderMyApplications();
+      } else {
+        renderResumeList();
+        renderMyResume();
+      }
     });
   });
 
@@ -1185,7 +1194,7 @@ async function renderMyParty() {
   }
 }
 
-// 내 이력서(블라인드) — 신청한 파티의 파티장에게만 공개됨
+// 내 이력서 — 저장하면 오른쪽 "인력 목록"에 신원 정보 없이 공개됨
 async function renderMyResume() {
   if (!window.LoadoutCloud) return;
   try {
@@ -1198,6 +1207,32 @@ async function renderMyResume() {
     document.getElementById("office-myresume-voice").checked = !!resume.voice;
   } catch {
     // 조회 실패해도 새로 작성하는 폼은 그대로 씀
+  }
+}
+
+// 인력 목록 — 등록된 이력서 전체를 신원 정보 없이 쭉 보여줌 + 인원수 표시
+async function renderResumeList() {
+  const listEl = document.getElementById("office-resume-list");
+  const countEl = document.getElementById("office-resume-count");
+  if (!window.LoadoutCloud) return;
+  listEl.textContent = "불러오는 중...";
+  try {
+    const resumes = await window.LoadoutCloud.listAllResumes();
+    countEl.textContent = `(${resumes.length}명)`;
+    listEl.innerHTML = "";
+    if (resumes.length === 0) {
+      listEl.textContent = "등록된 이력서가 없습니다.";
+      return;
+    }
+    resumes.forEach((resume) => {
+      const item = document.createElement("p");
+      item.className = "office-resume-item";
+      item.textContent = formatResumeFields(resume);
+      listEl.appendChild(item);
+    });
+  } catch {
+    countEl.textContent = "";
+    listEl.textContent = "인력 목록을 불러오지 못했습니다.";
   }
 }
 

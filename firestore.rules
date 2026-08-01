@@ -266,15 +266,11 @@ service cloud.firestore {
       }
     }
 
-    // 블라인드 이력서 — 본인과 운영자 외에는 평소엔 아무도 못 읽고, "이 사람이 내 파티에
-    // 신청한 경우"에만 그 파티장에게 공개된다(신청 자체가 문서 ID=uid라서 exists()로 확인
-    // 가능). 즉 이력서는 이용자 전체에게 공개 게시되는 게 아니라, 실제로 지원했을 때만
-    // 해당 파티장에게 "블라인드"로(신원 정보 없이 아래 항목만) 보여지는 구조.
+    // 이력서("인력 목록") — 사무소 회원이면 누구나 목록으로 읽을 수 있다. 문서 자체엔
+    // steamId 등 신원 정보를 담지 않아서(문서 ID가 곧 steamId이긴 하지만, 화면에는
+    // 절대 그 값을 노출하지 않는 게 클라이언트 쪽 원칙) "블라인드"가 유지된다.
     match /officeResumes/{steamId} {
-      allow read: if request.auth != null
-                  && (request.auth.uid == steamId
-                      || isOperator()
-                      || exists(/databases/$(database)/documents/officeParties/$(request.auth.uid)/applications/$(steamId)));
+      allow read: if request.auth != null && isActiveMember(request.auth.uid);
 
       allow create, update: if request.auth != null
                     && request.auth.uid == steamId

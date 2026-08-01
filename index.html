@@ -294,89 +294,98 @@
       <div id="office-member-view" hidden>
         <p id="office-member-status"></p>
 
-        <div id="office-subnav">
-          <button class="office-subnav-btn active" data-office-view="browse" type="button">파티 목록</button>
-          <button class="office-subnav-btn" data-office-view="myparty" type="button">내 파티</button>
-          <button class="office-subnav-btn" data-office-view="myapps" type="button">내 신청 현황</button>
-          <button class="office-subnav-btn" data-office-view="myresume" type="button">내 이력서</button>
+        <!-- 파티/인력 모드 전환 — 왼쪽(작성)과 오른쪽(목록)이 같이 전환됨 -->
+        <div id="office-mode-toggle">
+          <button class="office-mode-btn active" data-office-mode="party" type="button">파티</button>
+          <button class="office-mode-btn" data-office-mode="resume" type="button">인력</button>
         </div>
 
-        <!-- 파티 목록: 열려있는 다른 사람 파티 보고 신청 -->
-        <div id="office-browse-view" class="office-subview">
-          <div id="office-party-list"></div>
-        </div>
+        <div id="office-columns">
+          <!-- 왼쪽: 작성구간 -->
+          <div id="office-col-write">
+            <!-- 파티 모드: 내 파티 만들기/수정 + 받은 신청 + 내 신청 현황 -->
+            <div id="office-mode-party" class="office-mode-panel">
+              <div class="office-field-form">
+                <label>활동서버
+                  <select id="office-myparty-server">
+                    <option value="" disabled selected>선택</option>
+                    <option value="유럽">유럽</option>
+                    <option value="러시아">러시아</option>
+                    <option value="미국서부">미국서부</option>
+                    <option value="미국동부">미국동부</option>
+                    <option value="남미">남미</option>
+                    <option value="아시아">아시아</option>
+                    <option value="오세아니아">오세아니아</option>
+                  </select>
+                </label>
+                <label>파티 MMR <input type="text" id="office-myparty-mmr" maxlength="50" placeholder="예) 5성~6성"></label>
+                <label>최소 KDA <input type="text" id="office-myparty-kda" maxlength="50" placeholder="예) 1.5 이상"></label>
+                <label>전투 성향 <input type="text" id="office-myparty-style" maxlength="100" placeholder="예) 무조건 바운티, 공격적, 빠르게"></label>
+                <label class="office-field-checkbox"><input type="checkbox" id="office-myparty-voice"> 음성 사용</label>
+              </div>
+              <div id="office-myparty-actions">
+                <button id="office-myparty-save-btn" type="button">파티 등록/수정</button>
+                <button id="office-myparty-close-btn" type="button" hidden>모집 마감</button>
+                <button id="office-myparty-reopen-btn" type="button" hidden>모집 재개</button>
+              </div>
+              <p id="office-myparty-msg" hidden></p>
 
-        <!-- 내 파티: 만들기/수정, 합류 코드 설정, 지원자 관리 -->
-        <div id="office-myparty-view" class="office-subview" hidden>
-          <div class="office-field-form">
-            <label>활동서버
-              <select id="office-myparty-server">
-                <option value="" disabled selected>선택</option>
-                <option value="유럽">유럽</option>
-                <option value="러시아">러시아</option>
-                <option value="미국서부">미국서부</option>
-                <option value="미국동부">미국동부</option>
-                <option value="남미">남미</option>
-                <option value="아시아">아시아</option>
-                <option value="오세아니아">오세아니아</option>
-              </select>
-            </label>
-            <label>파티 MMR <input type="text" id="office-myparty-mmr" maxlength="50" placeholder="예) 5성~6성"></label>
-            <label>최소 KDA <input type="text" id="office-myparty-kda" maxlength="50" placeholder="예) 1.5 이상"></label>
-            <label>전투 성향 <input type="text" id="office-myparty-style" maxlength="100" placeholder="예) 무조건 바운티, 공격적, 빠르게"></label>
-            <label class="office-field-checkbox"><input type="checkbox" id="office-myparty-voice"> 음성 사용</label>
-          </div>
-          <div id="office-myparty-actions">
-            <button id="office-myparty-save-btn" type="button">파티 등록/수정</button>
-            <button id="office-myparty-close-btn" type="button" hidden>모집 마감</button>
-            <button id="office-myparty-reopen-btn" type="button" hidden>모집 재개</button>
-          </div>
-          <p id="office-myparty-msg" hidden></p>
+              <div id="office-myparty-code-row">
+                <label for="office-myparty-code-input">합류 코드 (숫자 6자리)</label>
+                <div id="office-myparty-code-input-row">
+                  <input type="text" id="office-myparty-code-input" inputmode="numeric" placeholder="예) 123456">
+                  <button id="office-myparty-code-save-btn" type="button">코드 저장</button>
+                </div>
+                <label class="office-field-checkbox">
+                  <input type="checkbox" id="office-myparty-code-public">
+                  파티 목록에 코드 공개 (끄면 수락된 신청자에게만 공개)
+                </label>
+              </div>
 
-          <div id="office-myparty-code-row">
-            <label for="office-myparty-code-input">합류 코드 (숫자 6자리)</label>
-            <div id="office-myparty-code-input-row">
-              <input type="text" id="office-myparty-code-input" inputmode="numeric" placeholder="예) 123456">
-              <button id="office-myparty-code-save-btn" type="button">코드 저장</button>
+              <h4>받은 신청</h4>
+              <div id="office-applicant-list"></div>
+
+              <h4>내 신청 현황</h4>
+              <div id="office-myapps-list"></div>
             </div>
-            <label class="office-field-checkbox">
-              <input type="checkbox" id="office-myparty-code-public">
-              파티 목록에 코드 공개 (끄면 수락된 신청자에게만 공개)
-            </label>
+
+            <!-- 인력 모드: 내 이력서 작성 — 오른쪽 "인력 목록"에 공개되고, 신청 시 파티장에게도 보임 -->
+            <div id="office-mode-resume" class="office-mode-panel" hidden>
+              <p class="muted-text">아래 내용은 사무소 회원 전체에게 "인력 목록"으로 공개됩니다(신원 정보는 제외).</p>
+              <div class="office-field-form">
+                <label>선호 서버
+                  <select id="office-myresume-server">
+                    <option value="" disabled selected>선택</option>
+                    <option value="유럽">유럽</option>
+                    <option value="러시아">러시아</option>
+                    <option value="미국서부">미국서부</option>
+                    <option value="미국동부">미국동부</option>
+                    <option value="남미">남미</option>
+                    <option value="아시아">아시아</option>
+                    <option value="오세아니아">오세아니아</option>
+                  </select>
+                </label>
+                <label>개인 MMR <input type="text" id="office-myresume-mmr" maxlength="50" placeholder="예) 5성"></label>
+                <label>KDA <input type="text" id="office-myresume-kda" maxlength="50" placeholder="예) 1.8"></label>
+                <label>선호 성향 <input type="text" id="office-myresume-style" maxlength="100" placeholder="예) 바운티 위주, 신중하게"></label>
+                <label class="office-field-checkbox"><input type="checkbox" id="office-myresume-voice"> 음성 사용</label>
+              </div>
+              <button id="office-myresume-save-btn" type="button">이력서 저장</button>
+              <p id="office-myresume-msg" hidden></p>
+            </div>
           </div>
 
-          <h4>받은 신청</h4>
-          <div id="office-applicant-list"></div>
-        </div>
-
-        <!-- 내 신청 현황 -->
-        <div id="office-myapps-view" class="office-subview" hidden>
-          <div id="office-myapps-list"></div>
-        </div>
-
-        <!-- 내 이력서(블라인드) — 내가 신청한 파티의 파티장에게만 아래 항목이 보임 -->
-        <div id="office-myresume-view" class="office-subview" hidden>
-          <p class="muted-text">신원 정보 없이, 신청한 파티의 파티장에게만 아래 항목이 공개됩니다.</p>
-          <div class="office-field-form">
-            <label>선호 서버
-              <select id="office-myresume-server">
-                <option value="" disabled selected>선택</option>
-                <option value="유럽">유럽</option>
-                <option value="러시아">러시아</option>
-                <option value="미국서부">미국서부</option>
-                <option value="미국동부">미국동부</option>
-                <option value="남미">남미</option>
-                <option value="아시아">아시아</option>
-                <option value="오세아니아">오세아니아</option>
-              </select>
-            </label>
-            <label>개인 MMR <input type="text" id="office-myresume-mmr" maxlength="50" placeholder="예) 5성"></label>
-            <label>KDA <input type="text" id="office-myresume-kda" maxlength="50" placeholder="예) 1.8"></label>
-            <label>선호 성향 <input type="text" id="office-myresume-style" maxlength="100" placeholder="예) 바운티 위주, 신중하게"></label>
-            <label class="office-field-checkbox"><input type="checkbox" id="office-myresume-voice"> 음성 사용</label>
+          <!-- 오른쪽: 목록구간 -->
+          <div id="office-col-list">
+            <div id="office-list-party" class="office-mode-panel">
+              <h3>파티 목록</h3>
+              <div id="office-party-list"></div>
+            </div>
+            <div id="office-list-resume" class="office-mode-panel" hidden>
+              <h3>인력 목록 <span id="office-resume-count"></span></h3>
+              <div id="office-resume-list"></div>
+            </div>
           </div>
-          <button id="office-myresume-save-btn" type="button">이력서 저장</button>
-          <p id="office-myresume-msg" hidden></p>
         </div>
       </div>
 

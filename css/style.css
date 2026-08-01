@@ -3287,7 +3287,8 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 
 /* ===================== 사무소 탭 ===================== */
 
-#tab-office { max-width: 640px; }
+#tab-office { max-width: 1080px; }
+#office-intro-view, #office-loading, #office-banned-view { max-width: 640px; }
 
 #office-loading { color: var(--text-muted); font-size: 13px; }
 
@@ -3351,19 +3352,38 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 
 #office-banned-view p { color: var(--danger-strong); font-size: 13px; }
 
-#office-subnav { display: flex; gap: 6px; margin: 16px 0; border-bottom: 1px solid var(--border); }
+#office-mode-toggle { display: flex; gap: 6px; margin: 16px 0; border-bottom: 1px solid var(--border); }
 
-.office-subnav-btn {
+.office-mode-btn {
   font-size: 13px;
   color: var(--text-muted);
   padding: 8px 14px;
   border-bottom: 2px solid transparent;
 }
 
-.office-subnav-btn:hover { color: var(--text-primary); }
-.office-subnav-btn.active { color: var(--accent-strong); border-bottom-color: var(--accent); }
+.office-mode-btn:hover { color: var(--text-primary); }
+.office-mode-btn.active { color: var(--accent-strong); border-bottom-color: var(--accent); }
 
-#office-party-list, #office-applicant-list, #office-myapps-list { display: flex; flex-direction: column; gap: 10px; }
+#office-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+
+#office-col-write, #office-col-list { min-width: 0; }
+
+#office-col-list h3 { font-size: 14px; margin: 0 0 12px; color: var(--text-primary); }
+#office-resume-count { font-size: 12px; color: var(--text-muted); font-weight: 400; }
+
+#office-party-list, #office-applicant-list, #office-myapps-list, #office-resume-list { display: flex; flex-direction: column; gap: 10px; }
+
+.office-resume-item {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-primary);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+}
+
+#office-mode-party h4 { font-size: 13px; color: var(--text-muted); margin: 20px 0 10px; }
 
 .office-party-item, .office-applicant-item, .office-myapp-item {
   background: var(--bg-card);
@@ -3471,8 +3491,6 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 
 #office-myparty-code-save-btn:hover { border-color: var(--accent); color: var(--accent-strong); }
 
-#office-myparty-view h4 { font-size: 13px; color: var(--text-muted); margin: 20px 0 10px; }
-
 .office-applicant-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .office-applicant-info { display: flex; flex-direction: column; gap: 4px; }
 .office-applicant-resume { margin: 0; font-size: 13px; color: var(--text-primary); }
@@ -3517,4 +3535,5 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
   #map-legend-panel.collapsed #map-layer-toggles { flex-direction: column; }
   #site-utility-bar { right: 14px; bottom: 14px; gap: 6px; }
   .utility-fab-btn { padding: 9px 13px; font-size: 12px; }
+  #office-columns { grid-template-columns: 1fr; }
 }

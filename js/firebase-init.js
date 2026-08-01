@@ -444,8 +444,9 @@ async function getPartyCode(leaderId) {
   }
 }
 
-// 블라인드 이력서 — 평소엔 본인만 읽고 쓸 수 있고, 누군가 내 파티에 신청한 순간에만
-// 그 신청자의 이력서가 나(파티장)에게 보인다(자세한 이유는 firestore.rules 참고).
+// 이력서("인력 목록") — 사무소 회원이면 누구나 전체 목록을 볼 수 있다. 문서 ID가
+// steamId지만 화면에는 절대 노출하지 않기 위해, 목록 조회 함수는 항목 데이터만 돌려주고
+// 문서 ID(d.id)는 반환값에 아예 포함하지 않는다.
 const OFFICE_RESUMES_COLLECTION = "officeResumes";
 const RESUME_FIELD_KEYS = ["preferredServer", "mmr", "kda", "preferredStyle", "voice"];
 const MAX_RESUME_FIELD_LEN = 100;
@@ -480,6 +481,13 @@ async function getApplicantResume(applicantId) {
   } catch {
     return null;
   }
+}
+
+// 인력 목록 — 등록된 이력서 전체를 사무소 회원 누구나 조회. 문서 ID(steamId)는 절대
+// 반환하지 않는다(d.data()만 사용, d.id는 쓰지 않음).
+async function listAllResumes() {
+  const snap = await getDocs(collection(db, OFFICE_RESUMES_COLLECTION));
+  return snap.docs.map((d) => d.data());
 }
 
 window.LoadoutCloud = {
