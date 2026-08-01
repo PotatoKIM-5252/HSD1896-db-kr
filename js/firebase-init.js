@@ -352,10 +352,16 @@ function sanitizePartyFields(fields) {
   return out;
 }
 
+// where("status","==","open") + orderBy("createdAt")를 같이 쓰면 Firestore가 별도
+// 복합 색인을 요구해서(콘솔에서 색인을 직접 만들어야 함), 색인 없이도 되게 status
+// 필터 없이 전체를 가져온 다음 open만 걸러내고 클라이언트에서 정렬한다. 파티 수가
+// 많지 않은 서비스라 이 정도는 부담 없음.
 async function listOpenParties() {
-  const q = query(collection(db, OFFICE_PARTIES_COLLECTION), where("status", "==", "open"), orderBy("createdAt", "desc"));
+  const q = query(collection(db, OFFICE_PARTIES_COLLECTION), orderBy("createdAt", "desc"));
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ leaderId: d.id, ...d.data() }));
+  return snap.docs
+    .map((d) => ({ leaderId: d.id, ...d.data() }))
+    .filter((p) => p.status === "open");
 }
 
 async function getMyParty() {
