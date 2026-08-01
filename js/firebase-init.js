@@ -407,7 +407,7 @@ async function setMyPartyCode(code, isPublic) {
   await updateDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid), { codePublic: !!isPublic });
 }
 
-// 파티 취소 — 받은 신청들과 로비 코드까지 다 지우고 파티 문서 자체를 삭제
+// 파티 해산 — 받은 신청들과 로비 코드까지 다 지우고 파티 문서 자체를 삭제
 async function deleteMyParty() {
   const uid = await getUid();
   const appsSnap = await getDocs(collection(db, OFFICE_PARTIES_COLLECTION, uid, "applications"));
@@ -520,7 +520,7 @@ async function saveMyResume(fields) {
   const sanitized = sanitizeResumeFields(fields);
   const uid = await getUid();
   const partySnap = await getDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid));
-  if (partySnap.exists()) throw new Error("파티를 등록한 상태에서는 프로필을 작성할 수 없습니다. 먼저 파티를 취소해주세요.");
+  if (partySnap.exists()) throw new Error("파티를 등록한 상태에서는 프로필을 작성할 수 없습니다. 먼저 파티를 해산해주세요.");
   await setDoc(doc(db, OFFICE_RESUMES_COLLECTION, uid), { ...sanitized, updatedAt: serverTimestamp() });
 }
 

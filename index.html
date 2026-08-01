@@ -297,7 +297,7 @@
         <!-- 파티/인력 모드 전환 — 왼쪽(작성)과 오른쪽(목록)이 같이 전환됨 -->
         <div id="office-mode-toggle">
           <button class="office-mode-btn active" data-office-mode="party" type="button">파티</button>
-          <button class="office-mode-btn" data-office-mode="resume" type="button">인력</button>
+          <button class="office-mode-btn" data-office-mode="resume" type="button">프로필 게시판</button>
         </div>
 
         <div id="office-columns">
@@ -341,10 +341,10 @@
                 <button id="office-myparty-save-btn" class="office-btn office-btn-primary" type="button">파티 등록/수정</button>
                 <button id="office-myparty-close-btn" class="office-btn office-btn-secondary" type="button" hidden>모집 마감</button>
                 <button id="office-myparty-reopen-btn" class="office-btn office-btn-secondary" type="button" hidden>모집 재개</button>
-                <button id="office-myparty-delete-btn" class="office-btn office-btn-outline" type="button" hidden>파티 취소</button>
+                <button id="office-myparty-delete-btn" class="office-btn office-btn-outline" type="button" hidden>파티 해산</button>
               </div>
               <p id="office-myparty-msg" hidden></p>
-              <p id="office-myparty-headcount" class="muted-text"></p>
+              <p id="office-myparty-headcount" class="office-headcount-badge"></p>
 
               <div id="office-myparty-code-row">
                 <label for="office-myparty-code-input">로비 코드 (숫자 6자리, 필수)</label>
@@ -367,7 +367,7 @@
             <!-- 인력 모드: 내 이력서 작성 — 오른쪽 "인력 목록"에 공개되고, 신청 시 파티장에게도 보임 -->
             <div id="office-mode-resume" class="office-mode-panel" hidden>
               <p class="muted-text">아래 내용은 사무소 회원 전체에게 "프로필 목록"으로 공개됩니다(신원 정보는 제외).</p>
-              <p id="office-myresume-blocked-msg" class="office-blocked-msg" hidden>파티를 등록한 상태에서는 프로필을 작성할 수 없습니다. 먼저 "파티" 탭에서 파티를 취소해주세요.</p>
+              <p id="office-myresume-blocked-msg" class="office-blocked-msg" hidden>파티를 등록한 상태에서는 프로필을 작성할 수 없습니다. 먼저 "파티" 탭에서 파티를 해산해주세요.</p>
               <div class="office-field-form">
                 <label>선호 인원
                   <select id="office-myresume-type">

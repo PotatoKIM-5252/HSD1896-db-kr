@@ -1032,13 +1032,13 @@ function setupOfficePartyBoard() {
   });
 
   document.getElementById("office-myparty-delete-btn").addEventListener("click", async () => {
-    if (!confirm("파티를 취소할까요? 받은 신청과 로비 코드도 모두 삭제됩니다.")) return;
+    if (!confirm("파티를 해산할까요? 받은 신청과 로비 코드도 모두 삭제됩니다.")) return;
     try {
       await window.LoadoutCloud.deleteMyParty();
       renderMyParty();
       renderPartyList();
     } catch (err) {
-      showToast(err.message || "파티 취소에 실패했습니다.");
+      showToast(err.message || "파티 해산에 실패했습니다.");
     }
   });
 
@@ -1151,7 +1151,7 @@ async function renderPartyList() {
       item.appendChild(descEl);
 
       const headcountEl = document.createElement("p");
-      headcountEl.className = "office-party-headcount";
+      headcountEl.className = "office-headcount-badge";
       headcountEl.textContent = `인원: ${1 + (party.acceptedCount || 0)}/${partyMaxSize(party.partyType)}명`;
       item.appendChild(headcountEl);
 
