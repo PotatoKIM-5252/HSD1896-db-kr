@@ -146,11 +146,16 @@ service cloud.firestore {
     // - 문서 ID를 SteamID64로 고정해서 "같은 스팀ID로 중복 등록"도 구조적으로 막힘(이미
     //   존재하는 경로에 다시 쓰면 "생성"이 아니라 "수정"으로 취급되고, 아래엔 운영자용
     //   update 규칙만 있어서 자동 거부됨)
-    // - 읽기는 본인(ownerId 일치) 또는 운영자만 가능
+    // - 읽기는 본인(ownerId 일치) 또는 운영자만 가능. 문서가 아직 없을 때(!exists())도
+    //   허용해야 하는데, 안 그러면 최초 가입자가 "이미 등록됐는지" 확인하려는 읽기 자체가
+    //   거부돼서(resource.data가 없어 규칙 평가가 실패) 등록을 시작도 못 하게 된다.
+    //   문서가 없을 때 반환되는 정보는 "없음" 하나뿐이라 안전하다.
     // - banned(이용 제한)는 운영자만 켤 수 있음
     match /officeMembers/{steamId} {
       allow read: if request.auth != null
-                  && (resource.data.ownerId == request.auth.uid || isOperator());
+                  && (!exists(/databases/$(database)/documents/officeMembers/$(steamId))
+                      || resource.data.ownerId == request.auth.uid
+                      || isOperator());
 
       allow create: if request.auth != null
                     && steamId.matches('^7656119[0-9]{10}$')
