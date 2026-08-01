@@ -309,7 +309,18 @@
         <!-- 내 파티: 만들기/수정, 합류 코드 설정, 지원자 관리 -->
         <div id="office-myparty-view" class="office-subview" hidden>
           <div class="office-field-form">
-            <label>활동서버 <input type="text" id="office-myparty-server" maxlength="50" placeholder="예) 아시아"></label>
+            <label>활동서버
+              <select id="office-myparty-server">
+                <option value="" disabled selected>선택</option>
+                <option value="유럽">유럽</option>
+                <option value="러시아">러시아</option>
+                <option value="미국서부">미국서부</option>
+                <option value="미국동부">미국동부</option>
+                <option value="남미">남미</option>
+                <option value="아시아">아시아</option>
+                <option value="오세아니아">오세아니아</option>
+              </select>
+            </label>
             <label>파티 MMR <input type="text" id="office-myparty-mmr" maxlength="50" placeholder="예) 5성~6성"></label>
             <label>최소 KDA <input type="text" id="office-myparty-kda" maxlength="50" placeholder="예) 1.5 이상"></label>
             <label>전투 성향 <input type="text" id="office-myparty-style" maxlength="100" placeholder="예) 무조건 바운티, 공격적, 빠르게"></label>
@@ -323,11 +334,15 @@
           <p id="office-myparty-msg" hidden></p>
 
           <div id="office-myparty-code-row">
-            <label for="office-myparty-code-input">합류 코드 (수락된 신청자에게만 공개됩니다)</label>
+            <label for="office-myparty-code-input">합류 코드 (숫자 6자리)</label>
             <div id="office-myparty-code-input-row">
-              <input type="text" id="office-myparty-code-input" maxlength="100" placeholder="예) 로비 코드, 초대 링크 등">
+              <input type="text" id="office-myparty-code-input" inputmode="numeric" placeholder="예) 123456">
               <button id="office-myparty-code-save-btn" type="button">코드 저장</button>
             </div>
+            <label class="office-field-checkbox">
+              <input type="checkbox" id="office-myparty-code-public">
+              파티 목록에 코드 공개 (끄면 수락된 신청자에게만 공개)
+            </label>
           </div>
 
           <h4>받은 신청</h4>
@@ -343,7 +358,18 @@
         <div id="office-myresume-view" class="office-subview" hidden>
           <p class="muted-text">신원 정보 없이, 신청한 파티의 파티장에게만 아래 항목이 공개됩니다.</p>
           <div class="office-field-form">
-            <label>선호 서버 <input type="text" id="office-myresume-server" maxlength="50" placeholder="예) 아시아"></label>
+            <label>선호 서버
+              <select id="office-myresume-server">
+                <option value="" disabled selected>선택</option>
+                <option value="유럽">유럽</option>
+                <option value="러시아">러시아</option>
+                <option value="미국서부">미국서부</option>
+                <option value="미국동부">미국동부</option>
+                <option value="남미">남미</option>
+                <option value="아시아">아시아</option>
+                <option value="오세아니아">오세아니아</option>
+              </select>
+            </label>
             <label>개인 MMR <input type="text" id="office-myresume-mmr" maxlength="50" placeholder="예) 5성"></label>
             <label>KDA <input type="text" id="office-myresume-kda" maxlength="50" placeholder="예) 1.8"></label>
             <label>선호 성향 <input type="text" id="office-myresume-style" maxlength="100" placeholder="예) 바운티 위주, 신중하게"></label>

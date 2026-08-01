@@ -179,51 +179,60 @@ service cloud.firestore {
           && get(/databases/$(database)/documents/officeMembers/$(uid)).data.banned == false;
     }
 
-    // 파티 모집 정보(활동서버/파티MMR/최소KDA/전투성향/음성여부)가 유효한 형식인지 확인 —
-    // create/update 양쪽에서 같이 쓰는 공통 검증
+    // 헌트 서버 지역 — 파티 활동서버/이력서 선호서버 둘 다 이 목록 중 하나여야 함
+    function isValidServer(s) {
+      return s in ['유럽', '러시아', '미국서부', '미국동부', '남미', '아시아', '오세아니아'];
+    }
+
+    // 파티 모집 정보(활동서버/파티MMR/최소KDA/전투성향/음성여부/코드공개여부)가 유효한
+    // 형식인지 확인 — create/update 양쪽에서 같이 쓰는 공통 검증
     function isValidPartyFields(d) {
-      return d.activeServer is string && d.activeServer.size() > 0 && d.activeServer.size() <= 50
+      return isValidServer(d.activeServer)
           && d.partyMmr is string && d.partyMmr.size() > 0 && d.partyMmr.size() <= 50
           && d.minKda is string && d.minKda.size() <= 50
           && d.combatStyle is string && d.combatStyle.size() <= 100
-          && d.voice is bool;
+          && d.voice is bool
+          && d.codePublic is bool;
     }
 
     // 파티 모집 — 문서 ID = 파티장의 uid(=SteamID64)라서 "한 사람당 활성 파티 1개"가
     // 구조적으로 강제됨. 모집 정보는 사무소 회원이면 누구나 볼 수 있지만, 실제 합류
     // 코드(private/code)와 지원자 목록(applications)은 별도 하위 경로로 분리해서 각각
-    // 다른 접근 권한을 준다 — 파티장 본인과, "수락된" 지원자만 코드를 볼 수 있음.
+    // 다른 접근 권한을 준다 — 파티장 본인과, "수락된" 지원자(또는 codePublic이면 회원 전체)만
+    // 코드를 볼 수 있음.
     match /officeParties/{leaderId} {
       allow read: if request.auth != null && isActiveMember(request.auth.uid);
 
       allow create: if request.auth != null
                     && request.auth.uid == leaderId
                     && isActiveMember(request.auth.uid)
-                    && request.resource.data.keys().hasOnly(['leaderId', 'activeServer', 'partyMmr', 'minKda', 'combatStyle', 'voice', 'status', 'createdAt'])
+                    && request.resource.data.keys().hasOnly(['leaderId', 'activeServer', 'partyMmr', 'minKda', 'combatStyle', 'voice', 'codePublic', 'status', 'createdAt'])
                     && request.resource.data.leaderId == request.auth.uid
                     && isValidPartyFields(request.resource.data)
                     && request.resource.data.status == 'open'
                     && request.resource.data.createdAt == request.time;
 
       allow update: if request.auth != null && request.auth.uid == leaderId
-                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['activeServer', 'partyMmr', 'minKda', 'combatStyle', 'voice', 'status'])
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['activeServer', 'partyMmr', 'minKda', 'combatStyle', 'voice', 'codePublic', 'status'])
                     && isValidPartyFields(request.resource.data)
                     && request.resource.data.status in ['open', 'closed'];
 
       allow delete: if request.auth != null && (request.auth.uid == leaderId || isOperator());
 
-      // 합류 코드 — 파티장 본인이거나, 이 파티에 "수락된" 지원자만 읽을 수 있음
+      // 합류 코드(숫자 6자리) — 파티장 본인이거나, codePublic이 켜져 있으면 회원 전체,
+      // 아니면 이 파티에 "수락된" 지원자만 읽을 수 있음
       match /private/code {
         allow read: if request.auth != null
                     && (request.auth.uid == leaderId
+                        || (get(/databases/$(database)/documents/officeParties/$(leaderId)).data.codePublic == true
+                            && isActiveMember(request.auth.uid))
                         || (exists(/databases/$(database)/documents/officeParties/$(leaderId)/applications/$(request.auth.uid))
                             && get(/databases/$(database)/documents/officeParties/$(leaderId)/applications/$(request.auth.uid)).data.status == 'accepted'));
 
         allow create, update: if request.auth != null && request.auth.uid == leaderId
                       && request.resource.data.keys().hasOnly(['code'])
                       && request.resource.data.code is string
-                      && request.resource.data.code.size() > 0
-                      && request.resource.data.code.size() <= 100;
+                      && request.resource.data.code.matches('^[0-9]{6}$');
 
         allow delete: if request.auth != null && request.auth.uid == leaderId;
       }
@@ -271,7 +280,7 @@ service cloud.firestore {
                     && request.auth.uid == steamId
                     && isActiveMember(request.auth.uid)
                     && request.resource.data.keys().hasOnly(['preferredServer', 'mmr', 'kda', 'preferredStyle', 'voice', 'updatedAt'])
-                    && request.resource.data.preferredServer is string && request.resource.data.preferredServer.size() <= 50
+                    && isValidServer(request.resource.data.preferredServer)
                     && request.resource.data.mmr is string && request.resource.data.mmr.size() <= 50
                     && request.resource.data.kda is string && request.resource.data.kda.size() <= 50
                     && request.resource.data.preferredStyle is string && request.resource.data.preferredStyle.size() <= 100

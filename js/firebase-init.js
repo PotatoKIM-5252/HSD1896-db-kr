@@ -330,9 +330,10 @@ async function ensureOfficeMembership(steamId) {
 // 목록은 파티장만).
 const OFFICE_PARTIES_COLLECTION = "officeParties";
 const PARTY_FIELD_KEYS = ["activeServer", "partyMmr", "minKda", "combatStyle", "voice"];
+const OFFICE_SERVERS = ["유럽", "러시아", "미국서부", "미국동부", "남미", "아시아", "오세아니아"];
 const MAX_PARTY_FIELD_LEN = 100;
 const MAX_APPLICATION_MSG_LEN = 200;
-const MAX_PARTY_CODE_LEN = 100;
+const PARTY_CODE_RE = /^\d{6}$/;
 
 function sanitizePartyFields(fields) {
   const out = {};
@@ -340,7 +341,7 @@ function sanitizePartyFields(fields) {
     if (key === "voice") { out.voice = !!fields.voice; continue; }
     out[key] = (fields[key] || "").trim().slice(0, MAX_PARTY_FIELD_LEN);
   }
-  if (!out.activeServer) throw new Error("활동서버를 입력해주세요.");
+  if (!OFFICE_SERVERS.includes(out.activeServer)) throw new Error("활동서버를 목록에서 선택해주세요.");
   if (!out.partyMmr) throw new Error("파티 MMR을 입력해주세요.");
   return out;
 }
@@ -357,7 +358,8 @@ async function getMyParty() {
   return snap.exists() ? { leaderId: uid, ...snap.data() } : null;
 }
 
-// 파티 등록/수정 — 처음 만들 때는 생성, 이미 있으면 내용만 수정(둘 다 같은 문서 하나만 씀)
+// 파티 등록/수정 — 처음 만들 때는 생성(코드 공개여부는 기본 비공개), 이미 있으면 모집
+// 정보만 수정(코드/공개여부는 setMyPartyCode에서 따로 다룸)
 async function saveMyParty(fields) {
   const sanitized = sanitizePartyFields(fields);
   const uid = await getUid();
@@ -366,7 +368,7 @@ async function saveMyParty(fields) {
   if (snap.exists()) {
     await updateDoc(ref, sanitized);
   } else {
-    await setDoc(ref, { leaderId: uid, ...sanitized, status: "open", createdAt: serverTimestamp() });
+    await setDoc(ref, { leaderId: uid, ...sanitized, codePublic: false, status: "open", createdAt: serverTimestamp() });
   }
 }
 
@@ -375,11 +377,12 @@ async function setMyPartyStatus(status) {
   await updateDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid), { status });
 }
 
-async function setMyPartyCode(code) {
-  const trimmed = (code || "").trim().slice(0, MAX_PARTY_CODE_LEN);
-  if (!trimmed) throw new Error("코드를 입력해주세요.");
+async function setMyPartyCode(code, isPublic) {
+  const trimmed = (code || "").trim();
+  if (!PARTY_CODE_RE.test(trimmed)) throw new Error("합류 코드는 숫자 6자리로 입력해주세요.");
   const uid = await getUid();
   await setDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid, "private", "code"), { code: trimmed });
+  await updateDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid), { codePublic: !!isPublic });
 }
 
 // 내가 만든 파티에 들어온 신청 목록 (신청자 식별값(uid)은 화면에 노출하지 않고 메시지만 보여줄 것)
@@ -444,6 +447,7 @@ function sanitizeResumeFields(fields) {
     if (key === "voice") { out.voice = !!fields.voice; continue; }
     out[key] = (fields[key] || "").trim().slice(0, MAX_RESUME_FIELD_LEN);
   }
+  if (!OFFICE_SERVERS.includes(out.preferredServer)) throw new Error("선호 서버를 목록에서 선택해주세요.");
   return out;
 }
 

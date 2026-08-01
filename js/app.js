@@ -955,10 +955,15 @@ function setupOfficePartyBoard() {
     }
   });
 
+  const codeInput = document.getElementById("office-myparty-code-input");
+  codeInput.addEventListener("input", () => {
+    codeInput.value = codeInput.value.replace(/\D/g, "").slice(0, 6);
+  });
+
   document.getElementById("office-myparty-code-save-btn").addEventListener("click", async () => {
-    const input = document.getElementById("office-myparty-code-input");
+    const isPublic = document.getElementById("office-myparty-code-public").checked;
     try {
-      await window.LoadoutCloud.setMyPartyCode(input.value);
+      await window.LoadoutCloud.setMyPartyCode(codeInput.value, isPublic);
       showToast("코드를 저장했습니다.", "info");
     } catch (err) {
       showToast(err.message || "코드 저장에 실패했습니다.");
@@ -1034,6 +1039,17 @@ async function renderPartyList() {
       descEl.textContent = formatPartyFields(party);
       item.appendChild(descEl);
 
+      if (party.codePublic) {
+        const codeEl = document.createElement("p");
+        codeEl.className = "office-party-code";
+        codeEl.textContent = "합류 코드 불러오는 중...";
+        item.appendChild(codeEl);
+        window.LoadoutCloud.getPartyCode(party.leaderId).then((code) => {
+          codeEl.textContent = code ? `합류 코드: ${code}` : "";
+          codeEl.hidden = !code;
+        });
+      }
+
       const applyRow = document.createElement("div");
       applyRow.className = "office-party-apply-row";
       const input = document.createElement("input");
@@ -1088,6 +1104,7 @@ async function renderMyParty() {
       kdaInput.value = party.minKda || "";
       styleInput.value = party.combatStyle || "";
       voiceInput.checked = !!party.voice;
+      document.getElementById("office-myparty-code-public").checked = !!party.codePublic;
     }
   } catch {
     // 조회 실패해도 새로 만들기 폼은 그대로 씀

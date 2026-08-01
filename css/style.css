@@ -3374,6 +3374,8 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 
 .office-party-desc { margin: 0 0 10px; font-size: 13px; color: var(--text-primary); white-space: pre-wrap; }
 
+.office-party-code { margin: 0 0 10px; font-size: 13px; color: var(--accent-strong); font-family: var(--font-mono); }
+
 .office-party-apply-row { display: flex; gap: 8px; }
 
 .office-party-apply-row input {
@@ -3404,7 +3406,7 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 
 .office-field-form label { display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: var(--text-muted); }
 
-.office-field-form label input[type="text"] {
+.office-field-form label input[type="text"], .office-field-form label select {
   background: var(--bg-input);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius);
