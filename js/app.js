@@ -1026,13 +1026,29 @@ function setupOfficePartyBoard() {
     }
   });
 
+  // 선호 서버 체크박스 — "상관없음"은 다른 서버 선택과 배타적으로 동작(하나를 고르면
+  // 나머지는 자동으로 해제)
+  const resumeServerAnyCb = document.getElementById("office-myresume-server-any");
+  const resumeServerCbs = Array.from(document.querySelectorAll(".office-myresume-server-cb"));
+  resumeServerAnyCb.addEventListener("change", () => {
+    if (resumeServerAnyCb.checked) resumeServerCbs.forEach((cb) => { cb.checked = false; });
+  });
+  resumeServerCbs.forEach((cb) => {
+    cb.addEventListener("change", () => {
+      if (cb.checked) resumeServerAnyCb.checked = false;
+    });
+  });
+  const readMyResumeServers = () => (
+    resumeServerAnyCb.checked ? ["상관없음"] : resumeServerCbs.filter((cb) => cb.checked).map((cb) => cb.value)
+  );
+
   const resumeMsgEl = document.getElementById("office-myresume-msg");
   document.getElementById("office-myresume-save-btn").addEventListener("click", async () => {
     if (!window.LoadoutCloud) return;
     resumeMsgEl.hidden = true;
     try {
       await window.LoadoutCloud.saveMyResume({
-        preferredServer: document.getElementById("office-myresume-server").value,
+        preferredServers: readMyResumeServers(),
         mmr: document.getElementById("office-myresume-mmr").value,
         kda: document.getElementById("office-myresume-kda").value,
         preferredStyle: document.getElementById("office-myresume-style").value,
@@ -1080,7 +1096,7 @@ function formatResumeFields(r) {
   return [
     r.preferredPartyType ? `선호 인원: ${r.preferredPartyType}` : null,
     r.preferredGameMode ? `선호 모드: ${r.preferredGameMode}` : null,
-    r.preferredServer ? `선호 서버: ${r.preferredServer}` : null,
+    r.preferredServers && r.preferredServers.length ? `선호 서버: ${r.preferredServers.join(", ")}` : null,
     r.mmr ? `MMR: ${r.mmr}` : null,
     r.kda ? `KDA: ${r.kda}` : null,
     r.preferredStyle ? `선호 성향: ${r.preferredStyle}` : null,
@@ -1307,7 +1323,9 @@ async function renderMyResume() {
     if (!resume) return;
     document.getElementById("office-myresume-type").value = resume.preferredPartyType || "";
     document.getElementById("office-myresume-mode").value = resume.preferredGameMode || "";
-    document.getElementById("office-myresume-server").value = resume.preferredServer || "";
+    const servers = resume.preferredServers || [];
+    document.getElementById("office-myresume-server-any").checked = servers.includes("상관없음");
+    document.querySelectorAll(".office-myresume-server-cb").forEach((cb) => { cb.checked = servers.includes(cb.value); });
     document.getElementById("office-myresume-mmr").value = resume.mmr || "";
     document.getElementById("office-myresume-kda").value = resume.kda || "";
     document.getElementById("office-myresume-style").value = resume.preferredStyle || "";

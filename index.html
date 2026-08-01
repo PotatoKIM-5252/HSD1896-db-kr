@@ -385,18 +385,17 @@
                     <option value="상관없음">상관없음</option>
                   </select>
                 </label>
-                <label>선호 서버
-                  <select id="office-myresume-server">
-                    <option value="" disabled selected>선택</option>
-                    <option value="유럽">유럽</option>
-                    <option value="러시아">러시아</option>
-                    <option value="미국서부">미국서부</option>
-                    <option value="미국동부">미국동부</option>
-                    <option value="남미">남미</option>
-                    <option value="아시아">아시아</option>
-                    <option value="오세아니아">오세아니아</option>
-                  </select>
-                </label>
+                <div class="office-field-checkbox-group">
+                  <span class="office-field-checkbox-group-label">선호 서버 (복수 선택 가능)</span>
+                  <label class="office-field-checkbox"><input type="checkbox" class="office-myresume-server-cb" value="유럽"> 유럽</label>
+                  <label class="office-field-checkbox"><input type="checkbox" class="office-myresume-server-cb" value="러시아"> 러시아</label>
+                  <label class="office-field-checkbox"><input type="checkbox" class="office-myresume-server-cb" value="미국서부"> 미국서부</label>
+                  <label class="office-field-checkbox"><input type="checkbox" class="office-myresume-server-cb" value="미국동부"> 미국동부</label>
+                  <label class="office-field-checkbox"><input type="checkbox" class="office-myresume-server-cb" value="남미"> 남미</label>
+                  <label class="office-field-checkbox"><input type="checkbox" class="office-myresume-server-cb" value="아시아"> 아시아</label>
+                  <label class="office-field-checkbox"><input type="checkbox" class="office-myresume-server-cb" value="오세아니아"> 오세아니아</label>
+                  <label class="office-field-checkbox"><input type="checkbox" id="office-myresume-server-any" value="상관없음"> 상관없음</label>
+                </div>
                 <label>개인 MMR <input type="text" id="office-myresume-mmr" maxlength="50" placeholder="예) 5성"></label>
                 <label>KDA <input type="text" id="office-myresume-kda" maxlength="50" placeholder="예) 1.8"></label>
                 <label>선호 성향 <input type="text" id="office-myresume-style" maxlength="100" placeholder="예) 바운티 위주, 신중하게"></label>

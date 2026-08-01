@@ -3460,6 +3460,18 @@ label.office-field-checkbox {
 
 label.office-field-checkbox input[type="checkbox"] { width: auto; }
 
+.office-field-checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+}
+
+.office-field-checkbox-group-label {
+  flex-basis: 100%;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
 #office-myparty-actions { display: flex; gap: 8px; margin-top: 10px; }
 
 #office-myparty-actions button {

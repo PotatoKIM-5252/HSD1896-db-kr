@@ -179,9 +179,17 @@ service cloud.firestore {
           && get(/databases/$(database)/documents/officeMembers/$(uid)).data.banned == false;
     }
 
-    // 헌트 서버 지역 — 파티 활동서버/이력서 선호서버 둘 다 이 목록 중 하나여야 함
+    // 헌트 서버 지역 — 파티 활동서버는 이 목록 중 하나(단일)여야 함
     function isValidServer(s) {
       return s in ['유럽', '러시아', '미국서부', '미국동부', '남미', '아시아', '오세아니아'];
+    }
+
+    // 프로필 선호 서버 — 복수 선택 가능, "상관없음"도 값으로 허용. 최소 1개는 골라야 함
+    function isValidServerPreferenceList(list) {
+      return list is list
+          && list.size() > 0
+          && list.size() <= 8
+          && list.hasOnly(['유럽', '러시아', '미국서부', '미국동부', '남미', '아시아', '오세아니아', '상관없음']);
     }
 
     // 파티 인원 유형(듀오/트리오) — 파티 게시글과 이력서(선호 인원) 둘 다 이 목록 중 하나
@@ -305,8 +313,8 @@ service cloud.firestore {
                     && request.auth.uid == steamId
                     && isActiveMember(request.auth.uid)
                     && !exists(/databases/$(database)/documents/officeParties/$(request.auth.uid))
-                    && request.resource.data.keys().hasOnly(['preferredServer', 'mmr', 'kda', 'preferredStyle', 'voice', 'updatedAt', 'preferredPartyType', 'preferredGameMode'])
-                    && isValidServer(request.resource.data.preferredServer)
+                    && request.resource.data.keys().hasOnly(['preferredServers', 'mmr', 'kda', 'preferredStyle', 'voice', 'updatedAt', 'preferredPartyType', 'preferredGameMode'])
+                    && isValidServerPreferenceList(request.resource.data.preferredServers)
                     && request.resource.data.mmr is string && request.resource.data.mmr.size() <= 50
                     && request.resource.data.kda is string && request.resource.data.kda.size() <= 50
                     && request.resource.data.preferredStyle is string && request.resource.data.preferredStyle.size() <= 100

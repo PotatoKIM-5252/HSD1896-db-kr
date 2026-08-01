@@ -489,8 +489,9 @@ async function getPartyCode(leaderId) {
 // steamId지만 화면에는 절대 노출하지 않기 위해, 목록 조회 함수는 항목 데이터만 돌려주고
 // 문서 ID(d.id)는 반환값에 아예 포함하지 않는다.
 const OFFICE_RESUMES_COLLECTION = "officeResumes";
-const RESUME_FIELD_KEYS = ["preferredServer", "mmr", "kda", "preferredStyle", "voice", "preferredPartyType", "preferredGameMode"];
+const RESUME_FIELD_KEYS = ["mmr", "kda", "preferredStyle", "voice", "preferredPartyType", "preferredGameMode"];
 const MAX_RESUME_FIELD_LEN = 100;
+const OFFICE_SERVERS_WITH_ANY = [...OFFICE_SERVERS, "상관없음"];
 
 function sanitizeResumeFields(fields) {
   const out = {};
@@ -498,7 +499,9 @@ function sanitizeResumeFields(fields) {
     if (key === "voice") { out.voice = !!fields.voice; continue; }
     out[key] = (fields[key] || "").trim().slice(0, MAX_RESUME_FIELD_LEN);
   }
-  if (!OFFICE_SERVERS.includes(out.preferredServer)) throw new Error("선호 서버를 목록에서 선택해주세요.");
+  const servers = Array.isArray(fields.preferredServers) ? [...new Set(fields.preferredServers)] : [];
+  out.preferredServers = servers.filter((s) => OFFICE_SERVERS_WITH_ANY.includes(s));
+  if (out.preferredServers.length === 0) throw new Error("선호 서버를 하나 이상 선택해주세요.");
   if (!PARTY_TYPES.includes(out.preferredPartyType)) throw new Error("선호 인원(듀오/트리오)을 선택해주세요.");
   if (!GAME_MODES.includes(out.preferredGameMode)) throw new Error("선호 게임 모드를 선택해주세요.");
   return out;
