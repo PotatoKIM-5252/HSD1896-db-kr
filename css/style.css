@@ -3332,18 +3332,40 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
   cursor: pointer;
 }
 
-#office-register-btn {
+/* 사무소 버튼 체계 — 등록/저장/신청/수락처럼 확정적인 행동은 accent로 채운 primary,
+   마감/재개처럼 상태를 오가는 중립적 행동은 secondary(테두리만), 취소/삭제/거절처럼
+   되돌리거나 거부하는 행동은 outline(평소엔 무채색, 호버 시에만 danger로 경고)로 구분한다. */
+.office-btn {
   border-radius: var(--radius);
   font-size: 13px;
   font-weight: 500;
-  padding: 10px 18px;
+  padding: 9px 16px;
+  white-space: nowrap;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.office-btn-primary {
   border: 1px solid var(--accent);
   background: var(--accent);
   color: var(--accent-text);
 }
+.office-btn-primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+.office-btn-primary:disabled { opacity: 0.6; cursor: default; }
 
-#office-register-btn:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
-#office-register-btn:disabled { opacity: 0.6; cursor: default; }
+.office-btn-secondary {
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--text-secondary);
+}
+.office-btn-secondary:hover { border-color: var(--accent); color: var(--accent-strong); }
+
+.office-btn-outline {
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--text-muted);
+}
+.office-btn-outline:hover { border-color: var(--danger-strong); color: var(--danger-strong); }
+.office-btn-outline:disabled { opacity: 0.6; cursor: default; }
 
 #office-intro-msg { margin: 10px 0 0; font-size: 12px; color: var(--success); }
 #office-intro-msg.error { color: var(--danger-strong); }
@@ -3355,10 +3377,14 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 #office-mode-toggle { display: flex; gap: 6px; margin: 16px 0; border-bottom: 1px solid var(--border); }
 
 .office-mode-btn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
   font-size: 13px;
+  font-weight: 500;
   color: var(--text-muted);
   padding: 8px 14px;
-  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
 }
 
 .office-mode-btn:hover { color: var(--text-primary); }
@@ -3372,12 +3398,14 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 #office-col-list h3 { font-size: 14px; margin: 0; color: var(--text-primary); }
 
 .office-list-header button {
+  background: transparent;
   font-size: 12px;
   color: var(--text-muted);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 5px 10px;
   white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
 }
 
 .office-list-header button:hover { color: var(--text-primary); border-color: var(--accent); }
@@ -3422,19 +3450,7 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
   font-size: 12px;
 }
 
-.office-party-apply-row button, .office-applicant-item button {
-  border-radius: var(--radius);
-  font-size: 12px;
-  font-weight: 500;
-  padding: 8px 14px;
-  border: 1px solid var(--accent);
-  background: var(--accent);
-  color: var(--accent-text);
-  white-space: nowrap;
-}
-
-.office-party-apply-row button:hover, .office-applicant-item button:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
-.office-party-apply-row button:disabled { opacity: 0.6; cursor: default; }
+.office-party-apply-row .office-btn, .office-applicant-actions .office-btn { font-size: 12px; padding: 8px 14px; }
 
 .office-field-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 4px; }
 
@@ -3474,29 +3490,6 @@ label.office-field-checkbox input[type="checkbox"] { width: auto; }
 
 #office-myparty-actions { display: flex; gap: 8px; margin-top: 10px; }
 
-#office-myparty-actions button {
-  border-radius: var(--radius);
-  font-size: 13px;
-  font-weight: 500;
-  padding: 9px 16px;
-  border: 1px solid var(--accent);
-  background: var(--accent);
-  color: var(--accent-text);
-}
-
-#office-myparty-actions button:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
-
-#office-myparty-delete-btn, #office-myresume-delete-btn {
-  background: transparent !important;
-  border-color: var(--border-strong) !important;
-  color: var(--text-muted) !important;
-}
-
-#office-myparty-delete-btn:hover, #office-myresume-delete-btn:hover {
-  color: var(--danger-strong) !important;
-  border-color: var(--danger-strong) !important;
-}
-
 .office-blocked-msg { font-size: 12px; color: var(--danger-strong); margin: 0 0 12px; }
 
 #office-myparty-msg { margin: 10px 0 0; font-size: 12px; color: var(--success); }
@@ -3529,18 +3522,6 @@ label.office-field-checkbox input[type="checkbox"] { width: auto; }
 .office-myapp-status { font-size: 13px; color: var(--text-primary); }
 
 #office-myresume-actions { display: flex; gap: 8px; }
-
-#office-myresume-actions button {
-  border-radius: var(--radius);
-  font-size: 13px;
-  font-weight: 500;
-  padding: 9px 16px;
-  border: 1px solid var(--accent);
-  background: var(--accent);
-  color: var(--accent-text);
-}
-
-#office-myresume-actions button:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
 
 #office-myresume-msg { margin: 10px 0 0; font-size: 12px; color: var(--success); }
 #office-myresume-msg.error { color: var(--danger-strong); }

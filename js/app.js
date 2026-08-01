@@ -1175,6 +1175,7 @@ async function renderPartyList() {
         input.placeholder = "간단한 메시지(선택)";
         const applyBtn = document.createElement("button");
         applyBtn.type = "button";
+        applyBtn.className = "office-btn office-btn-primary";
         applyBtn.textContent = "참가 신청";
         applyRow.appendChild(input);
         applyRow.appendChild(applyBtn);
@@ -1274,6 +1275,7 @@ async function renderMyParty() {
         actionsEl.className = "office-applicant-actions";
         const acceptBtn = document.createElement("button");
         acceptBtn.type = "button";
+        acceptBtn.className = "office-btn office-btn-primary";
         acceptBtn.textContent = "수락";
         acceptBtn.addEventListener("click", async () => {
           try {
@@ -1285,6 +1287,7 @@ async function renderMyParty() {
         });
         const declineBtn = document.createElement("button");
         declineBtn.type = "button";
+        declineBtn.className = "office-btn office-btn-outline";
         declineBtn.textContent = "거절";
         declineBtn.addEventListener("click", async () => {
           try {
