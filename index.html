@@ -327,18 +327,18 @@
                 <button id="office-myparty-save-btn" type="button">파티 등록/수정</button>
                 <button id="office-myparty-close-btn" type="button" hidden>모집 마감</button>
                 <button id="office-myparty-reopen-btn" type="button" hidden>모집 재개</button>
+                <button id="office-myparty-delete-btn" type="button" hidden>파티 취소</button>
               </div>
               <p id="office-myparty-msg" hidden></p>
 
               <div id="office-myparty-code-row">
-                <label for="office-myparty-code-input">합류 코드 (숫자 6자리)</label>
+                <label for="office-myparty-code-input">로비 코드 (숫자 6자리, 필수)</label>
                 <div id="office-myparty-code-input-row">
                   <input type="text" id="office-myparty-code-input" inputmode="numeric" placeholder="예) 123456">
-                  <button id="office-myparty-code-save-btn" type="button">코드 저장</button>
                 </div>
                 <label class="office-field-checkbox">
                   <input type="checkbox" id="office-myparty-code-public">
-                  파티 목록에 코드 공개 (끄면 수락된 신청자에게만 공개)
+                  파티 목록에 로비 코드 공개 (끄면 수락된 신청자에게만 공개)
                 </label>
               </div>
 
@@ -352,6 +352,7 @@
             <!-- 인력 모드: 내 이력서 작성 — 오른쪽 "인력 목록"에 공개되고, 신청 시 파티장에게도 보임 -->
             <div id="office-mode-resume" class="office-mode-panel" hidden>
               <p class="muted-text">아래 내용은 사무소 회원 전체에게 "인력 목록"으로 공개됩니다(신원 정보는 제외).</p>
+              <p id="office-myresume-blocked-msg" class="office-blocked-msg" hidden>파티를 등록한 상태에서는 이력서를 작성할 수 없습니다. 먼저 "파티" 탭에서 파티를 취소해주세요.</p>
               <div class="office-field-form">
                 <label>선호 서버
                   <select id="office-myresume-server">
@@ -370,7 +371,10 @@
                 <label>선호 성향 <input type="text" id="office-myresume-style" maxlength="100" placeholder="예) 바운티 위주, 신중하게"></label>
                 <label class="office-field-checkbox"><input type="checkbox" id="office-myresume-voice"> 음성 사용</label>
               </div>
-              <button id="office-myresume-save-btn" type="button">이력서 저장</button>
+              <div id="office-myresume-actions">
+                <button id="office-myresume-save-btn" type="button">이력서 저장</button>
+                <button id="office-myresume-delete-btn" type="button" hidden>이력서 삭제</button>
+              </div>
               <p id="office-myresume-msg" hidden></p>
             </div>
           </div>

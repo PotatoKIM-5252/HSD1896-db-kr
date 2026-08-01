@@ -269,12 +269,14 @@ service cloud.firestore {
     // 이력서("인력 목록") — 사무소 회원이면 누구나 목록으로 읽을 수 있다. 문서 자체엔
     // steamId 등 신원 정보를 담지 않아서(문서 ID가 곧 steamId이긴 하지만, 화면에는
     // 절대 그 값을 노출하지 않는 게 클라이언트 쪽 원칙) "블라인드"가 유지된다.
+    // 파티장은 이력서를 쓸 수 없음(officeParties에 자기 문서가 있으면 거부).
     match /officeResumes/{steamId} {
       allow read: if request.auth != null && isActiveMember(request.auth.uid);
 
       allow create, update: if request.auth != null
                     && request.auth.uid == steamId
                     && isActiveMember(request.auth.uid)
+                    && !exists(/databases/$(database)/documents/officeParties/$(request.auth.uid))
                     && request.resource.data.keys().hasOnly(['preferredServer', 'mmr', 'kda', 'preferredStyle', 'voice', 'updatedAt'])
                     && isValidServer(request.resource.data.preferredServer)
                     && request.resource.data.mmr is string && request.resource.data.mmr.size() <= 50

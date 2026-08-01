@@ -394,10 +394,19 @@ async function setMyPartyStatus(status) {
 
 async function setMyPartyCode(code, isPublic) {
   const trimmed = (code || "").trim();
-  if (!PARTY_CODE_RE.test(trimmed)) throw new Error("합류 코드는 숫자 6자리로 입력해주세요.");
+  if (!PARTY_CODE_RE.test(trimmed)) throw new Error("로비 코드는 숫자 6자리로 입력해주세요.");
   const uid = await getUid();
   await setDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid, "private", "code"), { code: trimmed });
   await updateDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid), { codePublic: !!isPublic });
+}
+
+// 파티 취소 — 받은 신청들과 로비 코드까지 다 지우고 파티 문서 자체를 삭제
+async function deleteMyParty() {
+  const uid = await getUid();
+  const appsSnap = await getDocs(collection(db, OFFICE_PARTIES_COLLECTION, uid, "applications"));
+  await Promise.all(appsSnap.docs.map((d) => deleteDoc(d.ref)));
+  await deleteDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid, "private", "code"));
+  await deleteDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid));
 }
 
 // 내가 만든 파티에 들어온 신청 목록 (신청자 식별값(uid)은 화면에 노출하지 않고 메시지만 보여줄 것)
@@ -473,10 +482,18 @@ async function getMyResume() {
   return snap.exists() ? snap.data() : null;
 }
 
+// 파티장은 이력서를 쓸 수 없다(파티 등록 중이면 규칙도 같이 막음 — firestore.rules 참고)
 async function saveMyResume(fields) {
   const sanitized = sanitizeResumeFields(fields);
   const uid = await getUid();
+  const partySnap = await getDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid));
+  if (partySnap.exists()) throw new Error("파티를 등록한 상태에서는 이력서를 작성할 수 없습니다. 먼저 파티를 취소해주세요.");
   await setDoc(doc(db, OFFICE_RESUMES_COLLECTION, uid), { ...sanitized, updatedAt: serverTimestamp() });
+}
+
+async function deleteMyResume() {
+  const uid = await getUid();
+  await deleteDoc(doc(db, OFFICE_RESUMES_COLLECTION, uid));
 }
 
 // 내 파티에 신청한 사람의 이력서 — 신청이 없거나 남의 파티면 규칙이 거부하므로 null 처리
@@ -503,7 +520,7 @@ window.LoadoutCloud = {
   getWeaponReviews, setWeaponHeart, saveWeaponComment, toggleWeaponCommentAgree,
   buildSteamLoginUrl, getSteamOpenIdParamsFromUrl, verifySteamLoginAndSignIn,
   getMyOfficeMembership, ensureOfficeMembership,
-  listOpenParties, getMyParty, saveMyParty, setMyPartyStatus, setMyPartyCode,
+  listOpenParties, getMyParty, saveMyParty, setMyPartyStatus, setMyPartyCode, deleteMyParty,
   listApplicationsForMyParty, applyToParty, respondToApplication, listMyApplications, getPartyCode,
-  getMyResume, saveMyResume, getApplicantResume,
+  getMyResume, saveMyResume, deleteMyResume, getApplicantResume, listAllResumes,
 };

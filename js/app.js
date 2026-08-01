@@ -924,6 +924,11 @@ function setupOfficePartyBoard() {
   document.getElementById("office-resume-refresh-btn").addEventListener("click", renderResumeList);
 
   const saveMsgEl = document.getElementById("office-myparty-msg");
+  const codeInput = document.getElementById("office-myparty-code-input");
+
+  codeInput.addEventListener("input", () => {
+    codeInput.value = codeInput.value.replace(/\D/g, "").slice(0, 6);
+  });
 
   const readMyPartyForm = () => ({
     activeServer: document.getElementById("office-myparty-server").value,
@@ -933,11 +938,21 @@ function setupOfficePartyBoard() {
     voice: document.getElementById("office-myparty-voice").checked,
   });
 
+  // 파티 등록/수정 — 모집 정보와 로비 코드를 한 번에 저장. 로비 코드는 필수라서
+  // 안 채워져 있으면 아예 저장을 시작하지 않는다.
   document.getElementById("office-myparty-save-btn").addEventListener("click", async () => {
     if (!window.LoadoutCloud) return;
     saveMsgEl.hidden = true;
+    if (!/^\d{6}$/.test(codeInput.value)) {
+      saveMsgEl.textContent = "로비 코드를 숫자 6자리로 입력해주세요.";
+      saveMsgEl.classList.add("error");
+      saveMsgEl.hidden = false;
+      return;
+    }
+    const isPublic = document.getElementById("office-myparty-code-public").checked;
     try {
       await window.LoadoutCloud.saveMyParty(readMyPartyForm());
+      await window.LoadoutCloud.setMyPartyCode(codeInput.value, isPublic);
       saveMsgEl.textContent = "저장했습니다.";
       saveMsgEl.classList.remove("error");
       saveMsgEl.hidden = false;
@@ -970,18 +985,14 @@ function setupOfficePartyBoard() {
     }
   });
 
-  const codeInput = document.getElementById("office-myparty-code-input");
-  codeInput.addEventListener("input", () => {
-    codeInput.value = codeInput.value.replace(/\D/g, "").slice(0, 6);
-  });
-
-  document.getElementById("office-myparty-code-save-btn").addEventListener("click", async () => {
-    const isPublic = document.getElementById("office-myparty-code-public").checked;
+  document.getElementById("office-myparty-delete-btn").addEventListener("click", async () => {
+    if (!confirm("파티를 취소할까요? 받은 신청과 로비 코드도 모두 삭제됩니다.")) return;
     try {
-      await window.LoadoutCloud.setMyPartyCode(codeInput.value, isPublic);
-      showToast("코드를 저장했습니다.", "info");
+      await window.LoadoutCloud.deleteMyParty();
+      renderMyParty();
+      renderPartyList();
     } catch (err) {
-      showToast(err.message || "코드 저장에 실패했습니다.");
+      showToast(err.message || "파티 취소에 실패했습니다.");
     }
   });
 
@@ -1000,10 +1011,23 @@ function setupOfficePartyBoard() {
       resumeMsgEl.textContent = "저장했습니다.";
       resumeMsgEl.classList.remove("error");
       resumeMsgEl.hidden = false;
+      renderMyResume();
+      renderResumeList();
     } catch (err) {
       resumeMsgEl.textContent = err.message || "저장에 실패했습니다.";
       resumeMsgEl.classList.add("error");
       resumeMsgEl.hidden = false;
+    }
+  });
+
+  document.getElementById("office-myresume-delete-btn").addEventListener("click", async () => {
+    if (!confirm("이력서를 삭제할까요?")) return;
+    try {
+      await window.LoadoutCloud.deleteMyResume();
+      renderMyResume();
+      renderResumeList();
+    } catch (err) {
+      showToast(err.message || "이력서 삭제에 실패했습니다.");
     }
   });
 }
@@ -1057,10 +1081,10 @@ async function renderPartyList() {
       if (party.codePublic) {
         const codeEl = document.createElement("p");
         codeEl.className = "office-party-code";
-        codeEl.textContent = "합류 코드 불러오는 중...";
+        codeEl.textContent = "로비 코드 불러오는 중...";
         item.appendChild(codeEl);
         window.LoadoutCloud.getPartyCode(party.leaderId).then((code) => {
-          codeEl.textContent = code ? `합류 코드: ${code}` : "";
+          codeEl.textContent = code ? `로비 코드: ${code}` : "";
           codeEl.hidden = !code;
         });
       }
@@ -1109,12 +1133,14 @@ async function renderMyParty() {
   const voiceInput = document.getElementById("office-myparty-voice");
   const closeBtn = document.getElementById("office-myparty-close-btn");
   const reopenBtn = document.getElementById("office-myparty-reopen-btn");
+  const deleteBtn = document.getElementById("office-myparty-delete-btn");
   const applicantListEl = document.getElementById("office-applicant-list");
 
   try {
     const party = await window.LoadoutCloud.getMyParty();
     closeBtn.hidden = !party || party.status !== "open";
     reopenBtn.hidden = !party || party.status !== "closed";
+    deleteBtn.hidden = !party;
     if (party) {
       serverInput.value = party.activeServer || "";
       mmrInput.value = party.partyMmr || "";
@@ -1122,6 +1148,8 @@ async function renderMyParty() {
       styleInput.value = party.combatStyle || "";
       voiceInput.checked = !!party.voice;
       document.getElementById("office-myparty-code-public").checked = !!party.codePublic;
+      const code = await window.LoadoutCloud.getPartyCode(party.leaderId).catch(() => null);
+      document.getElementById("office-myparty-code-input").value = code || "";
     }
   } catch {
     // 조회 실패해도 새로 만들기 폼은 그대로 씀
@@ -1200,11 +1228,32 @@ async function renderMyParty() {
   }
 }
 
-// 내 이력서 — 저장하면 오른쪽 "인력 목록"에 신원 정보 없이 공개됨
+// 내 이력서 — 저장하면 오른쪽 "인력 목록"에 신원 정보 없이 공개됨.
+// 파티를 등록한 상태면 이력서 작성 자체를 막는다(폼 비활성화 + 안내 문구).
 async function renderMyResume() {
   if (!window.LoadoutCloud) return;
+  const blockedMsgEl = document.getElementById("office-myresume-blocked-msg");
+  const formEl = document.querySelector("#office-mode-resume .office-field-form");
+  const saveBtn = document.getElementById("office-myresume-save-btn");
+  const deleteBtn = document.getElementById("office-myresume-delete-btn");
+
+  try {
+    const party = await window.LoadoutCloud.getMyParty();
+    const blocked = !!party;
+    blockedMsgEl.hidden = !blocked;
+    formEl.querySelectorAll("input, select").forEach((el) => { el.disabled = blocked; });
+    saveBtn.disabled = blocked;
+    if (blocked) {
+      deleteBtn.hidden = true;
+      return;
+    }
+  } catch {
+    // 파티 조회 실패해도 이력서 폼은 그대로 씀
+  }
+
   try {
     const resume = await window.LoadoutCloud.getMyResume();
+    deleteBtn.hidden = !resume;
     if (!resume) return;
     document.getElementById("office-myresume-server").value = resume.preferredServer || "";
     document.getElementById("office-myresume-mmr").value = resume.mmr || "";
@@ -1242,7 +1291,7 @@ async function renderResumeList() {
   }
 }
 
-// 내 신청 현황 — 수락된 건에 한해서만 합류 코드를 추가로 불러와 보여줌
+// 내 신청 현황 — 수락된 건에 한해서만 로비 코드를 추가로 불러와 보여줌
 async function renderMyApplications() {
   const listEl = document.getElementById("office-myapps-list");
   if (!window.LoadoutCloud) return;
@@ -1266,10 +1315,10 @@ async function renderMyApplications() {
       if (a.status === "accepted") {
         const codeEl = document.createElement("span");
         codeEl.className = "office-myapp-code";
-        codeEl.textContent = "코드 확인 중...";
+        codeEl.textContent = "로비 코드 확인 중...";
         item.appendChild(codeEl);
         window.LoadoutCloud.getPartyCode(a.leaderId).then((code) => {
-          codeEl.textContent = code ? `합류 코드: ${code}` : "파티장이 아직 코드를 등록하지 않았습니다.";
+          codeEl.textContent = code ? `로비 코드: ${code}` : "파티장이 아직 로비 코드를 등록하지 않았습니다.";
         });
       }
 
