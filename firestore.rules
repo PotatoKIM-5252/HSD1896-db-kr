@@ -179,29 +179,35 @@ service cloud.firestore {
           && get(/databases/$(database)/documents/officeMembers/$(uid)).data.banned == false;
     }
 
+    // 파티 모집 정보(활동서버/파티MMR/최소KDA/전투성향/음성여부)가 유효한 형식인지 확인 —
+    // create/update 양쪽에서 같이 쓰는 공통 검증
+    function isValidPartyFields(d) {
+      return d.activeServer is string && d.activeServer.size() > 0 && d.activeServer.size() <= 50
+          && d.partyMmr is string && d.partyMmr.size() > 0 && d.partyMmr.size() <= 50
+          && d.minKda is string && d.minKda.size() <= 50
+          && d.combatStyle is string && d.combatStyle.size() <= 100
+          && d.voice is bool;
+    }
+
     // 파티 모집 — 문서 ID = 파티장의 uid(=SteamID64)라서 "한 사람당 활성 파티 1개"가
-    // 구조적으로 강제됨. description(모집 글)은 사무소 회원이면 누구나 볼 수 있지만,
-    // 실제 합류 코드(private/code)와 지원자 목록(applications)은 별도 하위 경로로 분리해서
-    // 각각 다른 접근 권한을 준다 — 파티장 본인과, "수락된" 지원자만 코드를 볼 수 있음.
+    // 구조적으로 강제됨. 모집 정보는 사무소 회원이면 누구나 볼 수 있지만, 실제 합류
+    // 코드(private/code)와 지원자 목록(applications)은 별도 하위 경로로 분리해서 각각
+    // 다른 접근 권한을 준다 — 파티장 본인과, "수락된" 지원자만 코드를 볼 수 있음.
     match /officeParties/{leaderId} {
       allow read: if request.auth != null && isActiveMember(request.auth.uid);
 
       allow create: if request.auth != null
                     && request.auth.uid == leaderId
                     && isActiveMember(request.auth.uid)
-                    && request.resource.data.keys().hasOnly(['leaderId', 'description', 'status', 'createdAt'])
+                    && request.resource.data.keys().hasOnly(['leaderId', 'activeServer', 'partyMmr', 'minKda', 'combatStyle', 'voice', 'status', 'createdAt'])
                     && request.resource.data.leaderId == request.auth.uid
-                    && request.resource.data.description is string
-                    && request.resource.data.description.size() > 0
-                    && request.resource.data.description.size() <= 200
+                    && isValidPartyFields(request.resource.data)
                     && request.resource.data.status == 'open'
                     && request.resource.data.createdAt == request.time;
 
       allow update: if request.auth != null && request.auth.uid == leaderId
-                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['description', 'status'])
-                    && request.resource.data.description is string
-                    && request.resource.data.description.size() > 0
-                    && request.resource.data.description.size() <= 200
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['activeServer', 'partyMmr', 'minKda', 'combatStyle', 'voice', 'status'])
+                    && isValidPartyFields(request.resource.data)
                     && request.resource.data.status in ['open', 'closed'];
 
       allow delete: if request.auth != null && (request.auth.uid == leaderId || isOperator());
@@ -249,6 +255,30 @@ service cloud.firestore {
 
         allow delete: if request.auth != null && (request.auth.uid == applicantId || request.auth.uid == leaderId);
       }
+    }
+
+    // 블라인드 이력서 — 본인과 운영자 외에는 평소엔 아무도 못 읽고, "이 사람이 내 파티에
+    // 신청한 경우"에만 그 파티장에게 공개된다(신청 자체가 문서 ID=uid라서 exists()로 확인
+    // 가능). 즉 이력서는 이용자 전체에게 공개 게시되는 게 아니라, 실제로 지원했을 때만
+    // 해당 파티장에게 "블라인드"로(신원 정보 없이 아래 항목만) 보여지는 구조.
+    match /officeResumes/{steamId} {
+      allow read: if request.auth != null
+                  && (request.auth.uid == steamId
+                      || isOperator()
+                      || exists(/databases/$(database)/documents/officeParties/$(request.auth.uid)/applications/$(steamId)));
+
+      allow create, update: if request.auth != null
+                    && request.auth.uid == steamId
+                    && isActiveMember(request.auth.uid)
+                    && request.resource.data.keys().hasOnly(['preferredServer', 'mmr', 'kda', 'preferredStyle', 'voice', 'updatedAt'])
+                    && request.resource.data.preferredServer is string && request.resource.data.preferredServer.size() <= 50
+                    && request.resource.data.mmr is string && request.resource.data.mmr.size() <= 50
+                    && request.resource.data.kda is string && request.resource.data.kda.size() <= 50
+                    && request.resource.data.preferredStyle is string && request.resource.data.preferredStyle.size() <= 100
+                    && request.resource.data.voice is bool
+                    && request.resource.data.updatedAt == request.time;
+
+      allow delete: if request.auth != null && (request.auth.uid == steamId || isOperator());
     }
   }
 }

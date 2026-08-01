@@ -298,6 +298,7 @@
           <button class="office-subnav-btn active" data-office-view="browse" type="button">파티 목록</button>
           <button class="office-subnav-btn" data-office-view="myparty" type="button">내 파티</button>
           <button class="office-subnav-btn" data-office-view="myapps" type="button">내 신청 현황</button>
+          <button class="office-subnav-btn" data-office-view="myresume" type="button">내 이력서</button>
         </div>
 
         <!-- 파티 목록: 열려있는 다른 사람 파티 보고 신청 -->
@@ -307,7 +308,13 @@
 
         <!-- 내 파티: 만들기/수정, 합류 코드 설정, 지원자 관리 -->
         <div id="office-myparty-view" class="office-subview" hidden>
-          <textarea id="office-myparty-desc" maxlength="200" placeholder="모집 내용을 적어주세요 (게임모드, 인원, 시간대 등)"></textarea>
+          <div class="office-field-form">
+            <label>활동서버 <input type="text" id="office-myparty-server" maxlength="50" placeholder="예) 아시아"></label>
+            <label>파티 MMR <input type="text" id="office-myparty-mmr" maxlength="50" placeholder="예) 5성~6성"></label>
+            <label>최소 KDA <input type="text" id="office-myparty-kda" maxlength="50" placeholder="예) 1.5 이상"></label>
+            <label>전투 성향 <input type="text" id="office-myparty-style" maxlength="100" placeholder="예) 무조건 바운티, 공격적, 빠르게"></label>
+            <label class="office-field-checkbox"><input type="checkbox" id="office-myparty-voice"> 음성 사용</label>
+          </div>
           <div id="office-myparty-actions">
             <button id="office-myparty-save-btn" type="button">파티 등록/수정</button>
             <button id="office-myparty-close-btn" type="button" hidden>모집 마감</button>
@@ -330,6 +337,20 @@
         <!-- 내 신청 현황 -->
         <div id="office-myapps-view" class="office-subview" hidden>
           <div id="office-myapps-list"></div>
+        </div>
+
+        <!-- 내 이력서(블라인드) — 내가 신청한 파티의 파티장에게만 아래 항목이 보임 -->
+        <div id="office-myresume-view" class="office-subview" hidden>
+          <p class="muted-text">신원 정보 없이, 신청한 파티의 파티장에게만 아래 항목이 공개됩니다.</p>
+          <div class="office-field-form">
+            <label>선호 서버 <input type="text" id="office-myresume-server" maxlength="50" placeholder="예) 아시아"></label>
+            <label>개인 MMR <input type="text" id="office-myresume-mmr" maxlength="50" placeholder="예) 5성"></label>
+            <label>KDA <input type="text" id="office-myresume-kda" maxlength="50" placeholder="예) 1.8"></label>
+            <label>선호 성향 <input type="text" id="office-myresume-style" maxlength="100" placeholder="예) 바운티 위주, 신중하게"></label>
+            <label class="office-field-checkbox"><input type="checkbox" id="office-myresume-voice"> 음성 사용</label>
+          </div>
+          <button id="office-myresume-save-btn" type="button">이력서 저장</button>
+          <p id="office-myresume-msg" hidden></p>
         </div>
       </div>
 

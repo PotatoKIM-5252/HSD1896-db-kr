@@ -324,13 +324,26 @@ async function ensureOfficeMembership(steamId) {
 }
 
 // 파티 모집 — 문서 ID = 파티장 uid(=steamId64)라서 "한 사람당 활성 파티 1개"가 구조적으로
-// 강제됨. 모집 글(description)은 사무소 회원이면 누구나 보지만, 합류 코드(private/code)와
-// 지원자 목록(applications)은 각각 별도 하위 경로라 Firestore 규칙이 따로 접근을 제한한다
-// (코드는 파티장 본인과 "수락된" 지원자만, 지원자 목록은 파티장만).
+// 강제됨. 모집 정보(활동서버/파티MMR/최소KDA/전투성향/음성여부)는 사무소 회원이면 누구나
+// 보지만, 합류 코드(private/code)와 지원자 목록(applications)은 각각 별도 하위 경로라
+// Firestore 규칙이 따로 접근을 제한한다(코드는 파티장 본인과 "수락된" 지원자만, 지원자
+// 목록은 파티장만).
 const OFFICE_PARTIES_COLLECTION = "officeParties";
-const MAX_PARTY_DESC_LEN = 200;
+const PARTY_FIELD_KEYS = ["activeServer", "partyMmr", "minKda", "combatStyle", "voice"];
+const MAX_PARTY_FIELD_LEN = 100;
 const MAX_APPLICATION_MSG_LEN = 200;
 const MAX_PARTY_CODE_LEN = 100;
+
+function sanitizePartyFields(fields) {
+  const out = {};
+  for (const key of PARTY_FIELD_KEYS) {
+    if (key === "voice") { out.voice = !!fields.voice; continue; }
+    out[key] = (fields[key] || "").trim().slice(0, MAX_PARTY_FIELD_LEN);
+  }
+  if (!out.activeServer) throw new Error("활동서버를 입력해주세요.");
+  if (!out.partyMmr) throw new Error("파티 MMR을 입력해주세요.");
+  return out;
+}
 
 async function listOpenParties() {
   const q = query(collection(db, OFFICE_PARTIES_COLLECTION), where("status", "==", "open"), orderBy("createdAt", "desc"));
@@ -345,16 +358,15 @@ async function getMyParty() {
 }
 
 // 파티 등록/수정 — 처음 만들 때는 생성, 이미 있으면 내용만 수정(둘 다 같은 문서 하나만 씀)
-async function saveMyParty(description) {
-  const trimmed = (description || "").trim().slice(0, MAX_PARTY_DESC_LEN);
-  if (!trimmed) throw new Error("모집 내용을 입력해주세요.");
+async function saveMyParty(fields) {
+  const sanitized = sanitizePartyFields(fields);
   const uid = await getUid();
   const ref = doc(db, OFFICE_PARTIES_COLLECTION, uid);
   const snap = await getDoc(ref);
   if (snap.exists()) {
-    await updateDoc(ref, { description: trimmed });
+    await updateDoc(ref, sanitized);
   } else {
-    await setDoc(ref, { leaderId: uid, description: trimmed, status: "open", createdAt: serverTimestamp() });
+    await setDoc(ref, { leaderId: uid, ...sanitized, status: "open", createdAt: serverTimestamp() });
   }
 }
 
@@ -420,6 +432,43 @@ async function getPartyCode(leaderId) {
   }
 }
 
+// 블라인드 이력서 — 평소엔 본인만 읽고 쓸 수 있고, 누군가 내 파티에 신청한 순간에만
+// 그 신청자의 이력서가 나(파티장)에게 보인다(자세한 이유는 firestore.rules 참고).
+const OFFICE_RESUMES_COLLECTION = "officeResumes";
+const RESUME_FIELD_KEYS = ["preferredServer", "mmr", "kda", "preferredStyle", "voice"];
+const MAX_RESUME_FIELD_LEN = 100;
+
+function sanitizeResumeFields(fields) {
+  const out = {};
+  for (const key of RESUME_FIELD_KEYS) {
+    if (key === "voice") { out.voice = !!fields.voice; continue; }
+    out[key] = (fields[key] || "").trim().slice(0, MAX_RESUME_FIELD_LEN);
+  }
+  return out;
+}
+
+async function getMyResume() {
+  const uid = await getUid();
+  const snap = await getDoc(doc(db, OFFICE_RESUMES_COLLECTION, uid));
+  return snap.exists() ? snap.data() : null;
+}
+
+async function saveMyResume(fields) {
+  const sanitized = sanitizeResumeFields(fields);
+  const uid = await getUid();
+  await setDoc(doc(db, OFFICE_RESUMES_COLLECTION, uid), { ...sanitized, updatedAt: serverTimestamp() });
+}
+
+// 내 파티에 신청한 사람의 이력서 — 신청이 없거나 남의 파티면 규칙이 거부하므로 null 처리
+async function getApplicantResume(applicantId) {
+  try {
+    const snap = await getDoc(doc(db, OFFICE_RESUMES_COLLECTION, applicantId));
+    return snap.exists() ? snap.data() : null;
+  } catch {
+    return null;
+  }
+}
+
 window.LoadoutCloud = {
   saveLoadout, listLoadouts, toggleLike, deleteLoadout,
   submitReport, reportNeedsCaptcha, listReports,
@@ -429,4 +478,5 @@ window.LoadoutCloud = {
   getMyOfficeMembership, ensureOfficeMembership,
   listOpenParties, getMyParty, saveMyParty, setMyPartyStatus, setMyPartyCode,
   listApplicationsForMyParty, applyToParty, respondToApplication, listMyApplications, getPartyCode,
+  getMyResume, saveMyResume, getApplicantResume,
 };

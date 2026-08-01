@@ -903,20 +903,29 @@ function setupOfficePartyBoard() {
       document.getElementById("office-browse-view").hidden = view !== "browse";
       document.getElementById("office-myparty-view").hidden = view !== "myparty";
       document.getElementById("office-myapps-view").hidden = view !== "myapps";
+      document.getElementById("office-myresume-view").hidden = view !== "myresume";
       if (view === "browse") renderPartyList();
       if (view === "myparty") renderMyParty();
       if (view === "myapps") renderMyApplications();
+      if (view === "myresume") renderMyResume();
     });
   });
 
-  const descTextarea = document.getElementById("office-myparty-desc");
   const saveMsgEl = document.getElementById("office-myparty-msg");
+
+  const readMyPartyForm = () => ({
+    activeServer: document.getElementById("office-myparty-server").value,
+    partyMmr: document.getElementById("office-myparty-mmr").value,
+    minKda: document.getElementById("office-myparty-kda").value,
+    combatStyle: document.getElementById("office-myparty-style").value,
+    voice: document.getElementById("office-myparty-voice").checked,
+  });
 
   document.getElementById("office-myparty-save-btn").addEventListener("click", async () => {
     if (!window.LoadoutCloud) return;
     saveMsgEl.hidden = true;
     try {
-      await window.LoadoutCloud.saveMyParty(descTextarea.value);
+      await window.LoadoutCloud.saveMyParty(readMyPartyForm());
       saveMsgEl.textContent = "저장했습니다.";
       saveMsgEl.classList.remove("error");
       saveMsgEl.hidden = false;
@@ -955,6 +964,48 @@ function setupOfficePartyBoard() {
       showToast(err.message || "코드 저장에 실패했습니다.");
     }
   });
+
+  const resumeMsgEl = document.getElementById("office-myresume-msg");
+  document.getElementById("office-myresume-save-btn").addEventListener("click", async () => {
+    if (!window.LoadoutCloud) return;
+    resumeMsgEl.hidden = true;
+    try {
+      await window.LoadoutCloud.saveMyResume({
+        preferredServer: document.getElementById("office-myresume-server").value,
+        mmr: document.getElementById("office-myresume-mmr").value,
+        kda: document.getElementById("office-myresume-kda").value,
+        preferredStyle: document.getElementById("office-myresume-style").value,
+        voice: document.getElementById("office-myresume-voice").checked,
+      });
+      resumeMsgEl.textContent = "저장했습니다.";
+      resumeMsgEl.classList.remove("error");
+      resumeMsgEl.hidden = false;
+    } catch (err) {
+      resumeMsgEl.textContent = err.message || "저장에 실패했습니다.";
+      resumeMsgEl.classList.add("error");
+      resumeMsgEl.hidden = false;
+    }
+  });
+}
+
+function formatPartyFields(p) {
+  return [
+    `서버: ${p.activeServer}`,
+    `파티 MMR: ${p.partyMmr}`,
+    p.minKda ? `최소 KDA: ${p.minKda}` : null,
+    p.combatStyle ? `전투 성향: ${p.combatStyle}` : null,
+    `음성: ${p.voice ? "사용" : "미사용"}`,
+  ].filter(Boolean).join(" · ");
+}
+
+function formatResumeFields(r) {
+  return [
+    r.preferredServer ? `선호 서버: ${r.preferredServer}` : null,
+    r.mmr ? `MMR: ${r.mmr}` : null,
+    r.kda ? `KDA: ${r.kda}` : null,
+    r.preferredStyle ? `선호 성향: ${r.preferredStyle}` : null,
+    `음성: ${r.voice ? "사용" : "미사용"}`,
+  ].filter(Boolean).join(" · ");
 }
 
 // 파티 목록 — 다른 사람이 올린 모집 중인 파티만 보여주고, 신청 버튼을 단다.
@@ -980,7 +1031,7 @@ async function renderPartyList() {
 
       const descEl = document.createElement("p");
       descEl.className = "office-party-desc";
-      descEl.textContent = party.description;
+      descEl.textContent = formatPartyFields(party);
       item.appendChild(descEl);
 
       const applyRow = document.createElement("div");
@@ -1015,10 +1066,14 @@ async function renderPartyList() {
   }
 }
 
-// 내 파티 — 모집 글/상태 + 받은 신청 목록. 지원자 표시는 메시지 내용만(uid 비노출).
+// 내 파티 — 모집 정보/상태 + 받은 신청 목록. 지원자는 uid 없이 이력서(있으면)+메시지만 보여줌.
 async function renderMyParty() {
   if (!window.LoadoutCloud) return;
-  const descTextarea = document.getElementById("office-myparty-desc");
+  const serverInput = document.getElementById("office-myparty-server");
+  const mmrInput = document.getElementById("office-myparty-mmr");
+  const kdaInput = document.getElementById("office-myparty-kda");
+  const styleInput = document.getElementById("office-myparty-style");
+  const voiceInput = document.getElementById("office-myparty-voice");
   const closeBtn = document.getElementById("office-myparty-close-btn");
   const reopenBtn = document.getElementById("office-myparty-reopen-btn");
   const applicantListEl = document.getElementById("office-applicant-list");
@@ -1027,7 +1082,13 @@ async function renderMyParty() {
     const party = await window.LoadoutCloud.getMyParty();
     closeBtn.hidden = !party || party.status !== "open";
     reopenBtn.hidden = !party || party.status !== "closed";
-    if (party && !descTextarea.matches(":focus")) descTextarea.value = party.description;
+    if (party) {
+      serverInput.value = party.activeServer || "";
+      mmrInput.value = party.partyMmr || "";
+      kdaInput.value = party.minKda || "";
+      styleInput.value = party.combatStyle || "";
+      voiceInput.checked = !!party.voice;
+    }
   } catch {
     // 조회 실패해도 새로 만들기 폼은 그대로 씀
   }
@@ -1040,16 +1101,32 @@ async function renderMyParty() {
       applicantListEl.textContent = "받은 신청이 없습니다.";
       return;
     }
-    applicants.forEach((a) => {
+    for (const a of applicants) {
       const item = document.createElement("div");
       item.className = "office-applicant-item";
 
-      const msgEl = document.createElement("span");
-      msgEl.className = "office-applicant-msg";
-      msgEl.textContent = a.message || "(메시지 없음)";
-      item.appendChild(msgEl);
+      const infoWrap = document.createElement("div");
+      infoWrap.className = "office-applicant-info";
+
+      const resumeEl = document.createElement("p");
+      resumeEl.className = "office-applicant-resume";
+      resumeEl.textContent = "이력서 불러오는 중...";
+      infoWrap.appendChild(resumeEl);
+      window.LoadoutCloud.getApplicantResume(a.applicantId).then((resume) => {
+        resumeEl.textContent = resume ? formatResumeFields(resume) : "이력서를 작성하지 않은 신청자입니다.";
+      });
+
+      if (a.message) {
+        const msgEl = document.createElement("p");
+        msgEl.className = "office-applicant-msg";
+        msgEl.textContent = a.message;
+        infoWrap.appendChild(msgEl);
+      }
+      item.appendChild(infoWrap);
 
       if (a.status === "pending") {
+        const actionsEl = document.createElement("div");
+        actionsEl.className = "office-applicant-actions";
         const acceptBtn = document.createElement("button");
         acceptBtn.type = "button";
         acceptBtn.textContent = "수락";
@@ -1072,8 +1149,9 @@ async function renderMyParty() {
             showToast(err.message || "처리에 실패했습니다.");
           }
         });
-        item.appendChild(acceptBtn);
-        item.appendChild(declineBtn);
+        actionsEl.appendChild(acceptBtn);
+        actionsEl.appendChild(declineBtn);
+        item.appendChild(actionsEl);
       } else {
         const statusEl = document.createElement("span");
         statusEl.className = "office-applicant-status";
@@ -1082,9 +1160,25 @@ async function renderMyParty() {
       }
 
       applicantListEl.appendChild(item);
-    });
+    }
   } catch {
     applicantListEl.textContent = "신청 목록을 불러오지 못했습니다.";
+  }
+}
+
+// 내 이력서(블라인드) — 신청한 파티의 파티장에게만 공개됨
+async function renderMyResume() {
+  if (!window.LoadoutCloud) return;
+  try {
+    const resume = await window.LoadoutCloud.getMyResume();
+    if (!resume) return;
+    document.getElementById("office-myresume-server").value = resume.preferredServer || "";
+    document.getElementById("office-myresume-mmr").value = resume.mmr || "";
+    document.getElementById("office-myresume-kda").value = resume.kda || "";
+    document.getElementById("office-myresume-style").value = resume.preferredStyle || "";
+    document.getElementById("office-myresume-voice").checked = !!resume.voice;
+  } catch {
+    // 조회 실패해도 새로 작성하는 폼은 그대로 씀
   }
 }
 

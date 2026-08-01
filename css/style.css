@@ -3400,18 +3400,28 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 .office-party-apply-row button:hover, .office-applicant-item button:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
 .office-party-apply-row button:disabled { opacity: 0.6; cursor: default; }
 
-#office-myparty-desc {
-  width: 100%;
-  min-height: 90px;
-  resize: vertical;
+.office-field-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 4px; }
+
+.office-field-form label { display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: var(--text-muted); }
+
+.office-field-form label input[type="text"] {
   background: var(--bg-input);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius);
-  padding: 10px 12px;
+  padding: 9px 12px;
   color: var(--text-primary);
   font-size: 13px;
-  font-family: var(--font-body);
 }
+
+.office-field-form label.office-field-checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.office-field-form label.office-field-checkbox input[type="checkbox"] { width: auto; }
 
 #office-myparty-actions { display: flex; gap: 8px; margin-top: 10px; }
 
@@ -3462,11 +3472,29 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 #office-myparty-view h4 { font-size: 13px; color: var(--text-muted); margin: 20px 0 10px; }
 
 .office-applicant-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.office-applicant-msg { font-size: 13px; color: var(--text-primary); }
-.office-applicant-status { font-size: 12px; color: var(--text-muted); }
+.office-applicant-info { display: flex; flex-direction: column; gap: 4px; }
+.office-applicant-resume { margin: 0; font-size: 13px; color: var(--text-primary); }
+.office-applicant-msg { margin: 0; font-size: 12px; color: var(--text-muted); }
+.office-applicant-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.office-applicant-status { font-size: 12px; color: var(--text-muted); flex-shrink: 0; }
 
 .office-myapp-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .office-myapp-status { font-size: 13px; color: var(--text-primary); }
+
+#office-myresume-save-btn {
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 9px 16px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+#office-myresume-save-btn:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+
+#office-myresume-msg { margin: 10px 0 0; font-size: 12px; color: var(--success); }
+#office-myresume-msg.error { color: var(--danger-strong); }
 .office-myapp-code { font-size: 13px; color: var(--accent-strong); font-family: var(--font-mono); }
 
 /* ===================== 반응형 ===================== */
