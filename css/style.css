@@ -3408,6 +3408,8 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 
 .office-party-code { margin: 0 0 10px; font-size: 13px; color: var(--accent-strong); font-family: var(--font-mono); }
 
+.office-party-headcount { margin: 0 0 10px; font-size: 12px; color: var(--text-muted); }
+
 .office-party-apply-row { display: flex; gap: 8px; }
 
 .office-party-apply-row input {

@@ -306,6 +306,20 @@
             <!-- 파티 모드: 내 파티 만들기/수정 + 받은 신청 + 내 신청 현황 -->
             <div id="office-mode-party" class="office-mode-panel">
               <div class="office-field-form">
+                <label>파티 유형
+                  <select id="office-myparty-type">
+                    <option value="" disabled selected>선택</option>
+                    <option value="듀오">듀오 (최대 2명)</option>
+                    <option value="트리오">트리오 (최대 3명)</option>
+                  </select>
+                </label>
+                <label>게임 모드
+                  <select id="office-myparty-mode">
+                    <option value="" disabled selected>선택</option>
+                    <option value="바운티 헌트">바운티 헌트</option>
+                    <option value="결전">결전</option>
+                  </select>
+                </label>
                 <label>활동서버
                   <select id="office-myparty-server">
                     <option value="" disabled selected>선택</option>
@@ -330,6 +344,7 @@
                 <button id="office-myparty-delete-btn" type="button" hidden>파티 취소</button>
               </div>
               <p id="office-myparty-msg" hidden></p>
+              <p id="office-myparty-headcount" class="muted-text"></p>
 
               <div id="office-myparty-code-row">
                 <label for="office-myparty-code-input">로비 코드 (숫자 6자리, 필수)</label>
@@ -354,6 +369,20 @@
               <p class="muted-text">아래 내용은 사무소 회원 전체에게 "인력 목록"으로 공개됩니다(신원 정보는 제외).</p>
               <p id="office-myresume-blocked-msg" class="office-blocked-msg" hidden>파티를 등록한 상태에서는 이력서를 작성할 수 없습니다. 먼저 "파티" 탭에서 파티를 취소해주세요.</p>
               <div class="office-field-form">
+                <label>선호 인원
+                  <select id="office-myresume-type">
+                    <option value="" disabled selected>선택</option>
+                    <option value="듀오">듀오</option>
+                    <option value="트리오">트리오</option>
+                  </select>
+                </label>
+                <label>선호 게임 모드
+                  <select id="office-myresume-mode">
+                    <option value="" disabled selected>선택</option>
+                    <option value="바운티 헌트">바운티 헌트</option>
+                    <option value="결전">결전</option>
+                  </select>
+                </label>
                 <label>선호 서버
                   <select id="office-myresume-server">
                     <option value="" disabled selected>선택</option>
@@ -383,14 +412,14 @@
           <div id="office-col-list">
             <div id="office-list-party" class="office-mode-panel">
               <div class="office-list-header">
-                <h3>파티 목록</h3>
+                <h3>구인 게시판</h3>
                 <button id="office-party-refresh-btn" type="button" title="새로고침">새로고침</button>
               </div>
               <div id="office-party-list"></div>
             </div>
             <div id="office-list-resume" class="office-mode-panel" hidden>
               <div class="office-list-header">
-                <h3>인력 목록 <span id="office-resume-count"></span></h3>
+                <h3>이력서 목록 <span id="office-resume-count"></span></h3>
                 <button id="office-resume-refresh-btn" type="button" title="새로고침">새로고침</button>
               </div>
               <div id="office-resume-list"></div>

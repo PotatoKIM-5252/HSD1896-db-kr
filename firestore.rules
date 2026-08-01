@@ -184,15 +184,32 @@ service cloud.firestore {
       return s in ['유럽', '러시아', '미국서부', '미국동부', '남미', '아시아', '오세아니아'];
     }
 
-    // 파티 모집 정보(활동서버/파티MMR/최소KDA/전투성향/음성여부/코드공개여부)가 유효한
-    // 형식인지 확인 — create/update 양쪽에서 같이 쓰는 공통 검증
+    // 파티 인원 유형(듀오/트리오) — 파티 게시글과 이력서(선호 인원) 둘 다 이 목록 중 하나
+    function isValidPartyType(t) {
+      return t in ['듀오', '트리오'];
+    }
+
+    // 듀오/트리오별 최대 인원(리더 포함) — 구인 게시판 인원수 표시, acceptedCount 상한 검증에 씀
+    function partyMaxSize(t) {
+      return t == '트리오' ? 3 : 2;
+    }
+
+    // 게임 모드(바운티 헌트/결전) — 파티 게시글과 이력서(선호 모드) 둘 다 이 목록 중 하나
+    function isValidGameMode(m) {
+      return m in ['바운티 헌트', '결전'];
+    }
+
+    // 파티 모집 정보(활동서버/파티MMR/최소KDA/전투성향/음성여부/코드공개여부/유형/모드)가
+    // 유효한 형식인지 확인 — create/update 양쪽에서 같이 쓰는 공통 검증
     function isValidPartyFields(d) {
       return isValidServer(d.activeServer)
           && d.partyMmr is string && d.partyMmr.size() > 0 && d.partyMmr.size() <= 50
           && d.minKda is string && d.minKda.size() <= 50
           && d.combatStyle is string && d.combatStyle.size() <= 100
           && d.voice is bool
-          && d.codePublic is bool;
+          && d.codePublic is bool
+          && isValidPartyType(d.partyType)
+          && isValidGameMode(d.gameMode);
     }
 
     // 파티 모집 — 문서 ID = 파티장의 uid(=SteamID64)라서 "한 사람당 활성 파티 1개"가
@@ -206,16 +223,27 @@ service cloud.firestore {
       allow create: if request.auth != null
                     && request.auth.uid == leaderId
                     && isActiveMember(request.auth.uid)
-                    && request.resource.data.keys().hasOnly(['leaderId', 'activeServer', 'partyMmr', 'minKda', 'combatStyle', 'voice', 'codePublic', 'status', 'createdAt'])
+                    && request.resource.data.keys().hasOnly(['leaderId', 'activeServer', 'partyMmr', 'minKda', 'combatStyle', 'voice', 'codePublic', 'status', 'createdAt', 'partyType', 'gameMode', 'acceptedCount'])
                     && request.resource.data.leaderId == request.auth.uid
                     && isValidPartyFields(request.resource.data)
                     && request.resource.data.status == 'open'
+                    && request.resource.data.acceptedCount == 0
                     && request.resource.data.createdAt == request.time;
 
+      // 수정은 두 갈래: (1) 파티장이 모집 정보/상태를 고치는 일반 수정 — acceptedCount는
+      // 그대로 유지돼야 함. (2) 신청 수락 시 acceptedCount만 정확히 1 늘어나는 것 — 최대
+      // 인원(듀오 2/트리오 3)을 넘을 수 없다.
       allow update: if request.auth != null && request.auth.uid == leaderId
-                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['activeServer', 'partyMmr', 'minKda', 'combatStyle', 'voice', 'codePublic', 'status'])
-                    && isValidPartyFields(request.resource.data)
-                    && request.resource.data.status in ['open', 'closed'];
+                    && (
+                      (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['activeServer', 'partyMmr', 'minKda', 'combatStyle', 'voice', 'codePublic', 'status', 'partyType', 'gameMode'])
+                       && isValidPartyFields(request.resource.data)
+                       && request.resource.data.status in ['open', 'closed']
+                       && request.resource.data.acceptedCount == resource.data.acceptedCount)
+                      ||
+                      (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['acceptedCount'])
+                       && request.resource.data.acceptedCount == resource.data.acceptedCount + 1
+                       && request.resource.data.acceptedCount <= partyMaxSize(resource.data.partyType))
+                    );
 
       allow delete: if request.auth != null && (request.auth.uid == leaderId || isOperator());
 
@@ -277,12 +305,14 @@ service cloud.firestore {
                     && request.auth.uid == steamId
                     && isActiveMember(request.auth.uid)
                     && !exists(/databases/$(database)/documents/officeParties/$(request.auth.uid))
-                    && request.resource.data.keys().hasOnly(['preferredServer', 'mmr', 'kda', 'preferredStyle', 'voice', 'updatedAt'])
+                    && request.resource.data.keys().hasOnly(['preferredServer', 'mmr', 'kda', 'preferredStyle', 'voice', 'updatedAt', 'preferredPartyType', 'preferredGameMode'])
                     && isValidServer(request.resource.data.preferredServer)
                     && request.resource.data.mmr is string && request.resource.data.mmr.size() <= 50
                     && request.resource.data.kda is string && request.resource.data.kda.size() <= 50
                     && request.resource.data.preferredStyle is string && request.resource.data.preferredStyle.size() <= 100
                     && request.resource.data.voice is bool
+                    && isValidPartyType(request.resource.data.preferredPartyType)
+                    && isValidGameMode(request.resource.data.preferredGameMode)
                     && request.resource.data.updatedAt == request.time;
 
       allow delete: if request.auth != null && (request.auth.uid == steamId || isOperator());

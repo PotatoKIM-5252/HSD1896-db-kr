@@ -22,7 +22,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, collection, collectionGroup, addDoc, getDocs, getDoc, query, orderBy, where, limit, serverTimestamp,
-  doc, updateDoc, deleteDoc, arrayUnion, arrayRemove, setDoc,
+  doc, updateDoc, deleteDoc, arrayUnion, arrayRemove, setDoc, onSnapshot, increment, writeBatch,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -335,8 +335,10 @@ async function ensureOfficeMembership(steamId) {
 // Firestore 규칙이 따로 접근을 제한한다(코드는 파티장 본인과 "수락된" 지원자만, 지원자
 // 목록은 파티장만).
 const OFFICE_PARTIES_COLLECTION = "officeParties";
-const PARTY_FIELD_KEYS = ["activeServer", "partyMmr", "minKda", "combatStyle", "voice"];
+const PARTY_FIELD_KEYS = ["activeServer", "partyMmr", "minKda", "combatStyle", "voice", "partyType", "gameMode"];
 const OFFICE_SERVERS = ["유럽", "러시아", "미국서부", "미국동부", "남미", "아시아", "오세아니아"];
+const PARTY_TYPES = ["듀오", "트리오"];
+const GAME_MODES = ["바운티 헌트", "결전"];
 const MAX_PARTY_FIELD_LEN = 100;
 const MAX_APPLICATION_MSG_LEN = 200;
 const PARTY_CODE_RE = /^\d{6}$/;
@@ -349,6 +351,8 @@ function sanitizePartyFields(fields) {
   }
   if (!OFFICE_SERVERS.includes(out.activeServer)) throw new Error("활동서버를 목록에서 선택해주세요.");
   if (!out.partyMmr) throw new Error("파티 MMR을 입력해주세요.");
+  if (!PARTY_TYPES.includes(out.partyType)) throw new Error("파티 유형(듀오/트리오)을 선택해주세요.");
+  if (!GAME_MODES.includes(out.gameMode)) throw new Error("게임 모드를 선택해주세요.");
   return out;
 }
 
@@ -383,7 +387,7 @@ async function saveMyParty(fields) {
     const existing = snap.data();
     await updateDoc(ref, { ...sanitized, codePublic: typeof existing.codePublic === "boolean" ? existing.codePublic : false });
   } else {
-    await setDoc(ref, { leaderId: uid, ...sanitized, codePublic: false, status: "open", createdAt: serverTimestamp() });
+    await setDoc(ref, { leaderId: uid, ...sanitized, codePublic: false, status: "open", acceptedCount: 0, createdAt: serverTimestamp() });
   }
 }
 
@@ -433,12 +437,34 @@ async function applyToParty(leaderId, message) {
   }
 }
 
+// 수락 시엔 신청 문서 상태 변경과 함께 파티 문서의 acceptedCount도 같이 올려야
+// (구인 게시판에서 "N/최대인원명" 표시가 가능해짐) 배치로 묶어서 처리한다.
 async function respondToApplication(applicantId, accepted) {
   const uid = await getUid();
-  await updateDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid, "applications", applicantId), {
-    status: accepted ? "accepted" : "declined",
-    respondedAt: serverTimestamp(),
+  const appRef = doc(db, OFFICE_PARTIES_COLLECTION, uid, "applications", applicantId);
+  if (!accepted) {
+    await updateDoc(appRef, { status: "declined", respondedAt: serverTimestamp() });
+    return;
+  }
+  const batch = writeBatch(db);
+  batch.update(appRef, { status: "accepted", respondedAt: serverTimestamp() });
+  batch.update(doc(db, OFFICE_PARTIES_COLLECTION, uid), { acceptedCount: increment(1) });
+  await batch.commit();
+}
+
+// 내 파티에 들어오는 신청을 실시간으로 감시 — 새 신청이 오면 화면을 안 보고 있어도
+// 바로 알 수 있게 하기 위함. 구독 해제 함수를 돌려준다.
+function watchMyPartyApplications(callback) {
+  let unsub = null;
+  let cancelled = false;
+  getUid().then((uid) => {
+    if (cancelled) return;
+    const q = query(collection(db, OFFICE_PARTIES_COLLECTION, uid, "applications"), orderBy("createdAt", "desc"));
+    unsub = onSnapshot(q, (snap) => {
+      callback(snap.docs.map((d) => ({ applicantId: d.id, ...d.data() })));
+    });
   });
+  return () => { cancelled = true; if (unsub) unsub(); };
 }
 
 // 내가 신청한 파티 목록 — 여러 파티에 걸쳐 있는 applications 하위 컬렉션을 한 번에 조회
@@ -463,7 +489,7 @@ async function getPartyCode(leaderId) {
 // steamId지만 화면에는 절대 노출하지 않기 위해, 목록 조회 함수는 항목 데이터만 돌려주고
 // 문서 ID(d.id)는 반환값에 아예 포함하지 않는다.
 const OFFICE_RESUMES_COLLECTION = "officeResumes";
-const RESUME_FIELD_KEYS = ["preferredServer", "mmr", "kda", "preferredStyle", "voice"];
+const RESUME_FIELD_KEYS = ["preferredServer", "mmr", "kda", "preferredStyle", "voice", "preferredPartyType", "preferredGameMode"];
 const MAX_RESUME_FIELD_LEN = 100;
 
 function sanitizeResumeFields(fields) {
@@ -473,6 +499,8 @@ function sanitizeResumeFields(fields) {
     out[key] = (fields[key] || "").trim().slice(0, MAX_RESUME_FIELD_LEN);
   }
   if (!OFFICE_SERVERS.includes(out.preferredServer)) throw new Error("선호 서버를 목록에서 선택해주세요.");
+  if (!PARTY_TYPES.includes(out.preferredPartyType)) throw new Error("선호 인원(듀오/트리오)을 선택해주세요.");
+  if (!GAME_MODES.includes(out.preferredGameMode)) throw new Error("선호 게임 모드를 선택해주세요.");
   return out;
 }
 
@@ -522,5 +550,6 @@ window.LoadoutCloud = {
   getMyOfficeMembership, ensureOfficeMembership,
   listOpenParties, getMyParty, saveMyParty, setMyPartyStatus, setMyPartyCode, deleteMyParty,
   listApplicationsForMyParty, applyToParty, respondToApplication, listMyApplications, getPartyCode,
+  watchMyPartyApplications,
   getMyResume, saveMyResume, deleteMyResume, getApplicantResume, listAllResumes,
 };

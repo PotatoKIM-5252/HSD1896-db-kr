@@ -791,6 +791,27 @@ function setupChangelogWidget() {
 // 페이지 전체를 스팀으로 이동시켰다가 돌아오는 방식이라, 돌아온 직후엔 탭 상태가
 // 초기화돼 있으므로 init()에서 별도로 콜백을 처리한다.
 let officeMembershipLoaded = false;
+let myPartyApplicationsUnsub = null;
+let knownPendingApplicantIds = null;
+
+// 내 파티에 들어오는 신청을 실시간 감시 — 새 신청이 오면(대기중 상태가 새로 생기면)
+// 지금 어떤 탭/모드를 보고 있든 바로 토스트로 알리고 신청 목록을 새로 그린다.
+function setupMyPartyApplicationsWatch() {
+  if (!window.LoadoutCloud || !window.LoadoutCloud.watchMyPartyApplications) return;
+  if (myPartyApplicationsUnsub) { myPartyApplicationsUnsub(); myPartyApplicationsUnsub = null; }
+  knownPendingApplicantIds = null;
+  myPartyApplicationsUnsub = window.LoadoutCloud.watchMyPartyApplications((applicants) => {
+    const pendingIds = new Set(applicants.filter((a) => a.status === "pending").map((a) => a.applicantId));
+    if (knownPendingApplicantIds !== null) {
+      const newCount = [...pendingIds].filter((id) => !knownPendingApplicantIds.has(id)).length;
+      if (newCount > 0) {
+        showToast(`새 참가 신청이 ${newCount}건 도착했습니다.`, "info");
+        renderMyParty();
+      }
+    }
+    knownPendingApplicantIds = pendingIds;
+  });
+}
 
 function setupOfficeTab() {
   const agreeCheckbox = document.getElementById("office-agree-checkbox");
@@ -821,6 +842,7 @@ function showOfficeMemberView(steamId) {
   renderPartyList();
   renderMyParty();
   renderMyApplications();
+  setupMyPartyApplicationsWatch();
 }
 
 async function loadOfficeMembership() {
@@ -936,13 +958,21 @@ function setupOfficePartyBoard() {
     minKda: document.getElementById("office-myparty-kda").value,
     combatStyle: document.getElementById("office-myparty-style").value,
     voice: document.getElementById("office-myparty-voice").checked,
+    partyType: document.getElementById("office-myparty-type").value,
+    gameMode: document.getElementById("office-myparty-mode").value,
   });
 
-  // 파티 등록/수정 — 모집 정보와 로비 코드를 한 번에 저장. 로비 코드는 필수라서
-  // 안 채워져 있으면 아예 저장을 시작하지 않는다.
+  // 파티 등록/수정 — 모집 정보와 로비 코드를 한 번에 저장. 파티 유형/게임 모드/로비 코드는
+  // 필수라서 안 채워져 있으면 아예 저장을 시작하지 않는다.
   document.getElementById("office-myparty-save-btn").addEventListener("click", async () => {
     if (!window.LoadoutCloud) return;
     saveMsgEl.hidden = true;
+    if (!document.getElementById("office-myparty-type").value || !document.getElementById("office-myparty-mode").value) {
+      saveMsgEl.textContent = "파티 유형과 게임 모드를 선택해주세요.";
+      saveMsgEl.classList.add("error");
+      saveMsgEl.hidden = false;
+      return;
+    }
     if (!/^\d{6}$/.test(codeInput.value)) {
       saveMsgEl.textContent = "로비 코드를 숫자 6자리로 입력해주세요.";
       saveMsgEl.classList.add("error");
@@ -1007,6 +1037,8 @@ function setupOfficePartyBoard() {
         kda: document.getElementById("office-myresume-kda").value,
         preferredStyle: document.getElementById("office-myresume-style").value,
         voice: document.getElementById("office-myresume-voice").checked,
+        preferredPartyType: document.getElementById("office-myresume-type").value,
+        preferredGameMode: document.getElementById("office-myresume-mode").value,
       });
       resumeMsgEl.textContent = "저장했습니다.";
       resumeMsgEl.classList.remove("error");
@@ -1034,6 +1066,8 @@ function setupOfficePartyBoard() {
 
 function formatPartyFields(p) {
   return [
+    p.partyType ? `유형: ${p.partyType}` : null,
+    p.gameMode ? `모드: ${p.gameMode}` : null,
     `서버: ${p.activeServer}`,
     `파티 MMR: ${p.partyMmr}`,
     p.minKda ? `최소 KDA: ${p.minKda}` : null,
@@ -1044,12 +1078,18 @@ function formatPartyFields(p) {
 
 function formatResumeFields(r) {
   return [
+    r.preferredPartyType ? `선호 인원: ${r.preferredPartyType}` : null,
+    r.preferredGameMode ? `선호 모드: ${r.preferredGameMode}` : null,
     r.preferredServer ? `선호 서버: ${r.preferredServer}` : null,
     r.mmr ? `MMR: ${r.mmr}` : null,
     r.kda ? `KDA: ${r.kda}` : null,
     r.preferredStyle ? `선호 성향: ${r.preferredStyle}` : null,
     `음성: ${r.voice ? "사용" : "미사용"}`,
   ].filter(Boolean).join(" · ");
+}
+
+function partyMaxSize(partyType) {
+  return partyType === "트리오" ? 3 : 2;
 }
 
 // 파티 목록 — 모집 중인 파티를 전부 보여준다(내 파티도 포함, "내 파티" 표시만 붙임).
@@ -1077,6 +1117,11 @@ async function renderPartyList() {
       descEl.className = "office-party-desc";
       descEl.textContent = (isMine ? "[내 파티] " : "") + formatPartyFields(party);
       item.appendChild(descEl);
+
+      const headcountEl = document.createElement("p");
+      headcountEl.className = "office-party-headcount";
+      headcountEl.textContent = `인원: ${1 + (party.acceptedCount || 0)}/${partyMaxSize(party.partyType)}명`;
+      item.appendChild(headcountEl);
 
       if (party.codePublic) {
         const codeEl = document.createElement("p");
@@ -1135,13 +1180,17 @@ async function renderMyParty() {
   const reopenBtn = document.getElementById("office-myparty-reopen-btn");
   const deleteBtn = document.getElementById("office-myparty-delete-btn");
   const applicantListEl = document.getElementById("office-applicant-list");
+  const headcountEl = document.getElementById("office-myparty-headcount");
 
+  headcountEl.textContent = "";
   try {
     const party = await window.LoadoutCloud.getMyParty();
     closeBtn.hidden = !party || party.status !== "open";
     reopenBtn.hidden = !party || party.status !== "closed";
     deleteBtn.hidden = !party;
     if (party) {
+      document.getElementById("office-myparty-type").value = party.partyType || "";
+      document.getElementById("office-myparty-mode").value = party.gameMode || "";
       serverInput.value = party.activeServer || "";
       mmrInput.value = party.partyMmr || "";
       kdaInput.value = party.minKda || "";
@@ -1150,6 +1199,7 @@ async function renderMyParty() {
       document.getElementById("office-myparty-code-public").checked = !!party.codePublic;
       const code = await window.LoadoutCloud.getPartyCode(party.leaderId).catch(() => null);
       document.getElementById("office-myparty-code-input").value = code || "";
+      headcountEl.textContent = `현재 인원: ${1 + (party.acceptedCount || 0)}/${partyMaxSize(party.partyType)}명`;
     }
   } catch {
     // 조회 실패해도 새로 만들기 폼은 그대로 씀
@@ -1255,6 +1305,8 @@ async function renderMyResume() {
     const resume = await window.LoadoutCloud.getMyResume();
     deleteBtn.hidden = !resume;
     if (!resume) return;
+    document.getElementById("office-myresume-type").value = resume.preferredPartyType || "";
+    document.getElementById("office-myresume-mode").value = resume.preferredGameMode || "";
     document.getElementById("office-myresume-server").value = resume.preferredServer || "";
     document.getElementById("office-myresume-mmr").value = resume.mmr || "";
     document.getElementById("office-myresume-kda").value = resume.kda || "";
