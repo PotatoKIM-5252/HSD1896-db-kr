@@ -321,18 +321,17 @@
                     <option value="상관없음">상관없음</option>
                   </select>
                 </label>
-                <label>활동서버
-                  <select id="office-myparty-server">
-                    <option value="" disabled selected>선택</option>
-                    <option value="유럽">유럽</option>
-                    <option value="러시아">러시아</option>
-                    <option value="미국서부">미국서부</option>
-                    <option value="미국동부">미국동부</option>
-                    <option value="남미">남미</option>
-                    <option value="아시아">아시아</option>
-                    <option value="오세아니아">오세아니아</option>
-                  </select>
-                </label>
+                <div class="office-field-checkbox-group">
+                  <span class="office-field-checkbox-group-label">활동서버 (복수 선택 가능)</span>
+                  <label class="office-field-checkbox"><input type="checkbox" class="office-myparty-server-cb" value="유럽"> 유럽</label>
+                  <label class="office-field-checkbox"><input type="checkbox" class="office-myparty-server-cb" value="러시아"> 러시아</label>
+                  <label class="office-field-checkbox"><input type="checkbox" class="office-myparty-server-cb" value="미국서부"> 미국서부</label>
+                  <label class="office-field-checkbox"><input type="checkbox" class="office-myparty-server-cb" value="미국동부"> 미국동부</label>
+                  <label class="office-field-checkbox"><input type="checkbox" class="office-myparty-server-cb" value="남미"> 남미</label>
+                  <label class="office-field-checkbox"><input type="checkbox" class="office-myparty-server-cb" value="아시아"> 아시아</label>
+                  <label class="office-field-checkbox"><input type="checkbox" class="office-myparty-server-cb" value="오세아니아"> 오세아니아</label>
+                  <label class="office-field-checkbox"><input type="checkbox" id="office-myparty-server-any" value="상관없음"> 상관없음</label>
+                </div>
                 <label>파티 MMR <input type="text" id="office-myparty-mmr" maxlength="50" placeholder="예) 5성~6성"></label>
                 <label>최소 KDA <input type="text" id="office-myparty-kda" maxlength="50" placeholder="예) 1.5 이상"></label>
                 <label>전투 성향 <input type="text" id="office-myparty-style" maxlength="100" placeholder="예) 무조건 바운티, 공격적, 빠르게"></label>

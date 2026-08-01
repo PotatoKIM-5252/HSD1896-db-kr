@@ -335,8 +335,9 @@ async function ensureOfficeMembership(steamId) {
 // Firestore 규칙이 따로 접근을 제한한다(코드는 파티장 본인과 "수락된" 지원자만, 지원자
 // 목록은 파티장만).
 const OFFICE_PARTIES_COLLECTION = "officeParties";
-const PARTY_FIELD_KEYS = ["activeServer", "partyMmr", "minKda", "combatStyle", "voice", "partyType", "gameMode"];
+const PARTY_FIELD_KEYS = ["partyMmr", "minKda", "combatStyle", "voice", "partyType", "gameMode"];
 const OFFICE_SERVERS = ["유럽", "러시아", "미국서부", "미국동부", "남미", "아시아", "오세아니아"];
+const OFFICE_SERVERS_WITH_ANY = [...OFFICE_SERVERS, "상관없음"];
 const PARTY_TYPES = ["듀오", "트리오"];
 const GAME_MODES = ["결전", "사냥", "상관없음"];
 const MAX_PARTY_FIELD_LEN = 100;
@@ -349,7 +350,9 @@ function sanitizePartyFields(fields) {
     if (key === "voice") { out.voice = !!fields.voice; continue; }
     out[key] = (fields[key] || "").trim().slice(0, MAX_PARTY_FIELD_LEN);
   }
-  if (!OFFICE_SERVERS.includes(out.activeServer)) throw new Error("활동서버를 목록에서 선택해주세요.");
+  const servers = Array.isArray(fields.activeServers) ? [...new Set(fields.activeServers)] : [];
+  out.activeServers = servers.filter((s) => OFFICE_SERVERS_WITH_ANY.includes(s));
+  if (out.activeServers.length === 0) throw new Error("활동서버를 하나 이상 선택해주세요.");
   if (!out.partyMmr) throw new Error("파티 MMR을 입력해주세요.");
   if (!PARTY_TYPES.includes(out.partyType)) throw new Error("파티 유형(듀오/트리오)을 선택해주세요.");
   if (!GAME_MODES.includes(out.gameMode)) throw new Error("게임 모드를 선택해주세요.");
@@ -491,7 +494,6 @@ async function getPartyCode(leaderId) {
 const OFFICE_RESUMES_COLLECTION = "officeResumes";
 const RESUME_FIELD_KEYS = ["mmr", "kda", "preferredStyle", "voice", "preferredPartyType", "preferredGameMode"];
 const MAX_RESUME_FIELD_LEN = 100;
-const OFFICE_SERVERS_WITH_ANY = [...OFFICE_SERVERS, "상관없음"];
 
 function sanitizeResumeFields(fields) {
   const out = {};

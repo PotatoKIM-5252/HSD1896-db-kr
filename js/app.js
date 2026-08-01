@@ -952,8 +952,24 @@ function setupOfficePartyBoard() {
     codeInput.value = codeInput.value.replace(/\D/g, "").slice(0, 6);
   });
 
+  // 활동서버 체크박스 — "상관없음"은 다른 서버 선택과 배타적으로 동작(하나를 고르면
+  // 나머지는 자동으로 해제)
+  const partyServerAnyCb = document.getElementById("office-myparty-server-any");
+  const partyServerCbs = Array.from(document.querySelectorAll(".office-myparty-server-cb"));
+  partyServerAnyCb.addEventListener("change", () => {
+    if (partyServerAnyCb.checked) partyServerCbs.forEach((cb) => { cb.checked = false; });
+  });
+  partyServerCbs.forEach((cb) => {
+    cb.addEventListener("change", () => {
+      if (cb.checked) partyServerAnyCb.checked = false;
+    });
+  });
+  const readMyPartyServers = () => (
+    partyServerAnyCb.checked ? ["상관없음"] : partyServerCbs.filter((cb) => cb.checked).map((cb) => cb.value)
+  );
+
   const readMyPartyForm = () => ({
-    activeServer: document.getElementById("office-myparty-server").value,
+    activeServers: readMyPartyServers(),
     partyMmr: document.getElementById("office-myparty-mmr").value,
     minKda: document.getElementById("office-myparty-kda").value,
     combatStyle: document.getElementById("office-myparty-style").value,
@@ -1084,7 +1100,7 @@ function formatPartyFields(p) {
   return [
     p.partyType ? `유형: ${p.partyType}` : null,
     p.gameMode ? `모드: ${p.gameMode}` : null,
-    `서버: ${p.activeServer}`,
+    `서버: ${(p.activeServers || []).join(", ")}`,
     `파티 MMR: ${p.partyMmr}`,
     p.minKda ? `최소 KDA: ${p.minKda}` : null,
     p.combatStyle ? `전투 성향: ${p.combatStyle}` : null,
@@ -1187,7 +1203,6 @@ async function renderPartyList() {
 // 내 파티 — 모집 정보/상태 + 받은 신청 목록. 지원자는 uid 없이 이력서(있으면)+메시지만 보여줌.
 async function renderMyParty() {
   if (!window.LoadoutCloud) return;
-  const serverInput = document.getElementById("office-myparty-server");
   const mmrInput = document.getElementById("office-myparty-mmr");
   const kdaInput = document.getElementById("office-myparty-kda");
   const styleInput = document.getElementById("office-myparty-style");
@@ -1207,7 +1222,9 @@ async function renderMyParty() {
     if (party) {
       document.getElementById("office-myparty-type").value = party.partyType || "";
       document.getElementById("office-myparty-mode").value = party.gameMode || "";
-      serverInput.value = party.activeServer || "";
+      const activeServers = party.activeServers || [];
+      document.getElementById("office-myparty-server-any").checked = activeServers.includes("상관없음");
+      document.querySelectorAll(".office-myparty-server-cb").forEach((cb) => { cb.checked = activeServers.includes(cb.value); });
       mmrInput.value = party.partyMmr || "";
       kdaInput.value = party.minKda || "";
       styleInput.value = party.combatStyle || "";

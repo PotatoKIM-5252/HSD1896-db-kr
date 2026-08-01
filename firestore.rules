@@ -179,12 +179,8 @@ service cloud.firestore {
           && get(/databases/$(database)/documents/officeMembers/$(uid)).data.banned == false;
     }
 
-    // 헌트 서버 지역 — 파티 활동서버는 이 목록 중 하나(단일)여야 함
-    function isValidServer(s) {
-      return s in ['유럽', '러시아', '미국서부', '미국동부', '남미', '아시아', '오세아니아'];
-    }
-
-    // 프로필 선호 서버 — 복수 선택 가능, "상관없음"도 값으로 허용. 최소 1개는 골라야 함
+    // 헌트 서버 지역 — 파티 활동서버/프로필 선호 서버 둘 다 복수 선택 가능, "상관없음"도
+    // 값으로 허용. 최소 1개는 골라야 함
     function isValidServerPreferenceList(list) {
       return list is list
           && list.size() > 0
@@ -210,7 +206,7 @@ service cloud.firestore {
     // 파티 모집 정보(활동서버/파티MMR/최소KDA/전투성향/음성여부/코드공개여부/유형/모드)가
     // 유효한 형식인지 확인 — create/update 양쪽에서 같이 쓰는 공통 검증
     function isValidPartyFields(d) {
-      return isValidServer(d.activeServer)
+      return isValidServerPreferenceList(d.activeServers)
           && d.partyMmr is string && d.partyMmr.size() > 0 && d.partyMmr.size() <= 50
           && d.minKda is string && d.minKda.size() <= 50
           && d.combatStyle is string && d.combatStyle.size() <= 100
@@ -231,7 +227,7 @@ service cloud.firestore {
       allow create: if request.auth != null
                     && request.auth.uid == leaderId
                     && isActiveMember(request.auth.uid)
-                    && request.resource.data.keys().hasOnly(['leaderId', 'activeServer', 'partyMmr', 'minKda', 'combatStyle', 'voice', 'codePublic', 'status', 'createdAt', 'partyType', 'gameMode', 'acceptedCount'])
+                    && request.resource.data.keys().hasOnly(['leaderId', 'activeServers', 'partyMmr', 'minKda', 'combatStyle', 'voice', 'codePublic', 'status', 'createdAt', 'partyType', 'gameMode', 'acceptedCount'])
                     && request.resource.data.leaderId == request.auth.uid
                     && isValidPartyFields(request.resource.data)
                     && request.resource.data.status == 'open'
@@ -243,7 +239,7 @@ service cloud.firestore {
       // 인원(듀오 2/트리오 3)을 넘을 수 없다.
       allow update: if request.auth != null && request.auth.uid == leaderId
                     && (
-                      (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['activeServer', 'partyMmr', 'minKda', 'combatStyle', 'voice', 'codePublic', 'status', 'partyType', 'gameMode'])
+                      (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['activeServers', 'partyMmr', 'minKda', 'combatStyle', 'voice', 'codePublic', 'status', 'partyType', 'gameMode'])
                        && isValidPartyFields(request.resource.data)
                        && request.resource.data.status in ['open', 'closed']
                        && request.resource.data.acceptedCount == resource.data.acceptedCount)
