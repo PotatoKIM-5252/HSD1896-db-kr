@@ -1239,15 +1239,62 @@ async function renderMyParty() {
     // 조회 실패해도 새로 만들기 폼은 그대로 씀
   }
 
+  const membersListEl = document.getElementById("office-party-members-list");
+  membersListEl.textContent = "불러오는 중...";
   applicantListEl.textContent = "불러오는 중...";
   try {
     const applicants = await window.LoadoutCloud.listApplicationsForMyParty();
+    const members = applicants.filter((a) => a.status === "accepted");
+    const others = applicants.filter((a) => a.status !== "accepted");
+
+    membersListEl.innerHTML = "";
+    if (members.length === 0) {
+      membersListEl.textContent = "아직 파티원이 없습니다.";
+    } else {
+      for (const m of members) {
+        const item = document.createElement("div");
+        item.className = "office-applicant-item";
+
+        const infoWrap = document.createElement("div");
+        infoWrap.className = "office-applicant-info";
+        const resumeEl = document.createElement("p");
+        resumeEl.className = "office-applicant-resume";
+        resumeEl.textContent = "프로필 불러오는 중...";
+        infoWrap.appendChild(resumeEl);
+        window.LoadoutCloud.getApplicantResume(m.applicantId).then((resume) => {
+          resumeEl.textContent = resume ? formatResumeFields(resume) : "프로필을 작성하지 않은 파티원입니다.";
+        });
+        item.appendChild(infoWrap);
+
+        const actionsEl = document.createElement("div");
+        actionsEl.className = "office-applicant-actions";
+        const kickBtn = document.createElement("button");
+        kickBtn.type = "button";
+        kickBtn.className = "office-btn office-btn-outline";
+        kickBtn.textContent = "내보내기";
+        kickBtn.addEventListener("click", async () => {
+          if (!confirm("이 파티원을 내보낼까요?")) return;
+          try {
+            await window.LoadoutCloud.kickApplicant(m.applicantId);
+            renderMyParty();
+            renderPartyList();
+          } catch (err) {
+            showToast(err.message || "처리에 실패했습니다.");
+          }
+        });
+        actionsEl.appendChild(kickBtn);
+        item.appendChild(actionsEl);
+
+        membersListEl.appendChild(item);
+      }
+    }
+
     applicantListEl.innerHTML = "";
-    if (applicants.length === 0) {
+    if (others.length === 0) {
       applicantListEl.textContent = "받은 신청이 없습니다.";
       return;
     }
-    for (const a of applicants) {
+    for (const a of others) {
       const item = document.createElement("div");
       item.className = "office-applicant-item";
 
@@ -1281,6 +1328,7 @@ async function renderMyParty() {
           try {
             await window.LoadoutCloud.respondToApplication(a.applicantId, true);
             renderMyParty();
+            renderPartyList();
           } catch (err) {
             showToast(err.message || "처리에 실패했습니다.");
           }
@@ -1303,13 +1351,14 @@ async function renderMyParty() {
       } else {
         const statusEl = document.createElement("span");
         statusEl.className = "office-applicant-status";
-        statusEl.textContent = a.status === "accepted" ? "수락됨" : "거절됨";
+        statusEl.textContent = a.status === "declined" ? "거절됨" : "내보냄";
         item.appendChild(statusEl);
       }
 
       applicantListEl.appendChild(item);
     }
   } catch {
+    membersListEl.textContent = "파티원 목록을 불러오지 못했습니다.";
     applicantListEl.textContent = "신청 목록을 불러오지 못했습니다.";
   }
 }
@@ -1399,7 +1448,10 @@ async function renderMyApplications() {
 
       const statusEl = document.createElement("span");
       statusEl.className = "office-myapp-status";
-      statusEl.textContent = a.status === "pending" ? "대기중" : a.status === "accepted" ? "수락됨" : "거절됨";
+      statusEl.textContent = a.status === "pending" ? "대기중"
+        : a.status === "accepted" ? "수락됨"
+        : a.status === "kicked" ? "파티에서 내보내짐"
+        : "거절됨";
       item.appendChild(statusEl);
 
       if (a.status === "accepted") {

@@ -455,6 +455,16 @@ async function respondToApplication(applicantId, accepted) {
   await batch.commit();
 }
 
+// 이미 수락된 파티원을 내보냄 — 신청 상태를 kicked로 바꾸고 acceptedCount를 1 줄인다.
+// kicked가 되면 로비 코드 읽기 권한도 규칙상 자동으로 사라진다(accepted 상태만 허용).
+async function kickApplicant(applicantId) {
+  const uid = await getUid();
+  const batch = writeBatch(db);
+  batch.update(doc(db, OFFICE_PARTIES_COLLECTION, uid, "applications", applicantId), { status: "kicked", respondedAt: serverTimestamp() });
+  batch.update(doc(db, OFFICE_PARTIES_COLLECTION, uid), { acceptedCount: increment(-1) });
+  await batch.commit();
+}
+
 // 내 파티에 들어오는 신청을 실시간으로 감시 — 새 신청이 오면 화면을 안 보고 있어도
 // 바로 알 수 있게 하기 위함. 구독 해제 함수를 돌려준다.
 function watchMyPartyApplications(callback) {
@@ -555,6 +565,6 @@ window.LoadoutCloud = {
   getMyOfficeMembership, ensureOfficeMembership,
   listOpenParties, getMyParty, saveMyParty, setMyPartyStatus, setMyPartyCode, deleteMyParty,
   listApplicationsForMyParty, applyToParty, respondToApplication, listMyApplications, getPartyCode,
-  watchMyPartyApplications,
+  watchMyPartyApplications, kickApplicant,
   getMyResume, saveMyResume, deleteMyResume, getApplicantResume, listAllResumes,
 };
