@@ -826,6 +826,20 @@ function setupOfficeTab() {
     window.location.href = window.LoadoutCloud.buildSteamLoginUrl();
   });
 
+  // 로그인 후엔 이용규칙/권장사항/신고와 처벌 안내가 화면에서 사라지므로,
+  // 언제든 다시 볼 수 있도록 별도 모달로 열어줌
+  const rulesBtn = document.getElementById("office-rules-btn");
+  const rulesOverlay = document.getElementById("office-rules-modal-overlay");
+  const rulesCloseBtn = document.getElementById("office-rules-modal-close-btn");
+  const openRulesModal = () => { rulesOverlay.hidden = false; };
+  const closeRulesModal = () => { rulesOverlay.hidden = true; };
+  rulesBtn.addEventListener("click", openRulesModal);
+  rulesCloseBtn.addEventListener("click", closeRulesModal);
+  rulesOverlay.addEventListener("click", (e) => { if (e.target === rulesOverlay) closeRulesModal(); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !rulesOverlay.hidden) closeRulesModal();
+  });
+
   setupOfficePartyBoard();
 }
 

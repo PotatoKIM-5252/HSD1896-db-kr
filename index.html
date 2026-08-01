@@ -217,7 +217,7 @@
         <h2>사무소 이용 안내</h2>
         <p class="muted-text">사무소는 시범 운영 중인 매칭 게시판입니다. 이용 전 아래 규칙을 확인해주세요.</p>
 
-        <div id="office-rules-box">
+        <div id="office-rules-box" class="office-rules-box">
           <p class="office-rules-heading">이용규칙</p>
           <ol>
             <li>친구추가 금지</li>
@@ -292,7 +292,10 @@
       </div>
 
       <div id="office-member-view" hidden>
-        <p id="office-member-status"></p>
+        <div id="office-member-status-row">
+          <p id="office-member-status"></p>
+          <button id="office-rules-btn" class="office-btn office-btn-secondary" type="button">이용안내</button>
+        </div>
 
         <!-- 파티/인력 모드 전환 — 왼쪽(작성)과 오른쪽(목록)이 같이 전환됨 -->
         <div id="office-mode-toggle">
@@ -492,6 +495,42 @@
         <button id="changelog-modal-close-btn" type="button">닫기</button>
       </header>
       <div id="changelog-list"></div>
+    </div>
+  </div>
+
+  <div id="office-rules-modal-overlay" hidden>
+    <div id="office-rules-modal">
+      <header class="utility-modal-header">
+        <h3>사무소 이용 안내</h3>
+        <button id="office-rules-modal-close-btn" type="button">닫기</button>
+      </header>
+      <div class="office-rules-box">
+        <p class="office-rules-heading">이용규칙</p>
+        <ol>
+          <li>친구추가 금지</li>
+          <li>인력사무소에서 있었던 일을 절대 갤에 표현하지 말 것</li>
+          <li>콜사인은 무조건 1번, 2번, 3번 (별명, 아이디 X)</li>
+          <li>전판 피드백 금지(훈수, 사후 지적 X)</li>
+          <li>팀원 플레이에 대한 한숨/한탄/불만표출 금지 (부정적인 감정표현 X) — 사람인지라 반사적으로 튀어나올 수 있는데, 그 정도가 심하거나 노골적인 경우 조치</li>
+          <li>게임 내용 외 잡담 금지 (근황, 사담 등)</li>
+          <li>디코 등 외부 플랫폼 사용 X, 인게임 마이크 사용</li>
+          <li>어떠한 경우에도 팀원과 합의된 경우가 아닌 이상 고의트롤 금지</li>
+        </ol>
+
+        <p class="office-rules-heading">권장사항</p>
+        <ol>
+          <li>특수한 목적(ex. 뉴비교육 등)이 아니면 자신과 비슷한 수준의 파티원을 모집 바람</li>
+          <li>존대, 반말 자유이나 반말을 권장함</li>
+          <li>어지간하면 엔비디아 리플레이 등을 활용해서 순간적으로 녹화할 수 있는 상황에서 이용하기 바람</li>
+          <li>해당 경기 관련 콜 위주로 말할 것</li>
+          <li>해당 파티와 사냥에 참가하기 전에 로비나 사격장 등에서 마이크 설정을 만져보고 들어가는 것을 추천함</li>
+        </ol>
+
+        <p class="office-rules-heading">신고와 처벌</p>
+        <p>신고는 무조건 전후 상황과 음성이 녹음이 다 되어 있는 짧은 영상 증거 채택 — 누가 규칙을 위반한 것처럼 보이게 영상을 잘라 조작할 수 있기 때문</p>
+        <p>처벌 — 1일, 3일, 7일, 30일, 영구 차단</p>
+        <p>처벌은 1일부터 시작하며, 그 정도가 심한 경우는 바로 3일·7일 등으로 넘어갈 수 있음. 7일 차단이나 그 이하의 차단이 3회 이상 누적되면 다른 사람도 볼 수 있도록 전과기록이 표기됨</p>
+      </div>
     </div>
   </div>
 

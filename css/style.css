@@ -2969,7 +2969,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 /* 자세히 보기 등 전체화면 오버레이가 열려있을 땐 우측 하단 유틸리티 버튼이 내용과 겹치므로 숨김 */
 body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 
-#report-modal-overlay, #changelog-modal-overlay {
+#report-modal-overlay, #changelog-modal-overlay, #office-rules-modal-overlay {
   position: fixed;
   inset: 0;
   z-index: 2200;
@@ -2980,9 +2980,9 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
   padding: 20px;
 }
 
-#report-modal-overlay[hidden], #changelog-modal-overlay[hidden] { display: none; }
+#report-modal-overlay[hidden], #changelog-modal-overlay[hidden], #office-rules-modal-overlay[hidden] { display: none; }
 
-#report-modal, #changelog-modal {
+#report-modal, #changelog-modal, #office-rules-modal {
   width: 100%;
   max-width: 420px;
   max-height: min(600px, 80vh);
@@ -2993,6 +2993,8 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
   padding: 20px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
 }
+
+#office-rules-modal { max-width: 560px; }
 
 .utility-modal-header {
   display: flex;
@@ -3008,7 +3010,8 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 
 .utility-modal-header h3 { margin: 0; font-size: 15px; color: var(--text-primary); }
 
-#report-modal-close-btn, #changelog-modal-close-btn {
+#report-modal-close-btn, #changelog-modal-close-btn, #office-rules-modal-close-btn {
+  background: transparent;
   font-size: 12px;
   color: var(--text-muted);
   border: 1px solid var(--border);
@@ -3016,7 +3019,7 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
   padding: 5px 10px;
 }
 
-#report-modal-close-btn:hover, #changelog-modal-close-btn:hover {
+#report-modal-close-btn:hover, #changelog-modal-close-btn:hover, #office-rules-modal-close-btn:hover {
   color: var(--text-primary);
   border-color: var(--accent);
 }
@@ -3294,7 +3297,7 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 
 #office-intro-view h2 { font-size: 18px; margin: 0 0 6px; color: var(--text-primary); }
 
-#office-rules-box, #office-consent-box {
+.office-rules-box, #office-consent-box {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -3304,11 +3307,11 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
   overflow-y: auto;
 }
 
-#office-rules-box ol { margin: 0 0 16px; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; }
-#office-rules-box ol:last-child { margin-bottom: 0; }
-#office-rules-box li { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
-#office-rules-box p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 8px; }
-#office-rules-box p:last-child { margin-bottom: 0; }
+.office-rules-box ol { margin: 0 0 16px; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; }
+.office-rules-box ol:last-child { margin-bottom: 0; }
+.office-rules-box li { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+.office-rules-box p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 8px; }
+.office-rules-box p:last-child { margin-bottom: 0; }
 
 .office-rules-heading { font-size: 13px; font-weight: 600; color: var(--text-primary) !important; margin: 16px 0 8px !important; }
 .office-rules-heading:first-child { margin-top: 0 !important; }
@@ -3370,7 +3373,8 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 #office-intro-msg { margin: 10px 0 0; font-size: 12px; color: var(--success); }
 #office-intro-msg.error { color: var(--danger-strong); }
 
-#office-member-status { font-size: 14px; color: var(--text-primary); margin: 0 0 6px; }
+#office-member-status-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 6px; }
+#office-member-status { font-size: 14px; color: var(--text-primary); margin: 0; }
 
 #office-banned-view p { color: var(--danger-strong); font-size: 13px; }
 
