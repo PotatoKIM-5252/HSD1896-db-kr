@@ -76,10 +76,27 @@ button { font-family: var(--font-body); cursor: pointer; }
   background: linear-gradient(180deg, #0c0c0c, #050505);
 }
 
+#site-logo-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 #site-logo {
   display: inline-block;
   line-height: 0;
 }
+
+#office-entry-btn {
+  font-size: 11px;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 5px 10px;
+  background: transparent;
+}
+
+#office-entry-btn:hover { color: var(--text-primary); border-color: var(--accent); }
 
 #app-footer {
   border-top: 1px solid var(--border);

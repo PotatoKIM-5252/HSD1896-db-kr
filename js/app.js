@@ -329,6 +329,9 @@ function init() {
   document.querySelectorAll(".nav-btn").forEach((btn) => {
     btn.addEventListener("click", () => switchTab(btn.dataset.tab));
   });
+  // 로고 옆 사무소 버튼 — switchTab("office")가 이미 오피스키 잠금 여부를 확인해서
+  // 안 풀려있으면 공사중 창만 띄우고 끝나므로, 여기서도 그대로 재사용.
+  document.getElementById("office-entry-btn").addEventListener("click", () => switchTab("office"));
 
   document.getElementById("office-lock-close-btn").addEventListener("click", () => {
     document.getElementById("office-lock-overlay").hidden = true;
