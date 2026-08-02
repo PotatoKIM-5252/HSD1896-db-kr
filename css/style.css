@@ -99,7 +99,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   background: transparent;
 }
 
-#office-entry-btn img { height: 24px; width: auto; border-radius: 3px; display: block; }
+#office-entry-btn img { height: 52px; width: auto; border-radius: 3px; display: block; }
 
 #office-entry-btn:hover { color: var(--text-primary); border-color: var(--accent); }
 
