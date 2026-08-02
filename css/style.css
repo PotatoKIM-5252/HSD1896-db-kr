@@ -3383,14 +3383,15 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 #office-party-list, #office-applicant-list, #office-myapps-list, #office-resume-list { display: flex; flex-direction: column; gap: 10px; }
 
 .office-resume-item {
-  margin: 0;
-  font-size: 13px;
-  color: var(--text-primary);
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 10px 12px;
 }
+
+.office-resume-item-text { margin: 0 0 10px; font-size: 13px; color: var(--text-primary); }
+.office-resume-item .office-party-apply-row:last-child { margin-bottom: 0; }
+.office-resume-item > .office-resume-item-text:last-child { margin-bottom: 0; }
 
 #office-mode-party h4 { font-size: 13px; color: var(--text-muted); margin: 20px 0 10px; }
 

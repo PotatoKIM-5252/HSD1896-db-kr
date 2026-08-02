@@ -377,6 +377,12 @@ async function getMyParty() {
   return snap.exists() ? { leaderId: uid, ...snap.data() } : null;
 }
 
+// 받은 초대 카드에 어떤 파티인지(서버/모드/MMR 등) 같이 보여주기 위해 조회
+async function getPartyByLeaderId(leaderId) {
+  const snap = await getDoc(doc(db, OFFICE_PARTIES_COLLECTION, leaderId));
+  return snap.exists() ? { leaderId, ...snap.data() } : null;
+}
+
 // 파티 등록/수정 — 처음 만들 때는 생성, 이미 있으면 모집 정보만 수정.
 // ⚠ 규칙은 update 시에도 결과 문서 전체(codePublic 포함)가 유효해야 한다고 검증하므로,
 //   과거(이 필드가 생기기 전)에 만들어진 문서처럼 codePublic이 아예 없는 경우를 대비해
@@ -436,7 +442,7 @@ async function applyToParty(leaderId, message) {
       respondedAt: null,
     });
   } catch {
-    throw new Error("신청에 실패했습니다. 이미 신청했거나 마감된 파티일 수 있습니다.");
+    throw new Error("신청에 실패했습니다. 프로필을 먼저 등록했는지, 이미 신청했거나 마감된 파티는 아닌지 확인해주세요.");
   }
 }
 
@@ -462,6 +468,45 @@ async function kickApplicant(applicantId) {
   const batch = writeBatch(db);
   batch.update(doc(db, OFFICE_PARTIES_COLLECTION, uid, "applications", applicantId), { status: "kicked", respondedAt: serverTimestamp() });
   batch.update(doc(db, OFFICE_PARTIES_COLLECTION, uid), { acceptedCount: increment(-1) });
+  await batch.commit();
+}
+
+// 파티장이 프로필 게시판을 보고 먼저 초대 — applications 문서를 파티장이 직접
+// 만들되 status를 invited로 시작(applyToParty의 pending과 반대 방향)
+async function inviteToParty(targetId, message) {
+  const trimmed = (message || "").trim().slice(0, MAX_APPLICATION_MSG_LEN);
+  const uid = await getUid();
+  try {
+    await setDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid, "applications", targetId), {
+      applicantId: targetId,
+      message: trimmed,
+      status: "invited",
+      createdAt: serverTimestamp(),
+      respondedAt: null,
+    });
+  } catch {
+    throw new Error("초대에 실패했습니다. 이미 신청했거나 초대한 상대일 수 있습니다.");
+  }
+}
+
+// 보낸 초대를 파티장이 취소(상대가 아직 응답하지 않은 상태에서도 삭제 가능)
+async function cancelInvite(targetId) {
+  const uid = await getUid();
+  await deleteDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid, "applications", targetId));
+}
+
+// 내가 받은 초대에 응답 — 수락 시엔 respondToApplication과 대칭으로 acceptedCount를
+// 배치로 같이 올린다(이번엔 파티장이 아니라 초대받은 본인이 자기 몫만큼 올림).
+async function respondToInvite(leaderId, accepted) {
+  const uid = await getUid();
+  const appRef = doc(db, OFFICE_PARTIES_COLLECTION, leaderId, "applications", uid);
+  if (!accepted) {
+    await updateDoc(appRef, { status: "declined", respondedAt: serverTimestamp() });
+    return;
+  }
+  const batch = writeBatch(db);
+  batch.update(appRef, { status: "accepted", respondedAt: serverTimestamp() });
+  batch.update(doc(db, OFFICE_PARTIES_COLLECTION, leaderId), { acceptedCount: increment(1) });
   await batch.commit();
 }
 
@@ -549,11 +594,12 @@ async function getApplicantResume(applicantId) {
   }
 }
 
-// 인력 목록 — 등록된 이력서 전체를 사무소 회원 누구나 조회. 문서 ID(steamId)는 절대
-// 반환하지 않는다(d.data()만 사용, d.id는 쓰지 않음).
+// 프로필 목록 — 등록된 이력서 전체를 사무소 회원 누구나 조회. steamId는 파티장이
+// "초대" 버튼을 눌렀을 때 대상을 지정하는 용도로만 쓰고, 화면에 텍스트로 절대
+// 노출하지 않는 게 클라이언트 쪽 원칙이다(블라인드 유지).
 async function listAllResumes() {
   const snap = await getDocs(collection(db, OFFICE_RESUMES_COLLECTION));
-  return snap.docs.map((d) => d.data());
+  return snap.docs.map((d) => ({ ...d.data(), steamId: d.id }));
 }
 
 window.LoadoutCloud = {
@@ -563,8 +609,8 @@ window.LoadoutCloud = {
   getWeaponReviews, setWeaponHeart, saveWeaponComment, toggleWeaponCommentAgree,
   buildSteamLoginUrl, getSteamOpenIdParamsFromUrl, verifySteamLoginAndSignIn,
   getMyOfficeMembership, ensureOfficeMembership,
-  listOpenParties, getMyParty, saveMyParty, setMyPartyStatus, setMyPartyCode, deleteMyParty,
+  listOpenParties, getMyParty, getPartyByLeaderId, saveMyParty, setMyPartyStatus, setMyPartyCode, deleteMyParty,
   listApplicationsForMyParty, applyToParty, respondToApplication, listMyApplications, getPartyCode,
-  watchMyPartyApplications, kickApplicant,
+  watchMyPartyApplications, kickApplicant, inviteToParty, cancelInvite, respondToInvite,
   getMyResume, saveMyResume, deleteMyResume, getApplicantResume, listAllResumes,
 };

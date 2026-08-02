@@ -1138,10 +1138,12 @@ async function renderPartyList() {
   if (!window.LoadoutCloud) return;
   listEl.textContent = "불러오는 중...";
   try {
-    const [parties, myUid] = await Promise.all([
+    const [parties, myUid, myResume] = await Promise.all([
       window.LoadoutCloud.listOpenParties(),
       window.LoadoutCloud.getCurrentUid(),
+      window.LoadoutCloud.getMyResume().catch(() => null),
     ]);
+    const hasResume = !!myResume;
     listEl.innerHTML = "";
     if (parties.length === 0) {
       listEl.textContent = "현재 모집 중인 파티가 없습니다.";
@@ -1173,7 +1175,12 @@ async function renderPartyList() {
         });
       }
 
-      if (!isMine) {
+      if (!isMine && !hasResume) {
+        const noResumeMsg = document.createElement("p");
+        noResumeMsg.className = "office-blocked-msg";
+        noResumeMsg.textContent = "프로필을 먼저 등록해야 참가 신청을 할 수 있습니다.";
+        item.appendChild(noResumeMsg);
+      } else if (!isMine) {
         const applyRow = document.createElement("div");
         applyRow.className = "office-party-apply-row";
         const input = document.createElement("input");
@@ -1249,12 +1256,15 @@ async function renderMyParty() {
   }
 
   const membersListEl = document.getElementById("office-party-members-list");
+  const sentInvitesListEl = document.getElementById("office-sent-invites-list");
   membersListEl.textContent = "불러오는 중...";
   applicantListEl.textContent = "불러오는 중...";
+  sentInvitesListEl.textContent = "불러오는 중...";
   try {
     const applicants = await window.LoadoutCloud.listApplicationsForMyParty();
     const members = applicants.filter((a) => a.status === "accepted");
-    const others = applicants.filter((a) => a.status !== "accepted");
+    const sentInvites = applicants.filter((a) => a.status === "invited");
+    const others = applicants.filter((a) => a.status !== "accepted" && a.status !== "invited");
 
     membersListEl.innerHTML = "";
     if (members.length === 0) {
@@ -1301,7 +1311,6 @@ async function renderMyParty() {
     applicantListEl.innerHTML = "";
     if (others.length === 0) {
       applicantListEl.textContent = "받은 신청이 없습니다.";
-      return;
     }
     for (const a of others) {
       const item = document.createElement("div");
@@ -1366,9 +1375,55 @@ async function renderMyParty() {
 
       applicantListEl.appendChild(item);
     }
+
+    sentInvitesListEl.innerHTML = "";
+    if (sentInvites.length === 0) {
+      sentInvitesListEl.textContent = "보낸 초대가 없습니다.";
+    } else {
+      for (const inv of sentInvites) {
+        const item = document.createElement("div");
+        item.className = "office-applicant-item";
+
+        const infoWrap = document.createElement("div");
+        infoWrap.className = "office-applicant-info";
+        const resumeEl = document.createElement("p");
+        resumeEl.className = "office-applicant-resume";
+        resumeEl.textContent = "프로필 불러오는 중...";
+        infoWrap.appendChild(resumeEl);
+        window.LoadoutCloud.getApplicantResume(inv.applicantId).then((resume) => {
+          resumeEl.textContent = resume ? formatResumeFields(resume) : "프로필을 작성하지 않은 상대입니다.";
+        });
+        item.appendChild(infoWrap);
+
+        const actionsEl = document.createElement("div");
+        actionsEl.className = "office-applicant-actions";
+        const statusEl = document.createElement("span");
+        statusEl.className = "office-applicant-status";
+        statusEl.textContent = "수락 대기중";
+        actionsEl.appendChild(statusEl);
+        const cancelBtn = document.createElement("button");
+        cancelBtn.type = "button";
+        cancelBtn.className = "office-btn office-btn-outline";
+        cancelBtn.textContent = "초대 취소";
+        cancelBtn.addEventListener("click", async () => {
+          if (!confirm("보낸 초대를 취소할까요?")) return;
+          try {
+            await window.LoadoutCloud.cancelInvite(inv.applicantId);
+            renderMyParty();
+          } catch (err) {
+            showToast(err.message || "처리에 실패했습니다.");
+          }
+        });
+        actionsEl.appendChild(cancelBtn);
+        item.appendChild(actionsEl);
+
+        sentInvitesListEl.appendChild(item);
+      }
+    }
   } catch {
     membersListEl.textContent = "파티원 목록을 불러오지 못했습니다.";
     applicantListEl.textContent = "신청 목록을 불러오지 못했습니다.";
+    sentInvitesListEl.textContent = "보낸 초대 목록을 불러오지 못했습니다.";
   }
 }
 
@@ -1413,14 +1468,19 @@ async function renderMyResume() {
   }
 }
 
-// 인력 목록 — 등록된 이력서 전체를 신원 정보 없이 쭉 보여줌 + 인원수 표시
+// 프로필 목록 — 등록된 이력서 전체를 신원 정보 없이 쭉 보여줌 + 인원수 표시.
+// 내가 파티장(활성 파티 있음)이면 각 프로필 옆에 "초대" 버튼이 붙는다 — steamId는
+// 초대 대상 지정 용도로만 쓰고 화면 텍스트로는 절대 보여주지 않는다(블라인드 유지).
 async function renderResumeList() {
   const listEl = document.getElementById("office-resume-list");
   const countEl = document.getElementById("office-resume-count");
   if (!window.LoadoutCloud) return;
   listEl.textContent = "불러오는 중...";
   try {
-    const resumes = await window.LoadoutCloud.listAllResumes();
+    const [resumes, myParty] = await Promise.all([
+      window.LoadoutCloud.listAllResumes(),
+      window.LoadoutCloud.getMyParty().catch(() => null),
+    ]);
     countEl.textContent = `(${resumes.length}명)`;
     listEl.innerHTML = "";
     if (resumes.length === 0) {
@@ -1428,9 +1488,42 @@ async function renderResumeList() {
       return;
     }
     resumes.forEach((resume) => {
-      const item = document.createElement("p");
+      const item = document.createElement("div");
       item.className = "office-resume-item";
-      item.textContent = formatResumeFields(resume);
+
+      const textEl = document.createElement("p");
+      textEl.className = "office-resume-item-text";
+      textEl.textContent = formatResumeFields(resume);
+      item.appendChild(textEl);
+
+      if (myParty) {
+        const inviteRow = document.createElement("div");
+        inviteRow.className = "office-party-apply-row";
+        const input = document.createElement("input");
+        input.type = "text";
+        input.maxLength = 200;
+        input.placeholder = "초대 메시지(선택)";
+        const inviteBtn = document.createElement("button");
+        inviteBtn.type = "button";
+        inviteBtn.className = "office-btn office-btn-primary";
+        inviteBtn.textContent = "초대";
+        inviteRow.appendChild(input);
+        inviteRow.appendChild(inviteBtn);
+        item.appendChild(inviteRow);
+
+        inviteBtn.addEventListener("click", async () => {
+          inviteBtn.disabled = true;
+          try {
+            await window.LoadoutCloud.inviteToParty(resume.steamId, input.value);
+            inviteBtn.textContent = "초대 완료";
+            input.disabled = true;
+          } catch (err) {
+            showToast(err.message || "초대에 실패했습니다.");
+            inviteBtn.disabled = false;
+          }
+        });
+      }
+
       listEl.appendChild(item);
     });
   } catch {
@@ -1439,13 +1532,78 @@ async function renderResumeList() {
   }
 }
 
-// 내 신청 현황 — 수락된 건에 한해서만 로비 코드를 추가로 불러와 보여줌
+// 내 신청 현황(수락된 건에 한해서만 로비 코드를 추가로 불러와 보여줌) + 받은 초대
+// (파티장이 프로필 게시판 보고 먼저 초대한 건 — 수락/거절 필요)
 async function renderMyApplications() {
   const listEl = document.getElementById("office-myapps-list");
+  const invitesListEl = document.getElementById("office-received-invites-list");
   if (!window.LoadoutCloud) return;
   listEl.textContent = "불러오는 중...";
+  invitesListEl.textContent = "불러오는 중...";
   try {
-    const apps = await window.LoadoutCloud.listMyApplications();
+    const allApps = await window.LoadoutCloud.listMyApplications();
+    const receivedInvites = allApps.filter((a) => a.status === "invited");
+    const apps = allApps.filter((a) => a.status !== "invited");
+
+    invitesListEl.innerHTML = "";
+    if (receivedInvites.length === 0) {
+      invitesListEl.textContent = "받은 초대가 없습니다.";
+    } else {
+      for (const inv of receivedInvites) {
+        const item = document.createElement("div");
+        item.className = "office-applicant-item";
+
+        const infoWrap = document.createElement("div");
+        infoWrap.className = "office-applicant-info";
+        const partyEl = document.createElement("p");
+        partyEl.className = "office-applicant-resume";
+        partyEl.textContent = "파티 정보 불러오는 중...";
+        infoWrap.appendChild(partyEl);
+        window.LoadoutCloud.getPartyByLeaderId(inv.leaderId).then((party) => {
+          partyEl.textContent = party ? formatPartyFields(party) : "파티 정보를 불러오지 못했습니다.";
+        });
+        if (inv.message) {
+          const msgEl = document.createElement("p");
+          msgEl.className = "office-applicant-msg";
+          msgEl.textContent = inv.message;
+          infoWrap.appendChild(msgEl);
+        }
+        item.appendChild(infoWrap);
+
+        const actionsEl = document.createElement("div");
+        actionsEl.className = "office-applicant-actions";
+        const acceptBtn = document.createElement("button");
+        acceptBtn.type = "button";
+        acceptBtn.className = "office-btn office-btn-primary";
+        acceptBtn.textContent = "수락";
+        acceptBtn.addEventListener("click", async () => {
+          try {
+            await window.LoadoutCloud.respondToInvite(inv.leaderId, true);
+            renderMyApplications();
+          } catch (err) {
+            showToast(err.message || "처리에 실패했습니다.");
+          }
+        });
+        const declineBtn = document.createElement("button");
+        declineBtn.type = "button";
+        declineBtn.className = "office-btn office-btn-outline";
+        declineBtn.textContent = "거절";
+        declineBtn.addEventListener("click", async () => {
+          try {
+            await window.LoadoutCloud.respondToInvite(inv.leaderId, false);
+            renderMyApplications();
+          } catch (err) {
+            showToast(err.message || "처리에 실패했습니다.");
+          }
+        });
+        actionsEl.appendChild(acceptBtn);
+        actionsEl.appendChild(declineBtn);
+        item.appendChild(actionsEl);
+
+        invitesListEl.appendChild(item);
+      }
+    }
+
     listEl.innerHTML = "";
     if (apps.length === 0) {
       listEl.textContent = "신청한 파티가 없습니다.";
@@ -1477,6 +1635,7 @@ async function renderMyApplications() {
     }
   } catch {
     listEl.textContent = "신청 현황을 불러오지 못했습니다.";
+    invitesListEl.textContent = "받은 초대를 불러오지 못했습니다.";
   }
 }
 

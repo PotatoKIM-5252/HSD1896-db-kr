@@ -234,23 +234,35 @@ service cloud.firestore {
                     && request.resource.data.acceptedCount == 0
                     && request.resource.data.createdAt == request.time;
 
-      // 수정은 두 갈래: (1) 파티장이 모집 정보/상태를 고치는 일반 수정 — acceptedCount는
+      // 수정은 네 갈래: (1) 파티장이 모집 정보/상태를 고치는 일반 수정 — acceptedCount는
       // 그대로 유지돼야 함. (2) acceptedCount만 정확히 1 늘거나(신청 수락, 최대 인원을
-      // 넘을 수 없다) 1 줄어드는 것(파티원 내보내기).
-      allow update: if request.auth != null && request.auth.uid == leaderId
+      // 넘을 수 없다) (3) 1 줄어드는 것(파티원 내보내기) — 이 셋은 파티장만. (4) 내가
+      // 받은 초대(invited)를 내가 수락하면서 acceptedCount를 내 몫만큼 1 늘리는 것 —
+      // 초대받은 본인만, 최대 인원을 넘을 수 없다.
+      allow update: if request.auth != null
                     && (
-                      (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['activeServers', 'partyMmr', 'minKda', 'combatStyle', 'voice', 'codePublic', 'status', 'partyType', 'gameMode'])
-                       && isValidPartyFields(request.resource.data)
-                       && request.resource.data.status in ['open', 'closed']
-                       && request.resource.data.acceptedCount == resource.data.acceptedCount)
+                      (request.auth.uid == leaderId
+                       && (
+                            (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['activeServers', 'partyMmr', 'minKda', 'combatStyle', 'voice', 'codePublic', 'status', 'partyType', 'gameMode'])
+                             && isValidPartyFields(request.resource.data)
+                             && request.resource.data.status in ['open', 'closed']
+                             && request.resource.data.acceptedCount == resource.data.acceptedCount)
+                            ||
+                            (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['acceptedCount'])
+                             && request.resource.data.acceptedCount == resource.data.acceptedCount + 1
+                             && request.resource.data.acceptedCount <= partyMaxSize(resource.data.partyType))
+                            ||
+                            (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['acceptedCount'])
+                             && request.resource.data.acceptedCount == resource.data.acceptedCount - 1
+                             && request.resource.data.acceptedCount >= 0)
+                          ))
                       ||
-                      (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['acceptedCount'])
+                      (request.auth.uid != leaderId
+                       && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['acceptedCount'])
                        && request.resource.data.acceptedCount == resource.data.acceptedCount + 1
-                       && request.resource.data.acceptedCount <= partyMaxSize(resource.data.partyType))
-                      ||
-                      (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['acceptedCount'])
-                       && request.resource.data.acceptedCount == resource.data.acceptedCount - 1
-                       && request.resource.data.acceptedCount >= 0)
+                       && request.resource.data.acceptedCount <= partyMaxSize(resource.data.partyType)
+                       && exists(/databases/$(database)/documents/officeParties/$(leaderId)/applications/$(request.auth.uid))
+                       && get(/databases/$(database)/documents/officeParties/$(leaderId)/applications/$(request.auth.uid)).data.status == 'invited')
                     );
 
       allow delete: if request.auth != null && (request.auth.uid == leaderId || isOperator());
@@ -273,33 +285,51 @@ service cloud.firestore {
         allow delete: if request.auth != null && request.auth.uid == leaderId;
       }
 
-      // 참가 신청 — 문서 ID = 신청자 uid라서 "한 파티에 한 사람당 신청 1개"가 구조적으로 강제됨.
-      // 읽기는 신청자 본인과 파티장만. 수락/거절은 파티장만, pending 상태에서만 가능.
-      // 이미 수락된 신청은 파티장이 kicked로 바꿔서 내보낼 수 있음(officeParties의
+      // 참가 신청/초대 — 문서 ID = 상대방(신청자 또는 초대받은 사람) uid라서 "한 파티에
+      // 한 사람당 관계 1개"가 구조적으로 강제됨. 읽기는 그 상대방 본인과 파티장만.
+      // 두 가지 시작 경로가 있음: (1) 회원이 직접 신청(status: pending) — 본인 프로필이
+      // 등록돼 있어야 하고(officeResumes 존재), 파티장이 수락/거절. (2) 파티장이 프로필
+      // 게시판을 보고 먼저 초대(status: invited) — 초대받은 본인이 수락/거절. 이미
+      // 수락된 신청은 파티장이 kicked로 바꿔서 내보낼 수 있음(officeParties의
       // acceptedCount -1과 같은 배치로 처리 — firebase-init.js kickApplicant 참고).
+      // 수락 시엔 반대로 +1(respondToApplication/respondToInvite 참고).
       match /applications/{applicantId} {
         allow read: if request.auth != null
                     && (request.auth.uid == applicantId || request.auth.uid == leaderId);
 
         allow create: if request.auth != null
-                      && request.auth.uid == applicantId
                       && applicantId != leaderId
-                      && isActiveMember(request.auth.uid)
-                      && get(/databases/$(database)/documents/officeParties/$(leaderId)).data.status == 'open'
                       && request.resource.data.keys().hasOnly(['applicantId', 'message', 'status', 'createdAt', 'respondedAt'])
-                      && request.resource.data.applicantId == request.auth.uid
+                      && request.resource.data.applicantId == applicantId
                       && request.resource.data.message is string
                       && request.resource.data.message.size() <= 200
-                      && request.resource.data.status == 'pending'
                       && request.resource.data.createdAt == request.time
-                      && request.resource.data.respondedAt == null;
+                      && request.resource.data.respondedAt == null
+                      && (
+                        (request.auth.uid == applicantId
+                         && isActiveMember(request.auth.uid)
+                         && exists(/databases/$(database)/documents/officeResumes/$(request.auth.uid))
+                         && get(/databases/$(database)/documents/officeParties/$(leaderId)).data.status == 'open'
+                         && request.resource.data.status == 'pending')
+                        ||
+                        (request.auth.uid == leaderId
+                         && isActiveMember(applicantId)
+                         && request.resource.data.status == 'invited')
+                      );
 
-        allow update: if request.auth != null && request.auth.uid == leaderId
+        allow update: if request.auth != null
                       && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'respondedAt'])
                       && request.resource.data.respondedAt == request.time
                       && (
-                        (resource.data.status == 'pending' && request.resource.data.status in ['accepted', 'declined'])
-                        || (resource.data.status == 'accepted' && request.resource.data.status == 'kicked')
+                        (request.auth.uid == leaderId
+                         && (
+                              (resource.data.status == 'pending' && request.resource.data.status in ['accepted', 'declined'])
+                              || (resource.data.status == 'accepted' && request.resource.data.status == 'kicked')
+                            ))
+                        ||
+                        (request.auth.uid == applicantId
+                         && resource.data.status == 'invited'
+                         && request.resource.data.status in ['accepted', 'declined'])
                       );
 
         allow delete: if request.auth != null && (request.auth.uid == applicantId || request.auth.uid == leaderId);
