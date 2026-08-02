@@ -807,6 +807,27 @@ function setupMyPartyApplicationsWatch() {
   });
 }
 
+// 내가 받은 초대를 실시간 감시 — setupMyPartyApplicationsWatch(파티장용)와 대칭으로,
+// 다른 탭을 보고 있어도 새 초대가 오면 토스트로 바로 알리고 목록을 새로 그린다.
+let myApplicationsUnsub = null;
+let knownInvitedLeaderIds = null;
+function setupMyApplicationsWatch() {
+  if (!window.LoadoutCloud || !window.LoadoutCloud.watchMyApplications) return;
+  if (myApplicationsUnsub) { myApplicationsUnsub(); myApplicationsUnsub = null; }
+  knownInvitedLeaderIds = null;
+  myApplicationsUnsub = window.LoadoutCloud.watchMyApplications((apps) => {
+    const invitedIds = new Set(apps.filter((a) => a.status === "invited").map((a) => a.leaderId));
+    if (knownInvitedLeaderIds !== null) {
+      const newCount = [...invitedIds].filter((id) => !knownInvitedLeaderIds.has(id)).length;
+      if (newCount > 0) {
+        showToast(`새 파티 초대가 ${newCount}건 도착했습니다.`, "info");
+        renderMyApplications();
+      }
+    }
+    knownInvitedLeaderIds = invitedIds;
+  });
+}
+
 function setupOfficeTab() {
   const agreeCheckbox = document.getElementById("office-agree-checkbox");
   const registerBtn = document.getElementById("office-register-btn");
@@ -850,6 +871,7 @@ function showOfficeMemberView(steamId) {
   renderPartyList();
   renderMyParty();
   setupMyPartyApplicationsWatch();
+  setupMyApplicationsWatch();
 }
 
 async function loadOfficeMembership() {

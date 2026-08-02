@@ -539,6 +539,21 @@ async function listMyApplications() {
   return snap.docs.map((d) => ({ leaderId: d.ref.parent.parent.id, ...d.data() }));
 }
 
+// 내가 받은 초대/신청 현황을 실시간으로 감시 — watchMyPartyApplications(파티장용)와
+// 대칭으로, 다른 화면을 보고 있어도 새 초대가 오면 바로 알 수 있게 하기 위함.
+function watchMyApplications(callback) {
+  let unsub = null;
+  let cancelled = false;
+  getUid().then((uid) => {
+    if (cancelled) return;
+    const q = query(collectionGroup(db, "applications"), where("applicantId", "==", uid));
+    unsub = onSnapshot(q, (snap) => {
+      callback(snap.docs.map((d) => ({ leaderId: d.ref.parent.parent.id, ...d.data() })));
+    });
+  });
+  return () => { cancelled = true; if (unsub) unsub(); };
+}
+
 // 수락된 신청자만 읽을 수 있는 합류 코드 — 아직 수락 전이면 규칙이 거부하므로 null로 처리
 async function getPartyCode(leaderId) {
   try {
@@ -617,6 +632,6 @@ window.LoadoutCloud = {
   getMyOfficeMembership, ensureOfficeMembership,
   listAllParties, getMyParty, getPartyByLeaderId, saveMyParty, setMyPartyStatus, setMyPartyCode, deleteMyParty,
   listApplicationsForMyParty, applyToParty, respondToApplication, listMyApplications, getPartyCode,
-  watchMyPartyApplications, kickApplicant, inviteToParty, cancelInvite, respondToInvite, leaveParty,
+  watchMyPartyApplications, watchMyApplications, kickApplicant, inviteToParty, cancelInvite, respondToInvite, leaveParty,
   getMyResume, saveMyResume, deleteMyResume, getApplicantResume, listAllResumes,
 };
