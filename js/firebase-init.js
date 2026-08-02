@@ -359,16 +359,12 @@ function sanitizePartyFields(fields) {
   return out;
 }
 
-// where("status","==","open") + orderBy("createdAt")를 같이 쓰면 Firestore가 별도
-// 복합 색인을 요구해서(콘솔에서 색인을 직접 만들어야 함), 색인 없이도 되게 status
-// 필터 없이 전체를 가져온 다음 open만 걸러내고 클라이언트에서 정렬한다. 파티 수가
-// 많지 않은 서비스라 이 정도는 부담 없음.
-async function listOpenParties() {
+// 모집 마감(status: "closed")이어도 목록에서는 계속 보여준다 — 마감은 새 신청만
+// 막을 뿐(신청 생성은 규칙에서 status=='open'을 요구), 목록 노출과는 무관하다.
+async function listAllParties() {
   const q = query(collection(db, OFFICE_PARTIES_COLLECTION), orderBy("createdAt", "desc"));
   const snap = await getDocs(q);
-  return snap.docs
-    .map((d) => ({ leaderId: d.id, ...d.data() }))
-    .filter((p) => p.status === "open");
+  return snap.docs.map((d) => ({ leaderId: d.id, ...d.data() }));
 }
 
 async function getMyParty() {
@@ -619,7 +615,7 @@ window.LoadoutCloud = {
   getWeaponReviews, setWeaponHeart, saveWeaponComment, toggleWeaponCommentAgree,
   buildSteamLoginUrl, getSteamOpenIdParamsFromUrl, verifySteamLoginAndSignIn,
   getMyOfficeMembership, ensureOfficeMembership,
-  listOpenParties, getMyParty, getPartyByLeaderId, saveMyParty, setMyPartyStatus, setMyPartyCode, deleteMyParty,
+  listAllParties, getMyParty, getPartyByLeaderId, saveMyParty, setMyPartyStatus, setMyPartyCode, deleteMyParty,
   listApplicationsForMyParty, applyToParty, respondToApplication, listMyApplications, getPartyCode,
   watchMyPartyApplications, kickApplicant, inviteToParty, cancelInvite, respondToInvite, leaveParty,
   getMyResume, saveMyResume, deleteMyResume, getApplicantResume, listAllResumes,

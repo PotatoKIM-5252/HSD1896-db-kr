@@ -1138,24 +1138,25 @@ async function renderPartyList() {
   listEl.textContent = "불러오는 중...";
   try {
     const [parties, myUid, myResume] = await Promise.all([
-      window.LoadoutCloud.listOpenParties(),
+      window.LoadoutCloud.listAllParties(),
       window.LoadoutCloud.getCurrentUid(),
       window.LoadoutCloud.getMyResume().catch(() => null),
     ]);
     const hasResume = !!myResume;
     listEl.innerHTML = "";
     if (parties.length === 0) {
-      listEl.textContent = "현재 모집 중인 파티가 없습니다.";
+      listEl.textContent = "현재 등록된 파티가 없습니다.";
       return;
     }
     parties.forEach((party) => {
       const isMine = party.leaderId === myUid;
+      const isClosed = party.status !== "open";
       const item = document.createElement("div");
       item.className = "office-party-item";
 
       const descEl = document.createElement("p");
       descEl.className = "office-party-desc";
-      descEl.textContent = (isMine ? "[내 파티] " : "") + formatPartyFields(party);
+      descEl.textContent = (isMine ? "[내 파티] " : "") + (isClosed ? "[모집 마감] " : "") + formatPartyFields(party);
       item.appendChild(descEl);
 
       const headcountEl = document.createElement("p");
@@ -1174,7 +1175,12 @@ async function renderPartyList() {
         });
       }
 
-      if (!isMine && !hasResume) {
+      if (!isMine && isClosed) {
+        const closedMsg = document.createElement("p");
+        closedMsg.className = "office-blocked-msg";
+        closedMsg.textContent = "모집이 마감된 파티입니다.";
+        item.appendChild(closedMsg);
+      } else if (!isMine && !hasResume) {
         const noResumeMsg = document.createElement("p");
         noResumeMsg.className = "office-blocked-msg";
         noResumeMsg.textContent = "프로필을 먼저 등록해야 참가 신청을 할 수 있습니다.";
