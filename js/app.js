@@ -323,7 +323,6 @@ const CHANGELOG = [
 ];
 
 function init() {
-  checkOfficeUnlockFromUrl();
   initLoadoutState();
 
   document.querySelectorAll(".nav-btn").forEach((btn) => {
@@ -333,16 +332,7 @@ function init() {
     e.preventDefault();
     switchTab("search");
   });
-  // 로고 옆 사무소 버튼 — switchTab("office")가 이미 오피스키 잠금 여부를 확인해서
-  // 안 풀려있으면 공사중 창만 띄우고 끝나므로, 여기서도 그대로 재사용.
   document.getElementById("office-entry-btn").addEventListener("click", () => switchTab("office"));
-
-  document.getElementById("office-lock-close-btn").addEventListener("click", () => {
-    document.getElementById("office-lock-overlay").hidden = true;
-  });
-  document.getElementById("office-lock-overlay").addEventListener("click", (e) => {
-    if (e.target.id === "office-lock-overlay") e.currentTarget.hidden = true;
-  });
 
   document.getElementById("search-input").addEventListener("input", (e) => {
     state.searchQuery = e.target.value.trim().toLowerCase();
@@ -864,7 +854,7 @@ function showOfficeMemberView(steamId) {
 }
 
 async function loadOfficeMembership() {
-  if (officeMembershipLoaded || !isOfficeUnlocked()) return;
+  if (officeMembershipLoaded) return;
   const loadingEl = document.getElementById("office-loading");
   const introView = document.getElementById("office-intro-view");
   const memberView = document.getElementById("office-member-view");
@@ -905,7 +895,6 @@ async function handleSteamOpenIdCallback() {
   history.replaceState(null, "", `${location.origin}${location.pathname}`);
   officeMembershipLoaded = true; // 아래에서 직접 상태를 채우므로 switchTab의 자동 로딩은 건너뜀
   switchTab("office");
-  if (!isOfficeUnlocked()) return; // 잠긴 상태에서 돌아왔으면 여기서 끝(공사중 안내만 뜸)
 
   const loadingEl = document.getElementById("office-loading");
   const introView = document.getElementById("office-intro-view");
@@ -1505,30 +1494,7 @@ function initLoadoutState() {
   state.loadout["field__all"] = [];
 }
 
-// 사무소 탭 공사중 잠금 — URL 쿼리(?officekey=hsd1896office)로 접속한 "이번 브라우저
-// 세션" 동안만 접근 가능(sessionStorage, 탭/브라우저를 닫으면 해제). 맵 탭 때 썼던 것과
-// 같은 방식(예전 맵 탭 공사중 잠금 커밋 참고) — 링크가 새어나가도 영구히 풀리지 않음.
-const OFFICE_UNLOCK_STORAGE_KEY = "hsd_office_unlocked";
-const OFFICE_UNLOCK_QUERY_PARAM = "officekey";
-const OFFICE_UNLOCK_SECRET = "hsd1896office";
-
-function checkOfficeUnlockFromUrl() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get(OFFICE_UNLOCK_QUERY_PARAM) === OFFICE_UNLOCK_SECRET) {
-    sessionStorage.setItem(OFFICE_UNLOCK_STORAGE_KEY, "1");
-  } else {
-    localStorage.removeItem(OFFICE_UNLOCK_STORAGE_KEY);
-  }
-}
-function isOfficeUnlocked() {
-  return sessionStorage.getItem(OFFICE_UNLOCK_STORAGE_KEY) === "1";
-}
-
 function switchTab(tabName) {
-  if (tabName === "office" && !isOfficeUnlocked()) {
-    document.getElementById("office-lock-overlay").hidden = false;
-    return;
-  }
   state.activeTab = tabName;
   const statTooltip = document.getElementById("stat-tooltip");
   if (statTooltip) statTooltip.hidden = true;

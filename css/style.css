@@ -3253,46 +3253,6 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 #report-history-close-btn:hover, #report-operator-mode-btn:hover { color: var(--text-primary); border-color: var(--accent); }
 #report-operator-mode-btn.active { color: var(--accent-strong); border-color: var(--accent); }
 
-/* ===================== 사무소 탭 공사중 잠금 ===================== */
-
-#office-lock-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(10, 12, 7, 0.85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  z-index: 70;
-}
-
-#office-lock-overlay[hidden] { display: none; }
-
-#office-lock-content {
-  background: var(--bg-panel);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
-  width: 100%;
-  max-width: 380px;
-  padding: 28px 26px;
-  text-align: center;
-}
-
-#office-lock-content h3 { margin: 0 0 10px; font-size: 17px; color: var(--text-primary); }
-#office-lock-content p { margin: 0 0 20px; color: var(--text-secondary); font-size: 13px; line-height: 1.5; }
-
-#office-lock-close-btn {
-  background: var(--accent);
-  border: 1px solid var(--accent);
-  color: var(--accent-text);
-  border-radius: var(--radius);
-  padding: 9px 24px;
-  font-size: 13px;
-  font-weight: 500;
-}
-
-#office-lock-close-btn:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
-
 /* ===================== 사무소 탭 ===================== */
 
 #tab-office { max-width: 1080px; }
