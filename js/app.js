@@ -849,7 +849,6 @@ function showOfficeMemberView(steamId) {
   document.getElementById("office-list-resume").hidden = true;
   renderPartyList();
   renderMyParty();
-  renderMyApplications();
   setupMyPartyApplicationsWatch();
 }
 
@@ -941,10 +940,10 @@ function setupOfficePartyBoard() {
       if (mode === "party") {
         renderPartyList();
         renderMyParty();
-        renderMyApplications();
       } else {
         renderResumeList();
         renderMyResume();
+        renderMyApplications();
       }
     });
   });
@@ -1629,6 +1628,21 @@ async function renderMyApplications() {
         window.LoadoutCloud.getPartyCode(a.leaderId).then((code) => {
           codeEl.textContent = code ? `로비 코드: ${code}` : "파티장이 아직 로비 코드를 등록하지 않았습니다.";
         });
+
+        const leaveBtn = document.createElement("button");
+        leaveBtn.type = "button";
+        leaveBtn.className = "office-btn office-btn-outline";
+        leaveBtn.textContent = "파티 나가기";
+        leaveBtn.addEventListener("click", async () => {
+          if (!confirm("이 파티에서 나갈까요?")) return;
+          try {
+            await window.LoadoutCloud.leaveParty(a.leaderId);
+            renderMyApplications();
+          } catch (err) {
+            showToast(err.message || "처리에 실패했습니다.");
+          }
+        });
+        item.appendChild(leaveBtn);
       }
 
       listEl.appendChild(item);

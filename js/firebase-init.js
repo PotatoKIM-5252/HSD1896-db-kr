@@ -510,6 +510,16 @@ async function respondToInvite(leaderId, accepted) {
   await batch.commit();
 }
 
+// 파티원 스스로 파티에서 나감 — kickApplicant와 대칭으로 내 신청 문서를 지우고
+// acceptedCount를 1 줄인다(이번엔 파티장이 아니라 나가는 본인이 수행).
+async function leaveParty(leaderId) {
+  const uid = await getUid();
+  const batch = writeBatch(db);
+  batch.delete(doc(db, OFFICE_PARTIES_COLLECTION, leaderId, "applications", uid));
+  batch.update(doc(db, OFFICE_PARTIES_COLLECTION, leaderId), { acceptedCount: increment(-1) });
+  await batch.commit();
+}
+
 // 내 파티에 들어오는 신청을 실시간으로 감시 — 새 신청이 오면 화면을 안 보고 있어도
 // 바로 알 수 있게 하기 위함. 구독 해제 함수를 돌려준다.
 function watchMyPartyApplications(callback) {
@@ -611,6 +621,6 @@ window.LoadoutCloud = {
   getMyOfficeMembership, ensureOfficeMembership,
   listOpenParties, getMyParty, getPartyByLeaderId, saveMyParty, setMyPartyStatus, setMyPartyCode, deleteMyParty,
   listApplicationsForMyParty, applyToParty, respondToApplication, listMyApplications, getPartyCode,
-  watchMyPartyApplications, kickApplicant, inviteToParty, cancelInvite, respondToInvite,
+  watchMyPartyApplications, kickApplicant, inviteToParty, cancelInvite, respondToInvite, leaveParty,
   getMyResume, saveMyResume, deleteMyResume, getApplicantResume, listAllResumes,
 };

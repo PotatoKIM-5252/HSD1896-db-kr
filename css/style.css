@@ -3393,7 +3393,7 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 .office-resume-item .office-party-apply-row:last-child { margin-bottom: 0; }
 .office-resume-item > .office-resume-item-text:last-child { margin-bottom: 0; }
 
-#office-mode-party h4 { font-size: 13px; color: var(--text-muted); margin: 20px 0 10px; }
+.office-mode-panel h4 { font-size: 13px; color: var(--text-muted); margin: 20px 0 10px; }
 
 .office-party-item, .office-applicant-item, .office-myapp-item {
   background: var(--bg-card);

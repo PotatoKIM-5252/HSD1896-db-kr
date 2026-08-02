@@ -234,11 +234,12 @@ service cloud.firestore {
                     && request.resource.data.acceptedCount == 0
                     && request.resource.data.createdAt == request.time;
 
-      // 수정은 네 갈래: (1) 파티장이 모집 정보/상태를 고치는 일반 수정 — acceptedCount는
+      // 수정은 다섯 갈래: (1) 파티장이 모집 정보/상태를 고치는 일반 수정 — acceptedCount는
       // 그대로 유지돼야 함. (2) acceptedCount만 정확히 1 늘거나(신청 수락, 최대 인원을
       // 넘을 수 없다) (3) 1 줄어드는 것(파티원 내보내기) — 이 셋은 파티장만. (4) 내가
       // 받은 초대(invited)를 내가 수락하면서 acceptedCount를 내 몫만큼 1 늘리는 것 —
-      // 초대받은 본인만, 최대 인원을 넘을 수 없다.
+      // 초대받은 본인만. (5) 내가 이미 수락된(accepted) 파티원인 상태에서 acceptedCount를
+      // 내 몫만큼 1 줄이는 것 — 파티 나가기(leaveParty), 파티원 본인만.
       allow update: if request.auth != null
                     && (
                       (request.auth.uid == leaderId
@@ -259,10 +260,16 @@ service cloud.firestore {
                       ||
                       (request.auth.uid != leaderId
                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['acceptedCount'])
-                       && request.resource.data.acceptedCount == resource.data.acceptedCount + 1
-                       && request.resource.data.acceptedCount <= partyMaxSize(resource.data.partyType)
                        && exists(/databases/$(database)/documents/officeParties/$(leaderId)/applications/$(request.auth.uid))
-                       && get(/databases/$(database)/documents/officeParties/$(leaderId)/applications/$(request.auth.uid)).data.status == 'invited')
+                       && (
+                            (request.resource.data.acceptedCount == resource.data.acceptedCount + 1
+                             && request.resource.data.acceptedCount <= partyMaxSize(resource.data.partyType)
+                             && get(/databases/$(database)/documents/officeParties/$(leaderId)/applications/$(request.auth.uid)).data.status == 'invited')
+                            ||
+                            (request.resource.data.acceptedCount == resource.data.acceptedCount - 1
+                             && request.resource.data.acceptedCount >= 0
+                             && get(/databases/$(database)/documents/officeParties/$(leaderId)/applications/$(request.auth.uid)).data.status == 'accepted')
+                          ))
                     );
 
       allow delete: if request.auth != null && (request.auth.uid == leaderId || isOperator());
