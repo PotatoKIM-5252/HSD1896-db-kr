@@ -3787,8 +3787,8 @@ const AMMO_TYPES = {
     description: "Shells - 기본 샷건탄(벅샷).",
     cost: 0,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
-    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
-    ohkRange: { guaranteed: 12, unstableEnd: 13, noneFrom: 14 },
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터 (13m 보장, 그 이후 불가 — 불확정 구간 없음)
+    ohkRange: { guaranteed: 13 },
     statOverrides: {  },
   },
 
