@@ -1268,6 +1268,13 @@ function partyMaxSize(partyType) {
   return partyType === "트리오" ? 3 : 2;
 }
 
+// 모집중이고 아직 인원이 안 찼으면 🟢, 인원이 다 찼거나 모집을 마감했으면 🔴
+function partyStatusDot(party) {
+  const isFull = 1 + (party.acceptedCount || 0) >= partyMaxSize(party.partyType);
+  const isOpen = party.status === "open";
+  return isOpen && !isFull ? "🟢" : "🔴";
+}
+
 // 파티/프로필 모두 등록(또는 마지막 갱신) 후 3시간이 지나면 만료 처리 — 목록에서는
 // 안 보이게 하고, 본인 관리 화면에는 "타이머 리셋" 버튼으로 다시 살릴 수 있게 안내한다.
 const OFFICE_EXPIRY_MS = 3 * 60 * 60 * 1000;
@@ -1315,7 +1322,7 @@ async function renderPartyList() {
 
       const headcountEl = document.createElement("p");
       headcountEl.className = "office-headcount-badge";
-      headcountEl.textContent = `인원: ${1 + (party.acceptedCount || 0)}/${partyMaxSize(party.partyType)}명`;
+      headcountEl.textContent = `${partyStatusDot(party)} 인원: ${1 + (party.acceptedCount || 0)}/${partyMaxSize(party.partyType)}명`;
       item.appendChild(headcountEl);
 
 
@@ -1388,7 +1395,7 @@ async function renderOperatorPartyList() {
 
       const headcountEl = document.createElement("p");
       headcountEl.className = "office-headcount-badge";
-      headcountEl.textContent = `인원: ${1 + (party.acceptedCount || 0)}/${partyMaxSize(party.partyType)}명`;
+      headcountEl.textContent = `${partyStatusDot(party)} 인원: ${1 + (party.acceptedCount || 0)}/${partyMaxSize(party.partyType)}명`;
       item.appendChild(headcountEl);
 
       listEl.appendChild(item);
@@ -1435,7 +1442,7 @@ async function renderMyParty() {
       voiceInput.checked = !!party.voice;
       const code = await window.LoadoutCloud.getPartyCode(party.leaderId).catch(() => null);
       document.getElementById("office-myparty-code-input").value = code || "";
-      headcountEl.textContent = `현재 인원: ${1 + (party.acceptedCount || 0)}/${partyMaxSize(party.partyType)}명`;
+      headcountEl.textContent = `${partyStatusDot(party)} 현재 인원: ${1 + (party.acceptedCount || 0)}/${partyMaxSize(party.partyType)}명`;
       headcountEl.hidden = false;
     }
   } catch {
