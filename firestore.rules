@@ -279,13 +279,14 @@ service cloud.firestore {
 
       allow delete: if request.auth != null && (request.auth.uid == leaderId || isOperator());
 
-      // 합류 코드(숫자 6자리) — 파티장 본인이거나, 이 파티에 초대받았거나(invited) 참가
-      // 승인이 떨어진(accepted) 사람만 읽을 수 있음. 그 외 회원에게는 절대 공개하지 않음.
+      // 합류 코드(숫자 6자리) — 파티장 본인이거나, 신청/초대 어느 경로로 왔든 최종적으로
+      // "참가 승인(accepted)"된 사람만 읽을 수 있음. 초대만 받고 아직 수락 전이거나,
+      // 신청만 하고 아직 대기 중인 사람에게는 보이지 않는다.
       match /private/code {
         allow read: if request.auth != null
                     && (request.auth.uid == leaderId
                         || (exists(/databases/$(database)/documents/officeParties/$(leaderId)/applications/$(request.auth.uid))
-                            && get(/databases/$(database)/documents/officeParties/$(leaderId)/applications/$(request.auth.uid)).data.status in ['invited', 'accepted']));
+                            && get(/databases/$(database)/documents/officeParties/$(leaderId)/applications/$(request.auth.uid)).data.status == 'accepted'));
 
         allow create, update: if request.auth != null && request.auth.uid == leaderId
                       && request.resource.data.keys().hasOnly(['code'])

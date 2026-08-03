@@ -1655,13 +1655,6 @@ async function renderMyApplications() {
           msgEl.textContent = inv.message;
           infoWrap.appendChild(msgEl);
         }
-        const codeEl = document.createElement("p");
-        codeEl.className = "office-party-code";
-        codeEl.textContent = "로비 코드 확인 중...";
-        infoWrap.appendChild(codeEl);
-        window.LoadoutCloud.getPartyCode(inv.leaderId).then((code) => {
-          codeEl.textContent = code ? `로비 코드: ${code}` : "파티장이 아직 로비 코드를 등록하지 않았습니다.";
-        });
         item.appendChild(infoWrap);
 
         const actionsEl = document.createElement("div");
