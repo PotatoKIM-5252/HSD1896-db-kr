@@ -3856,6 +3856,8 @@ const AMMO_TYPES = {
     icon: "🔥",
     description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
     cost: 20,
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    ohkRange: { guaranteed: 8 },
     statOverrides: { damage: 133, spread: 75, muzzleVelocity: 100 },
     specialEffects: ["중급 화상 효과 발생"],
   },
