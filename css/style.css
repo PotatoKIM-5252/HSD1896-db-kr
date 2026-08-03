@@ -3338,8 +3338,9 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 #office-intro-msg { margin: 10px 0 0; font-size: 12px; color: var(--success); }
 #office-intro-msg.error { color: var(--danger-strong); }
 
-#office-member-status-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 6px; }
+#office-member-status-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 6px; flex-wrap: wrap; }
 #office-member-status { font-size: 14px; color: var(--text-primary); margin: 0; }
+#office-member-status-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
 #office-banned-view p { color: var(--danger-strong); font-size: 13px; }
 

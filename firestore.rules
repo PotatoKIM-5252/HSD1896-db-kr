@@ -170,7 +170,8 @@ service cloud.firestore {
                     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['banned'])
                     && request.resource.data.banned is bool;
 
-      allow delete: if isOperator();
+      // 본인이 등록한 스팀 ID는 스스로도 지울 수 있음(사무소 탈퇴)
+      allow delete: if isOperator() || (request.auth != null && request.auth.uid == steamId);
     }
 
     // 등록된(=밴 안 된) 사무소 회원인지 — 파티/신청 관련 규칙에서 반복 사용
@@ -227,15 +228,18 @@ service cloud.firestore {
       allow create: if request.auth != null
                     && request.auth.uid == leaderId
                     && isActiveMember(request.auth.uid)
-                    && request.resource.data.keys().hasOnly(['leaderId', 'activeServers', 'partyMmr', 'minKda', 'combatStyle', 'voice', 'codePublic', 'status', 'createdAt', 'partyType', 'gameMode', 'acceptedCount'])
+                    && request.resource.data.keys().hasOnly(['leaderId', 'activeServers', 'partyMmr', 'minKda', 'combatStyle', 'voice', 'codePublic', 'status', 'createdAt', 'renewedAt', 'partyType', 'gameMode', 'acceptedCount'])
                     && request.resource.data.leaderId == request.auth.uid
                     && isValidPartyFields(request.resource.data)
                     && request.resource.data.status == 'open'
                     && request.resource.data.acceptedCount == 0
-                    && request.resource.data.createdAt == request.time;
+                    && request.resource.data.createdAt == request.time
+                    && request.resource.data.renewedAt == request.time;
 
       // 수정은 다섯 갈래: (1) 파티장이 모집 정보/상태를 고치는 일반 수정 — acceptedCount는
-      // 그대로 유지돼야 함. (2) acceptedCount만 정확히 1 늘거나(신청 수락, 최대 인원을
+      // 그대로 유지돼야 함(renewedAt은 건드려도 되고 안 건드려도 되는데, 건드리면 반드시
+      // 지금 시각이어야 함 — 3시간 만료 타이머를 "등록/수정"이나 "타이머 리셋" 버튼으로
+      // 갱신하는 용도). (2) acceptedCount만 정확히 1 늘거나(신청 수락, 최대 인원을
       // 넘을 수 없다) (3) 1 줄어드는 것(파티원 내보내기) — 이 셋은 파티장만. (4) 내가
       // 받은 초대(invited)를 내가 수락하면서 acceptedCount를 내 몫만큼 1 늘리는 것 —
       // 초대받은 본인만. (5) 내가 이미 수락된(accepted) 파티원인 상태에서 acceptedCount를
@@ -244,10 +248,11 @@ service cloud.firestore {
                     && (
                       (request.auth.uid == leaderId
                        && (
-                            (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['activeServers', 'partyMmr', 'minKda', 'combatStyle', 'voice', 'codePublic', 'status', 'partyType', 'gameMode'])
+                            (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['activeServers', 'partyMmr', 'minKda', 'combatStyle', 'voice', 'codePublic', 'status', 'partyType', 'gameMode', 'renewedAt'])
                              && isValidPartyFields(request.resource.data)
                              && request.resource.data.status in ['open', 'closed']
-                             && request.resource.data.acceptedCount == resource.data.acceptedCount)
+                             && request.resource.data.acceptedCount == resource.data.acceptedCount
+                             && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['renewedAt']) || request.resource.data.renewedAt == request.time))
                             ||
                             (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['acceptedCount'])
                              && request.resource.data.acceptedCount == resource.data.acceptedCount + 1

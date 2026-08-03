@@ -329,6 +329,33 @@ async function ensureOfficeMembership(steamId) {
   return { steamId, ownerId: steamId, banned: false };
 }
 
+// 사무소 탈퇴 — 등록해둔 스팀 ID(officeMembers)를 본인이 직접 지울 수 있게 한다.
+// 파티/이력서(있으면 최대 하나)와, 다른 사람 파티에 걸려 있는 신청·초대까지 먼저
+// 정리해야 고아 문서가 안 남는다 — 수락된 파티원 자리는 leaveParty로 인원수까지
+// 맞추고, 그 외(대기중/받은 초대 등)는 그냥 지운다.
+async function deleteMyOfficeMembership() {
+  const uid = await getUid();
+
+  const partySnap = await getDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid));
+  if (partySnap.exists()) await deleteMyParty();
+
+  const resumeSnap = await getDoc(doc(db, OFFICE_RESUMES_COLLECTION, uid));
+  if (resumeSnap.exists()) await deleteMyResume();
+
+  const appsQ = query(collectionGroup(db, "applications"), where("applicantId", "==", uid));
+  const appsSnap = await getDocs(appsQ);
+  for (const d of appsSnap.docs) {
+    const leaderId = d.ref.parent.parent.id;
+    if (d.data().status === "accepted") {
+      await leaveParty(leaderId).catch(() => {});
+    } else {
+      await deleteDoc(d.ref).catch(() => {});
+    }
+  }
+
+  await deleteDoc(doc(db, OFFICE_MEMBERS_COLLECTION, uid));
+}
+
 // 파티 모집 — 문서 ID = 파티장 uid(=steamId64)라서 "한 사람당 활성 파티 1개"가 구조적으로
 // 강제됨. 모집 정보(활동서버/파티MMR/최소KDA/전투성향/음성여부)는 사무소 회원이면 누구나
 // 보지만, 합류 코드(private/code)와 지원자 목록(applications)은 각각 별도 하위 경로라
@@ -383,6 +410,7 @@ async function getPartyByLeaderId(leaderId) {
 // ⚠ 규칙은 update 시에도 결과 문서 전체(codePublic 포함)가 유효해야 한다고 검증하므로,
 //   과거(이 필드가 생기기 전)에 만들어진 문서처럼 codePublic이 아예 없는 경우를 대비해
 //   항상 기존 값을 읽어서 같이 채워 보낸다(없으면 false로 기본값 처리).
+// 등록/수정할 때마다 renewedAt을 지금 시각으로 갱신 — 3시간 만료 타이머가 여기서 리셋된다.
 async function saveMyParty(fields) {
   const sanitized = sanitizePartyFields(fields);
   const uid = await getUid();
@@ -390,10 +418,16 @@ async function saveMyParty(fields) {
   const snap = await getDoc(ref);
   if (snap.exists()) {
     const existing = snap.data();
-    await updateDoc(ref, { ...sanitized, codePublic: typeof existing.codePublic === "boolean" ? existing.codePublic : false });
+    await updateDoc(ref, { ...sanitized, codePublic: typeof existing.codePublic === "boolean" ? existing.codePublic : false, renewedAt: serverTimestamp() });
   } else {
-    await setDoc(ref, { leaderId: uid, ...sanitized, codePublic: false, status: "open", acceptedCount: 0, createdAt: serverTimestamp() });
+    await setDoc(ref, { leaderId: uid, ...sanitized, codePublic: false, status: "open", acceptedCount: 0, createdAt: serverTimestamp(), renewedAt: serverTimestamp() });
   }
+}
+
+// 폼을 다시 채우지 않고 만료 타이머만 지금 시각으로 리셋
+async function renewMyParty() {
+  const uid = await getUid();
+  await updateDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid), { renewedAt: serverTimestamp() });
 }
 
 async function setMyPartyStatus(status) {
@@ -605,6 +639,12 @@ async function deleteMyResume() {
   await deleteDoc(doc(db, OFFICE_RESUMES_COLLECTION, uid));
 }
 
+// 폼을 다시 채우지 않고 만료 타이머(updatedAt)만 지금 시각으로 리셋
+async function renewMyResume() {
+  const uid = await getUid();
+  await updateDoc(doc(db, OFFICE_RESUMES_COLLECTION, uid), { updatedAt: serverTimestamp() });
+}
+
 // 내 파티에 신청한 사람의 이력서 — 신청이 없거나 남의 파티면 규칙이 거부하므로 null 처리
 async function getApplicantResume(applicantId) {
   try {
@@ -629,9 +669,9 @@ window.LoadoutCloud = {
   listComments, addComment, getCurrentUid, OPERATOR_UID,
   getWeaponReviews, setWeaponHeart, saveWeaponComment, toggleWeaponCommentAgree,
   buildSteamLoginUrl, getSteamOpenIdParamsFromUrl, verifySteamLoginAndSignIn,
-  getMyOfficeMembership, ensureOfficeMembership,
-  listAllParties, getMyParty, getPartyByLeaderId, saveMyParty, setMyPartyStatus, setMyPartyCode, deleteMyParty,
+  getMyOfficeMembership, ensureOfficeMembership, deleteMyOfficeMembership,
+  listAllParties, getMyParty, getPartyByLeaderId, saveMyParty, renewMyParty, setMyPartyStatus, setMyPartyCode, deleteMyParty,
   listApplicationsForMyParty, applyToParty, respondToApplication, listMyApplications, getPartyCode,
   watchMyPartyApplications, watchMyApplications, kickApplicant, inviteToParty, cancelInvite, respondToInvite, leaveParty,
-  getMyResume, saveMyResume, deleteMyResume, getApplicantResume, listAllResumes,
+  getMyResume, saveMyResume, renewMyResume, deleteMyResume, getApplicantResume, listAllResumes,
 };

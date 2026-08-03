@@ -855,6 +855,24 @@ function setupOfficeTab() {
     if (e.key === "Escape" && !rulesOverlay.hidden) closeRulesModal();
   });
 
+  // 사무소 탈퇴 — 등록해둔 스팀 ID를 스스로 지운다. 파티/프로필/신청·초대 내역까지
+  // 같이 정리되므로(deleteMyOfficeMembership 참고) 되돌릴 수 없다는 걸 미리 확인시킨다.
+  document.getElementById("office-withdraw-btn").addEventListener("click", async () => {
+    if (!window.LoadoutCloud) return;
+    if (!confirm("사무소를 탈퇴할까요? 등록된 스팀 ID와 파티/프로필, 신청·초대 내역이 모두 삭제되며 되돌릴 수 없습니다.")) return;
+    try {
+      await window.LoadoutCloud.deleteMyOfficeMembership();
+      if (myPartyApplicationsUnsub) { myPartyApplicationsUnsub(); myPartyApplicationsUnsub = null; }
+      if (myApplicationsUnsub) { myApplicationsUnsub(); myApplicationsUnsub = null; }
+      document.getElementById("office-member-view").hidden = true;
+      officeMembershipLoaded = false;
+      loadOfficeMembership();
+      showToast("사무소 탈퇴가 완료됐습니다.", "info");
+    } catch (err) {
+      showToast(err.message || "탈퇴에 실패했습니다.");
+    }
+  });
+
   setupOfficePartyBoard();
 }
 
@@ -1070,6 +1088,17 @@ function setupOfficePartyBoard() {
     }
   });
 
+  document.getElementById("office-myparty-renew-btn").addEventListener("click", async () => {
+    try {
+      await window.LoadoutCloud.renewMyParty();
+      showToast("타이머를 리셋했습니다.", "info");
+      renderMyParty();
+      renderPartyList();
+    } catch (err) {
+      showToast(err.message || "처리에 실패했습니다.");
+    }
+  });
+
   // 선호 서버 체크박스 — "상관없음"은 다른 서버 선택과 배타적으로 동작(하나를 고르면
   // 나머지는 자동으로 해제)
   const resumeServerAnyCb = document.getElementById("office-myresume-server-any");
@@ -1122,6 +1151,17 @@ function setupOfficePartyBoard() {
       showToast(err.message || "프로필 삭제에 실패했습니다.");
     }
   });
+
+  document.getElementById("office-myresume-renew-btn").addEventListener("click", async () => {
+    try {
+      await window.LoadoutCloud.renewMyResume();
+      showToast("타이머를 리셋했습니다.", "info");
+      renderMyResume();
+      renderResumeList();
+    } catch (err) {
+      showToast(err.message || "처리에 실패했습니다.");
+    }
+  });
 }
 
 function formatPartyFields(p) {
@@ -1152,6 +1192,21 @@ function partyMaxSize(partyType) {
   return partyType === "트리오" ? 3 : 2;
 }
 
+// 파티/프로필 모두 등록(또는 마지막 갱신) 후 3시간이 지나면 만료 처리 — 목록에서는
+// 안 보이게 하고, 본인 관리 화면에는 "타이머 리셋" 버튼으로 다시 살릴 수 있게 안내한다.
+const OFFICE_EXPIRY_MS = 3 * 60 * 60 * 1000;
+function officeTimestampMillis(ts) {
+  if (!ts) return null;
+  if (typeof ts.toMillis === "function") return ts.toMillis();
+  if (typeof ts.seconds === "number") return ts.seconds * 1000;
+  return null;
+}
+function isOfficeEntryExpired(ts) {
+  const ms = officeTimestampMillis(ts);
+  if (ms == null) return false;
+  return Date.now() - ms > OFFICE_EXPIRY_MS;
+}
+
 // 파티 목록 — 모집 중인 파티를 전부 보여준다(내 파티도 포함, "내 파티" 표시만 붙임).
 // 신청자의 uid는 화면 어디에도 노출하지 않는다(메시지 내용만 보여줌).
 async function renderPartyList() {
@@ -1165,12 +1220,13 @@ async function renderPartyList() {
       window.LoadoutCloud.getMyResume().catch(() => null),
     ]);
     const hasResume = !!myResume;
+    const activeParties = parties.filter((p) => !isOfficeEntryExpired(p.renewedAt || p.createdAt));
     listEl.innerHTML = "";
-    if (parties.length === 0) {
+    if (activeParties.length === 0) {
       listEl.textContent = "현재 등록된 파티가 없습니다.";
       return;
     }
-    parties.forEach((party) => {
+    activeParties.forEach((party) => {
       const isMine = party.leaderId === myUid;
       const isClosed = party.status !== "open";
       const item = document.createElement("div");
@@ -1252,17 +1308,22 @@ async function renderMyParty() {
   const closeBtn = document.getElementById("office-myparty-close-btn");
   const reopenBtn = document.getElementById("office-myparty-reopen-btn");
   const deleteBtn = document.getElementById("office-myparty-delete-btn");
+  const renewBtn = document.getElementById("office-myparty-renew-btn");
+  const expiredMsgEl = document.getElementById("office-myparty-expired-msg");
   const applicantListEl = document.getElementById("office-applicant-list");
   const headcountEl = document.getElementById("office-myparty-headcount");
 
   headcountEl.hidden = true;
   headcountEl.textContent = "";
+  expiredMsgEl.hidden = true;
   try {
     const party = await window.LoadoutCloud.getMyParty();
     closeBtn.hidden = !party || party.status !== "open";
     reopenBtn.hidden = !party || party.status !== "closed";
     deleteBtn.hidden = !party;
+    renewBtn.hidden = !party;
     if (party) {
+      expiredMsgEl.hidden = !isOfficeEntryExpired(party.renewedAt || party.createdAt);
       document.getElementById("office-myparty-type").value = party.partyType || "";
       document.getElementById("office-myparty-mode").value = party.gameMode || "";
       const activeServers = party.activeServers || [];
@@ -1462,7 +1523,10 @@ async function renderMyResume() {
   const formEl = document.querySelector("#office-mode-resume .office-field-form");
   const saveBtn = document.getElementById("office-myresume-save-btn");
   const deleteBtn = document.getElementById("office-myresume-delete-btn");
+  const renewBtn = document.getElementById("office-myresume-renew-btn");
+  const expiredMsgEl = document.getElementById("office-myresume-expired-msg");
 
+  expiredMsgEl.hidden = true;
   try {
     const party = await window.LoadoutCloud.getMyParty();
     const blocked = !!party;
@@ -1471,6 +1535,7 @@ async function renderMyResume() {
     saveBtn.disabled = blocked;
     if (blocked) {
       deleteBtn.hidden = true;
+      renewBtn.hidden = true;
       return;
     }
   } catch {
@@ -1480,7 +1545,9 @@ async function renderMyResume() {
   try {
     const resume = await window.LoadoutCloud.getMyResume();
     deleteBtn.hidden = !resume;
+    renewBtn.hidden = !resume;
     if (!resume) return;
+    expiredMsgEl.hidden = !isOfficeEntryExpired(resume.updatedAt);
     document.getElementById("office-myresume-type").value = resume.preferredPartyType || "";
     document.getElementById("office-myresume-mode").value = resume.preferredGameMode || "";
     const servers = resume.preferredServers || [];
@@ -1508,13 +1575,14 @@ async function renderResumeList() {
       window.LoadoutCloud.listAllResumes(),
       window.LoadoutCloud.getMyParty().catch(() => null),
     ]);
-    countEl.textContent = `(${resumes.length}명)`;
+    const activeResumes = resumes.filter((r) => !isOfficeEntryExpired(r.updatedAt));
+    countEl.textContent = `(${activeResumes.length}명)`;
     listEl.innerHTML = "";
-    if (resumes.length === 0) {
+    if (activeResumes.length === 0) {
       listEl.textContent = "등록된 프로필이 없습니다.";
       return;
     }
-    resumes.forEach((resume) => {
+    activeResumes.forEach((resume) => {
       const item = document.createElement("div");
       item.className = "office-resume-item";
 

@@ -297,7 +297,10 @@
       <div id="office-member-view" hidden>
         <div id="office-member-status-row">
           <p id="office-member-status"></p>
-          <button id="office-rules-btn" class="office-btn office-btn-secondary" type="button">이용안내</button>
+          <div id="office-member-status-actions">
+            <button id="office-rules-btn" class="office-btn office-btn-secondary" type="button">이용안내</button>
+            <button id="office-withdraw-btn" class="office-btn office-btn-outline" type="button">사무소 탈퇴</button>
+          </div>
         </div>
 
         <!-- 파티/인력 모드 전환 — 왼쪽(작성)과 오른쪽(목록)이 같이 전환됨 -->
@@ -345,11 +348,13 @@
               </div>
               <div id="office-myparty-actions">
                 <button id="office-myparty-save-btn" class="office-btn office-btn-primary" type="button">파티 등록/수정</button>
+                <button id="office-myparty-renew-btn" class="office-btn office-btn-secondary" type="button" hidden>타이머 리셋</button>
                 <button id="office-myparty-close-btn" class="office-btn office-btn-secondary" type="button" hidden>모집 마감</button>
                 <button id="office-myparty-reopen-btn" class="office-btn office-btn-secondary" type="button" hidden>모집 재개</button>
                 <button id="office-myparty-delete-btn" class="office-btn office-btn-outline" type="button" hidden>파티 해산</button>
               </div>
               <p id="office-myparty-msg" hidden></p>
+              <p id="office-myparty-expired-msg" class="office-blocked-msg" hidden>등록 후 3시간이 지나 목록에서 숨겨졌습니다. "타이머 리셋" 또는 "파티 등록/수정"으로 다시 노출할 수 있습니다.</p>
               <p id="office-myparty-headcount" class="office-headcount-badge" hidden></p>
 
               <div id="office-myparty-code-row">
@@ -411,9 +416,11 @@
               </div>
               <div id="office-myresume-actions">
                 <button id="office-myresume-save-btn" class="office-btn office-btn-primary" type="button">프로필 등록</button>
+                <button id="office-myresume-renew-btn" class="office-btn office-btn-secondary" type="button" hidden>타이머 리셋</button>
                 <button id="office-myresume-delete-btn" class="office-btn office-btn-outline" type="button" hidden>프로필 삭제</button>
               </div>
               <p id="office-myresume-msg" hidden></p>
+              <p id="office-myresume-expired-msg" class="office-blocked-msg" hidden>등록 후 3시간이 지나 목록에서 숨겨졌습니다. "타이머 리셋" 또는 "프로필 등록"으로 다시 노출할 수 있습니다.</p>
 
               <h4>받은 초대</h4>
               <div id="office-received-invites-list"></div>
