@@ -1292,6 +1292,20 @@ function isOfficeEntryExpired(ts) {
   return Date.now() - ms > OFFICE_EXPIRY_MS;
 }
 
+// 만료(목록 숨김)까지 남은 시간을 "N시간 M분 후 목록에서 자동 숨김" 형태로 — 이미 만료됐거나
+// 타임스탬프가 없으면 null(표시 안 함, 만료 후엔 office-my*-expired-msg가 대신 안내함).
+function formatOfficeRemainingTime(ts) {
+  const ms = officeTimestampMillis(ts);
+  if (ms == null) return null;
+  const remaining = OFFICE_EXPIRY_MS - (Date.now() - ms);
+  if (remaining <= 0) return null;
+  const totalMinutes = Math.ceil(remaining / 60000);
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+  const timeText = h > 0 ? `${h}시간 ${m}분` : `${m}분`;
+  return `${timeText} 후 목록에서 자동 숨김`;
+}
+
 // 파티 목록 — 모집 중인 파티를 전부 보여준다(내 파티도 포함, "내 파티" 표시만 붙임).
 // 신청자의 uid는 화면 어디에도 노출하지 않는다(메시지 내용만 보여줌).
 async function renderPartyList() {
@@ -1421,10 +1435,13 @@ async function renderMyParty() {
   const expiredMsgEl = document.getElementById("office-myparty-expired-msg");
   const applicantListEl = document.getElementById("office-applicant-list");
   const headcountEl = document.getElementById("office-myparty-headcount");
+  const timerEl = document.getElementById("office-myparty-timer");
 
   headcountEl.hidden = true;
   headcountEl.textContent = "";
   expiredMsgEl.hidden = true;
+  timerEl.hidden = true;
+  timerEl.textContent = "";
   try {
     const party = await window.LoadoutCloud.getMyParty();
     closeBtn.hidden = !party || party.status !== "open";
@@ -1432,7 +1449,11 @@ async function renderMyParty() {
     deleteBtn.hidden = !party;
     renewBtn.hidden = !party;
     if (party) {
-      expiredMsgEl.hidden = !isOfficeEntryExpired(party.renewedAt || party.createdAt);
+      const lastActive = party.renewedAt || party.createdAt;
+      expiredMsgEl.hidden = !isOfficeEntryExpired(lastActive);
+      const remainingText = formatOfficeRemainingTime(lastActive);
+      timerEl.textContent = remainingText || "";
+      timerEl.hidden = !remainingText;
       document.getElementById("office-myparty-type").value = party.partyType || "";
       document.getElementById("office-myparty-mode").value = party.gameMode || "";
       const activeServers = party.activeServers || [];
@@ -1633,8 +1654,11 @@ async function renderMyResume() {
   const deleteBtn = document.getElementById("office-myresume-delete-btn");
   const renewBtn = document.getElementById("office-myresume-renew-btn");
   const expiredMsgEl = document.getElementById("office-myresume-expired-msg");
+  const timerEl = document.getElementById("office-myresume-timer");
 
   expiredMsgEl.hidden = true;
+  timerEl.hidden = true;
+  timerEl.textContent = "";
   try {
     const party = await window.LoadoutCloud.getMyParty();
     const blocked = !!party;
@@ -1656,6 +1680,9 @@ async function renderMyResume() {
     renewBtn.hidden = !resume;
     if (!resume) return;
     expiredMsgEl.hidden = !isOfficeEntryExpired(resume.updatedAt);
+    const remainingText = formatOfficeRemainingTime(resume.updatedAt);
+    timerEl.textContent = remainingText || "";
+    timerEl.hidden = !remainingText;
     document.getElementById("office-myresume-type").value = resume.preferredPartyType || "";
     document.getElementById("office-myresume-mode").value = resume.preferredGameMode || "";
     const servers = resume.preferredServers || [];
