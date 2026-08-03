@@ -435,12 +435,13 @@ async function setMyPartyStatus(status) {
   await updateDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid), { status });
 }
 
-async function setMyPartyCode(code, isPublic) {
+// 로비 코드는 초대받은 사람/승인된 파티원에게만 보인다(firestore.rules 참고) — 전체
+// 공개 옵션은 없앴으므로 여기선 코드 값만 저장한다.
+async function setMyPartyCode(code) {
   const trimmed = (code || "").trim();
   if (!PARTY_CODE_RE.test(trimmed)) throw new Error("로비 코드는 숫자 6자리로 입력해주세요.");
   const uid = await getUid();
   await setDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid, "private", "code"), { code: trimmed });
-  await updateDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid), { codePublic: !!isPublic });
 }
 
 // 파티 해산 — 받은 신청들과 로비 코드까지 다 지우고 파티 문서 자체를 삭제

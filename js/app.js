@@ -1045,10 +1045,9 @@ function setupOfficePartyBoard() {
       saveMsgEl.hidden = false;
       return;
     }
-    const isPublic = document.getElementById("office-myparty-code-public").checked;
     try {
       await window.LoadoutCloud.saveMyParty(readMyPartyForm());
-      await window.LoadoutCloud.setMyPartyCode(codeInput.value, isPublic);
+      await window.LoadoutCloud.setMyPartyCode(codeInput.value);
       saveMsgEl.textContent = "저장했습니다.";
       saveMsgEl.classList.remove("error");
       saveMsgEl.hidden = false;
@@ -1246,16 +1245,6 @@ async function renderPartyList() {
       headcountEl.textContent = `인원: ${1 + (party.acceptedCount || 0)}/${partyMaxSize(party.partyType)}명`;
       item.appendChild(headcountEl);
 
-      if (party.codePublic) {
-        const codeEl = document.createElement("p");
-        codeEl.className = "office-party-code";
-        codeEl.textContent = "로비 코드 불러오는 중...";
-        item.appendChild(codeEl);
-        window.LoadoutCloud.getPartyCode(party.leaderId).then((code) => {
-          codeEl.textContent = code ? `로비 코드: ${code}` : "";
-          codeEl.hidden = !code;
-        });
-      }
 
       if (!isMine && isClosed) {
         const closedMsg = document.createElement("p");
@@ -1337,7 +1326,6 @@ async function renderMyParty() {
       kdaInput.value = party.minKda || "";
       styleInput.value = party.combatStyle || "";
       voiceInput.checked = !!party.voice;
-      document.getElementById("office-myparty-code-public").checked = !!party.codePublic;
       const code = await window.LoadoutCloud.getPartyCode(party.leaderId).catch(() => null);
       document.getElementById("office-myparty-code-input").value = code || "";
       headcountEl.textContent = `현재 인원: ${1 + (party.acceptedCount || 0)}/${partyMaxSize(party.partyType)}명`;
@@ -1667,6 +1655,13 @@ async function renderMyApplications() {
           msgEl.textContent = inv.message;
           infoWrap.appendChild(msgEl);
         }
+        const codeEl = document.createElement("p");
+        codeEl.className = "office-party-code";
+        codeEl.textContent = "로비 코드 확인 중...";
+        infoWrap.appendChild(codeEl);
+        window.LoadoutCloud.getPartyCode(inv.leaderId).then((code) => {
+          codeEl.textContent = code ? `로비 코드: ${code}` : "파티장이 아직 로비 코드를 등록하지 않았습니다.";
+        });
         item.appendChild(infoWrap);
 
         const actionsEl = document.createElement("div");

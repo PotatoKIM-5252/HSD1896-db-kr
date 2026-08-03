@@ -279,15 +279,13 @@ service cloud.firestore {
 
       allow delete: if request.auth != null && (request.auth.uid == leaderId || isOperator());
 
-      // 합류 코드(숫자 6자리) — 파티장 본인이거나, codePublic이 켜져 있으면 회원 전체,
-      // 아니면 이 파티에 "수락된" 지원자만 읽을 수 있음
+      // 합류 코드(숫자 6자리) — 파티장 본인이거나, 이 파티에 초대받았거나(invited) 참가
+      // 승인이 떨어진(accepted) 사람만 읽을 수 있음. 그 외 회원에게는 절대 공개하지 않음.
       match /private/code {
         allow read: if request.auth != null
                     && (request.auth.uid == leaderId
-                        || (get(/databases/$(database)/documents/officeParties/$(leaderId)).data.codePublic == true
-                            && isActiveMember(request.auth.uid))
                         || (exists(/databases/$(database)/documents/officeParties/$(leaderId)/applications/$(request.auth.uid))
-                            && get(/databases/$(database)/documents/officeParties/$(leaderId)/applications/$(request.auth.uid)).data.status == 'accepted'));
+                            && get(/databases/$(database)/documents/officeParties/$(leaderId)/applications/$(request.auth.uid)).data.status in ['invited', 'accepted']));
 
         allow create, update: if request.auth != null && request.auth.uid == leaderId
                       && request.resource.data.keys().hasOnly(['code'])
