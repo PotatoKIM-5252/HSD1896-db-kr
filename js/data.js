@@ -3451,6 +3451,8 @@ const AMMO_TYPES = {
     icon: "🔥",
     description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
     cost: 20,
+    // 라이벌 78 쇼티와 데미지/스프레드가 완전히 동일한 구성이라 실측치도 그대로 사용
+    ohkRange: { guaranteed: 6 },
     statOverrides: { damage: 89, spread: 160, muzzleVelocity: 100 },
     specialEffects: ["중급 화상 효과 발생"],
   },
@@ -3800,6 +3802,8 @@ const AMMO_TYPES = {
     description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
     cost: 20,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    ohkRange: { guaranteed: 8 },
     statOverrides: { damage: 141, spread: 60, muzzleVelocity: 100 },
     specialEffects: ["중급 화상 효과 발생"],
   },
@@ -3977,6 +3981,8 @@ const AMMO_TYPES = {
     description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
     cost: 20,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    ohkRange: { guaranteed: 8 },
     statOverrides: { damage: 118, spread: 85, muzzleVelocity: 100 },
     specialEffects: ["중급 화상 효과 발생"],
   },
