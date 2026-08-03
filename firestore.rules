@@ -223,7 +223,9 @@ service cloud.firestore {
     // 다른 접근 권한을 준다 — 파티장 본인과, "수락된" 지원자(또는 codePublic이면 회원 전체)만
     // 코드를 볼 수 있음.
     match /officeParties/{leaderId} {
-      allow read: if request.auth != null && isActiveMember(request.auth.uid);
+      // 운영자는 스팀 인증(officeMembers 등록) 없이도 열람만 할 수 있음 — 쓰기 권한은
+      // 아래 create/update 어디에도 isOperator() 예외가 없으므로 여전히 막혀 있다.
+      allow read: if request.auth != null && (isActiveMember(request.auth.uid) || isOperator());
 
       allow create: if request.auth != null
                     && request.auth.uid == leaderId
@@ -352,7 +354,9 @@ service cloud.firestore {
     // 절대 그 값을 노출하지 않는 게 클라이언트 쪽 원칙) "블라인드"가 유지된다.
     // 파티장은 이력서를 쓸 수 없음(officeParties에 자기 문서가 있으면 거부).
     match /officeResumes/{steamId} {
-      allow read: if request.auth != null && isActiveMember(request.auth.uid);
+      // 운영자는 스팀 인증 없이도 열람만 가능 — 쓰기(create/update)는 여전히
+      // isActiveMember(officeMembers 등록)만 허용하므로 운영자는 프로필을 등록할 수 없다.
+      allow read: if request.auth != null && (isActiveMember(request.auth.uid) || isOperator());
 
       allow create, update: if request.auth != null
                     && request.auth.uid == steamId

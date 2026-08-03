@@ -303,6 +303,42 @@ async function setReportResolvedAsOperator(reportId, resolved, operatorAuth) {
   }
 }
 
+// Firestore REST 응답의 typed value({stringValue:"..."} 등)를 평범한 JS 값으로 변환 —
+// 운영자가 스팀 인증 없이 사무소 게시판을 "열람"만 할 때 SDK 대신 REST로 직접 조회하는
+// 용도로만 쓴다(쓰기는 여기 구현하지 않음 + 규칙도 열람만 허용).
+function firestoreRestValueToJs(v) {
+  if (v.stringValue !== undefined) return v.stringValue;
+  if (v.booleanValue !== undefined) return v.booleanValue;
+  if (v.integerValue !== undefined) return Number(v.integerValue);
+  if (v.doubleValue !== undefined) return v.doubleValue;
+  if (v.timestampValue !== undefined) return { seconds: Math.floor(new Date(v.timestampValue).getTime() / 1000) };
+  if (v.arrayValue !== undefined) return (v.arrayValue.values || []).map(firestoreRestValueToJs);
+  return null;
+}
+function firestoreRestFieldsToJs(fields) {
+  const out = {};
+  for (const [k, v] of Object.entries(fields || {})) out[k] = firestoreRestValueToJs(v);
+  return out;
+}
+
+// 파티 목록 — 운영자 열람 전용(REST). leaderId는 화면에 노출 안 함.
+async function listOfficePartiesAsOperator(idToken) {
+  const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/officeParties`;
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${idToken}` } });
+  if (!res.ok) throw new Error("파티 목록을 불러오지 못했습니다.");
+  const data = await res.json();
+  return (data.documents || []).map((d) => firestoreRestFieldsToJs(d.fields));
+}
+
+// 프로필 목록 — 운영자 열람 전용(REST). 블라인드 원칙에 따라 steamId는 아예 담지 않음.
+async function listOfficeResumesAsOperator(idToken) {
+  const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/officeResumes`;
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${idToken}` } });
+  if (!res.ok) throw new Error("프로필 목록을 불러오지 못했습니다.");
+  const data = await res.json();
+  return (data.documents || []).map((d) => firestoreRestFieldsToJs(d.fields));
+}
+
 // -------------------------------------------------------------------------
 // 사이트 업데이트 내역 — 새 항목은 배열 맨 앞에 추가(최신순으로 그대로 출력됨)
 const CHANGELOG = [
@@ -792,6 +828,10 @@ function setupChangelogWidget() {
 let officeMembershipLoaded = false;
 let myPartyApplicationsUnsub = null;
 let knownPendingApplicantIds = null;
+// 운영자가 스팀 인증 없이 게시판을 열람만 하는 모드 — 켜져 있으면 파티/프로필 등록
+// 등 쓰기 폼이 있는 왼쪽 열은 아예 숨기고, 목록은 SDK 대신 REST(운영자 토큰)로 조회한다.
+let officeOperatorViewActive = false;
+let officeOperatorIdToken = null;
 
 // 내 파티에 들어오는 신청을 실시간 감시 — 새 신청이 오면(대기중 상태가 새로 생기면)
 // 지금 어떤 탭/모드를 보고 있든 바로 토스트로 알리고 신청 목록을 새로 그린다.
@@ -884,6 +924,10 @@ function setupOfficeTab() {
 // 인증된 회원 화면으로 전환 + 기본 모드(파티) 렌더 — loadOfficeMembership과
 // handleSteamOpenIdCallback 양쪽에서 공통으로 씀
 function showOfficeMemberView(steamId) {
+  officeOperatorViewActive = false;
+  officeOperatorIdToken = null;
+  document.getElementById("office-col-write").hidden = false;
+  document.getElementById("office-withdraw-btn").hidden = false;
   document.getElementById("office-member-status").textContent = `인증 완료 · SteamID: ${steamId}`;
   document.getElementById("office-member-view").hidden = false;
   document.querySelectorAll(".office-mode-btn").forEach((b) => b.classList.toggle("active", b.dataset.officeMode === "party"));
@@ -895,6 +939,22 @@ function showOfficeMemberView(steamId) {
   renderMyParty();
   setupMyPartyApplicationsWatch();
   setupMyApplicationsWatch();
+}
+
+// 운영자 열람 화면 — 스팀 인증(officeMembers 등록) 없이 파티/프로필 목록만 REST로
+// 조회해서 보여준다. 왼쪽 작성 열(파티 등록, 프로필 등록 등 쓰기 폼) 자체를 통째로
+// 숨겨서 파티 생성/프로필 등록을 할 수 없게 한다(규칙에서도 이중으로 막혀 있음).
+function showOfficeOperatorView(opAuth) {
+  officeOperatorViewActive = true;
+  officeOperatorIdToken = opAuth.idToken;
+  document.getElementById("office-member-status").textContent = "운영자 열람 모드 (스팀 인증 없이 목록만 조회)";
+  document.getElementById("office-member-view").hidden = false;
+  document.getElementById("office-col-write").hidden = true;
+  document.getElementById("office-withdraw-btn").hidden = true;
+  document.querySelectorAll(".office-mode-btn").forEach((b) => b.classList.toggle("active", b.dataset.officeMode === "party"));
+  document.getElementById("office-list-party").hidden = false;
+  document.getElementById("office-list-resume").hidden = true;
+  renderOperatorPartyList();
 }
 
 async function loadOfficeMembership() {
@@ -916,7 +976,12 @@ async function loadOfficeMembership() {
     const membership = await window.LoadoutCloud.getMyOfficeMembership();
     loadingEl.hidden = true;
     if (!membership) {
-      introView.hidden = false;
+      const opAuth = await operatorAuthenticate();
+      if (opAuth) {
+        showOfficeOperatorView(opAuth);
+      } else {
+        introView.hidden = false;
+      }
     } else if (membership.banned) {
       bannedView.hidden = false;
     } else {
@@ -982,7 +1047,10 @@ function setupOfficePartyBoard() {
       document.getElementById("office-mode-resume").hidden = mode !== "resume";
       document.getElementById("office-list-party").hidden = mode !== "party";
       document.getElementById("office-list-resume").hidden = mode !== "resume";
-      if (mode === "party") {
+      if (officeOperatorViewActive) {
+        if (mode === "party") renderOperatorPartyList();
+        else renderOperatorResumeList();
+      } else if (mode === "party") {
         renderPartyList();
         renderMyParty();
       } else {
@@ -993,8 +1061,12 @@ function setupOfficePartyBoard() {
     });
   });
 
-  document.getElementById("office-party-refresh-btn").addEventListener("click", renderPartyList);
-  document.getElementById("office-resume-refresh-btn").addEventListener("click", renderResumeList);
+  document.getElementById("office-party-refresh-btn").addEventListener("click", () => {
+    officeOperatorViewActive ? renderOperatorPartyList() : renderPartyList();
+  });
+  document.getElementById("office-resume-refresh-btn").addEventListener("click", () => {
+    officeOperatorViewActive ? renderOperatorResumeList() : renderResumeList();
+  });
 
   const saveMsgEl = document.getElementById("office-myparty-msg");
   const codeInput = document.getElementById("office-myparty-code-input");
@@ -1289,6 +1361,40 @@ async function renderPartyList() {
     });
   } catch {
     listEl.textContent = "파티 목록을 불러오지 못했습니다.";
+  }
+}
+
+// 파티 목록(운영자 열람 전용) — 읽기 전용, 참가 신청 등 쓰기 관련 UI는 아예 만들지 않는다.
+async function renderOperatorPartyList() {
+  const listEl = document.getElementById("office-party-list");
+  listEl.textContent = "불러오는 중...";
+  try {
+    const parties = await listOfficePartiesAsOperator(officeOperatorIdToken);
+    const activeParties = parties.filter((p) => !isOfficeEntryExpired(p.renewedAt || p.createdAt));
+    listEl.innerHTML = "";
+    if (activeParties.length === 0) {
+      listEl.textContent = "현재 등록된 파티가 없습니다.";
+      return;
+    }
+    activeParties.forEach((party) => {
+      const isClosed = party.status !== "open";
+      const item = document.createElement("div");
+      item.className = "office-party-item";
+
+      const descEl = document.createElement("p");
+      descEl.className = "office-party-desc";
+      descEl.textContent = (isClosed ? "[모집 마감] " : "") + formatPartyFields(party);
+      item.appendChild(descEl);
+
+      const headcountEl = document.createElement("p");
+      headcountEl.className = "office-headcount-badge";
+      headcountEl.textContent = `인원: ${1 + (party.acceptedCount || 0)}/${partyMaxSize(party.partyType)}명`;
+      item.appendChild(headcountEl);
+
+      listEl.appendChild(item);
+    });
+  } catch (err) {
+    listEl.textContent = err.message || "파티 목록을 불러오지 못했습니다.";
   }
 }
 
@@ -1617,6 +1723,37 @@ async function renderResumeList() {
   } catch {
     countEl.textContent = "";
     listEl.textContent = "인력 목록을 불러오지 못했습니다.";
+  }
+}
+
+// 프로필 목록(운영자 열람 전용) — 읽기 전용, 초대 등 쓰기 관련 UI는 아예 만들지 않는다.
+async function renderOperatorResumeList() {
+  const listEl = document.getElementById("office-resume-list");
+  const countEl = document.getElementById("office-resume-count");
+  listEl.textContent = "불러오는 중...";
+  try {
+    const resumes = await listOfficeResumesAsOperator(officeOperatorIdToken);
+    const activeResumes = resumes.filter((r) => !isOfficeEntryExpired(r.updatedAt));
+    countEl.textContent = `(${activeResumes.length}명)`;
+    listEl.innerHTML = "";
+    if (activeResumes.length === 0) {
+      listEl.textContent = "등록된 프로필이 없습니다.";
+      return;
+    }
+    activeResumes.forEach((resume) => {
+      const item = document.createElement("div");
+      item.className = "office-resume-item";
+
+      const textEl = document.createElement("p");
+      textEl.className = "office-resume-item-text";
+      textEl.textContent = formatResumeFields(resume);
+      item.appendChild(textEl);
+
+      listEl.appendChild(item);
+    });
+  } catch (err) {
+    countEl.textContent = "";
+    listEl.textContent = err.message || "인력 목록을 불러오지 못했습니다.";
   }
 }
 
