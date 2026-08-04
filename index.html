@@ -299,6 +299,8 @@
           <p id="office-member-status"></p>
           <div id="office-member-status-actions">
             <button id="office-rules-btn" class="office-btn office-btn-secondary" type="button">이용안내</button>
+            <button id="office-report-btn" class="office-btn office-btn-secondary" type="button" hidden>신고하기</button>
+            <button id="office-report-admin-btn" class="office-btn office-btn-secondary" type="button" hidden>신고 관리</button>
             <button id="office-withdraw-btn" class="office-btn office-btn-outline" type="button">사무소 탈퇴</button>
           </div>
         </div>
@@ -546,6 +548,37 @@
         <p class="office-rules-heading">수집하는 정보</p>
         <p>회원 식별을 위해 저희가 수집·저장하는 것은 Steam 로그인으로 검증된 개인 식별용 Steam 고유 ID(SteamID64)뿐입니다.</p>
       </div>
+    </div>
+  </div>
+
+  <div id="office-report-modal-overlay" hidden>
+    <div id="office-report-modal">
+      <header class="utility-modal-header">
+        <h3>사무소 신고</h3>
+        <button id="office-report-modal-close-btn" type="button">닫기</button>
+      </header>
+      <p class="muted-text">신고 내용(영상·설명)은 신고자 본인과 운영자만 볼 수 있습니다. 특별히 보류 처리하지 않는 한 등록 후 1주일 뒤 자동 삭제됩니다.</p>
+      <div class="office-field-form">
+        <label>영상 링크 <input type="text" id="office-report-video-url" maxlength="1000" placeholder="유튜브/스트리머블 등 영상 링크"></label>
+        <label>또는 영상 파일 업로드 <input type="file" id="office-report-video-file" accept="video/*"></label>
+        <label>상황 설명(한 줄) <input type="text" id="office-report-desc" maxlength="200" placeholder="예) OO시경 사격장에서 고의트롤"></label>
+      </div>
+      <button id="office-report-submit-btn" class="office-btn office-btn-primary" type="button">신고 제출</button>
+      <p id="office-report-msg" hidden></p>
+
+      <h4>내 신고 내역</h4>
+      <div id="office-report-mylist"></div>
+    </div>
+  </div>
+
+  <div id="office-report-admin-modal-overlay" hidden>
+    <div id="office-report-admin-modal">
+      <header class="utility-modal-header">
+        <h3>신고 관리</h3>
+        <button id="office-report-admin-modal-close-btn" type="button">닫기</button>
+      </header>
+      <p class="muted-text">보류 표시가 없는 신고는 등록 후 1주일이 지나면 이 창을 열 때 자동으로 삭제됩니다.</p>
+      <div id="office-report-admin-list"></div>
     </div>
   </div>
 

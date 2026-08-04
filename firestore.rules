@@ -374,5 +374,37 @@ service cloud.firestore {
 
       allow delete: if request.auth != null && (request.auth.uid == steamId || isOperator());
     }
+
+    // 사무소 위반 신고 — 영상/설명은 신고한 본인과 운영자만 볼 수 있다(전체공개 아님).
+    // 문서 ID는 자동 생성(한 사람이 여러 건 신고 가능). list 조회는 규칙상 정확히
+    // reporterId==내 uid로 where 필터를 건 쿼리만 통과되고(그 외엔 거부), 운영자는
+    // resource.data와 무관하게 항상 true라 필터 없이도 전체 조회 가능(REST로 처리 —
+    // firebase-init.js listMyOfficeReports / app.js listOfficeReportsAsOperator 참고).
+    // 처리(resolved)·보류(keep, 1주일 자동삭제 방지)는 운영자만 바꿀 수 있고, 삭제도
+    // 운영자만 가능(자동삭제도 운영자 세션에서 REST로 수행).
+    match /officeReports/{reportId} {
+      allow read: if request.auth != null
+                  && (resource.data.reporterId == request.auth.uid || isOperator());
+
+      allow create: if request.auth != null
+                    && isActiveMember(request.auth.uid)
+                    && request.resource.data.keys().hasOnly(['reporterId', 'description', 'videoUrl', 'createdAt', 'resolved', 'keep'])
+                    && request.resource.data.reporterId == request.auth.uid
+                    && request.resource.data.description is string
+                    && request.resource.data.description.size() <= 200
+                    && request.resource.data.videoUrl is string
+                    && request.resource.data.videoUrl.size() > 0
+                    && request.resource.data.videoUrl.size() <= 1000
+                    && request.resource.data.createdAt == request.time
+                    && request.resource.data.resolved == false
+                    && request.resource.data.keep == false;
+
+      allow update: if isOperator()
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['resolved', 'keep'])
+                    && request.resource.data.resolved is bool
+                    && request.resource.data.keep is bool;
+
+      allow delete: if isOperator();
+    }
   }
 }
