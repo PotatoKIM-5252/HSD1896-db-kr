@@ -24,9 +24,6 @@ import {
   getFirestore, collection, collectionGroup, addDoc, getDocs, getDoc, query, orderBy, where, limit, serverTimestamp,
   doc, updateDoc, deleteDoc, arrayUnion, arrayRemove, setDoc, onSnapshot, increment, writeBatch,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import {
-  getStorage, ref as storageRef, uploadBytes, getDownloadURL,
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD3SbLMnzxnDypLXa4kLizKJQkn30bl3CU",
@@ -40,7 +37,6 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
 const auth = getAuth(firebaseApp);
-const storage = getStorage(firebaseApp);
 
 let resolveAuthReady;
 const authReady = new Promise((resolve) => { resolveAuthReady = resolve; });
@@ -670,27 +666,15 @@ async function listAllResumes() {
 
 // 사무소 위반 신고 — 기존 오류제보(reports)와 완전히 별개 컬렉션. 영상/설명은 신고자
 // 본인과 운영자만 볼 수 있고(전체공개 아님), 목록은 본인 것만 조회 가능(규칙 참고).
+// ⚠ Firebase Storage는 유료(Blaze) 요금제가 필요해서 안 쓴다 — 영상은 외부 링크
+//   (유튜브/스트리머블 등)만 붙여넣는 방식으로 한다.
 const OFFICE_REPORTS_COLLECTION = "officeReports";
 const MAX_OFFICE_REPORT_DESC_LEN = 200;
-const MAX_OFFICE_REPORT_VIDEO_BYTES = 150 * 1024 * 1024;
 
-// 영상 파일을 직접 업로드하고 다운로드 URL을 돌려준다(외부 링크만 붙여넣는 경우엔 안 씀).
-async function uploadOfficeReportVideo(file) {
-  if (!file) throw new Error("영상 파일을 선택해주세요.");
-  if (!file.type.startsWith("video/")) throw new Error("영상 파일만 업로드할 수 있습니다.");
-  if (file.size > MAX_OFFICE_REPORT_VIDEO_BYTES) throw new Error("영상 용량이 너무 큽니다(150MB 이하).");
-  const uid = await getUid();
-  const safeName = `${Date.now()}_${file.name}`.replace(/[^\w.\-]/g, "_");
-  const fileRef = storageRef(storage, `officeReportVideos/${uid}/${safeName}`);
-  await uploadBytes(fileRef, file, { contentType: file.type });
-  return await getDownloadURL(fileRef);
-}
-
-// 신고 등록 — videoUrl은 위 업로드 함수가 돌려준 다운로드 URL이거나, 사용자가 직접
-// 붙여넣은 외부 링크(유튜브/스트리머블 등) 둘 다 허용한다.
+// 신고 등록 — videoUrl은 사용자가 직접 붙여넣은 외부 링크(유튜브/스트리머블 등)만 받는다.
 async function submitOfficeReport({ description, videoUrl }) {
   const trimmedUrl = (videoUrl || "").trim();
-  if (!trimmedUrl) throw new Error("영상 링크를 입력하거나 파일을 업로드해주세요.");
+  if (!trimmedUrl) throw new Error("영상 링크를 입력해주세요.");
   const uid = await getUid();
   await addDoc(collection(db, OFFICE_REPORTS_COLLECTION), {
     reporterId: uid,
@@ -721,5 +705,5 @@ window.LoadoutCloud = {
   listApplicationsForMyParty, applyToParty, respondToApplication, listMyApplications, getPartyCode,
   watchMyPartyApplications, watchMyApplications, kickApplicant, inviteToParty, cancelInvite, respondToInvite, leaveParty,
   getMyResume, saveMyResume, renewMyResume, deleteMyResume, getApplicantResume, listAllResumes,
-  uploadOfficeReportVideo, submitOfficeReport, listMyOfficeReports,
+  submitOfficeReport, listMyOfficeReports,
 };

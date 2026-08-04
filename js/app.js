@@ -977,16 +977,10 @@ function setupOfficeTab() {
     if (!window.LoadoutCloud) return;
     reportMsgEl.hidden = true;
     const urlInput = document.getElementById("office-report-video-url");
-    const fileInput = document.getElementById("office-report-video-file");
     const descInput = document.getElementById("office-report-desc");
     try {
-      let videoUrl = urlInput.value.trim();
-      if (!videoUrl && fileInput.files[0]) {
-        videoUrl = await window.LoadoutCloud.uploadOfficeReportVideo(fileInput.files[0]);
-      }
-      await window.LoadoutCloud.submitOfficeReport({ description: descInput.value, videoUrl });
+      await window.LoadoutCloud.submitOfficeReport({ description: descInput.value, videoUrl: urlInput.value.trim() });
       urlInput.value = "";
-      fileInput.value = "";
       descInput.value = "";
       reportMsgEl.textContent = "신고가 접수됐습니다.";
       reportMsgEl.classList.remove("error");
