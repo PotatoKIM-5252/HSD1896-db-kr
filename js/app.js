@@ -227,6 +227,29 @@ const FIRESTORE_PROJECT_ID = "hsd-db-1a8d7";
 // 사무소 신고 영상 업로드/조회/삭제를 중계하는 Cloudflare Worker(스팀 로그인 검증과 같은 Worker)
 const OFFICE_REPORT_WORKER_URL = "https://potatokim.cisd456.workers.dev";
 
+// 신고 대상 "미리 기록해두기" — 파티/인력 번호는 시간이 지나면 그 사이 문서가 지워지거나
+// 새 등록자가 같은 번호를 받아서 신고 시점에 다시 찾을 수 없거나(안전하게 실패) 엉뚱한
+// 사람으로 이어질 위험이 있다. 그래서 파티장이 파티원의 진짜 스팀ID를 이미 손에 쥐고 있는
+// "그 순간"(예: 파티 관리 화면에서 파티원을 보고 있을 때) 바로 브라우저에 저장해두면,
+// 며칠 뒤에 실제로 신고를 접수할 때 번호 재조회 없이 그 저장된 값을 바로 쓸 수 있다.
+// 오직 이 브라우저(로컬)에만 저장되고 서버로는 신고 제출 시에만 전송된다.
+const OFFICE_FLAGGED_TARGETS_KEY = "hsddb_office_flagged_targets";
+function getFlaggedTargets() {
+  try {
+    return JSON.parse(localStorage.getItem(OFFICE_FLAGGED_TARGETS_KEY) || "[]");
+  } catch {
+    return [];
+  }
+}
+function addFlaggedTarget(steamId, label) {
+  const targets = getFlaggedTargets().filter((t) => t.steamId !== steamId);
+  targets.unshift({ steamId, label, flaggedAt: Date.now() });
+  localStorage.setItem(OFFICE_FLAGGED_TARGETS_KEY, JSON.stringify(targets.slice(0, 20)));
+}
+function removeFlaggedTarget(steamId) {
+  localStorage.setItem(OFFICE_FLAGGED_TARGETS_KEY, JSON.stringify(getFlaggedTargets().filter((t) => t.steamId !== steamId)));
+}
+
 function getOperatorRefreshToken() {
   return localStorage.getItem(OPERATOR_TOKEN_KEY) || null;
 }
@@ -1124,7 +1147,7 @@ function setupOfficeTab() {
   const reportBtn = document.getElementById("office-report-btn");
   const reportOverlay = document.getElementById("office-report-modal-overlay");
   const reportCloseBtn = document.getElementById("office-report-modal-close-btn");
-  const openReportModal = () => { reportOverlay.hidden = false; renderMyOfficeReports(); };
+  const openReportModal = () => { reportOverlay.hidden = false; renderMyOfficeReports(); renderFlaggedTargets(); };
   const closeReportModal = () => { reportOverlay.hidden = true; };
   reportBtn.addEventListener("click", openReportModal);
   reportCloseBtn.addEventListener("click", closeReportModal);
@@ -1132,6 +1155,10 @@ function setupOfficeTab() {
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && !reportOverlay.hidden) closeReportModal();
   });
+  // 번호를 직접 입력하면 "기록해둔 대상" 선택은 자동으로 해제(둘 중 하나만 쓰게)
+  const clearFlaggedSelection = () => { selectedFlaggedTargetSteamId = null; };
+  document.getElementById("office-report-party-number").addEventListener("input", clearFlaggedSelection);
+  document.getElementById("office-report-profile-number").addEventListener("input", clearFlaggedSelection);
 
   const reportMsgEl = document.getElementById("office-report-msg");
   const reportSubmitBtn = document.getElementById("office-report-submit-btn");
@@ -1158,11 +1185,13 @@ function setupOfficeTab() {
       // 운영자가 아니라서 getMyIdToken/submitOfficeReport(SDK)를 못 쓰고, 운영자
       // REST idToken으로 대신 처리한다(신고 기능 테스트용).
       const idToken = officeOperatorViewActive ? officeReportAdminIdToken : await window.LoadoutCloud.getMyIdToken();
-      // 파티/인력 번호를 입력한 경우에만 지금 이 순간 확정한다 — 업로드/제출을 마치기
-      // 전에 먼저 풀어서, 번호가 이미 무효해진 경우 영상만 올라가고 신고는 실패하는
-      // 상황을 막는다. 번호를 안 넣었으면 굳이 목록을 조회할 필요가 없다.
-      let accusedSteamId;
-      if (accusedPartyNumber !== undefined || accusedProfileNumber !== undefined) {
+      // 미리 "신고 대상으로 기록"해둔 대상을 골랐으면 그 스팀ID를 그대로 쓴다(번호
+      // 재조회 자체를 안 함 — 애초에 기록해둔 시점에 이미 확정된 값이라 더 정확함).
+      // 아니면 파티/인력 번호를 입력한 경우에만 지금 이 순간 확정한다 — 업로드/제출을
+      // 마치기 전에 먼저 풀어서, 번호가 이미 무효해진 경우 영상만 올라가고 신고는
+      // 실패하는 상황을 막는다. 번호를 안 넣었으면 굳이 목록을 조회할 필요가 없다.
+      let accusedSteamId = selectedFlaggedTargetSteamId || undefined;
+      if (!accusedSteamId && (accusedPartyNumber !== undefined || accusedProfileNumber !== undefined)) {
         accusedSteamId = officeOperatorViewActive
           ? await resolveAccusedSteamIdAsOperator({ partyNumber: accusedPartyNumber, profileNumber: accusedProfileNumber }, idToken)
           : await window.LoadoutCloud.resolveAccusedSteamId({ partyNumber: accusedPartyNumber, profileNumber: accusedProfileNumber });
@@ -1178,6 +1207,8 @@ function setupOfficeTab() {
       descInput.value = "";
       partyNumberInput.value = "";
       profileNumberInput.value = "";
+      selectedFlaggedTargetSteamId = null;
+      renderFlaggedTargets();
       reportMsgEl.textContent = officeOperatorViewActive
         ? "신고가 접수됐습니다. \"신고 관리\"에서 확인하세요."
         : "신고가 접수됐습니다.";
@@ -1848,6 +1879,17 @@ async function renderMyParty() {
           }
         });
         actionsEl.appendChild(kickBtn);
+
+        const flagBtn = document.createElement("button");
+        flagBtn.type = "button";
+        flagBtn.className = "office-btn office-btn-outline";
+        flagBtn.textContent = "신고 대상으로 기록";
+        flagBtn.addEventListener("click", () => {
+          const note = (prompt("나중에 알아보기 쉽게 짧은 메모를 남겨주세요(선택).") || "").trim().slice(0, 50);
+          addFlaggedTarget(m.applicantId, note || `파티원(${new Date().toLocaleString("ko-KR")} 기록)`);
+          showToast("신고 대상으로 기록했습니다. 나중에 \"신고하기\"에서 선택할 수 있습니다.");
+        });
+        actionsEl.appendChild(flagBtn);
         item.appendChild(actionsEl);
 
         membersListEl.appendChild(item);
@@ -2123,6 +2165,63 @@ async function renderOperatorResumeList() {
 }
 
 // 내 신고 내역 — 신고하기 모달 안에서 제출 폼 밑에 같이 보여줌(제출한 사람 본인만 조회 가능)
+// 신고 모달을 열 때마다 선택 상태 초기화 — "미리 기록해둔 대상"을 고르면 파티/인력
+// 번호 입력은 무시하고 이 스팀ID를 그대로 신고에 쓴다(번호 재조회 자체를 안 함).
+let selectedFlaggedTargetSteamId = null;
+
+function renderFlaggedTargets() {
+  const wrap = document.getElementById("office-report-flagged-targets");
+  const listEl = document.getElementById("office-report-flagged-list");
+  selectedFlaggedTargetSteamId = null;
+  const targets = getFlaggedTargets();
+  listEl.innerHTML = "";
+  wrap.hidden = targets.length === 0;
+  if (targets.length === 0) return;
+  targets.forEach((t) => {
+    const row = document.createElement("div");
+    row.className = "office-applicant-item";
+
+    const infoWrap = document.createElement("div");
+    infoWrap.className = "office-applicant-info";
+    const labelEl = document.createElement("p");
+    labelEl.className = "office-applicant-msg";
+    labelEl.textContent = t.label;
+    infoWrap.appendChild(labelEl);
+    row.appendChild(infoWrap);
+
+    const actionsEl = document.createElement("div");
+    actionsEl.className = "office-applicant-actions";
+
+    const selectBtn = document.createElement("button");
+    selectBtn.type = "button";
+    selectBtn.className = "office-btn office-btn-secondary";
+    selectBtn.textContent = "이 대상으로 신고";
+    selectBtn.addEventListener("click", () => {
+      selectedFlaggedTargetSteamId = t.steamId;
+      document.getElementById("office-report-party-number").value = "";
+      document.getElementById("office-report-profile-number").value = "";
+      listEl.querySelectorAll("button.office-btn-primary").forEach((b) => { b.className = "office-btn office-btn-secondary"; b.textContent = "이 대상으로 신고"; });
+      selectBtn.className = "office-btn office-btn-primary";
+      selectBtn.textContent = "선택됨";
+    });
+    actionsEl.appendChild(selectBtn);
+
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "office-btn office-btn-outline";
+    removeBtn.textContent = "삭제";
+    removeBtn.addEventListener("click", () => {
+      removeFlaggedTarget(t.steamId);
+      if (selectedFlaggedTargetSteamId === t.steamId) selectedFlaggedTargetSteamId = null;
+      renderFlaggedTargets();
+    });
+    actionsEl.appendChild(removeBtn);
+
+    row.appendChild(actionsEl);
+    listEl.appendChild(row);
+  });
+}
+
 async function renderMyOfficeReports() {
   const listEl = document.getElementById("office-report-mylist");
   if (!window.LoadoutCloud) return;
