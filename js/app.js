@@ -490,7 +490,7 @@ function createOfficeReportVideoButton(videoKey, getIdTokenFn) {
   return btn;
 }
 
-// 신고 관리 화면에서 사건번호 + 신고 대상 등록번호를 보여주는 영역 — "스팀ID 조회"를
+// 신고 관리 화면에서 파티번호 + 신고 대상 등록번호를 보여주는 영역 — "스팀ID 조회"를
 // 누르면 officeMemberNumberHistory(영구 등록부)로 등록번호의 진짜 주인을 바로 찾는다.
 // 이 매핑은 시점과 무관하게 항상 정확하다(등록번호가 나중에 새로 바뀌어도 예전
 // 신고 기록은 그 당시 번호 그대로 남아있음).
@@ -498,7 +498,7 @@ function createTargetLookupRow(incidentPartyNumber, targetMemberNumber, idToken)
   const row = document.createElement("div");
   row.className = "muted-text";
   const labelSpan = document.createElement("p");
-  labelSpan.textContent = `사건번호 · ${incidentPartyNumber} / 신고 대상 등록번호 · ${targetMemberNumber}`;
+  labelSpan.textContent = `파티번호 · ${incidentPartyNumber} / 신고 대상 등록번호 · ${targetMemberNumber}`;
   row.appendChild(labelSpan);
   const btn = document.createElement("button");
   btn.type = "button";
@@ -1134,6 +1134,16 @@ function setupOfficeTab() {
   });
   document.getElementById("office-report-recent-btn").addEventListener("click", renderRecentPartyRecord);
 
+  // 최근 기록에서 등록번호를 누르면 뜨는 "가입 당시 정보" 팝업 닫기 처리
+  const joinInfoOverlay = document.getElementById("office-join-info-modal-overlay");
+  const joinInfoCloseBtn = document.getElementById("office-join-info-modal-close-btn");
+  const closeJoinInfoModal = () => { joinInfoOverlay.hidden = true; };
+  joinInfoCloseBtn.addEventListener("click", closeJoinInfoModal);
+  joinInfoOverlay.addEventListener("click", (e) => { if (e.target === joinInfoOverlay) closeJoinInfoModal(); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !joinInfoOverlay.hidden) closeJoinInfoModal();
+  });
+
   const reportMsgEl = document.getElementById("office-report-msg");
   const reportSubmitBtn = document.getElementById("office-report-submit-btn");
   reportSubmitBtn.addEventListener("click", async () => {
@@ -1152,7 +1162,7 @@ function setupOfficeTab() {
     }
     const incidentPartyNumber = numberInput.value.trim();
     if (!/^\d{8}$/.test(incidentPartyNumber)) {
-      reportMsgEl.textContent = "사건번호(파티 번호, 8자리)를 정확히 입력해주세요.";
+      reportMsgEl.textContent = "파티번호(8자리)를 정확히 입력해주세요.";
       reportMsgEl.classList.add("error");
       reportMsgEl.hidden = false;
       return;
@@ -1574,7 +1584,7 @@ function setupOfficePartyBoard() {
 
 function formatPartyFields(p) {
   return [
-    p.partyNumber ? `사건번호: ${p.partyNumber}` : null,
+    p.partyNumber ? `파티번호: ${p.partyNumber}` : null,
     p.partyType ? `유형: ${p.partyType}` : null,
     p.gameMode ? `모드: ${p.gameMode}` : null,
     `서버: ${(p.activeServers || []).join(", ")}`,
@@ -1587,6 +1597,7 @@ function formatPartyFields(p) {
 
 function formatResumeFields(r) {
   return [
+    r.resumeNumber ? `등록번호: ${r.resumeNumber}` : null,
     r.preferredPartyType ? `선호 인원: ${r.preferredPartyType}` : null,
     r.preferredGameMode ? `선호 모드: ${r.preferredGameMode}` : null,
     r.preferredServers && r.preferredServers.length ? `선호 서버: ${r.preferredServers.join(", ")}` : null,
@@ -1796,7 +1807,7 @@ async function renderMyParty() {
       voiceInput.checked = !!party.voice;
       const code = await window.LoadoutCloud.getPartyCode(party.leaderId).catch(() => null);
       document.getElementById("office-myparty-code-input").value = code || "";
-      headcountEl.textContent = `${partyStatusDot(party)} 현재 인원: ${1 + (party.acceptedCount || 0)}/${partyMaxSize(party.partyType)}명 · 사건번호: ${party.partyNumber}`;
+      headcountEl.textContent = `${partyStatusDot(party)} 현재 인원: ${1 + (party.acceptedCount || 0)}/${partyMaxSize(party.partyType)}명 · 파티번호: ${party.partyNumber}`;
       headcountEl.hidden = false;
     }
   } catch {
@@ -2133,7 +2144,18 @@ async function renderOperatorResumeList() {
   }
 }
 
-// "최근 기록" — 내가 참여했던 파티들의 사건번호와, 그때 같이 있었던 사람들의 등록번호
+// 최근 기록의 등록번호를 누르면 그 사람이 이 파티에 가입할 당시의 프로필 정보
+// (가입 시점 스냅샷, officePartyRoster에 같이 저장됨)를 팝업으로 보여준다 —
+// 실명은 아니지만 "어떤 정보로 가입했었는지"를 봐서 누군지 기억을 돕는 용도.
+// 이 기능 이전에 만들어진 로스터 항목은 스냅샷이 없어 안내 문구만 뜬다.
+function openOfficeJoinInfoModal(resumeSnapshot) {
+  const overlay = document.getElementById("office-join-info-modal-overlay");
+  const body = document.getElementById("office-join-info-modal-body");
+  body.textContent = resumeSnapshot ? formatResumeFields(resumeSnapshot) : "가입 당시 정보가 없습니다.";
+  overlay.hidden = false;
+}
+
+// "최근 기록" — 내가 참여했던 파티들의 파티번호와, 그때 같이 있었던 사람들의 등록번호
 // (가명, 실명 아님)를 보여준다. 신고 폼에 뭘 적어야 할지 기억이 안 날 때 참고용.
 async function renderRecentPartyRecord() {
   const wrap = document.getElementById("office-report-recent-list");
@@ -2153,7 +2175,7 @@ async function renderRecentPartyRecord() {
       box.className = "office-applicant-item";
       const title = document.createElement("p");
       title.className = "office-applicant-msg";
-      title.textContent = `사건번호 · ${h.partyNumber}`;
+      title.textContent = `파티번호 · ${h.partyNumber}`;
       box.appendChild(title);
       const roster = await window.LoadoutCloud.getPartyRoster(h.partyNumber).catch(() => null);
       const list = document.createElement("ul");
@@ -2163,12 +2185,17 @@ async function renderRecentPartyRecord() {
         const li = document.createElement("li");
         const isMe = m.memberNumber === h.memberNumberAtJoin;
         const roleText = m.role === "leader" ? "파티장" : "파티원";
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "office-report-btn-quiet";
         if (isMe) {
-          li.textContent = `${m.memberNumber} — ${roleText}(본인)`;
+          btn.textContent = `${m.memberNumber} — ${roleText}(본인)`;
         } else {
           othersSeen += 1;
-          li.textContent = `${m.memberNumber} — ${roleText}${othersSeen}`;
+          btn.textContent = `${m.memberNumber} — ${roleText}${othersSeen}`;
         }
+        btn.addEventListener("click", () => openOfficeJoinInfoModal(m.resumeSnapshot));
+        li.appendChild(btn);
         list.appendChild(li);
       });
       box.appendChild(list);

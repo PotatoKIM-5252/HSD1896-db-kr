@@ -2974,7 +2974,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 /* 자세히 보기 등 전체화면 오버레이가 열려있을 땐 우측 하단 유틸리티 버튼이 내용과 겹치므로 숨김 */
 body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 
-#report-modal-overlay, #changelog-modal-overlay, #office-rules-modal-overlay, #office-report-modal-overlay, #office-report-admin-modal-overlay {
+#report-modal-overlay, #changelog-modal-overlay, #office-rules-modal-overlay, #office-report-modal-overlay, #office-report-admin-modal-overlay, #office-join-info-modal-overlay {
   position: fixed;
   inset: 0;
   z-index: 2200;
@@ -2985,9 +2985,9 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
   padding: 20px;
 }
 
-#report-modal-overlay[hidden], #changelog-modal-overlay[hidden], #office-rules-modal-overlay[hidden], #office-report-modal-overlay[hidden], #office-report-admin-modal-overlay[hidden] { display: none; }
+#report-modal-overlay[hidden], #changelog-modal-overlay[hidden], #office-rules-modal-overlay[hidden], #office-report-modal-overlay[hidden], #office-report-admin-modal-overlay[hidden], #office-join-info-modal-overlay[hidden] { display: none; }
 
-#report-modal, #changelog-modal, #office-rules-modal, #office-report-modal, #office-report-admin-modal {
+#report-modal, #changelog-modal, #office-rules-modal, #office-report-modal, #office-report-admin-modal, #office-join-info-modal {
   width: 100%;
   max-width: 420px;
   max-height: min(600px, 80vh);
@@ -3015,7 +3015,7 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 
 .utility-modal-header h3 { margin: 0; font-size: 15px; color: var(--text-primary); }
 
-#report-modal-close-btn, #changelog-modal-close-btn, #office-rules-modal-close-btn, #office-report-modal-close-btn, #office-report-admin-modal-close-btn {
+#report-modal-close-btn, #changelog-modal-close-btn, #office-rules-modal-close-btn, #office-report-modal-close-btn, #office-report-admin-modal-close-btn, #office-join-info-modal-close-btn {
   background: transparent;
   font-size: 12px;
   color: var(--text-muted);
@@ -3024,7 +3024,7 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
   padding: 5px 10px;
 }
 
-#report-modal-close-btn:hover, #changelog-modal-close-btn:hover, #office-rules-modal-close-btn:hover, #office-report-modal-close-btn:hover, #office-report-admin-modal-close-btn:hover {
+#report-modal-close-btn:hover, #changelog-modal-close-btn:hover, #office-rules-modal-close-btn:hover, #office-report-modal-close-btn:hover, #office-report-admin-modal-close-btn:hover, #office-join-info-modal-close-btn:hover {
   color: var(--text-primary);
   border-color: var(--accent);
 }

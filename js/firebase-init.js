@@ -507,7 +507,7 @@ async function saveMyParty(fields) {
         steamId: uid, partyNumber, leaderId: uid, role: "leader", joinedAt: serverTimestamp(), leftAt: null, memberNumberAtJoin: memberNumber,
       });
       tx.set(doc(db, OFFICE_PARTY_ROSTER_COLLECTION, partyNumber), {
-        leaderId: uid, members: [{ role: "leader", memberNumber }],
+        leaderId: uid, members: [{ role: "leader", memberNumber, resumeSnapshot: resumeSnapshotFields(resumeSnap.data()) }],
       });
     });
   }
@@ -623,7 +623,7 @@ async function respondToApplication(applicantId, accepted) {
       steamId: applicantId, partyNumber, leaderId: uid, role: "member", joinedAt: serverTimestamp(), leftAt: null, memberNumberAtJoin: memberNumber,
     });
     batch.update(doc(db, OFFICE_PARTY_ROSTER_COLLECTION, partyNumber), {
-      members: arrayUnion({ role: "member", memberNumber }),
+      members: arrayUnion({ role: "member", memberNumber, resumeSnapshot: resumeSnapshotFields(applicantResumeSnap.data()) }),
     });
   }
   await batch.commit();
@@ -693,7 +693,7 @@ async function respondToInvite(leaderId, accepted) {
       steamId: uid, partyNumber, leaderId, role: "member", joinedAt: serverTimestamp(), leftAt: null, memberNumberAtJoin: memberNumber,
     });
     batch.update(doc(db, OFFICE_PARTY_ROSTER_COLLECTION, partyNumber), {
-      members: arrayUnion({ role: "member", memberNumber }),
+      members: arrayUnion({ role: "member", memberNumber, resumeSnapshot: resumeSnapshotFields(myResumeSnap.data()) }),
     });
   }
   await batch.commit();
@@ -769,6 +769,21 @@ async function getPartyCode(leaderId) {
 const OFFICE_RESUMES_COLLECTION = "officeResumes";
 const RESUME_FIELD_KEYS = ["mmr", "kda", "preferredStyle", "voice", "preferredPartyType", "preferredGameMode"];
 const MAX_RESUME_FIELD_LEN = 100;
+
+// 파티 로스터(officePartyRoster)에 같이 저장해 둘 "가입 당시 정보" 스냅샷 — 프로필
+// 원본이 재등록/만료로 바뀌어도 그 파티에 가입했던 시점의 값이 그대로 남아있게 한다.
+// steamId는 포함하지 않는다(로스터는 가명 전용이라 실명이 섞이면 안 됨).
+function resumeSnapshotFields(data) {
+  return {
+    preferredPartyType: data.preferredPartyType || "",
+    preferredGameMode: data.preferredGameMode || "",
+    preferredServers: Array.isArray(data.preferredServers) ? data.preferredServers : [],
+    mmr: data.mmr || "",
+    kda: data.kda || "",
+    preferredStyle: data.preferredStyle || "",
+    voice: !!data.voice,
+  };
+}
 
 function sanitizeResumeFields(fields) {
   const out = {};

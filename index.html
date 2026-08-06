@@ -561,11 +561,11 @@
         <button id="office-report-modal-close-btn" type="button">닫기</button>
       </header>
       <p class="muted-text">신고 내용(영상·설명)은 신고자 본인과 운영자만 볼 수 있습니다. 영상은 300MB 이하, 하루 5건까지 신고 가능합니다. 특별히 보류 처리하지 않는 한 등록 후 1주일 뒤 자동 삭제됩니다.</p>
-      <p class="muted-text">사건번호와 신고 대상 등록번호 둘 다 그 파티에 있었던 게 확인돼야 신고가 접수됩니다. 기억이 안 나면 "최근 기록"에서 확인하세요.</p>
+      <p class="muted-text">파티번호와 신고 대상 등록번호 둘 다 그 파티에 있었던 게 확인돼야 신고가 접수됩니다. 기억이 안 나면 "최근 기록"에서 확인하세요.</p>
       <div class="office-field-form">
         <label>영상 파일(전후 상황 포함, 300MB 이하) <input type="file" id="office-report-video-file" accept="video/*"></label>
         <label>상황 설명(한 줄) <input type="text" id="office-report-desc" maxlength="200" placeholder="예) OO시경 사격장에서 고의트롤"></label>
-        <label>사건번호(파티 번호, 8자리) <input type="text" id="office-report-party-number" inputmode="numeric" maxlength="8" placeholder="예) 26080601"></label>
+        <label>파티번호(8자리) <input type="text" id="office-report-party-number" inputmode="numeric" maxlength="8" placeholder="예) 26080601"></label>
         <label>신고 대상 등록번호(9자리) <input type="text" id="office-report-target-number" inputmode="numeric" maxlength="9" placeholder="예) 260806548"></label>
       </div>
       <button id="office-report-submit-btn" class="office-btn office-btn-primary" type="button">신고 제출</button>
@@ -586,6 +586,16 @@
       </header>
       <p class="muted-text">보류 표시가 없는 신고는 등록 후 1주일이 지나면 이 창을 열 때 자동으로 삭제됩니다.</p>
       <div id="office-report-admin-list"></div>
+    </div>
+  </div>
+
+  <div id="office-join-info-modal-overlay" hidden>
+    <div id="office-join-info-modal">
+      <header class="utility-modal-header">
+        <h3>가입 당시 정보</h3>
+        <button id="office-join-info-modal-close-btn" type="button">닫기</button>
+      </header>
+      <p id="office-join-info-modal-body" class="muted-text"></p>
     </div>
   </div>
 
