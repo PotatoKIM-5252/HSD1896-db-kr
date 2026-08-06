@@ -421,10 +421,13 @@ service cloud.firestore {
       // 파티원이 수락될 때 자기 항목을 추가 — 파티장 본인이거나(파티장이 수락 처리할
       // 때), 초대받은 본인이 직접 수락할 때 둘 다 쓸 수 있어야 하므로 활성 회원이면
       // 허용하고, 개수가 정확히 1개만 늘어나는 것으로 실제 조작 범위를 제한한다.
+      // hasAll(기존 members)까지 확인해서, 기존에 있던 항목을 다른 내용으로
+      // 바꿔치기하거나 지우는 건 막고 "새 항목 하나 추가"만 되게 한다.
       allow update: if request.auth != null && isActiveMember(request.auth.uid)
                     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members'])
                     && request.resource.data.members is list
-                    && request.resource.data.members.size() == resource.data.members.size() + 1;
+                    && request.resource.data.members.size() == resource.data.members.size() + 1
+                    && request.resource.data.members.hasAll(resource.data.members);
     }
 
     // 파티 번호 발급용 일자별 카운터 — 문서 ID는 YYMMDD(6자리). 트랜잭션으로
