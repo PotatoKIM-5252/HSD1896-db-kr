@@ -448,6 +448,16 @@ function isTimestampExpired(ts) {
   return Date.now() - ms > OFFICE_NUMBER_EXPIRY_MS;
 }
 
+// "최근 기록"(officePartyHistory/officePartyRoster) 보관 기간 — 3일. 문서 생성 시
+// expireAt을 지금 시각+3일로 같이 써 두면, Firebase 콘솔에 이 필드로 TTL 정책을
+// 설정했을 때 Firestore가 지난 기록을 알아서 지워준다(클라이언트는 삭제를 직접
+// 하지 않음). 3일이 지난 사건은 officePartyHistory 기록이 사라지므로 신고 접수
+// 시점의 이중검증(신고자·대상 둘 다 그 파티에 있었는지)도 더는 통과할 수 없다 —
+// 즉 신고는 사건 발생 후 3일 안에만 접수 가능해진다.
+function officeHistoryExpiry() {
+  return new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+}
+
 // 등록번호(memberNumber) 형식: YYMMDD(등록한 날짜, 6자리) + 무작위 3자리 = 총 9자리.
 // 날짜가 매일 바뀌니 자연히 "며칠 지나면 새 번호 대역으로 넘어가는" 효과가 있고, 같은
 // 날짜대에서도 무작위라 순서(가입 순서 등)가 번호로 드러나지 않는다. officeMemberNumberHistory
@@ -504,10 +514,10 @@ async function saveMyParty(fields) {
       tx.set(counterRef, { count: nextSeq });
       tx.set(ref, { leaderId: uid, ...sanitized, codePublic: false, status: "open", acceptedCount: 0, partyNumber, createdAt: serverTimestamp(), renewedAt: serverTimestamp() });
       tx.set(doc(db, OFFICE_PARTY_HISTORY_COLLECTION, officePartyHistoryDocId(partyNumber, uid)), {
-        steamId: uid, partyNumber, leaderId: uid, role: "leader", joinedAt: serverTimestamp(), leftAt: null, memberNumberAtJoin: memberNumber,
+        steamId: uid, partyNumber, leaderId: uid, role: "leader", joinedAt: serverTimestamp(), leftAt: null, memberNumberAtJoin: memberNumber, expireAt: officeHistoryExpiry(),
       });
       tx.set(doc(db, OFFICE_PARTY_ROSTER_COLLECTION, partyNumber), {
-        leaderId: uid, members: [{ role: "leader", memberNumber, resumeSnapshot: resumeSnapshotFields(resumeSnap.data()) }],
+        leaderId: uid, members: [{ role: "leader", memberNumber, resumeSnapshot: resumeSnapshotFields(resumeSnap.data()) }], expireAt: officeHistoryExpiry(),
       });
     });
   }
@@ -620,7 +630,7 @@ async function respondToApplication(applicantId, accepted) {
   batch.update(doc(db, OFFICE_PARTIES_COLLECTION, uid), { acceptedCount: increment(1) });
   if (partyNumber && memberNumber) {
     batch.set(doc(db, OFFICE_PARTY_HISTORY_COLLECTION, officePartyHistoryDocId(partyNumber, applicantId)), {
-      steamId: applicantId, partyNumber, leaderId: uid, role: "member", joinedAt: serverTimestamp(), leftAt: null, memberNumberAtJoin: memberNumber,
+      steamId: applicantId, partyNumber, leaderId: uid, role: "member", joinedAt: serverTimestamp(), leftAt: null, memberNumberAtJoin: memberNumber, expireAt: officeHistoryExpiry(),
     });
     batch.update(doc(db, OFFICE_PARTY_ROSTER_COLLECTION, partyNumber), {
       members: arrayUnion({ role: "member", memberNumber, resumeSnapshot: resumeSnapshotFields(applicantResumeSnap.data()) }),
@@ -690,7 +700,7 @@ async function respondToInvite(leaderId, accepted) {
   batch.update(doc(db, OFFICE_PARTIES_COLLECTION, leaderId), { acceptedCount: increment(1) });
   if (partyNumber && memberNumber) {
     batch.set(doc(db, OFFICE_PARTY_HISTORY_COLLECTION, officePartyHistoryDocId(partyNumber, uid)), {
-      steamId: uid, partyNumber, leaderId, role: "member", joinedAt: serverTimestamp(), leftAt: null, memberNumberAtJoin: memberNumber,
+      steamId: uid, partyNumber, leaderId, role: "member", joinedAt: serverTimestamp(), leftAt: null, memberNumberAtJoin: memberNumber, expireAt: officeHistoryExpiry(),
     });
     batch.update(doc(db, OFFICE_PARTY_ROSTER_COLLECTION, partyNumber), {
       members: arrayUnion({ role: "member", memberNumber, resumeSnapshot: resumeSnapshotFields(myResumeSnap.data()) }),
