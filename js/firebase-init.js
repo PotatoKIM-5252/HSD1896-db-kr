@@ -77,6 +77,14 @@ async function getUid() {
   return authReady;
 }
 
+// 지금 로그인된 사용자 본인의 Firebase ID 토큰 — 신고 영상 업로드/조회/삭제 때
+// Cloudflare Worker에 "나 맞다"는 걸 증명하는 용도로만 쓴다.
+async function getMyIdToken() {
+  if (!auth.currentUser) await authReady;
+  if (!auth.currentUser) throw new Error("로그인 상태를 확인할 수 없습니다.");
+  return auth.currentUser.getIdToken();
+}
+
 const LOADOUTS_COLLECTION = "sharedLoadouts";
 const MAX_NAME_LEN = 30;
 const MAX_DATA_LEN = 4000;
@@ -705,5 +713,5 @@ window.LoadoutCloud = {
   listApplicationsForMyParty, applyToParty, respondToApplication, listMyApplications, getPartyCode,
   watchMyPartyApplications, watchMyApplications, kickApplicant, inviteToParty, cancelInvite, respondToInvite, leaveParty,
   getMyResume, saveMyResume, renewMyResume, deleteMyResume, getApplicantResume, listAllResumes,
-  submitOfficeReport, listMyOfficeReports,
+  submitOfficeReport, listMyOfficeReports, getMyIdToken,
 };

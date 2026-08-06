@@ -3507,6 +3507,8 @@ label.office-field-checkbox input[type="checkbox"] { width: auto; }
 .office-applicant-actions { display: flex; gap: 8px; flex-shrink: 0; }
 .office-applicant-status { font-size: 12px; color: var(--text-muted); flex-shrink: 0; }
 
+.office-report-video-player { width: 100%; max-width: 320px; border-radius: var(--radius); }
+
 .office-myapp-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .office-myapp-status { font-size: 13px; color: var(--text-primary); }
 

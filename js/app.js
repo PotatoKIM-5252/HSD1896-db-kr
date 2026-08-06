@@ -224,6 +224,8 @@ function addToLoadoutQuick(item, ammoId = null) {
 const OPERATOR_TOKEN_KEY = "hsddb_operator_refresh_token";
 const FIREBASE_API_KEY = "AIzaSyD3SbLMnzxnDypLXa4kLizKJQkn30bl3CU";
 const FIRESTORE_PROJECT_ID = "hsd-db-1a8d7";
+// 사무소 신고 영상 업로드/조회/삭제를 중계하는 Cloudflare Worker(스팀 로그인 검증과 같은 Worker)
+const OFFICE_REPORT_WORKER_URL = "https://potatokim.cisd456.workers.dev";
 
 function getOperatorRefreshToken() {
   return localStorage.getItem(OPERATOR_TOKEN_KEY) || null;
@@ -368,6 +370,81 @@ async function deleteOfficeReportAsOperator(reportId, idToken) {
   if (!res.ok) throw new Error("삭제에 실패했습니다.");
 }
 
+// 신고 영상 — Cloudflare Worker(R2)를 통해 업로드/조회/삭제. Firebase Storage는
+// 유료 요금제가 필요해서 안 쓴다. idToken은 본인 신고면 getMyIdToken(), 운영자
+// 조회/삭제면 운영자 idToken(officeReportAdminIdToken)을 넘긴다.
+const OFFICE_REPORT_VIDEO_ERROR_MESSAGES = {
+  video_too_large: "영상 용량이 너무 큽니다(300MB 이하).",
+  storage_full: "저장 공간이 가득 찼습니다. 잠시 후 다시 시도해주세요.",
+  daily_limit_exceeded: "하루 신고 가능 횟수(5건)를 넘었습니다.",
+  not_video: "영상 파일만 업로드할 수 있습니다.",
+  unauthorized: "로그인 상태를 확인할 수 없습니다.",
+  forbidden: "이 영상을 볼 권한이 없습니다.",
+};
+
+async function uploadOfficeReportVideo(file, idToken) {
+  const res = await fetch(`${OFFICE_REPORT_WORKER_URL}/report-video`, {
+    method: "POST",
+    headers: { "Content-Type": file.type, Authorization: `Bearer ${idToken}` },
+    body: file,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(OFFICE_REPORT_VIDEO_ERROR_MESSAGES[err?.error] || "영상 업로드에 실패했습니다.");
+  }
+  const data = await res.json();
+  return data.key;
+}
+
+// 영상을 받아서 재생 가능한 blob URL로 바꿔 돌려준다 — <video src>는 커스텀 인증
+// 헤더를 못 보내서, fetch로 직접 인증 헤더를 붙여 받아온 뒤 객체 URL로 바꿔야 한다.
+async function fetchOfficeReportVideoObjectUrl(key, idToken) {
+  const res = await fetch(`${OFFICE_REPORT_WORKER_URL}/report-video/${encodeURIComponent(key)}`, {
+    headers: { Authorization: `Bearer ${idToken}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(OFFICE_REPORT_VIDEO_ERROR_MESSAGES[err?.error] || "영상을 불러오지 못했습니다.");
+  }
+  const blob = await res.blob();
+  return URL.createObjectURL(blob);
+}
+
+// "영상 보기" 버튼 — 누르면 그때 인증된 fetch로 영상을 받아와 그 자리에 <video>로 재생.
+// getIdTokenFn은 본인 신고 목록이면 getMyIdToken, 운영자 패널이면 운영자 idToken을 돌려주는 함수.
+function createOfficeReportVideoButton(videoKey, getIdTokenFn) {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "office-btn office-btn-secondary";
+  btn.textContent = "영상 보기";
+  btn.addEventListener("click", async () => {
+    btn.disabled = true;
+    btn.textContent = "불러오는 중...";
+    try {
+      const idToken = await getIdTokenFn();
+      const objectUrl = await fetchOfficeReportVideoObjectUrl(videoKey, idToken);
+      const videoEl = document.createElement("video");
+      videoEl.src = objectUrl;
+      videoEl.controls = true;
+      videoEl.className = "office-report-video-player";
+      btn.replaceWith(videoEl);
+    } catch (err) {
+      showToast(err.message || "영상을 불러오지 못했습니다.");
+      btn.disabled = false;
+      btn.textContent = "영상 보기";
+    }
+  });
+  return btn;
+}
+
+async function deleteOfficeReportVideo(key, idToken) {
+  if (!key) return;
+  await fetch(`${OFFICE_REPORT_WORKER_URL}/report-video/${encodeURIComponent(key)}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${idToken}` },
+  }).catch(() => {});
+}
+
 // 신고 등록 후 1주일이 지났고, 운영자가 "보류"로 남겨두지 않았으면 자동 삭제 —
 // 서버 스케줄 작업이 없는 정적 사이트라 진짜 "자동"은 아니고, 운영자가 신고 관리
 // 패널을 열 때마다 오래된 것들을 정리하는 방식으로 대신한다.
@@ -381,6 +458,7 @@ async function cleanupExpiredOfficeReports(reports, idToken) {
   });
   for (const r of expired) {
     await deleteOfficeReportAsOperator(r.id, idToken).catch(() => {});
+    await deleteOfficeReportVideo(r.videoUrl, idToken);
   }
   return expired.map((r) => r.id);
 }
@@ -973,14 +1051,26 @@ function setupOfficeTab() {
   });
 
   const reportMsgEl = document.getElementById("office-report-msg");
-  document.getElementById("office-report-submit-btn").addEventListener("click", async () => {
+  const reportSubmitBtn = document.getElementById("office-report-submit-btn");
+  reportSubmitBtn.addEventListener("click", async () => {
     if (!window.LoadoutCloud) return;
     reportMsgEl.hidden = true;
-    const urlInput = document.getElementById("office-report-video-url");
+    const fileInput = document.getElementById("office-report-video-file");
     const descInput = document.getElementById("office-report-desc");
+    const file = fileInput.files[0];
+    if (!file) {
+      reportMsgEl.textContent = "영상 파일을 선택해주세요.";
+      reportMsgEl.classList.add("error");
+      reportMsgEl.hidden = false;
+      return;
+    }
+    reportSubmitBtn.disabled = true;
+    reportSubmitBtn.textContent = "업로드 중...";
     try {
-      await window.LoadoutCloud.submitOfficeReport({ description: descInput.value, videoUrl: urlInput.value.trim() });
-      urlInput.value = "";
+      const idToken = await window.LoadoutCloud.getMyIdToken();
+      const videoKey = await uploadOfficeReportVideo(file, idToken);
+      await window.LoadoutCloud.submitOfficeReport({ description: descInput.value, videoUrl: videoKey });
+      fileInput.value = "";
       descInput.value = "";
       reportMsgEl.textContent = "신고가 접수됐습니다.";
       reportMsgEl.classList.remove("error");
@@ -990,6 +1080,9 @@ function setupOfficeTab() {
       reportMsgEl.textContent = err.message || "신고 접수에 실패했습니다.";
       reportMsgEl.classList.add("error");
       reportMsgEl.hidden = false;
+    } finally {
+      reportSubmitBtn.disabled = false;
+      reportSubmitBtn.textContent = "신고 제출";
     }
   });
 
@@ -1936,12 +2029,7 @@ async function renderMyOfficeReports() {
 
       const infoWrap = document.createElement("div");
       infoWrap.className = "office-applicant-info";
-      const linkEl = document.createElement("a");
-      linkEl.href = r.videoUrl;
-      linkEl.target = "_blank";
-      linkEl.rel = "noopener noreferrer";
-      linkEl.textContent = "영상 보기";
-      infoWrap.appendChild(linkEl);
+      infoWrap.appendChild(createOfficeReportVideoButton(r.videoUrl, () => window.LoadoutCloud.getMyIdToken()));
       if (r.description) {
         const descEl = document.createElement("p");
         descEl.className = "office-applicant-msg";
@@ -1987,12 +2075,7 @@ async function renderOfficeReportAdmin() {
 
         const infoWrap = document.createElement("div");
         infoWrap.className = "office-applicant-info";
-        const linkEl = document.createElement("a");
-        linkEl.href = r.videoUrl;
-        linkEl.target = "_blank";
-        linkEl.rel = "noopener noreferrer";
-        linkEl.textContent = "영상 보기";
-        infoWrap.appendChild(linkEl);
+        infoWrap.appendChild(createOfficeReportVideoButton(r.videoUrl, () => Promise.resolve(idToken)));
         if (r.description) {
           const descEl = document.createElement("p");
           descEl.className = "office-applicant-msg";
@@ -2052,6 +2135,7 @@ async function renderOfficeReportAdmin() {
           if (!confirm("이 신고를 삭제할까요?")) return;
           try {
             await deleteOfficeReportAsOperator(r.id, idToken);
+            await deleteOfficeReportVideo(r.videoUrl, idToken);
             renderOfficeReportAdmin();
           } catch (err) {
             showToast(err.message || "삭제에 실패했습니다.");
