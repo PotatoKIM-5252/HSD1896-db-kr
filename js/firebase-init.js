@@ -22,7 +22,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, collection, collectionGroup, addDoc, getDocs, getDoc, query, orderBy, where, limit, serverTimestamp,
-  doc, updateDoc, deleteDoc, arrayUnion, arrayRemove, setDoc, onSnapshot, increment, writeBatch,
+  doc, updateDoc, deleteDoc, arrayUnion, arrayRemove, setDoc, onSnapshot, increment, writeBatch, runTransaction,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -370,6 +370,9 @@ async function deleteMyOfficeMembership() {
 // Firestore 규칙이 따로 접근을 제한한다(코드는 파티장 본인과 "수락된" 지원자만, 지원자
 // 목록은 파티장만).
 const OFFICE_PARTIES_COLLECTION = "officeParties";
+const OFFICE_PARTY_DAY_COUNTERS_COLLECTION = "officePartyDayCounters";
+const OFFICE_PARTY_HISTORY_COLLECTION = "officePartyHistory";
+const OFFICE_PARTY_ROSTER_COLLECTION = "officePartyRoster";
 const PARTY_FIELD_KEYS = ["partyMmr", "minKda", "combatStyle", "voice", "partyType", "gameMode"];
 const OFFICE_SERVERS = ["유럽", "러시아", "미국서부", "미국동부", "남미", "아시아", "오세아니아"];
 const OFFICE_SERVERS_WITH_ANY = [...OFFICE_SERVERS, "상관없음"];
@@ -414,6 +417,46 @@ async function getPartyByLeaderId(leaderId) {
   return snap.exists() ? { leaderId, ...snap.data() } : null;
 }
 
+// 파티 번호(=사건번호) 형식: YYMMDD(만든 날짜, 6자리) + 그날의 순번(2자리) = 총 8자리
+// 문자열. 예) 2026년 8월 6일에 만들어진 그날 첫 파티 → "26080601". 날짜가 그대로 번호에
+// 드러나서 신고할 때 "사건이 언제였는지"와 "어느 파티였는지"를 번호 하나로 같이 전달할
+// 수 있다. 순번은 officePartyDayCounters/{YYMMDD} 문서를 트랜잭션으로 읽고 +1해서
+// 매기므로, 같은 날 여러 명이 동시에 파티를 만들어도 번호가 겹치지 않는다.
+function officePartyDayKey(date = new Date()) {
+  const yy = String(date.getFullYear() % 100).padStart(2, "0");
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  return `${yy}${mm}${dd}`;
+}
+
+// 파티 참여 이력(officePartyHistory) 문서 ID — "{파티번호}_{스팀ID}" 고정 형식이라
+// firestore.rules가 "신고자가 이 파티에 정말 있었는지"를 exists()로 바로 확인할 수 있다.
+function officePartyHistoryDocId(partyNumber, steamId) {
+  return `${partyNumber}_${steamId}`;
+}
+
+const OFFICE_MEMBER_NUMBER_HISTORY_COLLECTION = "officeMemberNumberHistory";
+
+// 등록번호(memberNumber) 형식: YYMMDD(등록한 날짜, 6자리) + 무작위 3자리 = 총 9자리.
+// 날짜가 매일 바뀌니 자연히 "며칠 지나면 새 번호 대역으로 넘어가는" 효과가 있고, 같은
+// 날짜대에서도 무작위라 순서(가입 순서 등)가 번호로 드러나지 않는다. officeMemberNumberHistory
+// 문서는 한 번 만들어지면 절대 수정 불가(규칙 참고)라서, 이미 그 번호로 문서가 있으면
+// create 자체가 거부된다 — 그걸 이용해 충돌 시 다른 무작위 번호로 재시도한다.
+async function generateMemberNumber(uid) {
+  const dayKey = officePartyDayKey();
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const suffix = String(Math.floor(Math.random() * 1000)).padStart(3, "0");
+    const candidate = `${dayKey}${suffix}`;
+    try {
+      await setDoc(doc(db, OFFICE_MEMBER_NUMBER_HISTORY_COLLECTION, candidate), { steamId: uid, assignedAt: serverTimestamp() });
+      return candidate;
+    } catch {
+      // 이미 그 번호를 누가 먼저 가져갔음 — 다른 무작위 번호로 재시도
+    }
+  }
+  throw new Error("등록번호 발급에 실패했습니다. 다시 시도해주세요.");
+}
+
 // 파티 등록/수정 — 처음 만들 때는 생성, 이미 있으면 모집 정보만 수정.
 // ⚠ 규칙은 update 시에도 결과 문서 전체(codePublic 포함)가 유효해야 한다고 검증하므로,
 //   과거(이 필드가 생기기 전)에 만들어진 문서처럼 codePublic이 아예 없는 경우를 대비해
@@ -428,11 +471,29 @@ async function saveMyParty(fields) {
     const existing = snap.data();
     await updateDoc(ref, { ...sanitized, codePublic: typeof existing.codePublic === "boolean" ? existing.codePublic : false, renewedAt: serverTimestamp() });
   } else {
-    // partyNumber는 신고 시 "몇 번 파티"인지 지목할 수 있게 생성 시 한 번만 랜덤 배정
-    // (그 뒤로는 update 경로에서 건드리지 않아 파티가 존재하는 동안 고정됨). 운영자는
-    // 이 번호로 문서를 조회해 실제 리더 스팀ID를 역추적할 수 있다(다른 이용자는 못 함).
-    const partyNumber = Math.floor(1000 + Math.random() * 9000);
-    await setDoc(ref, { leaderId: uid, ...sanitized, codePublic: false, status: "open", acceptedCount: 0, partyNumber, createdAt: serverTimestamp(), renewedAt: serverTimestamp() });
+    // 파티원이 파티장을 등록번호로 식별할 수 있으려면 파티장도 이력서(등록번호)가
+    // 먼저 있어야 한다 — 규칙도 이걸 요구하므로 여기서 미리 확인해 친절한 메시지로 안내.
+    const resumeRef = doc(db, OFFICE_RESUMES_COLLECTION, uid);
+    const resumeSnap = await getDoc(resumeRef);
+    if (!resumeSnap.exists()) throw new Error("파티를 만들려면 먼저 프로필(이력서)을 등록해주세요.");
+    const memberNumber = resumeSnap.data().resumeNumber;
+    // 파티 번호 발급(일자별 카운터 +1)과 파티 문서 생성, 리더 본인의 참여 이력·로스터
+    // 기록을 한 트랜잭션으로 묶어서 전부 같이 성공/실패하게 한다.
+    const dayKey = officePartyDayKey();
+    const counterRef = doc(db, OFFICE_PARTY_DAY_COUNTERS_COLLECTION, dayKey);
+    await runTransaction(db, async (tx) => {
+      const counterSnap = await tx.get(counterRef);
+      const nextSeq = (counterSnap.exists() ? counterSnap.data().count : 0) + 1;
+      const partyNumber = `${dayKey}${String(nextSeq).padStart(2, "0")}`;
+      tx.set(counterRef, { count: nextSeq });
+      tx.set(ref, { leaderId: uid, ...sanitized, codePublic: false, status: "open", acceptedCount: 0, partyNumber, createdAt: serverTimestamp(), renewedAt: serverTimestamp() });
+      tx.set(doc(db, OFFICE_PARTY_HISTORY_COLLECTION, officePartyHistoryDocId(partyNumber, uid)), {
+        steamId: uid, partyNumber, leaderId: uid, role: "leader", joinedAt: serverTimestamp(), leftAt: null, memberNumberAtJoin: memberNumber,
+      });
+      tx.set(doc(db, OFFICE_PARTY_ROSTER_COLLECTION, partyNumber), {
+        leaderId: uid, members: [{ role: "leader", memberNumber }],
+      });
+    });
   }
 }
 
@@ -456,11 +517,21 @@ async function setMyPartyCode(code) {
   await setDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid, "private", "code"), { code: trimmed });
 }
 
-// 파티 해산 — 받은 신청들과 로비 코드까지 다 지우고 파티 문서 자체를 삭제
+// 파티 해산 — 받은 신청들과 로비 코드까지 다 지우고 파티 문서 자체를 삭제. 해산
+// 전에 리더 본인과 그때 수락돼 있던 파티원들의 참여 이력(officePartyHistory)에
+// leftAt을 남겨서, 나중에 신고가 들어와도 "그 파티에 누가 있었는지"가 계속 조회된다.
 async function deleteMyParty() {
   const uid = await getUid();
+  const partySnap = await getDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid));
+  const partyNumber = partySnap.exists() ? partySnap.data().partyNumber : null;
   const appsSnap = await getDocs(collection(db, OFFICE_PARTIES_COLLECTION, uid, "applications"));
+  const acceptedIds = appsSnap.docs.filter((d) => d.data().status === "accepted").map((d) => d.id);
   await Promise.all(appsSnap.docs.map((d) => deleteDoc(d.ref)));
+  if (partyNumber) {
+    await Promise.all([uid, ...acceptedIds].map((sid) =>
+      updateDoc(doc(db, OFFICE_PARTY_HISTORY_COLLECTION, officePartyHistoryDocId(partyNumber, sid)), { leftAt: serverTimestamp() }).catch(() => {})
+    ));
+  }
   await deleteDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid, "private", "code"));
   await deleteDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid));
 }
@@ -489,8 +560,10 @@ async function applyToParty(leaderId, message) {
   }
 }
 
-// 수락 시엔 신청 문서 상태 변경과 함께 파티 문서의 acceptedCount도 같이 올려야
-// (구인 게시판에서 "N/최대인원명" 표시가 가능해짐) 배치로 묶어서 처리한다.
+// 수락 시엔 신청 문서 상태 변경과 함께 파티 문서의 acceptedCount도 같이 올리고,
+// 참여 이력(officePartyHistory)·로스터(officePartyRoster)에도 이 사람이 이 파티에
+// 들어왔다는 기록을 남긴다(배치로 묶어서 넷 다 같이 성공/실패). partyNumber는 파티
+// 문서에서, 등록번호는 신청자의 이력서에서 지금 시점 값을 읽어와 그대로 고정한다.
 async function respondToApplication(applicantId, accepted) {
   const uid = await getUid();
   const appRef = doc(db, OFFICE_PARTIES_COLLECTION, uid, "applications", applicantId);
@@ -498,19 +571,39 @@ async function respondToApplication(applicantId, accepted) {
     await updateDoc(appRef, { status: "declined", respondedAt: serverTimestamp() });
     return;
   }
+  const [partySnap, applicantResumeSnap] = await Promise.all([
+    getDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid)),
+    getDoc(doc(db, OFFICE_RESUMES_COLLECTION, applicantId)),
+  ]);
+  const partyNumber = partySnap.exists() ? partySnap.data().partyNumber : null;
+  const memberNumber = applicantResumeSnap.exists() ? applicantResumeSnap.data().resumeNumber : null;
   const batch = writeBatch(db);
   batch.update(appRef, { status: "accepted", respondedAt: serverTimestamp() });
   batch.update(doc(db, OFFICE_PARTIES_COLLECTION, uid), { acceptedCount: increment(1) });
+  if (partyNumber && memberNumber) {
+    batch.set(doc(db, OFFICE_PARTY_HISTORY_COLLECTION, officePartyHistoryDocId(partyNumber, applicantId)), {
+      steamId: applicantId, partyNumber, leaderId: uid, role: "member", joinedAt: serverTimestamp(), leftAt: null, memberNumberAtJoin: memberNumber,
+    });
+    batch.update(doc(db, OFFICE_PARTY_ROSTER_COLLECTION, partyNumber), {
+      members: arrayUnion({ role: "member", memberNumber }),
+    });
+  }
   await batch.commit();
 }
 
 // 이미 수락된 파티원을 내보냄 — 신청 상태를 kicked로 바꾸고 acceptedCount를 1 줄인다.
 // kicked가 되면 로비 코드 읽기 권한도 규칙상 자동으로 사라진다(accepted 상태만 허용).
+// 참여 이력에도 나간 시각(leftAt)을 남긴다.
 async function kickApplicant(applicantId) {
   const uid = await getUid();
+  const partySnap = await getDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid));
+  const partyNumber = partySnap.exists() ? partySnap.data().partyNumber : null;
   const batch = writeBatch(db);
   batch.update(doc(db, OFFICE_PARTIES_COLLECTION, uid, "applications", applicantId), { status: "kicked", respondedAt: serverTimestamp() });
   batch.update(doc(db, OFFICE_PARTIES_COLLECTION, uid), { acceptedCount: increment(-1) });
+  if (partyNumber) {
+    batch.update(doc(db, OFFICE_PARTY_HISTORY_COLLECTION, officePartyHistoryDocId(partyNumber, applicantId)), { leftAt: serverTimestamp() });
+  }
   await batch.commit();
 }
 
@@ -539,7 +632,8 @@ async function cancelInvite(targetId) {
 }
 
 // 내가 받은 초대에 응답 — 수락 시엔 respondToApplication과 대칭으로 acceptedCount를
-// 배치로 같이 올린다(이번엔 파티장이 아니라 초대받은 본인이 자기 몫만큼 올림).
+// 배치로 같이 올린다(이번엔 파티장이 아니라 초대받은 본인이 자기 몫만큼 올림). 참여
+// 이력도 본인이 직접 남긴다(규칙상 role=='member'는 본인 또는 리더가 쓸 수 있음).
 async function respondToInvite(leaderId, accepted) {
   const uid = await getUid();
   const appRef = doc(db, OFFICE_PARTIES_COLLECTION, leaderId, "applications", uid);
@@ -547,19 +641,39 @@ async function respondToInvite(leaderId, accepted) {
     await updateDoc(appRef, { status: "declined", respondedAt: serverTimestamp() });
     return;
   }
+  const [partySnap, myResumeSnap] = await Promise.all([
+    getDoc(doc(db, OFFICE_PARTIES_COLLECTION, leaderId)),
+    getDoc(doc(db, OFFICE_RESUMES_COLLECTION, uid)),
+  ]);
+  const partyNumber = partySnap.exists() ? partySnap.data().partyNumber : null;
+  const memberNumber = myResumeSnap.exists() ? myResumeSnap.data().resumeNumber : null;
   const batch = writeBatch(db);
   batch.update(appRef, { status: "accepted", respondedAt: serverTimestamp() });
   batch.update(doc(db, OFFICE_PARTIES_COLLECTION, leaderId), { acceptedCount: increment(1) });
+  if (partyNumber && memberNumber) {
+    batch.set(doc(db, OFFICE_PARTY_HISTORY_COLLECTION, officePartyHistoryDocId(partyNumber, uid)), {
+      steamId: uid, partyNumber, leaderId, role: "member", joinedAt: serverTimestamp(), leftAt: null, memberNumberAtJoin: memberNumber,
+    });
+    batch.update(doc(db, OFFICE_PARTY_ROSTER_COLLECTION, partyNumber), {
+      members: arrayUnion({ role: "member", memberNumber }),
+    });
+  }
   await batch.commit();
 }
 
 // 파티원 스스로 파티에서 나감 — kickApplicant와 대칭으로 내 신청 문서를 지우고
-// acceptedCount를 1 줄인다(이번엔 파티장이 아니라 나가는 본인이 수행).
+// acceptedCount를 1 줄인다(이번엔 파티장이 아니라 나가는 본인이 수행). 참여 이력에도
+// 나간 시각을 남긴다.
 async function leaveParty(leaderId) {
   const uid = await getUid();
+  const partySnap = await getDoc(doc(db, OFFICE_PARTIES_COLLECTION, leaderId));
+  const partyNumber = partySnap.exists() ? partySnap.data().partyNumber : null;
   const batch = writeBatch(db);
   batch.delete(doc(db, OFFICE_PARTIES_COLLECTION, leaderId, "applications", uid));
   batch.update(doc(db, OFFICE_PARTIES_COLLECTION, leaderId), { acceptedCount: increment(-1) });
+  if (partyNumber) {
+    batch.update(doc(db, OFFICE_PARTY_HISTORY_COLLECTION, officePartyHistoryDocId(partyNumber, uid)), { leftAt: serverTimestamp() });
+  }
   await batch.commit();
 }
 
@@ -638,19 +752,18 @@ async function getMyResume() {
   return snap.exists() ? snap.data() : null;
 }
 
-// 파티장은 이력서를 쓸 수 없다(파티 등록 중이면 규칙도 같이 막음 — firestore.rules 참고)
-// resumeNumber는 신고 시 "몇 번 인력"인지 지목할 수 있게 최초 등록 때 한 번만 랜덤
-// 배정하고, setDoc이 매번 문서 전체를 덮어써도(수정/갱신) 기존 값을 그대로 이어서 쓴다.
+// 파티장도 등록번호(파티원이 자신을 식별할 수단)가 있어야 해서 이제 파티 등록 중에도
+// 이력서를 쓸 수 있다 — 다만 화면에는 파티장으로 활동 중인 동안 "인력 목록"에서
+// 걸러서 안 보여준다(app.js renderResumeList 참고). resumeNumber는 최초 등록 때
+// 한 번만 발급하고, setDoc이 매번 문서 전체를 덮어써도(수정/갱신) 그대로 이어서 쓴다.
 async function saveMyResume(fields) {
   const sanitized = sanitizeResumeFields(fields);
   const uid = await getUid();
-  const partySnap = await getDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid));
-  if (partySnap.exists()) throw new Error("파티를 등록한 상태에서는 프로필을 작성할 수 없습니다. 먼저 파티를 해산해주세요.");
   const ref = doc(db, OFFICE_RESUMES_COLLECTION, uid);
   const existing = await getDoc(ref);
-  const resumeNumber = existing.exists() && Number.isInteger(existing.data().resumeNumber)
+  const resumeNumber = existing.exists() && existing.data().resumeNumber
     ? existing.data().resumeNumber
-    : Math.floor(1000 + Math.random() * 9000);
+    : await generateMemberNumber(uid);
   await setDoc(ref, { ...sanitized, resumeNumber, updatedAt: serverTimestamp() });
 }
 
@@ -690,46 +803,51 @@ async function listAllResumes() {
 const OFFICE_REPORTS_COLLECTION = "officeReports";
 const MAX_OFFICE_REPORT_DESC_LEN = 200;
 
-// 신고 폼에 입력한 파티/인력 번호를 실제 스팀ID로 "지금 이 순간" 확정한다. 번호는
-// 재사용될 수 있어서(파티 해산·프로필 삭제 뒤 새 등록자가 같은 번호를 받을 수 있음)
-// 신고 접수 시점이 아니라 운영자가 나중에 확인하는 시점에 번호로 찾으면, 그 사이에
-// 번호 주인이 바뀌어서 엉뚱한 사람이 지목될 위험이 있다. 그래서 반드시 신고 "제출
-// 시점"에 지금 목록에 떠 있는 문서를 찾아 스팀ID로 고정해두고, 그 뒤로는 절대
-// 번호로 다시 찾지 않는다.
-async function resolveAccusedSteamId({ partyNumber, profileNumber }) {
-  if (Number.isInteger(partyNumber)) {
-    const parties = await listAllParties();
-    const match = parties.find((p) => p.partyNumber === partyNumber);
-    if (!match) throw new Error(`파티 #${partyNumber}번을 찾을 수 없습니다. 번호를 다시 확인해주세요(이미 해산됐을 수 있습니다).`);
-    return match.leaderId;
-  }
-  if (Number.isInteger(profileNumber)) {
-    const resumes = await listAllResumes();
-    const match = resumes.find((r) => r.resumeNumber === profileNumber);
-    if (!match) throw new Error(`인력 #${profileNumber}번을 찾을 수 없습니다. 번호를 다시 확인해주세요(이미 삭제됐을 수 있습니다).`);
-    return match.steamId;
-  }
-  return null;
-}
+const PARTY_NUMBER_RE = /^\d{8}$/;
+const MEMBER_NUMBER_RE = /^\d{9}$/;
 
 // 신고 등록 — videoUrl은 사용자가 직접 붙여넣은 외부 링크(유튜브/스트리머블 등)만 받는다.
-// accusedSteamId는 resolveAccusedSteamId로 제출 시점에 이미 확정된 값만 받는다(신고자·
-// 다른 이용자는 여전히 서로의 스팀ID를 화면에서 보지 못하지만, 운영자는 신고 내용을
-// 열람할 때 이 필드로 실제 스팀ID를 바로 확인할 수 있다).
-async function submitOfficeReport({ description, videoUrl, accusedSteamId }) {
+// incidentPartyNumber(사건번호=파티번호) + targetMemberNumber(신고 대상의 등록번호)를
+// 같이 받는다. Firestore 규칙이 "신고자가 정말 그 파티에 있었는지"와 "지목한 등록번호의
+// 주인도 정말 같은 파티에 있었는지"를 제출 시점에 이중으로 검증한다(클라이언트가 우회
+// 불가) — 번호를 잘못 입력해도 두 조건이 우연히 동시에 맞아떨어질 확률이 낮아서 안전하다.
+async function submitOfficeReport({ description, videoUrl, incidentPartyNumber, targetMemberNumber }) {
   const trimmedUrl = (videoUrl || "").trim();
   if (!trimmedUrl) throw new Error("영상 링크를 입력해주세요.");
+  const trimmedPartyNumber = (incidentPartyNumber || "").trim();
+  if (!PARTY_NUMBER_RE.test(trimmedPartyNumber)) throw new Error("사건번호(파티 번호, 8자리)를 정확히 입력해주세요.");
+  const trimmedMemberNumber = (targetMemberNumber || "").trim();
+  if (!MEMBER_NUMBER_RE.test(trimmedMemberNumber)) throw new Error("신고 대상 등록번호(9자리)를 정확히 입력해주세요.");
   const uid = await getUid();
-  const doc_ = {
-    reporterId: uid,
-    description: (description || "").trim().slice(0, MAX_OFFICE_REPORT_DESC_LEN),
-    videoUrl: trimmedUrl,
-    createdAt: serverTimestamp(),
-    resolved: false,
-    keep: false,
-  };
-  if (accusedSteamId) doc_.accusedSteamId = accusedSteamId;
-  await addDoc(collection(db, OFFICE_REPORTS_COLLECTION), doc_);
+  try {
+    await addDoc(collection(db, OFFICE_REPORTS_COLLECTION), {
+      reporterId: uid,
+      description: (description || "").trim().slice(0, MAX_OFFICE_REPORT_DESC_LEN),
+      videoUrl: trimmedUrl,
+      incidentPartyNumber: trimmedPartyNumber,
+      targetMemberNumber: trimmedMemberNumber,
+      createdAt: serverTimestamp(),
+      resolved: false,
+      keep: false,
+    });
+  } catch {
+    throw new Error("신고 접수에 실패했습니다. 사건번호·등록번호가 정확한지, 둘 다 그 파티에 있었는지 확인해주세요.");
+  }
+}
+
+// "최근 기록" — 내가 참여했던 파티들과, 그때 같이 있었던 사람들의 등록번호(가명, 실명
+// 아님)를 보여준다. 신고할 때 "그때 몇 번이었는지" 기억을 돕는 용도. 진짜 스팀ID는
+// 전혀 노출되지 않는다(officePartyRoster엔 등록번호만 담겨 있음 — firestore.rules 참고).
+async function listMyPartyHistory() {
+  const uid = await getUid();
+  const q = query(collection(db, OFFICE_PARTY_HISTORY_COLLECTION), where("steamId", "==", uid));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => d.data());
+}
+
+async function getPartyRoster(partyNumber) {
+  const snap = await getDoc(doc(db, OFFICE_PARTY_ROSTER_COLLECTION, partyNumber));
+  return snap.exists() ? snap.data() : null;
 }
 
 // 내가 제출한 신고 내역 — 규칙상 reporterId==내 uid로 필터가 걸린 쿼리만 조회 허용됨
@@ -751,5 +869,5 @@ window.LoadoutCloud = {
   listApplicationsForMyParty, applyToParty, respondToApplication, listMyApplications, getPartyCode,
   watchMyPartyApplications, watchMyApplications, kickApplicant, inviteToParty, cancelInvite, respondToInvite, leaveParty,
   getMyResume, saveMyResume, renewMyResume, deleteMyResume, getApplicantResume, listAllResumes,
-  submitOfficeReport, listMyOfficeReports, getMyIdToken, resolveAccusedSteamId,
+  submitOfficeReport, listMyOfficeReports, getMyIdToken, listMyPartyHistory, getPartyRoster,
 };

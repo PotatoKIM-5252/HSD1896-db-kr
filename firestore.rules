@@ -230,12 +230,16 @@ service cloud.firestore {
       allow create: if request.auth != null
                     && request.auth.uid == leaderId
                     && isActiveMember(request.auth.uid)
+                    // 파티원이 파티장을 식별할 수 있으려면 파티장도 등록번호(이력서)가
+                    // 있어야 해서, 파티를 만들려면 먼저 이력서를 등록해야 한다.
+                    && exists(/databases/$(database)/documents/officeResumes/$(request.auth.uid))
                     && request.resource.data.keys().hasOnly(['leaderId', 'activeServers', 'partyMmr', 'minKda', 'combatStyle', 'voice', 'codePublic', 'status', 'createdAt', 'renewedAt', 'partyType', 'gameMode', 'acceptedCount', 'partyNumber'])
                     && request.resource.data.leaderId == request.auth.uid
                     && isValidPartyFields(request.resource.data)
                     && request.resource.data.status == 'open'
                     && request.resource.data.acceptedCount == 0
-                    && request.resource.data.partyNumber is int
+                    && request.resource.data.partyNumber is string
+                    && request.resource.data.partyNumber.matches('^[0-9]{8}$')
                     && request.resource.data.createdAt == request.time
                     && request.resource.data.renewedAt == request.time;
 
@@ -353,7 +357,9 @@ service cloud.firestore {
     // 이력서("인력 목록") — 사무소 회원이면 누구나 목록으로 읽을 수 있다. 문서 자체엔
     // steamId 등 신원 정보를 담지 않아서(문서 ID가 곧 steamId이긴 하지만, 화면에는
     // 절대 그 값을 노출하지 않는 게 클라이언트 쪽 원칙) "블라인드"가 유지된다.
-    // 파티장은 이력서를 쓸 수 없음(officeParties에 자기 문서가 있으면 거부).
+    // 파티장이 되려면 먼저 이 이력서가 있어야 등록번호(resumeNumber)가 생기므로,
+    // 파티장도 이력서를 계속 갖고 있을 수 있게 한다(다만 목록 화면에서는 파티장인
+    // 동안은 클라이언트가 걸러서 안 보여준다 — app.js renderResumeList 참고).
     match /officeResumes/{steamId} {
       // 운영자는 스팀 인증 없이도 열람만 가능 — 쓰기(create/update)는 여전히
       // isActiveMember(officeMembers 등록)만 허용하므로 운영자는 프로필을 등록할 수 없다.
@@ -362,7 +368,6 @@ service cloud.firestore {
       allow create, update: if request.auth != null
                     && request.auth.uid == steamId
                     && isActiveMember(request.auth.uid)
-                    && !exists(/databases/$(database)/documents/officeParties/$(request.auth.uid))
                     && request.resource.data.keys().hasOnly(['preferredServers', 'mmr', 'kda', 'preferredStyle', 'voice', 'updatedAt', 'preferredPartyType', 'preferredGameMode', 'resumeNumber'])
                     && isValidServerPreferenceList(request.resource.data.preferredServers)
                     && request.resource.data.mmr is string && request.resource.data.mmr.size() <= 50
@@ -371,10 +376,104 @@ service cloud.firestore {
                     && request.resource.data.voice is bool
                     && isValidPartyType(request.resource.data.preferredPartyType)
                     && isValidGameMode(request.resource.data.preferredGameMode)
-                    && request.resource.data.resumeNumber is int
+                    && request.resource.data.resumeNumber is string
+                    && request.resource.data.resumeNumber.matches('^[0-9]{9}$')
                     && request.resource.data.updatedAt == request.time;
 
       allow delete: if request.auth != null && (request.auth.uid == steamId || isOperator());
+    }
+
+    // 등록번호(memberNumber) 영구 등록부 — "이 번호는 언제 누구(steamId)에게 배정됐는가"를
+    // 절대 지워지지 않게 기록한다. 이력서(officeResumes.resumeNumber)는 재등록하면 새
+    // 번호로 바뀔 수 있지만, 예전에 쓰던 번호도 신고 처리 때 "그때 그 번호가 누구였는지"
+    // 조회할 수 있어야 하므로 별도로 영구 보관한다. 문서 ID = 번호 자체라서, 이미 다른
+    // 사람이 그 번호로 먼저 문서를 만들어놨으면(update 권한이 없으므로) 새로 못 만든다 —
+    // 그래서 클라이언트는 무작위로 번호를 생성했다가 이 규칙에 막히면 다른 번호로
+    // 재시도하는 방식으로 충돌을 피한다.
+    match /officeMemberNumberHistory/{memberNumber} {
+      allow read: if isOperator();
+      allow create: if request.auth != null
+                    && memberNumber.matches('^[0-9]{9}$')
+                    && request.resource.data.keys().hasOnly(['steamId', 'assignedAt'])
+                    && request.resource.data.steamId == request.auth.uid
+                    && request.resource.data.assignedAt == request.time;
+      allow update, delete: if false;
+    }
+
+    // 파티 로스터(가명 번호만) — "최근 기록" 화면에서 본인이 참여했던 파티에 그때 당시
+    // 같이 있었던 사람들을 가명 번호(memberNumber)로만 보여주기 위한 용도. 진짜 스팀ID는
+    // 여기 전혀 담기지 않는다(그건 officePartyHistory에만, 본인·운영자만 열람). 그 파티에
+    // 실제로 있었던(officePartyHistory에 자기 행이 있는) 사람만 이 문서를 읽을 수 있다.
+    match /officePartyRoster/{partyNumber} {
+      allow read: if request.auth != null
+                  && (isOperator()
+                      || exists(/databases/$(database)/documents/officePartyHistory/$(partyNumber + '_' + request.auth.uid)));
+
+      allow create: if request.auth != null
+                    && partyNumber.matches('^[0-9]{8}$')
+                    && request.resource.data.keys().hasOnly(['leaderId', 'members'])
+                    && request.resource.data.leaderId == request.auth.uid
+                    && request.resource.data.members is list
+                    && request.resource.data.members.size() == 1;
+
+      // 파티원이 수락될 때 자기 항목을 추가 — 파티장 본인이거나(파티장이 수락 처리할
+      // 때), 초대받은 본인이 직접 수락할 때 둘 다 쓸 수 있어야 하므로 활성 회원이면
+      // 허용하고, 개수가 정확히 1개만 늘어나는 것으로 실제 조작 범위를 제한한다.
+      allow update: if request.auth != null && isActiveMember(request.auth.uid)
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members'])
+                    && request.resource.data.members is list
+                    && request.resource.data.members.size() == resource.data.members.size() + 1;
+    }
+
+    // 파티 번호(사건번호) 발급용 일자별 카운터 — 문서 ID는 YYMMDD(6자리). 트랜잭션으로
+    // 읽고 +1해서 쓰므로 동시에 여러 파티가 생성돼도 번호가 겹치지 않는다.
+    match /officePartyDayCounters/{dayKey} {
+      allow read: if request.auth != null && isActiveMember(request.auth.uid);
+      allow create: if request.auth != null && isActiveMember(request.auth.uid)
+                    && dayKey.matches('^[0-9]{6}$')
+                    && request.resource.data.keys().hasOnly(['count'])
+                    && request.resource.data.count == 1;
+      allow update: if request.auth != null && isActiveMember(request.auth.uid)
+                    && request.resource.data.keys().hasOnly(['count'])
+                    && request.resource.data.count == resource.data.count + 1;
+    }
+
+    // 파티 참여 이력(운영자 전용 열람) — officeParties/applications는 파티가 끝나면
+    // 지워지지만, 이 컬렉션은 "누가 어느 파티 번호에 언제 들어와서 언제 나갔는지"를
+    // 영구적으로 남겨둔다. 문서 ID를 "{partyNumber}_{steamId}"로 고정해서, 신고
+    // 접수 시 "신고자가 정말 그 파티에 있었는가"를 규칙에서 exists()로 바로 검증할
+    // 수 있게 한다(officeReports.create 참고). 신고 처리 시엔 운영자가 같은 partyNumber로
+    // 조회해서 그 파티에 실제로 있었던 사람(스팀ID)들을 확인한다.
+    match /officePartyHistory/{historyId} {
+      allow read: if request.auth != null && (resource.data.steamId == request.auth.uid || isOperator());
+
+      allow create: if request.auth != null
+                    && historyId == request.resource.data.partyNumber + '_' + request.resource.data.steamId
+                    && request.resource.data.keys().hasOnly(['steamId', 'partyNumber', 'leaderId', 'role', 'joinedAt', 'leftAt', 'memberNumberAtJoin'])
+                    && request.resource.data.steamId is string
+                    && request.resource.data.partyNumber is string
+                    && request.resource.data.partyNumber.matches('^[0-9]{8}$')
+                    && request.resource.data.leaderId is string
+                    && request.resource.data.role in ['leader', 'member']
+                    && request.resource.data.memberNumberAtJoin is string
+                    && request.resource.data.memberNumberAtJoin.matches('^[0-9]{9}$')
+                    && request.resource.data.joinedAt == request.time
+                    && request.resource.data.leftAt == null
+                    && (
+                         (request.resource.data.role == 'leader'
+                          && request.auth.uid == request.resource.data.steamId
+                          && request.auth.uid == request.resource.data.leaderId)
+                         ||
+                         (request.resource.data.role == 'member'
+                          && (request.auth.uid == request.resource.data.leaderId || request.auth.uid == request.resource.data.steamId))
+                       );
+
+      allow update: if request.auth != null
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['leftAt'])
+                    && request.resource.data.leftAt == request.time
+                    && (request.auth.uid == resource.data.steamId || request.auth.uid == resource.data.leaderId || isOperator());
+
+      allow delete: if isOperator();
     }
 
     // 사무소 위반 신고 — 영상/설명은 신고한 본인과 운영자만 볼 수 있다(전체공개 아님).
@@ -384,15 +483,24 @@ service cloud.firestore {
     // firebase-init.js listMyOfficeReports / app.js listOfficeReportsAsOperator 참고).
     // 처리(resolved)·보류(keep, 1주일 자동삭제 방지)는 운영자만 바꿀 수 있고, 삭제도
     // 운영자만 가능(자동삭제도 운영자 세션에서 REST로 수행).
+    //
+    // incidentPartyNumber(사건번호=파티번호) + targetMemberNumber(신고 대상의 영구
+    // 등록번호)로 신고를 받는다. "신고자가 정말 그 파티에 있었는지"와 "지목한 등록번호의
+    // 주인도 정말 같은 파티에 있었는지"를 규칙에서 이중으로 강제한다 — 번호를 잘못
+    // 입력해도(오타) 두 조건이 우연히 동시에 맞아떨어질 확률이 극히 낮아서 사실상 걸러진다.
+    // targetMemberNumber → 실제 스팀ID 변환은 officeMemberNumberHistory(영구 기록)로
+    // 하기 때문에, 그 사람이 나중에 이력서를 재등록해서 새 번호를 받아도 예전 신고 기록의
+    // 정확성에는 영향이 없다. 실제로 규칙을 위반했는지는 시스템이 아니라 운영자가 영상을
+    // 보고 판단해야 하는 영역이라 규칙으로 검증하지 않는다.
     match /officeReports/{reportId} {
       allow read: if request.auth != null
                   && (resource.data.reporterId == request.auth.uid || isOperator());
 
-      // 운영자는 스팀 로그인(officeMembers 등록) 없이도 신고 기능을 테스트할 수 있어야
-      // 해서 isActiveMember 대신 isOperator()로도 통과 가능
+      // 운영자는 스팀 로그인(officeMembers 등록) 없이도, 실제 파티 참여 이력 없이도
+      // 신고 기능을 테스트할 수 있어야 해서 이 규칙 전체에 isOperator() 예외를 둠
       allow create: if request.auth != null
                     && (isActiveMember(request.auth.uid) || isOperator())
-                    && request.resource.data.keys().hasOnly(['reporterId', 'description', 'videoUrl', 'createdAt', 'resolved', 'keep', 'accusedSteamId'])
+                    && request.resource.data.keys().hasOnly(['reporterId', 'description', 'videoUrl', 'createdAt', 'resolved', 'keep', 'incidentPartyNumber', 'targetMemberNumber'])
                     && request.resource.data.reporterId == request.auth.uid
                     && request.resource.data.description is string
                     && request.resource.data.description.size() <= 200
@@ -402,7 +510,14 @@ service cloud.firestore {
                     && request.resource.data.createdAt == request.time
                     && request.resource.data.resolved == false
                     && request.resource.data.keep == false
-                    && (!request.resource.data.keys().hasAny(['accusedSteamId']) || request.resource.data.accusedSteamId.matches('^7656119[0-9]{10}$'));
+                    && request.resource.data.incidentPartyNumber is string
+                    && request.resource.data.incidentPartyNumber.matches('^[0-9]{8}$')
+                    && request.resource.data.targetMemberNumber is string
+                    && request.resource.data.targetMemberNumber.matches('^[0-9]{9}$')
+                    && (isOperator()
+                        || (exists(/databases/$(database)/documents/officePartyHistory/$(request.resource.data.incidentPartyNumber + '_' + request.auth.uid))
+                            && exists(/databases/$(database)/documents/officeMemberNumberHistory/$(request.resource.data.targetMemberNumber))
+                            && exists(/databases/$(database)/documents/officePartyHistory/$(request.resource.data.incidentPartyNumber + '_' + get(/databases/$(database)/documents/officeMemberNumberHistory/$(request.resource.data.targetMemberNumber)).data.steamId))));
 
       allow update: if isOperator()
                     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['resolved', 'keep'])
