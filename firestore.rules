@@ -427,7 +427,7 @@ service cloud.firestore {
                     && request.resource.data.members.size() == resource.data.members.size() + 1;
     }
 
-    // 파티 번호(사건번호) 발급용 일자별 카운터 — 문서 ID는 YYMMDD(6자리). 트랜잭션으로
+    // 파티 번호 발급용 일자별 카운터 — 문서 ID는 YYMMDD(6자리). 트랜잭션으로
     // 읽고 +1해서 쓰므로 동시에 여러 파티가 생성돼도 번호가 겹치지 않는다.
     match /officePartyDayCounters/{dayKey} {
       allow read: if request.auth != null && isActiveMember(request.auth.uid);
@@ -488,7 +488,7 @@ service cloud.firestore {
     // 처리(resolved)·보류(keep, 1주일 자동삭제 방지)는 운영자만 바꿀 수 있고, 삭제도
     // 운영자만 가능(자동삭제도 운영자 세션에서 REST로 수행).
     //
-    // incidentPartyNumber(사건번호=파티번호) + targetMemberNumber(신고 대상의 영구
+    // incidentPartyNumber(파티번호) + targetMemberNumber(신고 대상의 영구
     // 등록번호)로 신고를 받는다. "신고자가 정말 그 파티에 있었는지"와 "지목한 등록번호의
     // 주인도 정말 같은 파티에 있었는지"를 규칙에서 이중으로 강제한다 — 번호를 잘못
     // 입력해도(오타) 두 조건이 우연히 동시에 맞아떨어질 확률이 극히 낮아서 사실상 걸러진다.

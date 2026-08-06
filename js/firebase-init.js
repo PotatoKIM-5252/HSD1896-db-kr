@@ -417,7 +417,7 @@ async function getPartyByLeaderId(leaderId) {
   return snap.exists() ? { leaderId, ...snap.data() } : null;
 }
 
-// 파티 번호(=사건번호) 형식: YYMMDD(만든 날짜, 6자리) + 그날의 순번(2자리) = 총 8자리
+// 파티 번호 형식: YYMMDD(만든 날짜, 6자리) + 그날의 순번(2자리) = 총 8자리
 // 문자열. 예) 2026년 8월 6일에 만들어진 그날 첫 파티 → "26080601". 날짜가 그대로 번호에
 // 드러나서 신고할 때 "사건이 언제였는지"와 "어느 파티였는지"를 번호 하나로 같이 전달할
 // 수 있다. 순번은 officePartyDayCounters/{YYMMDD} 문서를 트랜잭션으로 읽고 +1해서
@@ -878,7 +878,7 @@ const PARTY_NUMBER_RE = /^\d{8}$/;
 const MEMBER_NUMBER_RE = /^\d{9}$/;
 
 // 신고 등록 — videoUrl은 사용자가 직접 붙여넣은 외부 링크(유튜브/스트리머블 등)만 받는다.
-// incidentPartyNumber(사건번호=파티번호) + targetMemberNumber(신고 대상의 등록번호)를
+// incidentPartyNumber(파티번호) + targetMemberNumber(신고 대상의 등록번호)를
 // 같이 받는다. Firestore 규칙이 "신고자가 정말 그 파티에 있었는지"와 "지목한 등록번호의
 // 주인도 정말 같은 파티에 있었는지"를 제출 시점에 이중으로 검증한다(클라이언트가 우회
 // 불가) — 번호를 잘못 입력해도 두 조건이 우연히 동시에 맞아떨어질 확률이 낮아서 안전하다.
