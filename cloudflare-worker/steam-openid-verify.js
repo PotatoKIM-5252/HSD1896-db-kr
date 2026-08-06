@@ -22,6 +22,16 @@
 // 악용 방지로 영상 1개당 300MB 제한, 버킷 전체 5GB 넘으면 업로드 거부, 사람당
 // 하루 5건 제한을 둔다(완벽한 동시성 차단은 아니지만 한도를 넉넉히 낮게 잡아 안전).
 //
+// [최근 기록 3일 자동 삭제]
+// officePartyHistory/officePartyRoster는 문서에 expireAt(생성 시각+3일)을 같이
+// 저장해 둔다. Firestore TTL은 유료(Blaze) 요금제가 있어야만 켤 수 있어서 안 쓰고,
+// 대신 이 Worker의 크론 트리거가 매일 한 번 깨어나 expireAt이 지난 문서를 직접
+// 찾아 지운다. 이미 있는 서비스 계정(FIREBASE_CLIENT_EMAIL/PRIVATE_KEY)으로
+// Firestore용 구글 OAuth2 액세스 토큰을 직접 발급받아 쓰는데, 이 토큰은 Firestore
+// 보안 규칙을 거치지 않는 관리자 권한이라 별도 로그인 없이 모든 문서를 지울 수
+// 있다(서비스 계정에 Firestore 쓰기 권한이 있어야 함 — 보통 firebase-adminsdk
+// 계정은 기본적으로 있음).
+//
 // 배포: Cloudflare 대시보드 > Workers & Pages > 해당 Worker > 이 파일 내용을
 // 그대로 붙여넣고 배포. 아래를 Settings에 등록해야 한다:
 //   시크릿(Variables and Secrets):
@@ -30,6 +40,8 @@
 //   바인딩(Bindings):
 //     - R2 Bucket, 변수명 REPORT_VIDEOS → report-video 버킷
 //     - KV Namespace, 변수명 REPORT_LIMITS → report-limits 네임스페이스
+//   크론 트리거(Triggers > Cron Triggers):
+//     - 예) 매일 새벽 3시(UTC) = "0 3 * * *" 추가 — "최근 기록" 3일 자동 삭제용
 // ===========================================================================
 
 const ALLOWED_ORIGIN = "https://potatokim-5252.github.io";
@@ -312,6 +324,97 @@ async function handleDeleteReportVideo(request, env, key) {
   return jsonResponse({ ok: true });
 }
 
+// ---------------------------------------------------------------------------
+// "최근 기록" 3일 자동 삭제(크론) — officePartyHistory/officePartyRoster의
+// expireAt이 지난 문서를 서비스 계정 권한으로 직접 지운다.
+// ---------------------------------------------------------------------------
+
+const FIRESTORE_PROJECT_ID = "hsd-db-1a8d7";
+const FIRESTORE_DOCS_URL = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents`;
+
+// 서비스 계정으로 Firestore용 구글 OAuth2 액세스 토큰을 직접 발급(JWT bearer flow).
+// createFirebaseCustomToken과 달리 이 토큰은 로그인용이 아니라 Firestore API를
+// 보안 규칙 없이 그대로 호출할 수 있는 관리자 권한 토큰이다.
+async function getFirestoreAccessToken(clientEmail, privateKeyPem) {
+  const now = Math.floor(Date.now() / 1000);
+  const header = { alg: "RS256", typ: "JWT" };
+  const payload = {
+    iss: clientEmail,
+    sub: clientEmail,
+    aud: "https://oauth2.googleapis.com/token",
+    scope: "https://www.googleapis.com/auth/datastore",
+    iat: now,
+    exp: now + 3600,
+  };
+  const unsigned = `${base64UrlEncodeJson(header)}.${base64UrlEncodeJson(payload)}`;
+  const key = await importSigningKey(privateKeyPem);
+  const signature = await crypto.subtle.sign(
+    { name: "RSASSA-PKCS1-v1_5" },
+    key,
+    new TextEncoder().encode(unsigned),
+  );
+  const jwt = `${unsigned}.${base64UrlEncodeBytes(new Uint8Array(signature))}`;
+
+  const res = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+      assertion: jwt,
+    }).toString(),
+  });
+  if (!res.ok) throw new Error(`구글 액세스 토큰 발급 실패: ${await res.text()}`);
+  const data = await res.json();
+  return data.access_token;
+}
+
+// expireAt < 지금 인 문서들의 전체 경로(name)를 찾아서 돌려준다.
+async function findExpiredDocNames(collectionId, accessToken) {
+  const body = {
+    structuredQuery: {
+      from: [{ collectionId }],
+      where: {
+        fieldFilter: {
+          field: { fieldPath: "expireAt" },
+          op: "LESS_THAN",
+          value: { timestampValue: new Date().toISOString() },
+        },
+      },
+      limit: 1000,
+    },
+  };
+  const res = await fetch(`${FIRESTORE_DOCS_URL}:runQuery`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(`${collectionId} 조회 실패: ${await res.text()}`);
+  const rows = await res.json();
+  return rows.filter((r) => r.document).map((r) => r.document.name);
+}
+
+// Firestore :commit은 한 번에 최대 500개까지 처리 가능 — 500개씩 나눠서 삭제.
+async function deleteDocsInBatches(docNames, accessToken) {
+  for (let i = 0; i < docNames.length; i += 500) {
+    const chunk = docNames.slice(i, i + 500);
+    const res = await fetch(`${FIRESTORE_DOCS_URL}:commit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
+      body: JSON.stringify({ writes: chunk.map((name) => ({ delete: name })) }),
+    });
+    if (!res.ok) throw new Error(`문서 삭제 실패: ${await res.text()}`);
+  }
+}
+
+async function cleanupExpiredOfficeHistory(env) {
+  if (!env.FIREBASE_CLIENT_EMAIL || !env.FIREBASE_PRIVATE_KEY) return;
+  const accessToken = await getFirestoreAccessToken(env.FIREBASE_CLIENT_EMAIL, env.FIREBASE_PRIVATE_KEY);
+  for (const collectionId of ["officePartyHistory", "officePartyRoster"]) {
+    const expired = await findExpiredDocNames(collectionId, accessToken);
+    if (expired.length > 0) await deleteDocsInBatches(expired, accessToken);
+  }
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === "OPTIONS") return new Response(null, { headers: corsHeaders() });
@@ -334,5 +437,10 @@ export default {
     if (request.method === "POST") return handleSteamVerify(request, env);
 
     return jsonResponse({ valid: false, error: "method_not_allowed" }, 405);
+  },
+
+  // 크론 트리거(Settings > Triggers > Cron Triggers)로 매일 실행 — "최근 기록" 3일 자동 삭제
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(cleanupExpiredOfficeHistory(env));
   },
 };
