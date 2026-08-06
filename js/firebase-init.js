@@ -886,7 +886,7 @@ async function submitOfficeReport({ description, videoUrl, incidentPartyNumber, 
   const trimmedUrl = (videoUrl || "").trim();
   if (!trimmedUrl) throw new Error("영상 링크를 입력해주세요.");
   const trimmedPartyNumber = (incidentPartyNumber || "").trim();
-  if (!PARTY_NUMBER_RE.test(trimmedPartyNumber)) throw new Error("사건번호(파티 번호, 8자리)를 정확히 입력해주세요.");
+  if (!PARTY_NUMBER_RE.test(trimmedPartyNumber)) throw new Error("파티번호(8자리)를 정확히 입력해주세요.");
   const trimmedMemberNumber = (targetMemberNumber || "").trim();
   if (!MEMBER_NUMBER_RE.test(trimmedMemberNumber)) throw new Error("신고 대상 등록번호(9자리)를 정확히 입력해주세요.");
   const uid = await getUid();
@@ -902,7 +902,7 @@ async function submitOfficeReport({ description, videoUrl, incidentPartyNumber, 
       keep: false,
     });
   } catch {
-    throw new Error("신고 접수에 실패했습니다. 사건번호·등록번호가 정확한지, 둘 다 그 파티에 있었는지 확인해주세요.");
+    throw new Error("신고 접수에 실패했습니다. 파티번호·등록번호가 정확한지, 둘 다 그 파티에 있었는지 확인해주세요.");
   }
 }
 
