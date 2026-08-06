@@ -392,7 +392,7 @@ service cloud.firestore {
       // 해서 isActiveMember 대신 isOperator()로도 통과 가능
       allow create: if request.auth != null
                     && (isActiveMember(request.auth.uid) || isOperator())
-                    && request.resource.data.keys().hasOnly(['reporterId', 'description', 'videoUrl', 'createdAt', 'resolved', 'keep', 'accusedPartyNumber', 'accusedProfileNumber'])
+                    && request.resource.data.keys().hasOnly(['reporterId', 'description', 'videoUrl', 'createdAt', 'resolved', 'keep', 'accusedSteamId'])
                     && request.resource.data.reporterId == request.auth.uid
                     && request.resource.data.description is string
                     && request.resource.data.description.size() <= 200
@@ -402,8 +402,7 @@ service cloud.firestore {
                     && request.resource.data.createdAt == request.time
                     && request.resource.data.resolved == false
                     && request.resource.data.keep == false
-                    && (!request.resource.data.keys().hasAny(['accusedPartyNumber']) || request.resource.data.accusedPartyNumber is int)
-                    && (!request.resource.data.keys().hasAny(['accusedProfileNumber']) || request.resource.data.accusedProfileNumber is int);
+                    && (!request.resource.data.keys().hasAny(['accusedSteamId']) || request.resource.data.accusedSteamId.matches('^7656119[0-9]{10}$'));
 
       allow update: if isOperator()
                     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['resolved', 'keep'])

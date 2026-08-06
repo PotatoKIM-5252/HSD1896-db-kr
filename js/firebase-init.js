@@ -690,11 +690,33 @@ async function listAllResumes() {
 const OFFICE_REPORTS_COLLECTION = "officeReports";
 const MAX_OFFICE_REPORT_DESC_LEN = 200;
 
+// 신고 폼에 입력한 파티/인력 번호를 실제 스팀ID로 "지금 이 순간" 확정한다. 번호는
+// 재사용될 수 있어서(파티 해산·프로필 삭제 뒤 새 등록자가 같은 번호를 받을 수 있음)
+// 신고 접수 시점이 아니라 운영자가 나중에 확인하는 시점에 번호로 찾으면, 그 사이에
+// 번호 주인이 바뀌어서 엉뚱한 사람이 지목될 위험이 있다. 그래서 반드시 신고 "제출
+// 시점"에 지금 목록에 떠 있는 문서를 찾아 스팀ID로 고정해두고, 그 뒤로는 절대
+// 번호로 다시 찾지 않는다.
+async function resolveAccusedSteamId({ partyNumber, profileNumber }) {
+  if (Number.isInteger(partyNumber)) {
+    const parties = await listAllParties();
+    const match = parties.find((p) => p.partyNumber === partyNumber);
+    if (!match) throw new Error(`파티 #${partyNumber}번을 찾을 수 없습니다. 번호를 다시 확인해주세요(이미 해산됐을 수 있습니다).`);
+    return match.leaderId;
+  }
+  if (Number.isInteger(profileNumber)) {
+    const resumes = await listAllResumes();
+    const match = resumes.find((r) => r.resumeNumber === profileNumber);
+    if (!match) throw new Error(`인력 #${profileNumber}번을 찾을 수 없습니다. 번호를 다시 확인해주세요(이미 삭제됐을 수 있습니다).`);
+    return match.steamId;
+  }
+  return null;
+}
+
 // 신고 등록 — videoUrl은 사용자가 직접 붙여넣은 외부 링크(유튜브/스트리머블 등)만 받는다.
-// accusedPartyNumber/accusedProfileNumber는 신고자가 목록에서 본 파티/인력 번호(선택) —
-// 신고자·다른 이용자는 서로의 스팀ID를 모르지만, 운영자는 이 번호로 officeParties/
-// officeResumes 문서를 조회해 실제 스팀ID를 역추적할 수 있다(블라인드 유지 + 특정 가능).
-async function submitOfficeReport({ description, videoUrl, accusedPartyNumber, accusedProfileNumber }) {
+// accusedSteamId는 resolveAccusedSteamId로 제출 시점에 이미 확정된 값만 받는다(신고자·
+// 다른 이용자는 여전히 서로의 스팀ID를 화면에서 보지 못하지만, 운영자는 신고 내용을
+// 열람할 때 이 필드로 실제 스팀ID를 바로 확인할 수 있다).
+async function submitOfficeReport({ description, videoUrl, accusedSteamId }) {
   const trimmedUrl = (videoUrl || "").trim();
   if (!trimmedUrl) throw new Error("영상 링크를 입력해주세요.");
   const uid = await getUid();
@@ -706,8 +728,7 @@ async function submitOfficeReport({ description, videoUrl, accusedPartyNumber, a
     resolved: false,
     keep: false,
   };
-  if (Number.isInteger(accusedPartyNumber)) doc_.accusedPartyNumber = accusedPartyNumber;
-  if (Number.isInteger(accusedProfileNumber)) doc_.accusedProfileNumber = accusedProfileNumber;
+  if (accusedSteamId) doc_.accusedSteamId = accusedSteamId;
   await addDoc(collection(db, OFFICE_REPORTS_COLLECTION), doc_);
 }
 
@@ -730,5 +751,5 @@ window.LoadoutCloud = {
   listApplicationsForMyParty, applyToParty, respondToApplication, listMyApplications, getPartyCode,
   watchMyPartyApplications, watchMyApplications, kickApplicant, inviteToParty, cancelInvite, respondToInvite, leaveParty,
   getMyResume, saveMyResume, renewMyResume, deleteMyResume, getApplicantResume, listAllResumes,
-  submitOfficeReport, listMyOfficeReports, getMyIdToken,
+  submitOfficeReport, listMyOfficeReports, getMyIdToken, resolveAccusedSteamId,
 };

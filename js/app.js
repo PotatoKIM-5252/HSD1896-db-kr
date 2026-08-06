@@ -341,25 +341,30 @@ async function listOfficeResumesAsOperator(idToken) {
   return (data.documents || []).map((d) => firestoreRestFieldsToJs(d.fields));
 }
 
-// 신고에 적힌 파티/인력 번호로 실제 스팀ID를 역추적(운영자 전용) — 활성 파티/프로필
-// 수가 적어 전체 조회 후 번호가 일치하는 문서의 ID(=스팀ID)를 찾는 방식으로 충분하다.
-// 해당 파티/프로필 문서가 이미 삭제됐으면(해산·탈퇴 등) 번호가 더는 유효하지 않아 null.
-async function findPartyLeaderByNumber(partyNumber, idToken) {
-  const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/officeParties`;
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${idToken}` } });
-  if (!res.ok) throw new Error("파티 목록을 불러오지 못했습니다.");
-  const data = await res.json();
-  const match = (data.documents || []).find((d) => firestoreRestFieldsToJs(d.fields).partyNumber === partyNumber);
-  return match ? match.name.split("/").pop() : null;
-}
-
-async function findResumeOwnerByNumber(resumeNumber, idToken) {
-  const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/officeResumes`;
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${idToken}` } });
-  if (!res.ok) throw new Error("프로필 목록을 불러오지 못했습니다.");
-  const data = await res.json();
-  const match = (data.documents || []).find((d) => firestoreRestFieldsToJs(d.fields).resumeNumber === resumeNumber);
-  return match ? match.name.split("/").pop() : null;
+// 신고 폼에 입력한 파티/인력 번호를 실제 스팀ID로 "지금 이 순간" 확정(운영자 열람
+// 모드 전용, REST) — firebase-init.js의 resolveAccusedSteamId와 동일한 목적. 번호는
+// 재사용될 수 있어서 반드시 신고 "제출 시점"에 확정해야 하고, 운영자가 나중에 신고
+// 관리 화면을 열 때 번호로 다시 찾으면 안 된다(그 사이 번호 주인이 바뀔 수 있음).
+async function resolveAccusedSteamIdAsOperator({ partyNumber, profileNumber }, idToken) {
+  if (Number.isInteger(partyNumber)) {
+    const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/officeParties`;
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${idToken}` } });
+    if (!res.ok) throw new Error("파티 목록을 불러오지 못했습니다.");
+    const data = await res.json();
+    const match = (data.documents || []).find((d) => firestoreRestFieldsToJs(d.fields).partyNumber === partyNumber);
+    if (!match) throw new Error(`파티 #${partyNumber}번을 찾을 수 없습니다. 번호를 다시 확인해주세요(이미 해산됐을 수 있습니다).`);
+    return match.name.split("/").pop();
+  }
+  if (Number.isInteger(profileNumber)) {
+    const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/officeResumes`;
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${idToken}` } });
+    if (!res.ok) throw new Error("프로필 목록을 불러오지 못했습니다.");
+    const data = await res.json();
+    const match = (data.documents || []).find((d) => firestoreRestFieldsToJs(d.fields).resumeNumber === profileNumber);
+    if (!match) throw new Error(`인력 #${profileNumber}번을 찾을 수 없습니다. 번호를 다시 확인해주세요(이미 삭제됐을 수 있습니다).`);
+    return match.name.split("/").pop();
+  }
+  return null;
 }
 
 // 사무소 위반 신고 관리(운영자 전용, REST) — 목록 조회/처리·보류 표시/삭제.
@@ -377,7 +382,7 @@ async function listOfficeReportsAsOperator(idToken) {
 // submitOfficeReport(SDK)로는 안 되고, 이 함수로 REST 인증 헤더를 직접 붙여 써야 한다.
 // createdAt은 규칙이 request.time과 정확히 같아야 한다고 요구해서(클라이언트가 임의로
 // 값을 못 넣게) updateTransforms로 서버 시각을 지정한다 — addCommentAsOperator와 동일 패턴.
-async function submitOfficeReportAsOperator(description, videoUrl, idToken, accusedPartyNumber, accusedProfileNumber) {
+async function submitOfficeReportAsOperator(description, videoUrl, idToken, accusedSteamId) {
   const docId = randomFirestoreDocId();
   const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents:commit`;
   const fields = {
@@ -387,8 +392,7 @@ async function submitOfficeReportAsOperator(description, videoUrl, idToken, accu
     resolved: { booleanValue: false },
     keep: { booleanValue: false },
   };
-  if (Number.isInteger(accusedPartyNumber)) fields.accusedPartyNumber = { integerValue: String(accusedPartyNumber) };
-  if (Number.isInteger(accusedProfileNumber)) fields.accusedProfileNumber = { integerValue: String(accusedProfileNumber) };
+  if (accusedSteamId) fields.accusedSteamId = { stringValue: accusedSteamId };
   const body = {
     writes: [{
       update: {
@@ -496,29 +500,21 @@ function createOfficeReportVideoButton(videoKey, getIdTokenFn) {
   return btn;
 }
 
-// 신고 관리 화면에서 "지목 파티/인력 번호" 옆에 붙는 조회 버튼 — 누르기 전엔 번호만
-// 보이고(운영자 본인이 클릭해야만 실제 스팀ID 조회), 누르면 그 자리에 결과로 바뀐다.
-function createAccusedLookupRow(label, lookupFn) {
+// 신고 관리 화면에서 "지목 대상" 스팀ID를 가리는 버튼 — accusedSteamId는 신고
+// 제출 시점에 이미 확정·저장된 값이라(파티/인력 번호로 나중에 다시 찾지 않음)
+// 여기선 그냥 화면에 안 보이게 가려뒀다가 클릭하면 보여주는 역할만 한다.
+function createAccusedRevealRow(steamId) {
   const row = document.createElement("p");
   row.className = "muted-text";
   const labelSpan = document.createElement("span");
-  labelSpan.textContent = `${label} · `;
+  labelSpan.textContent = "지목 대상 · ";
   row.appendChild(labelSpan);
   const btn = document.createElement("button");
   btn.type = "button";
   btn.className = "office-btn office-btn-secondary";
-  btn.textContent = "스팀ID 조회";
-  btn.addEventListener("click", async () => {
-    btn.disabled = true;
-    btn.textContent = "조회 중...";
-    try {
-      const steamId = await lookupFn();
-      btn.replaceWith(document.createTextNode(steamId || "삭제됐거나 존재하지 않는 번호입니다."));
-    } catch (err) {
-      btn.disabled = false;
-      btn.textContent = "스팀ID 조회";
-      showToast(err.message || "조회에 실패했습니다.");
-    }
+  btn.textContent = "스팀ID 보기";
+  btn.addEventListener("click", () => {
+    btn.replaceWith(document.createTextNode(steamId));
   });
   row.appendChild(btn);
   return row;
@@ -1156,17 +1152,27 @@ function setupOfficeTab() {
     const accusedPartyNumber = partyNumberInput.value.trim() ? Number(partyNumberInput.value) : undefined;
     const accusedProfileNumber = profileNumberInput.value.trim() ? Number(profileNumberInput.value) : undefined;
     reportSubmitBtn.disabled = true;
-    reportSubmitBtn.textContent = "업로드 중...";
+    reportSubmitBtn.textContent = "확인 중...";
     try {
       // 운영자 열람 모드(스팀 로그인 없이 운영자 키만 있는 상태)에서는 SDK 세션이
       // 운영자가 아니라서 getMyIdToken/submitOfficeReport(SDK)를 못 쓰고, 운영자
       // REST idToken으로 대신 처리한다(신고 기능 테스트용).
       const idToken = officeOperatorViewActive ? officeReportAdminIdToken : await window.LoadoutCloud.getMyIdToken();
+      // 파티/인력 번호를 입력한 경우에만 지금 이 순간 확정한다 — 업로드/제출을 마치기
+      // 전에 먼저 풀어서, 번호가 이미 무효해진 경우 영상만 올라가고 신고는 실패하는
+      // 상황을 막는다. 번호를 안 넣었으면 굳이 목록을 조회할 필요가 없다.
+      let accusedSteamId;
+      if (accusedPartyNumber !== undefined || accusedProfileNumber !== undefined) {
+        accusedSteamId = officeOperatorViewActive
+          ? await resolveAccusedSteamIdAsOperator({ partyNumber: accusedPartyNumber, profileNumber: accusedProfileNumber }, idToken)
+          : await window.LoadoutCloud.resolveAccusedSteamId({ partyNumber: accusedPartyNumber, profileNumber: accusedProfileNumber });
+      }
+      reportSubmitBtn.textContent = "업로드 중...";
       const videoKey = await uploadOfficeReportVideo(file, idToken);
       if (officeOperatorViewActive) {
-        await submitOfficeReportAsOperator(descInput.value, videoKey, idToken, accusedPartyNumber, accusedProfileNumber);
+        await submitOfficeReportAsOperator(descInput.value, videoKey, idToken, accusedSteamId);
       } else {
-        await window.LoadoutCloud.submitOfficeReport({ description: descInput.value, videoUrl: videoKey, accusedPartyNumber, accusedProfileNumber });
+        await window.LoadoutCloud.submitOfficeReport({ description: descInput.value, videoUrl: videoKey, accusedSteamId });
       }
       fileInput.value = "";
       descInput.value = "";
@@ -2174,11 +2180,8 @@ async function renderOfficeReportAdmin() {
           descEl.textContent = r.description;
           infoWrap.appendChild(descEl);
         }
-        if (Number.isInteger(r.accusedPartyNumber)) {
-          infoWrap.appendChild(createAccusedLookupRow(`지목 파티 #${r.accusedPartyNumber}`, () => findPartyLeaderByNumber(r.accusedPartyNumber, idToken)));
-        }
-        if (Number.isInteger(r.accusedProfileNumber)) {
-          infoWrap.appendChild(createAccusedLookupRow(`지목 인력 #${r.accusedProfileNumber}`, () => findResumeOwnerByNumber(r.accusedProfileNumber, idToken)));
+        if (r.accusedSteamId) {
+          infoWrap.appendChild(createAccusedRevealRow(r.accusedSteamId));
         }
         const remainText = r.keep ? null : formatOfficeRemainingTime(r.createdAt, OFFICE_REPORT_AUTO_DELETE_MS, "자동 삭제");
         if (remainText) {
