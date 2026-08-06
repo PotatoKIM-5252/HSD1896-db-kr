@@ -3342,6 +3342,21 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 #office-member-status { font-size: 14px; color: var(--text-primary); margin: 0; }
 #office-member-status-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
+/* 신고하기는 일부러 다른 파티원과 나란히 있는 상단 버튼 줄에서 떼어내 화면 맨
+   아래 구석에, 눈에 덜 띄는 텍스트 링크 스타일로 배치한다(주 액션들과 같은
+   비중으로 보이면 심리적으로 부담스러울 수 있어서). */
+#office-report-btn-row { display: flex; justify-content: flex-end; margin-top: 16px; }
+.office-report-btn-quiet {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 4px 2px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.office-report-btn-quiet:hover { color: var(--danger-strong); }
+
 #office-banned-view p { color: var(--danger-strong); font-size: 13px; }
 
 #office-mode-toggle { display: flex; gap: 6px; margin: 16px 0; border-bottom: 1px solid var(--border); }
