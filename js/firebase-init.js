@@ -437,6 +437,17 @@ function officePartyHistoryDocId(partyNumber, steamId) {
 
 const OFFICE_MEMBER_NUMBER_HISTORY_COLLECTION = "officeMemberNumberHistory";
 
+// 프로필/파티 목록 노출 만료 기준(3시간) — app.js의 OFFICE_EXPIRY_MS와 같은 값. 여기서도
+// 필요한 이유: "임시 번호"는 목록에서 이미 사라졌다가(3시간 경과) 다시 올릴 때 새로
+// 발급해야 하므로, 저장 시점에 firebase-init.js 쪽에서 직접 만료 여부를 판단해야 한다.
+const OFFICE_NUMBER_EXPIRY_MS = 3 * 60 * 60 * 1000;
+function isTimestampExpired(ts) {
+  if (!ts) return true;
+  const ms = typeof ts.toMillis === "function" ? ts.toMillis() : (typeof ts.seconds === "number" ? ts.seconds * 1000 : null);
+  if (ms == null) return true;
+  return Date.now() - ms > OFFICE_NUMBER_EXPIRY_MS;
+}
+
 // 등록번호(memberNumber) 형식: YYMMDD(등록한 날짜, 6자리) + 무작위 3자리 = 총 9자리.
 // 날짜가 매일 바뀌니 자연히 "며칠 지나면 새 번호 대역으로 넘어가는" 효과가 있고, 같은
 // 날짜대에서도 무작위라 순서(가입 순서 등)가 번호로 드러나지 않는다. officeMemberNumberHistory
@@ -473,10 +484,15 @@ async function saveMyParty(fields) {
   } else {
     // 파티원이 파티장을 등록번호로 식별할 수 있으려면 파티장도 이력서(등록번호)가
     // 먼저 있어야 한다 — 규칙도 이걸 요구하므로 여기서 미리 확인해 친절한 메시지로 안내.
+    // 이력서가 이미 3시간 지나 만료된 상태였다면(오래 방치) 번호도 새로 받는다.
     const resumeRef = doc(db, OFFICE_RESUMES_COLLECTION, uid);
     const resumeSnap = await getDoc(resumeRef);
     if (!resumeSnap.exists()) throw new Error("파티를 만들려면 먼저 프로필(이력서)을 등록해주세요.");
-    const memberNumber = resumeSnap.data().resumeNumber;
+    let memberNumber = resumeSnap.data().resumeNumber;
+    if (isTimestampExpired(resumeSnap.data().updatedAt)) {
+      memberNumber = await generateMemberNumber(uid);
+      await updateDoc(resumeRef, { resumeNumber: memberNumber, updatedAt: serverTimestamp() });
+    }
     // 파티 번호 발급(일자별 카운터 +1)과 파티 문서 생성, 리더 본인의 참여 이력·로스터
     // 기록을 한 트랜잭션으로 묶어서 전부 같이 성공/실패하게 한다.
     const dayKey = officePartyDayKey();
@@ -500,7 +516,20 @@ async function saveMyParty(fields) {
 // 폼을 다시 채우지 않고 만료 타이머만 지금 시각으로 리셋
 async function renewMyParty() {
   const uid = await getUid();
-  await updateDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid), { renewedAt: serverTimestamp() });
+  const ref = doc(db, OFFICE_PARTIES_COLLECTION, uid);
+  const snap = await getDoc(ref);
+  // 이미 3시간 지나 목록에서 사라졌던 파티를 다시 살리는 거라면(=재등록), 리더의
+  // 등록번호도 새로 받는다. 이미 확정된 과거 참여 기록(officePartyHistory)은 그때
+  // 그 번호로 그대로 고정돼 있으니 영향 없음 — 앞으로 새로 합류하는 사람부터 새 번호로 보임.
+  if (snap.exists() && isTimestampExpired(snap.data().renewedAt || snap.data().createdAt)) {
+    const resumeRef = doc(db, OFFICE_RESUMES_COLLECTION, uid);
+    const resumeSnap = await getDoc(resumeRef);
+    if (resumeSnap.exists()) {
+      const newNumber = await generateMemberNumber(uid);
+      await updateDoc(resumeRef, { resumeNumber: newNumber, updatedAt: serverTimestamp() });
+    }
+  }
+  await updateDoc(ref, { renewedAt: serverTimestamp() });
 }
 
 async function setMyPartyStatus(status) {
@@ -520,6 +549,9 @@ async function setMyPartyCode(code) {
 // 파티 해산 — 받은 신청들과 로비 코드까지 다 지우고 파티 문서 자체를 삭제. 해산
 // 전에 리더 본인과 그때 수락돼 있던 파티원들의 참여 이력(officePartyHistory)에
 // leftAt을 남겨서, 나중에 신고가 들어와도 "그 파티에 누가 있었는지"가 계속 조회된다.
+// 리더의 등록번호도 해산 시점에 바로 새로 발급한다(그 번호는 이 파티가 살아있는
+// 동안만 유효한 임시 번호였으므로) — 이미 확정된 officePartyHistory 기록은 그때
+// 그 번호로 고정돼 있어 영향 없다.
 async function deleteMyParty() {
   const uid = await getUid();
   const partySnap = await getDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid));
@@ -531,6 +563,12 @@ async function deleteMyParty() {
     await Promise.all([uid, ...acceptedIds].map((sid) =>
       updateDoc(doc(db, OFFICE_PARTY_HISTORY_COLLECTION, officePartyHistoryDocId(partyNumber, sid)), { leftAt: serverTimestamp() }).catch(() => {})
     ));
+  }
+  const resumeRef = doc(db, OFFICE_RESUMES_COLLECTION, uid);
+  const resumeSnap = await getDoc(resumeRef);
+  if (resumeSnap.exists()) {
+    const newNumber = await generateMemberNumber(uid);
+    await updateDoc(resumeRef, { resumeNumber: newNumber, updatedAt: serverTimestamp() }).catch(() => {});
   }
   await deleteDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid, "private", "code"));
   await deleteDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid));
@@ -754,16 +792,16 @@ async function getMyResume() {
 
 // 파티장도 등록번호(파티원이 자신을 식별할 수단)가 있어야 해서 이제 파티 등록 중에도
 // 이력서를 쓸 수 있다 — 다만 화면에는 파티장으로 활동 중인 동안 "인력 목록"에서
-// 걸러서 안 보여준다(app.js renderResumeList 참고). resumeNumber는 최초 등록 때
-// 한 번만 발급하고, setDoc이 매번 문서 전체를 덮어써도(수정/갱신) 그대로 이어서 쓴다.
+// 걸러서 안 보여준다(app.js renderResumeList 참고). resumeNumber는 임시 번호다 —
+// 목록에 계속 살아있는 상태로 수정(갱신)하면 그대로 유지되지만, 이미 3시간이
+// 지나 목록에서 사라졌던 걸 다시 올리면(=재등록) 새 번호를 받는다.
 async function saveMyResume(fields) {
   const sanitized = sanitizeResumeFields(fields);
   const uid = await getUid();
   const ref = doc(db, OFFICE_RESUMES_COLLECTION, uid);
   const existing = await getDoc(ref);
-  const resumeNumber = existing.exists() && existing.data().resumeNumber
-    ? existing.data().resumeNumber
-    : await generateMemberNumber(uid);
+  const stillActive = existing.exists() && existing.data().resumeNumber && !isTimestampExpired(existing.data().updatedAt);
+  const resumeNumber = stillActive ? existing.data().resumeNumber : await generateMemberNumber(uid);
   await setDoc(ref, { ...sanitized, resumeNumber, updatedAt: serverTimestamp() });
 }
 
@@ -772,10 +810,18 @@ async function deleteMyResume() {
   await deleteDoc(doc(db, OFFICE_RESUMES_COLLECTION, uid));
 }
 
-// 폼을 다시 채우지 않고 만료 타이머(updatedAt)만 지금 시각으로 리셋
+// "타이머 리셋" — 이미 3시간이 지나 목록에서 사라진 뒤였다면 재등록으로 취급해서
+// 번호도 새로 받는다(폼 재입력은 saveMyResume과 달리 여기선 안 함).
 async function renewMyResume() {
   const uid = await getUid();
-  await updateDoc(doc(db, OFFICE_RESUMES_COLLECTION, uid), { updatedAt: serverTimestamp() });
+  const ref = doc(db, OFFICE_RESUMES_COLLECTION, uid);
+  const existing = await getDoc(ref);
+  if (existing.exists() && isTimestampExpired(existing.data().updatedAt)) {
+    const resumeNumber = await generateMemberNumber(uid);
+    await updateDoc(ref, { resumeNumber, updatedAt: serverTimestamp() });
+    return;
+  }
+  await updateDoc(ref, { updatedAt: serverTimestamp() });
 }
 
 // 내 파티에 신청한 사람의 이력서 — 신청이 없거나 남의 파티면 규칙이 거부하므로 null 처리
