@@ -428,7 +428,11 @@ async function saveMyParty(fields) {
     const existing = snap.data();
     await updateDoc(ref, { ...sanitized, codePublic: typeof existing.codePublic === "boolean" ? existing.codePublic : false, renewedAt: serverTimestamp() });
   } else {
-    await setDoc(ref, { leaderId: uid, ...sanitized, codePublic: false, status: "open", acceptedCount: 0, createdAt: serverTimestamp(), renewedAt: serverTimestamp() });
+    // partyNumber는 신고 시 "몇 번 파티"인지 지목할 수 있게 생성 시 한 번만 랜덤 배정
+    // (그 뒤로는 update 경로에서 건드리지 않아 파티가 존재하는 동안 고정됨). 운영자는
+    // 이 번호로 문서를 조회해 실제 리더 스팀ID를 역추적할 수 있다(다른 이용자는 못 함).
+    const partyNumber = Math.floor(1000 + Math.random() * 9000);
+    await setDoc(ref, { leaderId: uid, ...sanitized, codePublic: false, status: "open", acceptedCount: 0, partyNumber, createdAt: serverTimestamp(), renewedAt: serverTimestamp() });
   }
 }
 
@@ -635,12 +639,19 @@ async function getMyResume() {
 }
 
 // 파티장은 이력서를 쓸 수 없다(파티 등록 중이면 규칙도 같이 막음 — firestore.rules 참고)
+// resumeNumber는 신고 시 "몇 번 인력"인지 지목할 수 있게 최초 등록 때 한 번만 랜덤
+// 배정하고, setDoc이 매번 문서 전체를 덮어써도(수정/갱신) 기존 값을 그대로 이어서 쓴다.
 async function saveMyResume(fields) {
   const sanitized = sanitizeResumeFields(fields);
   const uid = await getUid();
   const partySnap = await getDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid));
   if (partySnap.exists()) throw new Error("파티를 등록한 상태에서는 프로필을 작성할 수 없습니다. 먼저 파티를 해산해주세요.");
-  await setDoc(doc(db, OFFICE_RESUMES_COLLECTION, uid), { ...sanitized, updatedAt: serverTimestamp() });
+  const ref = doc(db, OFFICE_RESUMES_COLLECTION, uid);
+  const existing = await getDoc(ref);
+  const resumeNumber = existing.exists() && Number.isInteger(existing.data().resumeNumber)
+    ? existing.data().resumeNumber
+    : Math.floor(1000 + Math.random() * 9000);
+  await setDoc(ref, { ...sanitized, resumeNumber, updatedAt: serverTimestamp() });
 }
 
 async function deleteMyResume() {
@@ -680,18 +691,24 @@ const OFFICE_REPORTS_COLLECTION = "officeReports";
 const MAX_OFFICE_REPORT_DESC_LEN = 200;
 
 // 신고 등록 — videoUrl은 사용자가 직접 붙여넣은 외부 링크(유튜브/스트리머블 등)만 받는다.
-async function submitOfficeReport({ description, videoUrl }) {
+// accusedPartyNumber/accusedProfileNumber는 신고자가 목록에서 본 파티/인력 번호(선택) —
+// 신고자·다른 이용자는 서로의 스팀ID를 모르지만, 운영자는 이 번호로 officeParties/
+// officeResumes 문서를 조회해 실제 스팀ID를 역추적할 수 있다(블라인드 유지 + 특정 가능).
+async function submitOfficeReport({ description, videoUrl, accusedPartyNumber, accusedProfileNumber }) {
   const trimmedUrl = (videoUrl || "").trim();
   if (!trimmedUrl) throw new Error("영상 링크를 입력해주세요.");
   const uid = await getUid();
-  await addDoc(collection(db, OFFICE_REPORTS_COLLECTION), {
+  const doc_ = {
     reporterId: uid,
     description: (description || "").trim().slice(0, MAX_OFFICE_REPORT_DESC_LEN),
     videoUrl: trimmedUrl,
     createdAt: serverTimestamp(),
     resolved: false,
     keep: false,
-  });
+  };
+  if (Number.isInteger(accusedPartyNumber)) doc_.accusedPartyNumber = accusedPartyNumber;
+  if (Number.isInteger(accusedProfileNumber)) doc_.accusedProfileNumber = accusedProfileNumber;
+  await addDoc(collection(db, OFFICE_REPORTS_COLLECTION), doc_);
 }
 
 // 내가 제출한 신고 내역 — 규칙상 reporterId==내 uid로 필터가 걸린 쿼리만 조회 허용됨

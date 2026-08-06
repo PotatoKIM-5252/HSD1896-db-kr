@@ -230,11 +230,12 @@ service cloud.firestore {
       allow create: if request.auth != null
                     && request.auth.uid == leaderId
                     && isActiveMember(request.auth.uid)
-                    && request.resource.data.keys().hasOnly(['leaderId', 'activeServers', 'partyMmr', 'minKda', 'combatStyle', 'voice', 'codePublic', 'status', 'createdAt', 'renewedAt', 'partyType', 'gameMode', 'acceptedCount'])
+                    && request.resource.data.keys().hasOnly(['leaderId', 'activeServers', 'partyMmr', 'minKda', 'combatStyle', 'voice', 'codePublic', 'status', 'createdAt', 'renewedAt', 'partyType', 'gameMode', 'acceptedCount', 'partyNumber'])
                     && request.resource.data.leaderId == request.auth.uid
                     && isValidPartyFields(request.resource.data)
                     && request.resource.data.status == 'open'
                     && request.resource.data.acceptedCount == 0
+                    && request.resource.data.partyNumber is int
                     && request.resource.data.createdAt == request.time
                     && request.resource.data.renewedAt == request.time;
 
@@ -362,7 +363,7 @@ service cloud.firestore {
                     && request.auth.uid == steamId
                     && isActiveMember(request.auth.uid)
                     && !exists(/databases/$(database)/documents/officeParties/$(request.auth.uid))
-                    && request.resource.data.keys().hasOnly(['preferredServers', 'mmr', 'kda', 'preferredStyle', 'voice', 'updatedAt', 'preferredPartyType', 'preferredGameMode'])
+                    && request.resource.data.keys().hasOnly(['preferredServers', 'mmr', 'kda', 'preferredStyle', 'voice', 'updatedAt', 'preferredPartyType', 'preferredGameMode', 'resumeNumber'])
                     && isValidServerPreferenceList(request.resource.data.preferredServers)
                     && request.resource.data.mmr is string && request.resource.data.mmr.size() <= 50
                     && request.resource.data.kda is string && request.resource.data.kda.size() <= 50
@@ -370,6 +371,7 @@ service cloud.firestore {
                     && request.resource.data.voice is bool
                     && isValidPartyType(request.resource.data.preferredPartyType)
                     && isValidGameMode(request.resource.data.preferredGameMode)
+                    && request.resource.data.resumeNumber is int
                     && request.resource.data.updatedAt == request.time;
 
       allow delete: if request.auth != null && (request.auth.uid == steamId || isOperator());
@@ -390,7 +392,7 @@ service cloud.firestore {
       // 해서 isActiveMember 대신 isOperator()로도 통과 가능
       allow create: if request.auth != null
                     && (isActiveMember(request.auth.uid) || isOperator())
-                    && request.resource.data.keys().hasOnly(['reporterId', 'description', 'videoUrl', 'createdAt', 'resolved', 'keep'])
+                    && request.resource.data.keys().hasOnly(['reporterId', 'description', 'videoUrl', 'createdAt', 'resolved', 'keep', 'accusedPartyNumber', 'accusedProfileNumber'])
                     && request.resource.data.reporterId == request.auth.uid
                     && request.resource.data.description is string
                     && request.resource.data.description.size() <= 200
@@ -399,7 +401,9 @@ service cloud.firestore {
                     && request.resource.data.videoUrl.size() <= 1000
                     && request.resource.data.createdAt == request.time
                     && request.resource.data.resolved == false
-                    && request.resource.data.keep == false;
+                    && request.resource.data.keep == false
+                    && (!request.resource.data.keys().hasAny(['accusedPartyNumber']) || request.resource.data.accusedPartyNumber is int)
+                    && (!request.resource.data.keys().hasAny(['accusedProfileNumber']) || request.resource.data.accusedProfileNumber is int);
 
       allow update: if isOperator()
                     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['resolved', 'keep'])
