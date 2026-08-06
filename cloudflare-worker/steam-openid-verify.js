@@ -230,7 +230,9 @@ async function handleUploadReportVideo(request, env) {
   }
 
   const uid = await verifyIdTokenAndGetUid(getBearerToken(request));
-  if (!uid || !STEAM_UID_RE.test(uid)) {
+  // 운영자는 스팀 로그인 없이도 신고 기능을 테스트할 수 있어야 해서 SteamID64 형식
+  // 검사를 예외로 통과시킨다.
+  if (!uid || (!STEAM_UID_RE.test(uid) && uid !== OPERATOR_UID)) {
     return jsonResponse({ error: "unauthorized" }, 401);
   }
 

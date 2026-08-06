@@ -351,6 +351,41 @@ async function listOfficeReportsAsOperator(idToken) {
   return (data.documents || []).map((d) => ({ id: d.name.split("/").pop(), ...firestoreRestFieldsToJs(d.fields) }));
 }
 
+// 운영자가 스팀 로그인 없이도 신고 기능을 테스트할 수 있게, 운영자 uid로 직접
+// 신고를 등록(REST) — SDK 세션은 운영자로 바뀌지 않으니(의도적으로 안 바꿈) 일반
+// submitOfficeReport(SDK)로는 안 되고, 이 함수로 REST 인증 헤더를 직접 붙여 써야 한다.
+// createdAt은 규칙이 request.time과 정확히 같아야 한다고 요구해서(클라이언트가 임의로
+// 값을 못 넣게) updateTransforms로 서버 시각을 지정한다 — addCommentAsOperator와 동일 패턴.
+async function submitOfficeReportAsOperator(description, videoUrl, idToken) {
+  const docId = randomFirestoreDocId();
+  const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents:commit`;
+  const body = {
+    writes: [{
+      update: {
+        name: `projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/officeReports/${docId}`,
+        fields: {
+          reporterId: { stringValue: window.LoadoutCloud.OPERATOR_UID },
+          description: { stringValue: (description || "").slice(0, 200) },
+          videoUrl: { stringValue: videoUrl },
+          resolved: { booleanValue: false },
+          keep: { booleanValue: false },
+        },
+      },
+      updateTransforms: [{ fieldPath: "createdAt", setToServerValue: "REQUEST_TIME" }],
+      currentDocument: { exists: false },
+    }],
+  };
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.error?.message || "신고 접수에 실패했습니다.");
+  }
+}
+
 async function setOfficeReportFieldAsOperator(reportId, field, value, idToken) {
   const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/officeReports/${reportId}?updateMask.fieldPaths=${field}`;
   const res = await fetch(url, {
@@ -1067,15 +1102,24 @@ function setupOfficeTab() {
     reportSubmitBtn.disabled = true;
     reportSubmitBtn.textContent = "업로드 중...";
     try {
-      const idToken = await window.LoadoutCloud.getMyIdToken();
+      // 운영자 열람 모드(스팀 로그인 없이 운영자 키만 있는 상태)에서는 SDK 세션이
+      // 운영자가 아니라서 getMyIdToken/submitOfficeReport(SDK)를 못 쓰고, 운영자
+      // REST idToken으로 대신 처리한다(신고 기능 테스트용).
+      const idToken = officeOperatorViewActive ? officeReportAdminIdToken : await window.LoadoutCloud.getMyIdToken();
       const videoKey = await uploadOfficeReportVideo(file, idToken);
-      await window.LoadoutCloud.submitOfficeReport({ description: descInput.value, videoUrl: videoKey });
+      if (officeOperatorViewActive) {
+        await submitOfficeReportAsOperator(descInput.value, videoKey, idToken);
+      } else {
+        await window.LoadoutCloud.submitOfficeReport({ description: descInput.value, videoUrl: videoKey });
+      }
       fileInput.value = "";
       descInput.value = "";
-      reportMsgEl.textContent = "신고가 접수됐습니다.";
+      reportMsgEl.textContent = officeOperatorViewActive
+        ? "신고가 접수됐습니다. \"신고 관리\"에서 확인하세요."
+        : "신고가 접수됐습니다.";
       reportMsgEl.classList.remove("error");
       reportMsgEl.hidden = false;
-      renderMyOfficeReports();
+      if (!officeOperatorViewActive) renderMyOfficeReports();
     } catch (err) {
       reportMsgEl.textContent = err.message || "신고 접수에 실패했습니다.";
       reportMsgEl.classList.add("error");
@@ -1149,11 +1193,13 @@ function showOfficeOperatorView(opAuth) {
   officeOperatorViewActive = true;
   officeOperatorIdToken = opAuth.idToken;
   officeReportAdminIdToken = opAuth.idToken;
-  document.getElementById("office-member-status").textContent = "운영자 열람 모드 (스팀 인증 없이 목록만 조회)";
+  document.getElementById("office-member-status").textContent = "운영자 열람 모드 (스팀 인증 없이 목록만 조회 · 신고는 운영자 계정으로 테스트 가능)";
   document.getElementById("office-member-view").hidden = false;
   document.getElementById("office-col-write").hidden = true;
   document.getElementById("office-withdraw-btn").hidden = true;
-  document.getElementById("office-report-btn").hidden = true;
+  // 신고 기능은 운영자 키만으로도 테스트할 수 있어야 해서(스팀 로그인 없이), 신고
+  // 관련 두 버튼은 예외적으로 운영자 열람 모드에서도 보여준다.
+  document.getElementById("office-report-btn").hidden = false;
   document.getElementById("office-report-admin-btn").hidden = false;
   document.querySelectorAll(".office-mode-btn").forEach((b) => b.classList.toggle("active", b.dataset.officeMode === "party"));
   document.getElementById("office-list-party").hidden = false;

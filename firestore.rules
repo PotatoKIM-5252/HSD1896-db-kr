@@ -386,8 +386,10 @@ service cloud.firestore {
       allow read: if request.auth != null
                   && (resource.data.reporterId == request.auth.uid || isOperator());
 
+      // 운영자는 스팀 로그인(officeMembers 등록) 없이도 신고 기능을 테스트할 수 있어야
+      // 해서 isActiveMember 대신 isOperator()로도 통과 가능
       allow create: if request.auth != null
-                    && isActiveMember(request.auth.uid)
+                    && (isActiveMember(request.auth.uid) || isOperator())
                     && request.resource.data.keys().hasOnly(['reporterId', 'description', 'videoUrl', 'createdAt', 'resolved', 'keep'])
                     && request.resource.data.reporterId == request.auth.uid
                     && request.resource.data.description is string
