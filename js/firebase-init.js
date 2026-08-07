@@ -612,6 +612,10 @@ async function applyToParty(leaderId, message) {
 // 참여 이력(officePartyHistory)·로스터(officePartyRoster)에도 이 사람이 이 파티에
 // 들어왔다는 기록을 남긴다(배치로 묶어서 넷 다 같이 성공/실패). partyNumber는 파티
 // 문서에서, 등록번호는 신청자의 이력서에서 지금 시점 값을 읽어와 그대로 고정한다.
+// ⚠ 신청/초대 후 수락 전에 상대가 프로필을 지우면(또는 파티 자체가 사라지면)
+// 등록번호를 남길 수 없다 — 이 상태로 그냥 수락시켜버리면 "참여 이력은 없는데
+// 인원수엔 잡히는" 유령 파티원이 생겨서 신고 대상 특정도, 강퇴도 불가능해진다.
+// 그래서 이 경우엔 수락 자체를 막고 에러로 안내한다.
 async function respondToApplication(applicantId, accepted) {
   const uid = await getUid();
   const appRef = doc(db, OFFICE_PARTIES_COLLECTION, uid, "applications", applicantId);
@@ -625,23 +629,27 @@ async function respondToApplication(applicantId, accepted) {
   ]);
   const partyNumber = partySnap.exists() ? partySnap.data().partyNumber : null;
   const memberNumber = applicantResumeSnap.exists() ? applicantResumeSnap.data().resumeNumber : null;
+  if (!partyNumber || !memberNumber) {
+    throw new Error("상대방 프로필을 찾을 수 없어 수락할 수 없습니다. 프로필이 삭제됐을 수 있습니다. 대신 거절해주세요.");
+  }
   const batch = writeBatch(db);
   batch.update(appRef, { status: "accepted", respondedAt: serverTimestamp() });
   batch.update(doc(db, OFFICE_PARTIES_COLLECTION, uid), { acceptedCount: increment(1) });
-  if (partyNumber && memberNumber) {
-    batch.set(doc(db, OFFICE_PARTY_HISTORY_COLLECTION, officePartyHistoryDocId(partyNumber, applicantId)), {
-      steamId: applicantId, partyNumber, leaderId: uid, role: "member", joinedAt: serverTimestamp(), leftAt: null, memberNumberAtJoin: memberNumber, expireAt: officeHistoryExpiry(),
-    });
-    batch.update(doc(db, OFFICE_PARTY_ROSTER_COLLECTION, partyNumber), {
-      members: arrayUnion({ role: "member", memberNumber, resumeSnapshot: resumeSnapshotFields(applicantResumeSnap.data()) }),
-    });
-  }
+  batch.set(doc(db, OFFICE_PARTY_HISTORY_COLLECTION, officePartyHistoryDocId(partyNumber, applicantId)), {
+    steamId: applicantId, partyNumber, leaderId: uid, role: "member", joinedAt: serverTimestamp(), leftAt: null, memberNumberAtJoin: memberNumber, expireAt: officeHistoryExpiry(),
+  });
+  batch.update(doc(db, OFFICE_PARTY_ROSTER_COLLECTION, partyNumber), {
+    members: arrayUnion({ role: "member", memberNumber, resumeSnapshot: resumeSnapshotFields(applicantResumeSnap.data()) }),
+  });
   await batch.commit();
 }
 
 // 이미 수락된 파티원을 내보냄 — 신청 상태를 kicked로 바꾸고 acceptedCount를 1 줄인다.
 // kicked가 되면 로비 코드 읽기 권한도 규칙상 자동으로 사라진다(accepted 상태만 허용).
-// 참여 이력에도 나간 시각(leftAt)을 남긴다.
+// 참여 이력에도 나간 시각(leftAt)을 남기되, 그 문서가 없는 경우(과거에 생긴 유령
+// 파티원 등 예외 상황)에도 강퇴 자체는 항상 되도록 이 부분만 배치 밖에서 개별
+// 처리한다(deleteMyParty와 같은 패턴) — 배치 안에 있으면 없는 문서를 update()하려다
+// 강퇴 전체가 실패해버린다.
 async function kickApplicant(applicantId) {
   const uid = await getUid();
   const partySnap = await getDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid));
@@ -649,10 +657,10 @@ async function kickApplicant(applicantId) {
   const batch = writeBatch(db);
   batch.update(doc(db, OFFICE_PARTIES_COLLECTION, uid, "applications", applicantId), { status: "kicked", respondedAt: serverTimestamp() });
   batch.update(doc(db, OFFICE_PARTIES_COLLECTION, uid), { acceptedCount: increment(-1) });
-  if (partyNumber) {
-    batch.update(doc(db, OFFICE_PARTY_HISTORY_COLLECTION, officePartyHistoryDocId(partyNumber, applicantId)), { leftAt: serverTimestamp() });
-  }
   await batch.commit();
+  if (partyNumber) {
+    await updateDoc(doc(db, OFFICE_PARTY_HISTORY_COLLECTION, officePartyHistoryDocId(partyNumber, applicantId)), { leftAt: serverTimestamp() }).catch(() => {});
+  }
 }
 
 // 파티장이 프로필 게시판을 보고 먼저 초대 — applications 문서를 파티장이 직접
@@ -682,6 +690,9 @@ async function cancelInvite(targetId) {
 // 내가 받은 초대에 응답 — 수락 시엔 respondToApplication과 대칭으로 acceptedCount를
 // 배치로 같이 올린다(이번엔 파티장이 아니라 초대받은 본인이 자기 몫만큼 올림). 참여
 // 이력도 본인이 직접 남긴다(규칙상 role=='member'는 본인 또는 리더가 쓸 수 있음).
+// ⚠ 초대는 애초에 상대가 프로필을 갖고 있는지 만들 때 검사하지 않으므로, 프로필
+// 없이(또는 지운 뒤) 수락하면 유령 파티원이 생긴다 — respondToApplication과 같은
+// 이유로 이 경우 수락을 막는다.
 async function respondToInvite(leaderId, accepted) {
   const uid = await getUid();
   const appRef = doc(db, OFFICE_PARTIES_COLLECTION, leaderId, "applications", uid);
@@ -695,23 +706,23 @@ async function respondToInvite(leaderId, accepted) {
   ]);
   const partyNumber = partySnap.exists() ? partySnap.data().partyNumber : null;
   const memberNumber = myResumeSnap.exists() ? myResumeSnap.data().resumeNumber : null;
+  if (!partyNumber) throw new Error("이미 사라진 파티입니다. 초대를 거절해주세요.");
+  if (!memberNumber) throw new Error("프로필(이력서)을 먼저 등록해야 초대를 수락할 수 있습니다.");
   const batch = writeBatch(db);
   batch.update(appRef, { status: "accepted", respondedAt: serverTimestamp() });
   batch.update(doc(db, OFFICE_PARTIES_COLLECTION, leaderId), { acceptedCount: increment(1) });
-  if (partyNumber && memberNumber) {
-    batch.set(doc(db, OFFICE_PARTY_HISTORY_COLLECTION, officePartyHistoryDocId(partyNumber, uid)), {
-      steamId: uid, partyNumber, leaderId, role: "member", joinedAt: serverTimestamp(), leftAt: null, memberNumberAtJoin: memberNumber, expireAt: officeHistoryExpiry(),
-    });
-    batch.update(doc(db, OFFICE_PARTY_ROSTER_COLLECTION, partyNumber), {
-      members: arrayUnion({ role: "member", memberNumber, resumeSnapshot: resumeSnapshotFields(myResumeSnap.data()) }),
-    });
-  }
+  batch.set(doc(db, OFFICE_PARTY_HISTORY_COLLECTION, officePartyHistoryDocId(partyNumber, uid)), {
+    steamId: uid, partyNumber, leaderId, role: "member", joinedAt: serverTimestamp(), leftAt: null, memberNumberAtJoin: memberNumber, expireAt: officeHistoryExpiry(),
+  });
+  batch.update(doc(db, OFFICE_PARTY_ROSTER_COLLECTION, partyNumber), {
+    members: arrayUnion({ role: "member", memberNumber, resumeSnapshot: resumeSnapshotFields(myResumeSnap.data()) }),
+  });
   await batch.commit();
 }
 
 // 파티원 스스로 파티에서 나감 — kickApplicant와 대칭으로 내 신청 문서를 지우고
 // acceptedCount를 1 줄인다(이번엔 파티장이 아니라 나가는 본인이 수행). 참여 이력에도
-// 나간 시각을 남긴다.
+// 나간 시각을 남기되, kickApplicant와 같은 이유로 배치 밖에서 개별 처리한다.
 async function leaveParty(leaderId) {
   const uid = await getUid();
   const partySnap = await getDoc(doc(db, OFFICE_PARTIES_COLLECTION, leaderId));
@@ -719,10 +730,10 @@ async function leaveParty(leaderId) {
   const batch = writeBatch(db);
   batch.delete(doc(db, OFFICE_PARTIES_COLLECTION, leaderId, "applications", uid));
   batch.update(doc(db, OFFICE_PARTIES_COLLECTION, leaderId), { acceptedCount: increment(-1) });
-  if (partyNumber) {
-    batch.update(doc(db, OFFICE_PARTY_HISTORY_COLLECTION, officePartyHistoryDocId(partyNumber, uid)), { leftAt: serverTimestamp() });
-  }
   await batch.commit();
+  if (partyNumber) {
+    await updateDoc(doc(db, OFFICE_PARTY_HISTORY_COLLECTION, officePartyHistoryDocId(partyNumber, uid)), { leftAt: serverTimestamp() }).catch(() => {});
+  }
 }
 
 // 내 파티에 들어오는 신청을 실시간으로 감시 — 새 신청이 오면 화면을 안 보고 있어도
