@@ -2920,6 +2920,22 @@ button { font-family: var(--font-body); cursor: pointer; }
   -webkit-user-drag: none;
 }
 
+.map-marker-delete {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--danger-strong, #c25b4d);
+  color: #fff;
+  font-size: 10px;
+  line-height: 14px;
+  text-align: center;
+  cursor: pointer;
+}
+.map-marker-delete:hover { background: #e05a48; }
+
 #map-zoom-controls {
   position: absolute;
   top: 12px;

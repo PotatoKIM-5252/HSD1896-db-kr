@@ -6840,7 +6840,7 @@ function renderMapViewport() {
       <div class="map-marker ${pt.layer.icon ? "map-marker-icon" : ""}" title="${pt.label ?? pt.layer.label}"
         style="left:${pt.x}%; top:${pt.y}%; ${pt.layer.icon ? "" : `background:${pt.layer.color};`}"
         data-layer-key="${pt.layer.key}" data-idx="${pt.idx}"
-        >${pt.layer.icon ? `<img src="${pt.layer.icon}" class="map-marker-icon-img" alt="">` : ""}</div>
+        >${pt.layer.icon ? `<img src="${pt.layer.icon}" class="map-marker-icon-img" alt="">` : ""}${state.mapEditMode ? `<span class="map-marker-delete" title="이 지점 삭제">×</span>` : ""}</div>
     `).join("");
   markersLayer.innerHTML = markersHTML;
 }
@@ -6968,6 +6968,7 @@ function setupMapEditInteractions() {
 
   viewport.addEventListener("mousedown", (e) => {
     if (!state.mapEditMode) return;
+    if (e.target.closest(".map-marker-delete")) return; // 삭제 배지 클릭은 드래그 시작으로 안 침
     downX = e.clientX;
     downY = e.clientY;
     const markerEl = e.target.closest(".map-marker");
@@ -7006,17 +7007,31 @@ function setupMapEditInteractions() {
     draggingPoint = null;
   });
 
-  markersLayer.addEventListener("contextmenu", (e) => {
-    if (!state.mapEditMode) return;
-    const markerEl = e.target.closest(".map-marker");
-    if (!markerEl) return;
-    e.preventDefault();
+  function deleteMarker(markerEl) {
     if (!confirm("이 지점을 삭제할까요?")) return;
     const layerKey = markerEl.dataset.layerKey;
     const idx = Number(markerEl.dataset.idx);
     state.mapEditPoints[layerKey].splice(idx, 1);
     renderMapViewport();
     renderMapLegendPanel();
+  }
+
+  // 지점마다 붙는 × 배지를 눌러 삭제 — 우클릭(contextmenu)으로도 똑같이 가능하지만
+  // 잘 안 알려지므로 항상 보이는 버튼도 같이 둔다.
+  markersLayer.addEventListener("click", (e) => {
+    if (!state.mapEditMode) return;
+    const delBtn = e.target.closest(".map-marker-delete");
+    if (!delBtn) return;
+    e.stopPropagation();
+    deleteMarker(delBtn.closest(".map-marker"));
+  });
+
+  markersLayer.addEventListener("contextmenu", (e) => {
+    if (!state.mapEditMode) return;
+    const markerEl = e.target.closest(".map-marker");
+    if (!markerEl) return;
+    e.preventDefault();
+    deleteMarker(markerEl);
   });
 }
 
