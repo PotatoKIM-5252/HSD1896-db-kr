@@ -1372,30 +1372,34 @@ async function loadOfficeMembership() {
   const introView = document.getElementById("office-intro-view");
   const memberView = document.getElementById("office-member-view");
   const bannedView = document.getElementById("office-banned-view");
-  const lockedView = document.getElementById("office-locked-view");
 
   loadingEl.hidden = false;
   introView.hidden = true;
   memberView.hidden = true;
   bannedView.hidden = true;
-  lockedView.hidden = true;
   if (!window.LoadoutCloud) {
     loadingEl.textContent = "기능을 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.";
     return;
   }
   try {
-    // 신고 대상 지목 기능 추가 등 정비 중이라 운영자 키가 있을 때만 들어갈 수 있게 임시로 막아둠
     const opAuth = await operatorAuthenticate();
-    if (!opAuth) {
+    if (opAuth) {
+      const membership = await window.LoadoutCloud.getMyOfficeMembership();
       loadingEl.hidden = true;
-      lockedView.hidden = false;
+      if (!membership) {
+        showOfficeOperatorView(opAuth);
+      } else if (membership.banned) {
+        bannedView.hidden = false;
+      } else {
+        showOfficeMemberView(membership.steamId);
+      }
       officeMembershipLoaded = true;
       return;
     }
     const membership = await window.LoadoutCloud.getMyOfficeMembership();
     loadingEl.hidden = true;
     if (!membership) {
-      showOfficeOperatorView(opAuth);
+      introView.hidden = false;
     } else if (membership.banned) {
       bannedView.hidden = false;
     } else {
@@ -1423,7 +1427,6 @@ async function handleSteamOpenIdCallback() {
   const introView = document.getElementById("office-intro-view");
   const memberView = document.getElementById("office-member-view");
   const bannedView = document.getElementById("office-banned-view");
-  const lockedView = document.getElementById("office-locked-view");
   const introMsgEl = document.getElementById("office-intro-msg");
 
   loadingEl.hidden = false;
@@ -1431,15 +1434,6 @@ async function handleSteamOpenIdCallback() {
   introView.hidden = true;
   memberView.hidden = true;
   bannedView.hidden = true;
-  lockedView.hidden = true;
-
-  // 정비 중엔 운영자 키 없이는 스팀 로그인 콜백으로 돌아와도 그냥 막아버림
-  const opAuth = await operatorAuthenticate();
-  if (!opAuth) {
-    loadingEl.hidden = true;
-    lockedView.hidden = false;
-    return;
-  }
 
   try {
     const steamId = await window.LoadoutCloud.verifySteamLoginAndSignIn(params);
