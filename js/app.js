@@ -81,6 +81,19 @@ const state = {
   mapPanX: 0,
   mapPanY: 0,
 
+  // 맵 탭 편집(운영자 전용) — mapOverridePoints는 현재 지도의 "게시된" 지점(없으면
+  // null, 정적 데이터를 그대로 씀). mapEditPoints는 편집 모드일 때만 쓰는 초안(아직
+  // 미게시). mapCustomLayers는 운영자가 추가한 범례(전역, js/maps-data.js의
+  // MAP_LAYERS와 합쳐서 씀).
+  mapOperatorChecked: false,
+  mapOperatorIdToken: null,
+  mapCustomLayersLoaded: false,
+  mapCustomLayers: [],
+  mapOverridePoints: null,
+  mapEditMode: false,
+  mapEditPoints: null,
+  mapEditSelectedLayerKey: null,
+
   // 커뮤니티 로드아웃: Firestore에서 받아온 목록(파싱+가격 계산까지 끝낸 캐시) +
   // 현재 정렬/가격 필터 상태. 정렬·필터를 바꿀 때는 재조회 없이 이 캐시로만 다시 그림.
   communityLoadouts: [],
@@ -316,11 +329,29 @@ function firestoreRestValueToJs(v) {
   if (v.doubleValue !== undefined) return v.doubleValue;
   if (v.timestampValue !== undefined) return { seconds: Math.floor(new Date(v.timestampValue).getTime() / 1000) };
   if (v.arrayValue !== undefined) return (v.arrayValue.values || []).map(firestoreRestValueToJs);
+  if (v.mapValue !== undefined) return firestoreRestFieldsToJs(v.mapValue.fields || {});
   return null;
 }
 function firestoreRestFieldsToJs(fields) {
   const out = {};
   for (const [k, v] of Object.entries(fields || {})) out[k] = firestoreRestValueToJs(v);
+  return out;
+}
+
+// JS 값 -> Firestore REST 타입 값. 맵 탭 지점/범례를 저장할 때(mapOverrides,
+// mapCustomLayers) 중첩 객체·배열을 그대로 써야 해서 재귀적으로 변환한다.
+function jsValueToFirestore(v) {
+  if (v === null || v === undefined) return { nullValue: null };
+  if (typeof v === "string") return { stringValue: v };
+  if (typeof v === "boolean") return { booleanValue: v };
+  if (typeof v === "number") return { doubleValue: v };
+  if (Array.isArray(v)) return { arrayValue: { values: v.map(jsValueToFirestore) } };
+  if (typeof v === "object") return { mapValue: { fields: jsToFirestoreFields(v) } };
+  return { stringValue: String(v) };
+}
+function jsToFirestoreFields(obj) {
+  const out = {};
+  for (const [k, v] of Object.entries(obj || {})) out[k] = jsValueToFirestore(v);
   return out;
 }
 
@@ -341,6 +372,55 @@ async function listOfficeResumesAsOperator(idToken) {
   if (!res.ok) throw new Error("프로필 목록을 불러오지 못했습니다.");
   const data = await res.json();
   return (data.documents || []).map((d) => ({ steamId: d.name.split("/").pop(), ...firestoreRestFieldsToJs(d.fields) }));
+}
+
+// -------------------------------------------------------------------------
+// 맵 탭 지점/범례 — 운영자가 편집해서 "확정"하면 여기 저장된 값이 모든 방문자에게
+// 보인다(읽기는 로그인 없이도 가능, 쓰기는 운영자만 — firestore.rules 참고). 지점이
+// 없으면(운영자가 아직 확정한 적 없는 지도) 404가 나므로 null로 처리해서 정적
+// 데이터(js/maps-data.js)를 그대로 쓴다.
+// -------------------------------------------------------------------------
+
+async function fetchMapOverridePoints(mapId) {
+  const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/mapOverrides/${mapId}`;
+  const res = await fetch(url);
+  if (!res.ok) return null;
+  const data = await res.json();
+  return firestoreRestFieldsToJs(data.fields).points || {};
+}
+
+async function fetchMapCustomLayers() {
+  const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/mapCustomLayers/main`;
+  const res = await fetch(url);
+  if (!res.ok) return [];
+  const data = await res.json();
+  return firestoreRestFieldsToJs(data.fields).layers || [];
+}
+
+async function publishMapOverridePoints(mapId, points, idToken) {
+  const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/mapOverrides/${mapId}`;
+  const res = await fetch(url, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
+    body: JSON.stringify({ fields: jsToFirestoreFields({ points }) }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.error?.message || "지점 게시에 실패했습니다.");
+  }
+}
+
+async function publishMapCustomLayers(layers, idToken) {
+  const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/mapCustomLayers/main`;
+  const res = await fetch(url, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
+    body: JSON.stringify({ fields: jsToFirestoreFields({ layers }) }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.error?.message || "범례 게시에 실패했습니다.");
+  }
 }
 
 // 신고에 적힌 신고 대상 등록번호(targetMemberNumber)로 실제 스팀ID를 조회(운영자 전용,
@@ -663,6 +743,8 @@ function init() {
   document.getElementById("map-zoom-out-btn").addEventListener("click", () => setMapZoom(state.mapZoom - 0.5));
   document.getElementById("map-zoom-reset-btn").addEventListener("click", () => resetMapView());
   setupMapPanZoom();
+  setupMapEditInteractions();
+  setupMapEditControls();
 
   document.getElementById("community-save-btn").addEventListener("click", handleCommunitySave);
   document.getElementById("community-sort-select").addEventListener("change", (e) => {
@@ -6587,51 +6669,92 @@ function renderCompareStatsSection() {
 // -------------------------------------------------------------------------
 // 맵 탭 — 인터랙티브 맵 (베이스 지도 + 레이어 오버레이)
 // -------------------------------------------------------------------------
-function renderMapsTab() {
+async function renderMapsTab() {
   if (!state.activeMapId && MAPS.length) state.activeMapId = MAPS[0].id;
   if (!state.activeMapLayers) {
     state.activeMapLayers = new Set(MAP_LAYERS.filter((l) => l.defaultOn).map((l) => l.key));
   }
+  // 운영자 키 유무는 첫 진입 때 한 번만 확인 — 있으면 "지점 편집" 버튼을 보여준다.
+  if (!state.mapOperatorChecked) {
+    state.mapOperatorChecked = true;
+    const opAuth = await operatorAuthenticate();
+    if (opAuth) state.mapOperatorIdToken = opAuth.idToken;
+    document.getElementById("map-edit-toggle-btn").hidden = !opAuth;
+  }
+  if (!state.mapCustomLayersLoaded) {
+    state.mapCustomLayersLoaded = true;
+    state.mapCustomLayers = await fetchMapCustomLayers().catch(() => []);
+  }
   renderMapSelectRow();
   renderMapLegendPanel();
-  renderMapViewport();
+  await loadMapOverrideForActiveMap();
 }
 
 function getActiveMap() {
   return MAPS.find((m) => m.id === state.activeMapId) || null;
 }
 
+// 운영자가 확정 게시한 값이 있으면 그걸(mapOverridePoints), 없으면(404) 정적
+// 데이터(js/maps-data.js)를 그대로 쓴다.
+function getEffectivePoints(map) {
+  if (!map) return {};
+  return state.mapOverridePoints || map.layers;
+}
+
+// 화면에 지금 당장 그려야 할 지점 — 편집 모드면 아직 게시 전인 초안을,
+// 아니면 게시된(또는 정적) 값을 보여준다.
+function currentDisplayPoints(map) {
+  if (state.mapEditMode && state.mapEditPoints) return state.mapEditPoints;
+  return getEffectivePoints(map);
+}
+
+function effectiveMapLayers() {
+  return MAP_LAYERS.concat(state.mapCustomLayers || []);
+}
+
+async function loadMapOverrideForActiveMap() {
+  const map = getActiveMap();
+  state.mapOverridePoints = map ? await fetchMapOverridePoints(map.id).catch(() => null) : null;
+  renderMapViewport();
+}
+
 function renderMapSelectRow() {
   const row = document.getElementById("map-select-row");
   row.innerHTML = MAPS.map((m) => `
-    <button class="map-select-btn ${m.id === state.activeMapId ? "active" : ""}" type="button" data-map-id="${m.id}">${m.name}</button>
+    <button class="map-select-btn ${m.id === state.activeMapId ? "active" : ""}" type="button" data-map-id="${m.id}" ${state.mapEditMode ? "disabled" : ""}>${m.name}</button>
   `).join("");
   row.querySelectorAll(".map-select-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
+      if (state.mapEditMode) return;
       state.activeMapId = btn.dataset.mapId;
       resetMapView();
       renderMapSelectRow();
       renderMapLegendPanel();
-      renderMapViewport();
+      loadMapOverrideForActiveMap();
     });
   });
 }
 
-// 왼쪽 접이식 범례(필터) 패널 — 레이어별 아이콘/이름/마커 개수/온오프 스위치
+// 왼쪽 접이식 범례(필터) 패널 — 레이어별 아이콘/이름/마커 개수/온오프 스위치.
+// 편집 모드일 때는 각 항목을 눌러 "지금부터 찍을 범례"로 고를 수 있고, 맨 아래에
+// 새 범례를 추가하는 작은 입력폼이 붙는다.
 function renderMapLegendPanel() {
   const panel = document.getElementById("map-legend-panel");
   panel.classList.toggle("collapsed", state.mapLegendCollapsed);
 
   const map = getActiveMap();
+  const points = currentDisplayPoints(map);
+  const layers = effectiveMapLayers();
   const wrap = document.getElementById("map-layer-toggles");
-  wrap.innerHTML = MAP_LAYERS.map((l) => {
-    const count = map ? (map.layers[l.key] || []).length : 0;
+  wrap.innerHTML = layers.map((l) => {
+    const count = (points[l.key] || []).length;
     const checked = state.activeMapLayers.has(l.key) ? "checked" : "";
     const swatch = l.icon
       ? `<span class="map-layer-swatch map-layer-swatch-icon"><img src="${l.icon}" alt=""></span>`
       : `<i class="map-layer-swatch" style="background:${l.color}"></i>`;
+    const selected = state.mapEditMode && state.mapEditSelectedLayerKey === l.key ? "map-layer-row-selected" : "";
     return `
-      <div class="map-layer-row">
+      <div class="map-layer-row ${selected}" data-layer-key="${l.key}">
         ${swatch}
         <span class="map-layer-label">${l.label}</span>
         <span class="map-layer-count">${count}</span>
@@ -6651,6 +6774,42 @@ function renderMapLegendPanel() {
       renderMapViewport();
     });
   });
+
+  if (state.mapEditMode) {
+    wrap.querySelectorAll(".map-layer-row").forEach((row) => {
+      row.addEventListener("click", () => {
+        const key = row.dataset.layerKey;
+        state.mapEditSelectedLayerKey = key;
+        state.activeMapLayers.add(key); // 안 보이는 레이어를 고르면 헷갈리니 자동으로 켜준다
+        renderMapLegendPanel();
+        renderMapViewport();
+      });
+    });
+    renderMapAddLayerForm();
+  }
+}
+
+// 편집 모드에서 범례 패널 맨 아래에 붙는 "새 범례 추가" 폼 — 추가해도 바로
+// 게시되진 않고, "확정" 눌러야 mapCustomLayers에 반영된다.
+function renderMapAddLayerForm() {
+  const wrap = document.getElementById("map-layer-toggles");
+  wrap.insertAdjacentHTML("beforeend", `
+    <div id="map-add-layer-row">
+      <input type="text" id="map-add-layer-label" placeholder="새 범례 이름" maxlength="20">
+      <input type="color" id="map-add-layer-color" value="#c25b4d">
+      <button id="map-add-layer-btn" type="button">추가</button>
+    </div>
+  `);
+  document.getElementById("map-add-layer-btn").addEventListener("click", () => {
+    const labelInput = document.getElementById("map-add-layer-label");
+    const label = labelInput.value.trim();
+    if (!label) return;
+    const color = document.getElementById("map-add-layer-color").value;
+    const key = `custom_${Date.now().toString(36)}`;
+    state.mapCustomLayers.push({ key, label, color });
+    labelInput.value = "";
+    renderMapLegendPanel();
+  });
 }
 
 function renderMapViewport() {
@@ -6658,6 +6817,7 @@ function renderMapViewport() {
   const img = document.getElementById("map-base-img");
   const placeholder = document.getElementById("map-img-placeholder");
   const markersLayer = document.getElementById("map-markers-layer");
+  document.getElementById("map-viewport").classList.toggle("map-edit-active", !!(state.mapEditMode && state.mapEditSelectedLayerKey));
   if (!map) {
     img.removeAttribute("src");
     markersLayer.innerHTML = "";
@@ -6668,12 +6828,14 @@ function renderMapViewport() {
   img.src = map.image;
   img.alt = map.name;
 
-  const markersHTML = MAP_LAYERS
+  const points = currentDisplayPoints(map);
+  const markersHTML = effectiveMapLayers()
     .filter((l) => state.activeMapLayers.has(l.key))
-    .flatMap((l) => (map.layers[l.key] || []).map((pt, idx) => ({ ...pt, layer: l, idx })))
+    .flatMap((l) => (points[l.key] || []).map((pt, idx) => ({ ...pt, layer: l, idx })))
     .map((pt) => `
       <div class="map-marker ${pt.layer.icon ? "map-marker-icon" : ""}" title="${pt.label ?? pt.layer.label}"
         style="left:${pt.x}%; top:${pt.y}%; ${pt.layer.icon ? "" : `background:${pt.layer.color};`}"
+        data-layer-key="${pt.layer.key}" data-idx="${pt.idx}"
         >${pt.layer.icon ? `<img src="${pt.layer.icon}" class="map-marker-icon-img" alt="">` : ""}</div>
     `).join("");
   markersLayer.innerHTML = markersHTML;
@@ -6774,6 +6936,144 @@ function setupMapPanZoom() {
     dragging = false;
     viewport.classList.remove("panning");
     canvas.classList.remove("no-transition");
+  });
+}
+
+// 편집 모드에서의 지도 조작 — 빈 자리 클릭(선택된 범례 필요)이면 지점 추가,
+// 기존 지점을 눌러서 끌면 위치 이동, 우클릭하면 그 지점 삭제. 팬/줌 로직과는
+// 독립적으로 자체적으로 클릭-드래그를 판별한다(줌 1배 초과 상태에서 패닝과
+// 겹치는 경우까지는 다루지 않음 — 편집은 보통 기본 배율에서 이뤄짐).
+function setupMapEditInteractions() {
+  const viewport = document.getElementById("map-viewport");
+  const markersLayer = document.getElementById("map-markers-layer");
+  const img = document.getElementById("map-base-img");
+
+  function clientToPercent(clientX, clientY) {
+    const rect = img.getBoundingClientRect();
+    const x = ((clientX - rect.left) / rect.width) * 100;
+    const y = ((clientY - rect.top) / rect.height) * 100;
+    return {
+      x: Math.min(100, Math.max(0, Math.round(x * 10) / 10)),
+      y: Math.min(100, Math.max(0, Math.round(y * 10) / 10)),
+    };
+  }
+
+  let mode = null; // "drag-point" | "maybe-add"
+  let draggingPoint = null;
+  let downX = 0, downY = 0;
+
+  viewport.addEventListener("mousedown", (e) => {
+    if (!state.mapEditMode) return;
+    downX = e.clientX;
+    downY = e.clientY;
+    const markerEl = e.target.closest(".map-marker");
+    if (markerEl) {
+      mode = "drag-point";
+      draggingPoint = { layerKey: markerEl.dataset.layerKey, idx: Number(markerEl.dataset.idx) };
+    } else if (state.mapEditSelectedLayerKey) {
+      mode = "maybe-add";
+    }
+  });
+
+  window.addEventListener("mousemove", (e) => {
+    if (mode !== "drag-point" || !draggingPoint || !state.mapEditPoints) return;
+    const { x, y } = clientToPercent(e.clientX, e.clientY);
+    const arr = state.mapEditPoints[draggingPoint.layerKey];
+    if (arr && arr[draggingPoint.idx]) {
+      arr[draggingPoint.idx].x = x;
+      arr[draggingPoint.idx].y = y;
+      renderMapViewport();
+    }
+  });
+
+  window.addEventListener("mouseup", (e) => {
+    if (mode === "maybe-add") {
+      const dist = Math.hypot(e.clientX - downX, e.clientY - downY);
+      if (dist < 4 && state.mapEditPoints && state.mapEditSelectedLayerKey) {
+        const { x, y } = clientToPercent(e.clientX, e.clientY);
+        const key = state.mapEditSelectedLayerKey;
+        if (!state.mapEditPoints[key]) state.mapEditPoints[key] = [];
+        state.mapEditPoints[key].push({ x, y });
+        renderMapViewport();
+        renderMapLegendPanel();
+      }
+    }
+    mode = null;
+    draggingPoint = null;
+  });
+
+  markersLayer.addEventListener("contextmenu", (e) => {
+    if (!state.mapEditMode) return;
+    const markerEl = e.target.closest(".map-marker");
+    if (!markerEl) return;
+    e.preventDefault();
+    if (!confirm("이 지점을 삭제할까요?")) return;
+    const layerKey = markerEl.dataset.layerKey;
+    const idx = Number(markerEl.dataset.idx);
+    state.mapEditPoints[layerKey].splice(idx, 1);
+    renderMapViewport();
+    renderMapLegendPanel();
+  });
+}
+
+// 지점 편집 켜기/끄기 + 확정(게시)/취소 버튼
+function setupMapEditControls() {
+  const toggleBtn = document.getElementById("map-edit-toggle-btn");
+  const actionsRow = document.getElementById("map-edit-actions");
+  const publishBtn = document.getElementById("map-edit-publish-btn");
+  const cancelBtn = document.getElementById("map-edit-cancel-btn");
+
+  function exitEditMode() {
+    state.mapEditMode = false;
+    state.mapEditPoints = null;
+    state.mapEditSelectedLayerKey = null;
+    toggleBtn.textContent = "지점 편집";
+    actionsRow.hidden = true;
+    renderMapSelectRow();
+    renderMapLegendPanel();
+    renderMapViewport();
+  }
+
+  toggleBtn.addEventListener("click", () => {
+    if (state.mapEditMode) {
+      if (!confirm("편집을 취소할까요? 게시하지 않은 변경사항은 사라집니다.")) return;
+      exitEditMode();
+      return;
+    }
+    const map = getActiveMap();
+    state.mapEditPoints = JSON.parse(JSON.stringify(getEffectivePoints(map) || {}));
+    state.mapEditMode = true;
+    toggleBtn.textContent = "편집 종료";
+    actionsRow.hidden = false;
+    renderMapSelectRow();
+    renderMapLegendPanel();
+    renderMapViewport();
+  });
+
+  cancelBtn.addEventListener("click", () => {
+    if (!confirm("편집을 취소할까요? 게시하지 않은 변경사항은 사라집니다.")) return;
+    exitEditMode();
+  });
+
+  publishBtn.addEventListener("click", async () => {
+    if (!state.mapOperatorIdToken) {
+      showToast("운영자 인증이 필요합니다.");
+      return;
+    }
+    const map = getActiveMap();
+    if (!map) return;
+    publishBtn.disabled = true;
+    try {
+      await publishMapOverridePoints(map.id, state.mapEditPoints, state.mapOperatorIdToken);
+      await publishMapCustomLayers(state.mapCustomLayers, state.mapOperatorIdToken);
+      state.mapOverridePoints = state.mapEditPoints;
+      exitEditMode();
+      showToast("지도가 게시됐습니다.", "info");
+    } catch (err) {
+      showToast(err.message || "게시에 실패했습니다.");
+    } finally {
+      publishBtn.disabled = false;
+    }
   });
 }
 

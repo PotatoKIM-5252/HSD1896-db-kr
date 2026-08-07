@@ -2944,6 +2944,75 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 #map-zoom-controls button:hover { color: var(--text-primary); border-color: var(--accent-strong); }
 
+/* ===== 지점 편집(운영자 전용) ===== */
+
+#map-edit-toggle-btn {
+  background: transparent;
+  border: 1px solid var(--accent-strong);
+  color: var(--accent-strong);
+  font-size: 11px;
+  border-radius: 999px;
+  padding: 3px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+#map-edit-toggle-btn:hover { background: rgba(236, 230, 211, 0.08); }
+
+#map-edit-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: rgba(236, 230, 211, 0.06);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+}
+#map-edit-actions[hidden] { display: none; }
+
+#map-edit-hint { flex: 1; margin: 0; font-size: 12px; color: var(--text-secondary); }
+
+#map-edit-publish-btn,
+#map-edit-cancel-btn {
+  font-size: 12px;
+  border-radius: 6px;
+  padding: 5px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+#map-edit-publish-btn { background: var(--accent-strong); border: none; color: var(--bg-panel); font-weight: 600; }
+#map-edit-cancel-btn { background: transparent; border: 1px solid var(--border-strong); color: var(--text-secondary); }
+#map-edit-cancel-btn:hover { color: var(--text-primary); }
+
+.map-layer-row[data-layer-key] { cursor: pointer; }
+.map-layer-row-selected { background: rgba(236, 230, 211, 0.1); outline: 1px solid var(--accent-strong); }
+
+#map-add-layer-row { display: flex; align-items: center; gap: 6px; padding: 8px 6px 2px; }
+#map-add-layer-label {
+  flex: 1;
+  min-width: 0;
+  background: var(--bg-input);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+#map-add-layer-color { width: 26px; height: 26px; padding: 0; border: 1px solid var(--border-strong); border-radius: 6px; background: none; cursor: pointer; }
+#map-add-layer-btn {
+  background: transparent;
+  border: 1px solid var(--accent-strong);
+  color: var(--accent-strong);
+  font-size: 12px;
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+#map-add-layer-btn:hover { background: rgba(236, 230, 211, 0.08); }
+
+#map-viewport.map-edit-active #map-viewport-canvas { cursor: crosshair; }
+
 /* ===================== 우측 하단 유틸리티 버튼 (업데이트 내역 / 오류 제보) ===================== */
 
 #site-utility-bar {

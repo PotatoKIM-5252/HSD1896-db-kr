@@ -181,6 +181,11 @@
     <!-- ===================== 4. 맵 탭 (인터랙티브 맵) ===================== -->
     <section id="tab-maps" class="tab-panel" hidden>
       <div id="map-select-row"></div>
+      <div id="map-edit-actions" hidden>
+        <p id="map-edit-hint">지도를 클릭해 선택한 범례로 지점 추가 · 지점을 드래그해 위치 조정 · 지점을 우클릭해 삭제</p>
+        <button id="map-edit-publish-btn" type="button">확정(게시)</button>
+        <button id="map-edit-cancel-btn" type="button">취소</button>
+      </div>
       <div id="maps-layout">
         <aside id="map-legend-panel">
           <div id="map-legend-header">
@@ -189,6 +194,7 @@
             <div id="map-legend-header-actions">
               <button id="map-legend-enable-all-btn" type="button">전체 켜기</button>
               <button id="map-legend-disable-all-btn" type="button">전체 끄기</button>
+              <button id="map-edit-toggle-btn" type="button" hidden>지점 편집</button>
             </div>
           </div>
           <div id="map-layer-toggles"></div>

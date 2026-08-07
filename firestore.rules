@@ -139,6 +139,24 @@ service cloud.firestore {
       allow delete: if request.auth != null && request.auth.uid == reviewOwnerUid;
     }
 
+    // 맵 탭 지점/범례 — 운영자가 지도에서 클릭해 지점을 찍고 "확정"을 누르면 여기 저장돼
+    // 모든 방문자에게 그대로 보인다. 읽기는 로그인 여부와 무관하게 전체 공개(비회원도
+    // 지도 탭을 봐야 하므로), 쓰기는 운영자만.
+    match /mapOverrides/{mapId} {
+      allow read: if true;
+      allow create, update: if isOperator()
+                    && request.resource.data.keys().hasOnly(['points'])
+                    && request.resource.data.points is map;
+      allow delete: if isOperator();
+    }
+    match /mapCustomLayers/{docId} {
+      allow read: if true;
+      allow create, update: if isOperator()
+                    && request.resource.data.keys().hasOnly(['layers'])
+                    && request.resource.data.layers is list;
+      allow delete: if isOperator();
+    }
+
     // 사무소(매칭 게시판) 이용 등록 — 문서 ID이자 auth uid가 모두 "실제 스팀 로그인(OpenID)으로
     // 검증된 SteamID64"다. 이 uid는 Cloudflare Worker가 스팀에 직접 물어봐서(check_authentication)
     // 로그인이 진짜임을 확인한 뒤에만 Firebase 로그인 토큰으로 발급해주므로, 클라이언트가
