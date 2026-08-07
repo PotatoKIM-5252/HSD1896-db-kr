@@ -3412,6 +3412,21 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 }
 .office-btn-secondary:hover { border-color: var(--accent); color: var(--accent-strong); }
 
+.office-ban-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+.office-ban-control select {
+  background: var(--bg-input);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
 .office-btn-outline {
   border: 1px solid var(--border-strong);
   background: transparent;

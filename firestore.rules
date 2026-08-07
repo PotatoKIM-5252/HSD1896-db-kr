@@ -184,18 +184,31 @@ service cloud.firestore {
                     && request.resource.data.createdAt == request.time
                     && request.resource.data.banned == false;
 
+      // banned: 영구 차단 여부. bannedUntil: 기간제 차단 만료 시각(null이면 기간제 차단
+      // 없음) — 운영자가 밴 처리할 때 이 둘을 항상 같이 써서 의도를 명확히 한다
+      // (예: 7일 차단 -> {banned:false, bannedUntil:7일 뒤}, 영구 -> {banned:true,
+      // bannedUntil:null}, 해제 -> {banned:false, bannedUntil:null}). 기간이 지나면
+      // isCurrentlyBanned()가 자동으로 차단 아님으로 판정하므로 별도 해제 작업 불필요.
       allow update: if isOperator()
-                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['banned'])
-                    && request.resource.data.banned is bool;
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['banned', 'bannedUntil'])
+                    && request.resource.data.banned is bool
+                    && (request.resource.data.bannedUntil == null || request.resource.data.bannedUntil is timestamp);
 
       // 본인이 등록한 스팀 ID는 스스로도 지울 수 있음(사무소 탈퇴)
       allow delete: if isOperator() || (request.auth != null && request.auth.uid == steamId);
     }
 
     // 등록된(=밴 안 된) 사무소 회원인지 — 파티/신청 관련 규칙에서 반복 사용
+    // 영구 차단(banned)이거나, 기간제 차단(bannedUntil)이 아직 안 끝났으면 차단 상태로 본다.
+    // bannedUntil 필드가 아예 없는(과거) 문서도 안전하게 처리되도록 먼저 존재를 확인한다.
+    function isCurrentlyBanned(memberData) {
+      return memberData.banned == true
+          || (('bannedUntil' in memberData) && memberData.bannedUntil != null && memberData.bannedUntil > request.time);
+    }
+
     function isActiveMember(uid) {
       return exists(/databases/$(database)/documents/officeMembers/$(uid))
-          && get(/databases/$(database)/documents/officeMembers/$(uid)).data.banned == false;
+          && !isCurrentlyBanned(get(/databases/$(database)/documents/officeMembers/$(uid)).data);
     }
 
     // 헌트 서버 지역 — 파티 활동서버/프로필 선호 서버 둘 다 복수 선택 가능, "상관없음"도

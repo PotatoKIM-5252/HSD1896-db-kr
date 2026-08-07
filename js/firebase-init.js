@@ -322,6 +322,17 @@ async function getMyOfficeMembership() {
   return snap.exists() ? { steamId: uid, ...snap.data() } : null;
 }
 
+// 영구 차단(banned) 또는 아직 안 끝난 기간제 차단(bannedUntil)이면 차단 상태로 본다.
+// firestore.rules의 isCurrentlyBanned와 같은 판정 기준.
+function isOfficeMembershipBanned(membership) {
+  if (!membership) return false;
+  if (membership.banned) return true;
+  const until = membership.bannedUntil;
+  if (!until) return false;
+  const ms = typeof until.toMillis === "function" ? until.toMillis() : (typeof until.seconds === "number" ? until.seconds * 1000 : null);
+  return ms != null && Date.now() < ms;
+}
+
 // 스팀 로그인까지 마친 uid(=steamId64) 기준으로 사무소 등록 문서를 만든다.
 // 이미 등록돼 있으면(재로그인 등) 새로 쓰지 않고 기존 상태 그대로 반환.
 async function ensureOfficeMembership(steamId) {
@@ -946,7 +957,7 @@ window.LoadoutCloud = {
   listComments, addComment, getCurrentUid, OPERATOR_UID,
   getWeaponReviews, setWeaponHeart, saveWeaponComment, toggleWeaponCommentAgree,
   buildSteamLoginUrl, getSteamOpenIdParamsFromUrl, verifySteamLoginAndSignIn,
-  getMyOfficeMembership, ensureOfficeMembership, deleteMyOfficeMembership,
+  getMyOfficeMembership, ensureOfficeMembership, deleteMyOfficeMembership, isOfficeMembershipBanned,
   listAllParties, getMyParty, getPartyByLeaderId, saveMyParty, renewMyParty, setMyPartyStatus, setMyPartyCode, deleteMyParty,
   listApplicationsForMyParty, applyToParty, respondToApplication, listMyApplications, getPartyCode,
   watchMyPartyApplications, watchMyApplications, kickApplicant, inviteToParty, cancelInvite, respondToInvite, leaveParty,

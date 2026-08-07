@@ -342,6 +342,7 @@ function firestoreRestFieldsToJs(fields) {
 // mapCustomLayers) 중첩 객체·배열을 그대로 써야 해서 재귀적으로 변환한다.
 function jsValueToFirestore(v) {
   if (v === null || v === undefined) return { nullValue: null };
+  if (v instanceof Date) return { timestampValue: v.toISOString() };
   if (typeof v === "string") return { stringValue: v };
   if (typeof v === "boolean") return { booleanValue: v };
   if (typeof v === "number") return { doubleValue: v };
@@ -574,6 +575,27 @@ function createOfficeReportVideoButton(videoKey, getIdTokenFn) {
 // 누르면 officeMemberNumberHistory(영구 등록부)로 등록번호의 진짜 주인을 바로 찾는다.
 // 이 매핑은 시점과 무관하게 항상 정확하다(등록번호가 나중에 새로 바뀌어도 예전
 // 신고 기록은 그 당시 번호 그대로 남아있음).
+// 밴 처리(운영자 전용, REST) — duration은 "1"/"3"/"7"/"30"(일수 문자열), "permanent"(영구),
+// "unban"(해제) 중 하나. banned/bannedUntil을 항상 같이 써서 의도를 명확히 한다
+// (firestore.rules 참고 — 기간이 지나면 자동으로 차단 아님으로 판정되므로 별도 해제 불필요).
+async function setOfficeMemberBanAsOperator(steamId, duration, idToken) {
+  const fields = duration === "permanent"
+    ? { banned: true, bannedUntil: null }
+    : duration === "unban"
+      ? { banned: false, bannedUntil: null }
+      : { banned: false, bannedUntil: new Date(Date.now() + Number(duration) * 24 * 60 * 60 * 1000) };
+  const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/officeMembers/${steamId}`;
+  const res = await fetch(url, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
+    body: JSON.stringify({ fields: jsToFirestoreFields(fields) }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.error?.message || "차단 처리에 실패했습니다.");
+  }
+}
+
 function createTargetLookupRow(incidentPartyNumber, targetMemberNumber, idToken) {
   const row = document.createElement("div");
   row.className = "muted-text";
@@ -590,6 +612,7 @@ function createTargetLookupRow(incidentPartyNumber, targetMemberNumber, idToken)
     try {
       const steamId = await resolveMemberNumberAsOperator(targetMemberNumber, idToken);
       btn.replaceWith(document.createTextNode(steamId || "등록된 적 없는 번호입니다."));
+      if (steamId) row.appendChild(createBanControlRow(steamId, idToken));
     } catch (err) {
       btn.disabled = false;
       btn.textContent = "스팀ID 조회";
@@ -598,6 +621,39 @@ function createTargetLookupRow(incidentPartyNumber, targetMemberNumber, idToken)
   });
   row.appendChild(btn);
   return row;
+}
+
+// 스팀ID가 조회된 뒤 붙는 차단 컨트롤 — 기간 선택 + 차단 버튼
+function createBanControlRow(steamId, idToken) {
+  const wrap = document.createElement("div");
+  wrap.className = "office-ban-control";
+  const select = document.createElement("select");
+  select.innerHTML = `
+    <option value="1">1일</option>
+    <option value="3">3일</option>
+    <option value="7">7일</option>
+    <option value="30">30일</option>
+    <option value="permanent">영구</option>
+    <option value="unban">차단 해제</option>
+  `;
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "office-btn office-btn-secondary";
+  btn.textContent = "적용";
+  btn.addEventListener("click", async () => {
+    btn.disabled = true;
+    try {
+      await setOfficeMemberBanAsOperator(steamId, select.value, idToken);
+      showToast("차단 상태가 변경됐습니다.", "info");
+    } catch (err) {
+      showToast(err.message || "차단 처리에 실패했습니다.");
+    } finally {
+      btn.disabled = false;
+    }
+  });
+  wrap.appendChild(select);
+  wrap.appendChild(btn);
+  return wrap;
 }
 
 async function deleteOfficeReportVideo(key, idToken) {
@@ -1323,6 +1379,20 @@ function setupOfficeTab() {
   setupOfficePartyBoard();
 }
 
+// 차단된 계정 화면 — 영구 차단이면 그대로, 기간제 차단이면 해제 시각을 같이 보여준다.
+function showOfficeBannedView(membership) {
+  document.getElementById("office-banned-view").hidden = false;
+  const detailEl = document.getElementById("office-banned-detail");
+  if (membership.banned) {
+    detailEl.textContent = "영구 차단된 계정입니다.";
+  } else if (membership.bannedUntil) {
+    const ms = officeTimestampMillis(membership.bannedUntil);
+    detailEl.textContent = ms ? `차단 해제 예정: ${new Date(ms).toLocaleString("ko-KR")}` : "";
+  } else {
+    detailEl.textContent = "";
+  }
+}
+
 // 인증된 회원 화면으로 전환 + 기본 모드(파티) 렌더 — loadOfficeMembership과
 // handleSteamOpenIdCallback 양쪽에서 공통으로 씀
 function showOfficeMemberView(steamId) {
@@ -1388,8 +1458,8 @@ async function loadOfficeMembership() {
       loadingEl.hidden = true;
       if (!membership) {
         showOfficeOperatorView(opAuth);
-      } else if (membership.banned) {
-        bannedView.hidden = false;
+      } else if (window.LoadoutCloud.isOfficeMembershipBanned(membership)) {
+        showOfficeBannedView(membership);
       } else {
         showOfficeMemberView(membership.steamId);
       }
@@ -1400,8 +1470,8 @@ async function loadOfficeMembership() {
     loadingEl.hidden = true;
     if (!membership) {
       introView.hidden = false;
-    } else if (membership.banned) {
-      bannedView.hidden = false;
+    } else if (window.LoadoutCloud.isOfficeMembershipBanned(membership)) {
+      showOfficeBannedView(membership);
     } else {
       showOfficeMemberView(membership.steamId);
     }
@@ -1439,8 +1509,8 @@ async function handleSteamOpenIdCallback() {
     const steamId = await window.LoadoutCloud.verifySteamLoginAndSignIn(params);
     const membership = await window.LoadoutCloud.ensureOfficeMembership(steamId);
     loadingEl.hidden = true;
-    if (membership.banned) {
-      bannedView.hidden = false;
+    if (window.LoadoutCloud.isOfficeMembershipBanned(membership)) {
+      showOfficeBannedView(membership);
     } else {
       showOfficeMemberView(steamId);
     }
