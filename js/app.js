@@ -6715,6 +6715,10 @@ function effectiveMapLayers() {
 async function loadMapOverrideForActiveMap() {
   const map = getActiveMap();
   state.mapOverridePoints = map ? await fetchMapOverridePoints(map.id).catch(() => null) : null;
+  // 범례 패널의 개수 표시는 이 fetch가 끝나기 전에 먼저 한 번 그려지므로(직전 지도의
+  // 값으로 그려짐), 데이터를 받아온 뒤 여기서 다시 그려서 지도와 항상 같은 데이터를
+  // 보여주게 맞춘다.
+  renderMapLegendPanel();
   renderMapViewport();
 }
 
