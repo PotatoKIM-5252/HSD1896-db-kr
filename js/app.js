@@ -729,7 +729,7 @@ function init() {
     renderMapLegendPanel();
   });
   document.getElementById("map-legend-enable-all-btn").addEventListener("click", () => {
-    state.activeMapLayers = new Set(MAP_LAYERS.map((l) => l.key));
+    state.activeMapLayers = new Set(effectiveMapLayers().map((l) => l.key));
     renderMapLegendPanel();
     renderMapViewport();
   });
