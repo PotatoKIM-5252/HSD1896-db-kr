@@ -1191,6 +1191,48 @@ async function refreshOfficeReportAdminAccess() {
   document.getElementById("office-report-admin-btn").hidden = !opAuth;
 }
 
+// 새 신청/초대 알림용 사운드 + 탭 제목 깜빡임 — 보조 모니터에 인력사무소를 띄워두고
+// 게임하다가도 알아챌 수 있게 하기 위함. 외부 음원 파일 없이 Web Audio API로 짧은
+// 비프음을 직접 만들어 재생한다(브라우저 자동재생 정책 때문에 실패할 수 있어 조용히
+// 무시). 탭 제목은 지금 탭을 보고 있지 않을 때만 깜빡이고, 다시 보면 바로 멈춘다.
+function playOfficeNotifySound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = 880;
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.3);
+  } catch {
+    // 오디오 컨텍스트를 못 만들거나 자동재생이 막힌 경우 조용히 무시
+  }
+}
+
+const OFFICE_ORIGINAL_TITLE = document.title;
+let officeTitleFlashInterval = null;
+function startOfficeTitleFlash(message) {
+  if (!document.hidden) return; // 지금 이 탭을 보고 있으면 깜빡일 필요 없음
+  if (officeTitleFlashInterval) return;
+  let flashOn = false;
+  officeTitleFlashInterval = setInterval(() => {
+    document.title = flashOn ? OFFICE_ORIGINAL_TITLE : message;
+    flashOn = !flashOn;
+  }, 1000);
+}
+function stopOfficeTitleFlash() {
+  if (!officeTitleFlashInterval) return;
+  clearInterval(officeTitleFlashInterval);
+  officeTitleFlashInterval = null;
+  document.title = OFFICE_ORIGINAL_TITLE;
+}
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) stopOfficeTitleFlash();
+});
+
 // 내 파티에 들어오는 신청을 실시간 감시 — 새 신청이 오면(대기중 상태가 새로 생기면)
 // 지금 어떤 탭/모드를 보고 있든 바로 토스트로 알리고 신청 목록을 새로 그린다.
 function setupMyPartyApplicationsWatch() {
@@ -1204,6 +1246,8 @@ function setupMyPartyApplicationsWatch() {
       if (newCount > 0) {
         showToast(`새 참가 신청이 ${newCount}건 도착했습니다.`, "info");
         renderMyParty();
+        playOfficeNotifySound();
+        startOfficeTitleFlash(`🔔 새 참가 신청 ${newCount}건`);
       }
     }
     knownPendingApplicantIds = pendingIds;
@@ -1225,6 +1269,8 @@ function setupMyApplicationsWatch() {
       if (newCount > 0) {
         showToast(`새 파티 초대가 ${newCount}건 도착했습니다.`, "info");
         renderMyApplications();
+        playOfficeNotifySound();
+        startOfficeTitleFlash(`🔔 새 파티 초대 ${newCount}건`);
       }
     }
     knownInvitedLeaderIds = invitedIds;
@@ -1367,6 +1413,7 @@ function setupOfficeTab() {
       await window.LoadoutCloud.deleteMyOfficeMembership();
       if (myPartyApplicationsUnsub) { myPartyApplicationsUnsub(); myPartyApplicationsUnsub = null; }
       if (myApplicationsUnsub) { myApplicationsUnsub(); myApplicationsUnsub = null; }
+      if (partyListUnsub) { partyListUnsub(); partyListUnsub = null; }
       document.getElementById("office-member-view").hidden = true;
       officeMembershipLoaded = false;
       loadOfficeMembership();
@@ -1408,7 +1455,7 @@ function showOfficeMemberView(steamId) {
   document.getElementById("office-mode-resume").hidden = true;
   document.getElementById("office-list-party").hidden = false;
   document.getElementById("office-list-resume").hidden = true;
-  renderPartyList();
+  setupPartyListWatch();
   renderMyParty();
   setupMyPartyApplicationsWatch();
   setupMyApplicationsWatch();
@@ -1796,6 +1843,75 @@ function formatOfficeRemainingTime(ts, windowMs = OFFICE_EXPIRY_MS, suffix = "�
 
 // 파티 목록 — 모집 중인 파티를 전부 보여준다(내 파티도 포함, "내 파티" 표시만 붙임).
 // 신청자의 uid는 화면 어디에도 노출하지 않는다(메시지 내용만 보여줌).
+// 목록 DOM을 실제로 그리는 부분 — 한 번 불러온 값을 그릴 때(renderPartyList)와
+// 실시간 구독이 새 값을 줄 때(setupPartyListWatch) 둘 다 이 함수를 공유해서 쓴다.
+function renderPartyListItems(parties, myUid, hasResume) {
+  const listEl = document.getElementById("office-party-list");
+  const activeParties = parties.filter((p) => !isOfficeEntryExpired(p.renewedAt || p.createdAt));
+  listEl.innerHTML = "";
+  if (activeParties.length === 0) {
+    listEl.textContent = "현재 등록된 파티가 없습니다.";
+    return;
+  }
+  activeParties.forEach((party) => {
+    const isMine = party.leaderId === myUid;
+    const isClosed = party.status !== "open";
+    const item = document.createElement("div");
+    item.className = "office-party-item";
+
+    const descEl = document.createElement("p");
+    descEl.className = "office-party-desc";
+    descEl.textContent = (isMine ? "[내 파티] " : "") + (isClosed ? "[모집 마감] " : "") + formatPartyFields(party);
+    item.appendChild(descEl);
+
+    const headcountEl = document.createElement("p");
+    headcountEl.className = "office-headcount-badge";
+    headcountEl.textContent = `${partyStatusDot(party)} 인원: ${1 + (party.acceptedCount || 0)}/${partyMaxSize(party.partyType)}명`;
+    item.appendChild(headcountEl);
+
+
+    if (!isMine && isClosed) {
+      const closedMsg = document.createElement("p");
+      closedMsg.className = "office-blocked-msg";
+      closedMsg.textContent = "모집이 마감된 파티입니다.";
+      item.appendChild(closedMsg);
+    } else if (!isMine && !hasResume) {
+      const noResumeMsg = document.createElement("p");
+      noResumeMsg.className = "office-blocked-msg";
+      noResumeMsg.textContent = "프로필을 먼저 등록해야 참가 신청을 할 수 있습니다.";
+      item.appendChild(noResumeMsg);
+    } else if (!isMine) {
+      const applyRow = document.createElement("div");
+      applyRow.className = "office-party-apply-row";
+      const input = document.createElement("input");
+      input.type = "text";
+      input.maxLength = 200;
+      input.placeholder = "간단한 메시지(선택)";
+      const applyBtn = document.createElement("button");
+      applyBtn.type = "button";
+      applyBtn.className = "office-btn office-btn-primary";
+      applyBtn.textContent = "참가 신청";
+      applyRow.appendChild(input);
+      applyRow.appendChild(applyBtn);
+      item.appendChild(applyRow);
+
+      applyBtn.addEventListener("click", async () => {
+        applyBtn.disabled = true;
+        try {
+          await window.LoadoutCloud.applyToParty(party.leaderId, input.value);
+          applyBtn.textContent = "신청 완료";
+          input.disabled = true;
+        } catch (err) {
+          showToast(err.message || "신청에 실패했습니다.");
+          applyBtn.disabled = false;
+        }
+      });
+    }
+
+    listEl.appendChild(item);
+  });
+}
+
 async function renderPartyList() {
   const listEl = document.getElementById("office-party-list");
   if (!window.LoadoutCloud) return;
@@ -1806,73 +1922,35 @@ async function renderPartyList() {
       window.LoadoutCloud.getCurrentUid(),
       window.LoadoutCloud.getMyResume().catch(() => null),
     ]);
-    const hasResume = !!myResume;
-    const activeParties = parties.filter((p) => !isOfficeEntryExpired(p.renewedAt || p.createdAt));
-    listEl.innerHTML = "";
-    if (activeParties.length === 0) {
-      listEl.textContent = "현재 등록된 파티가 없습니다.";
-      return;
-    }
-    activeParties.forEach((party) => {
-      const isMine = party.leaderId === myUid;
-      const isClosed = party.status !== "open";
-      const item = document.createElement("div");
-      item.className = "office-party-item";
-
-      const descEl = document.createElement("p");
-      descEl.className = "office-party-desc";
-      descEl.textContent = (isMine ? "[내 파티] " : "") + (isClosed ? "[모집 마감] " : "") + formatPartyFields(party);
-      item.appendChild(descEl);
-
-      const headcountEl = document.createElement("p");
-      headcountEl.className = "office-headcount-badge";
-      headcountEl.textContent = `${partyStatusDot(party)} 인원: ${1 + (party.acceptedCount || 0)}/${partyMaxSize(party.partyType)}명`;
-      item.appendChild(headcountEl);
-
-
-      if (!isMine && isClosed) {
-        const closedMsg = document.createElement("p");
-        closedMsg.className = "office-blocked-msg";
-        closedMsg.textContent = "모집이 마감된 파티입니다.";
-        item.appendChild(closedMsg);
-      } else if (!isMine && !hasResume) {
-        const noResumeMsg = document.createElement("p");
-        noResumeMsg.className = "office-blocked-msg";
-        noResumeMsg.textContent = "프로필을 먼저 등록해야 참가 신청을 할 수 있습니다.";
-        item.appendChild(noResumeMsg);
-      } else if (!isMine) {
-        const applyRow = document.createElement("div");
-        applyRow.className = "office-party-apply-row";
-        const input = document.createElement("input");
-        input.type = "text";
-        input.maxLength = 200;
-        input.placeholder = "간단한 메시지(선택)";
-        const applyBtn = document.createElement("button");
-        applyBtn.type = "button";
-        applyBtn.className = "office-btn office-btn-primary";
-        applyBtn.textContent = "참가 신청";
-        applyRow.appendChild(input);
-        applyRow.appendChild(applyBtn);
-        item.appendChild(applyRow);
-
-        applyBtn.addEventListener("click", async () => {
-          applyBtn.disabled = true;
-          try {
-            await window.LoadoutCloud.applyToParty(party.leaderId, input.value);
-            applyBtn.textContent = "신청 완료";
-            input.disabled = true;
-          } catch (err) {
-            showToast(err.message || "신청에 실패했습니다.");
-            applyBtn.disabled = false;
-          }
-        });
-      }
-
-      listEl.appendChild(item);
-    });
+    renderPartyListItems(parties, myUid, !!myResume);
   } catch {
     listEl.textContent = "파티 목록을 불러오지 못했습니다.";
   }
+}
+
+// 구인방 목록을 실시간(Firestore 구독)으로 유지 — 보조 모니터에 띄워놓고 게임하다가도
+// 다른 사람이 파티를 새로 만들거나 상태를 바꾸면 새로고침 버튼 없이 바로 반영된다.
+// 신청 메시지를 입력하던 중에 갑자기 목록이 다시 그려져 입력값이 날아가지 않도록,
+// 지금 목록 안의 뭔가에 포커스가 가 있으면(메시지 입력 중 등) 이번 업데이트는
+// 건너뛴다 — 포커스를 벗어나면 다음 업데이트 때 자연스럽게 최신 상태로 맞춰진다.
+let partyListUnsub = null;
+function setupPartyListWatch() {
+  if (!window.LoadoutCloud || !window.LoadoutCloud.watchAllParties) {
+    renderPartyList();
+    return;
+  }
+  if (partyListUnsub) { partyListUnsub(); partyListUnsub = null; }
+  Promise.all([
+    window.LoadoutCloud.getCurrentUid(),
+    window.LoadoutCloud.getMyResume().catch(() => null),
+  ]).then(([myUid, myResume]) => {
+    const hasResume = !!myResume;
+    partyListUnsub = window.LoadoutCloud.watchAllParties((parties) => {
+      const listEl = document.getElementById("office-party-list");
+      if (listEl.contains(document.activeElement)) return;
+      renderPartyListItems(parties, myUid, hasResume);
+    });
+  });
 }
 
 // 파티 목록(운영자 열람 전용) — 읽기 전용, 참가 신청 등 쓰기 관련 UI는 아예 만들지 않는다.

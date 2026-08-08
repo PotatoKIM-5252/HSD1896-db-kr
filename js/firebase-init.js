@@ -416,6 +416,16 @@ async function listAllParties() {
   return snap.docs.map((d) => ({ leaderId: d.id, ...d.data() }));
 }
 
+// listAllParties와 같은 쿼리를 실시간으로 구독 — 보조 모니터에 파티 목록을 띄워두고
+// 게임하다가도 다른 사람이 파티를 새로 만들거나 상태를 바꾸면 새로고침 버튼 없이
+// 바로 반영되게 하기 위함. 구독 해제 함수를 돌려준다.
+function watchAllParties(callback) {
+  const q = query(collection(db, OFFICE_PARTIES_COLLECTION), orderBy("createdAt", "desc"));
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ leaderId: d.id, ...d.data() })));
+  });
+}
+
 async function getMyParty() {
   const uid = await getUid();
   const snap = await getDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid));
@@ -958,7 +968,7 @@ window.LoadoutCloud = {
   getWeaponReviews, setWeaponHeart, saveWeaponComment, toggleWeaponCommentAgree,
   buildSteamLoginUrl, getSteamOpenIdParamsFromUrl, verifySteamLoginAndSignIn,
   getMyOfficeMembership, ensureOfficeMembership, deleteMyOfficeMembership, isOfficeMembershipBanned,
-  listAllParties, getMyParty, getPartyByLeaderId, saveMyParty, renewMyParty, setMyPartyStatus, setMyPartyCode, deleteMyParty,
+  listAllParties, watchAllParties, getMyParty, getPartyByLeaderId, saveMyParty, renewMyParty, setMyPartyStatus, setMyPartyCode, deleteMyParty,
   listApplicationsForMyParty, applyToParty, respondToApplication, listMyApplications, getPartyCode,
   watchMyPartyApplications, watchMyApplications, kickApplicant, inviteToParty, cancelInvite, respondToInvite, leaveParty,
   getMyResume, saveMyResume, renewMyResume, deleteMyResume, getApplicantResume, listAllResumes,
