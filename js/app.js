@@ -319,6 +319,18 @@ async function setReportResolvedAsOperator(reportId, resolved, operatorAuth) {
   }
 }
 
+async function deleteReportAsOperator(reportId, operatorAuth) {
+  const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/reports/${reportId}`;
+  const res = await fetch(url, {
+    method: "DELETE",
+    headers: { "Authorization": `Bearer ${operatorAuth.idToken}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.error?.message || "제보 삭제에 실패했습니다.");
+  }
+}
+
 // Firestore REST 응답의 typed value({stringValue:"..."} 등)를 평범한 JS 값으로 변환 —
 // 운영자가 스팀 인증 없이 사무소 게시판을 "열람"만 할 때 SDK 대신 REST로 직접 조회하는
 // 용도로만 쓴다(쓰기는 여기 구현하지 않음 + 규칙도 열람만 허용).
@@ -1108,6 +1120,25 @@ function setupReportWidget() {
           }
         });
         item.appendChild(resolveBtn);
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.type = "button";
+        deleteBtn.className = "reportbox-resolve-btn";
+        deleteBtn.textContent = "삭제";
+        deleteBtn.addEventListener("click", async () => {
+          if (!confirm("이 제보를 삭제할까요? 되돌릴 수 없습니다.")) return;
+          deleteBtn.disabled = true;
+          try {
+            await deleteReportAsOperator(r.id, operatorAuth);
+            historyLoaded = false;
+            const reports = await window.LoadoutCloud.listReports();
+            await renderHistoryList(reports);
+          } catch (err) {
+            showToast(err.message || "제보 삭제에 실패했습니다.");
+            deleteBtn.disabled = false;
+          }
+        });
+        item.appendChild(deleteBtn);
       }
 
       historyListEl.appendChild(item);
