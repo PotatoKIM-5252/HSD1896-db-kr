@@ -685,6 +685,12 @@ async function cleanupExpiredOfficeReports(reports, idToken) {
 // -------------------------------------------------------------------------
 // 사이트 업데이트 내역 — 새 항목은 배열 맨 앞에 추가(최신순으로 그대로 출력됨)
 const CHANGELOG = [
+  { date: "8.8", text: "사무소: 구인방 리스트가 새로고침 없이 실시간으로 자동 갱신됨, 새 참가 신청/초대가 오면 알림음(종소리)과 탭 제목 깜빡임으로 알려줌" },
+  { date: "8.8", text: "사무소: 내 파티 화면의 파티원 목록에 파티장 본인도 등록번호와 함께 표시" },
+  { date: "8.7", text: "사무소 다시 오픈 — 스팀 로그인한 이용자 누구나 운영자 키 없이 이용 가능" },
+  { date: "8.7", text: "사무소: 위반 시 기간제 차단(1/3/7/30일/영구) 도입, 신고는 사건 발생일로부터 3일 이내에만 접수 가능하도록 규칙 명시" },
+  { date: "8.7", text: "맵 탭에 운영자 전용 지점/범례 추가·이동·삭제 편집 기능 추가" },
+  { date: "8.7", text: "사무소: 초대·신청 수락 직전 상대가 프로필을 지워도 유령 파티원이 남지 않도록 수정" },
   { date: "8.3", text: "드래곤브레스탄 한방컷(OHK) 거리 실측치 추가(스펙터 1882 기본형/바요넷, 터미누스 기본형, 라이벌 78 메이스) 및 스펙터 1882 기본쉘 한방컷 거리 13m로 보정" },
   { date: "8.3", text: "사무소: 파티 목록에 모집 상태를 🟢(모집중+빈자리)/🔴(가득참 또는 모집마감) 동그라미로 표시" },
   { date: "8.3", text: "사무소: 로비 코드 전체공개 옵션 제거 — 이제 파티장 본인과 참가 승인(수락)된 파티원만 로비 코드를 볼 수 있음" },
@@ -1195,18 +1201,31 @@ async function refreshOfficeReportAdminAccess() {
 // 게임하다가도 알아챌 수 있게 하기 위함. 외부 음원 파일 없이 Web Audio API로 짧은
 // 비프음을 직접 만들어 재생한다(브라우저 자동재생 정책 때문에 실패할 수 있어 조용히
 // 무시). 탭 제목은 지금 탭을 보고 있지 않을 때만 깜빡이고, 다시 보면 바로 멈춘다.
+// "띠링" 두 음이 살짝 시차를 두고 이어지는 맑은 종소리 — 각 음마다 배음(2.4배)을
+// 섞어 종 특유의 쨍한 울림을 내고, 짧은 어택 + 지수 감쇠로 종이 울리다 잦아드는 느낌을 준다.
 function playOfficeNotifySound() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.frequency.value = 880;
-    gain.gain.setValueAtTime(0.15, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.3);
+    const now = ctx.currentTime;
+    const notes = [
+      { freq: 1760, start: 0, duration: 0.5, peak: 0.5 },     // "띠" (A6)
+      { freq: 2349, start: 0.09, duration: 0.6, peak: 0.52 }, // "링" (D7)
+    ];
+    notes.forEach(({ freq, start, duration, peak }) => {
+      [{ ratio: 1, peakMul: 1 }, { ratio: 2.4, peakMul: 0.5 }].forEach(({ ratio, peakMul }) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = freq * ratio;
+        const notePeak = peak * peakMul;
+        gain.gain.setValueAtTime(0, now + start);
+        gain.gain.linearRampToValueAtTime(notePeak, now + start + 0.006);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + start + duration);
+        osc.start(now + start);
+        osc.stop(now + start + duration);
+      });
+    });
   } catch {
     // 오디오 컨텍스트를 못 만들거나 자동재생이 막힌 경우 조용히 무시
   }
