@@ -863,6 +863,7 @@ function init() {
 
   setupReportWidget();
   setupChangelogWidget();
+  setupOfficeChangelogPopup();
   setupOfficeTab();
   handleSteamOpenIdCallback();
 }
@@ -1171,6 +1172,53 @@ function setupChangelogWidget() {
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && !overlay.hidden) closeModal();
   });
+}
+
+// 사무소 탭 전용 "새 소식" 팝업 — 전체 업데이트 내역과는 별개로, 사무소("사무소"로
+// 시작하는 항목)에 새 변경사항이 생긴 뒤 사무소 탭에 처음 들어왔을 때만 한 번 자동으로
+// 뜬다. 마지막으로 본 항목을 localStorage에 저장해두고, 그 이후에 추가된 사무소 항목만
+// 모아서 보여준 뒤 즉시 "확인함"으로 기록한다(같은 세션에서 탭을 여러 번 왔다갔다 해도
+// 다시 뜨지 않음).
+const OFFICE_CHANGELOG_SEEN_KEY = "hsddb_office_changelog_seen";
+function setupOfficeChangelogPopup() {
+  const overlay = document.getElementById("office-changelog-modal-overlay");
+  const closeBtn = document.getElementById("office-changelog-modal-close-btn");
+  const closeModal = () => { overlay.hidden = true; };
+  closeBtn.addEventListener("click", closeModal);
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) closeModal(); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !overlay.hidden) closeModal();
+  });
+}
+
+function maybeShowOfficeChangelogPopup() {
+  const officeEntries = CHANGELOG.filter((e) => e.text.startsWith("사무소"));
+  if (officeEntries.length === 0) return;
+  const marker = (e) => `${e.date}|${e.text}`;
+  const latestMarker = marker(officeEntries[0]);
+  const lastSeen = localStorage.getItem(OFFICE_CHANGELOG_SEEN_KEY);
+  if (lastSeen === latestMarker) return;
+  const seenIndex = officeEntries.findIndex((e) => marker(e) === lastSeen);
+  const newEntries = seenIndex === -1 ? officeEntries : officeEntries.slice(0, seenIndex);
+  localStorage.setItem(OFFICE_CHANGELOG_SEEN_KEY, latestMarker);
+  if (newEntries.length === 0) return;
+
+  const listEl = document.getElementById("office-changelog-list");
+  listEl.innerHTML = "";
+  newEntries.forEach((entry) => {
+    const item = document.createElement("div");
+    item.className = "changelog-item";
+    const dateEl = document.createElement("span");
+    dateEl.className = "changelog-date";
+    dateEl.textContent = entry.date;
+    const textEl = document.createElement("span");
+    textEl.className = "changelog-text";
+    textEl.textContent = entry.text;
+    item.appendChild(dateEl);
+    item.appendChild(textEl);
+    listEl.appendChild(item);
+  });
+  document.getElementById("office-changelog-modal-overlay").hidden = false;
 }
 
 // 사무소 탭 — 처음엔 규칙 안내 + "스팀으로 로그인" 화면, 이미 스팀 인증을 마친 uid면
@@ -2762,7 +2810,10 @@ function switchTab(tabName) {
   });
   if (tabName === "analysis") renderAnalysis();
   if (tabName === "maps") renderMapsTab();
-  if (tabName === "office") loadOfficeMembership();
+  if (tabName === "office") {
+    loadOfficeMembership();
+    maybeShowOfficeChangelogPopup();
+  }
 }
 
 // -------------------------------------------------------------------------
