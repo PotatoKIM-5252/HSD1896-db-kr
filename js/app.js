@@ -2008,8 +2008,9 @@ async function renderMyParty() {
   expiredMsgEl.hidden = true;
   timerEl.hidden = true;
   timerEl.textContent = "";
+  let party = null;
   try {
-    const party = await window.LoadoutCloud.getMyParty();
+    party = await window.LoadoutCloud.getMyParty();
     closeBtn.hidden = !party || party.status !== "open";
     reopenBtn.hidden = !party || party.status !== "closed";
     deleteBtn.hidden = !party;
@@ -2050,8 +2051,25 @@ async function renderMyParty() {
     const others = applicants.filter((a) => a.status !== "accepted" && a.status !== "invited");
 
     membersListEl.innerHTML = "";
+    if (party) {
+      const selfItem = document.createElement("div");
+      selfItem.className = "office-applicant-item";
+      const selfInfoWrap = document.createElement("div");
+      selfInfoWrap.className = "office-applicant-info";
+      const selfResumeEl = document.createElement("p");
+      selfResumeEl.className = "office-applicant-resume";
+      selfResumeEl.textContent = "내 프로필 불러오는 중...";
+      selfInfoWrap.appendChild(selfResumeEl);
+      window.LoadoutCloud.getMyResume().then((resume) => {
+        selfResumeEl.textContent = `${resume ? formatResumeFields(resume) : "등록번호 정보 없음"} · 본인(파티장)`;
+      }).catch(() => {
+        selfResumeEl.textContent = "내 프로필 정보를 불러오지 못했습니다.";
+      });
+      selfItem.appendChild(selfInfoWrap);
+      membersListEl.appendChild(selfItem);
+    }
     if (members.length === 0) {
-      membersListEl.textContent = "아직 파티원이 없습니다.";
+      if (!party) membersListEl.textContent = "아직 파티원이 없습니다.";
     } else {
       for (const m of members) {
         const item = document.createElement("div");
