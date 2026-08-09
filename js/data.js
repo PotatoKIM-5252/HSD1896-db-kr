@@ -6235,6 +6235,7 @@ const ITEMS = [
         slotSize: 2,
         chamber: {
           loaded: "5+1",
+          extra: 9,
         },
         stats: {
           damage: 120,
