@@ -4812,7 +4812,7 @@ const AMMO_TYPES = {
     icon: "🩸",
     description: "작살 - 명중 시 강한 출혈. 회수 후 재사용 가능.",
     cost: 5,
-    statOverrides: { damage: 260, spread: 9, muzzleVelocity: 80, ammoExtra: 12 },
+    statOverrides: { damage: 260, spread: 9, muzzleVelocity: 80, ammoExtra: 6 },
     specialEffects: ["강한 출혈 효과 발생", "회수 후 재사용 가능"],
     // 사용자 실측(부위별): 가슴 46m / 팔 29m / 복부 39m — 전부 불안정 구간 없이 바로 불가로 전환
     ohkRange: { guaranteed: 46 },
@@ -4832,7 +4832,7 @@ const AMMO_TYPES = {
     icon: "🔩",
     description: "강철탄 - 탄속 대폭 증가, 분산도 증가.",
     cost: 5,
-    statOverrides: { damage: 239, spread: 62.5, muzzleVelocity: 450, ammoExtra: 8 },
+    statOverrides: { damage: 239, spread: 62.5, muzzleVelocity: 450, ammoExtra: 4 },
     // 사용자 실측(가슴 정조준 기준)
     ohkRange: { guaranteed: 10, unstableEnd: 14, noneFrom: 15 },
   },
@@ -4844,7 +4844,7 @@ const AMMO_TYPES = {
     icon: "🩸",
     description: "왁스 파편탄 - 착탄+폭발 피해, 강한 출혈. (표기 피해는 착탄25+최대폭발126의 합산치)",
     cost: 50,
-    statOverrides: { damage: 174, ammoExtra: 8 },
+    statOverrides: { damage: 174, ammoExtra: 4 },
     specialEffects: ["강한 출혈 효과 발생"],
   },
 
@@ -4878,7 +4878,7 @@ const AMMO_TYPES = {
     icon: "🩸",
     description: "작살 - 명중 시 강한 출혈. 회수 후 재사용 가능.",
     cost: 5,
-    statOverrides: { damage: 260, spread: 9, muzzleVelocity: 80, ammoExtra: 12 },
+    statOverrides: { damage: 260, spread: 9, muzzleVelocity: 80, ammoExtra: 6 },
     specialEffects: ["강한 출혈 효과 발생", "회수 후 재사용 가능"],
     // 밤 런처와 동일한 탄약군이라는 사용자 확인에 따라 동일 값 적용 (가슴 46m / 팔 29m / 복부 39m)
     ohkRange: { guaranteed: 46 },
@@ -4898,7 +4898,7 @@ const AMMO_TYPES = {
     icon: "🔩",
     description: "강철탄 - 탄속 대폭 증가, 분산도 증가.",
     cost: 5,
-    statOverrides: { damage: 239, spread: 62.5, muzzleVelocity: 450, ammoExtra: 8 },
+    statOverrides: { damage: 239, spread: 62.5, muzzleVelocity: 450, ammoExtra: 4 },
     // 밤 런처와 동일한 탄약군이라는 사용자 확인에 따라 동일 값 적용
     ohkRange: { guaranteed: 10, unstableEnd: 14, noneFrom: 15 },
   },
@@ -4910,7 +4910,7 @@ const AMMO_TYPES = {
     icon: "🩸",
     description: "왁스 파편탄 - 강한 출혈 효과.",
     cost: 50,
-    statOverrides: { damage: 126, ammoExtra: 8 },
+    statOverrides: { damage: 126, ammoExtra: 4 },
     specialEffects: ["강한 출혈 효과 발생"],
   },
 
@@ -5065,7 +5065,7 @@ const AMMO_TYPES = {
     icon: "❓",
     description: "카오스 볼트 - 착탄 지점에서 무작위 총성 발생.",
     cost: 10,
-    statOverrides: { damage: 65, muzzleVelocity: 50, ammoExtra: 10 },
+    statOverrides: { damage: 65, muzzleVelocity: 50, ammoExtra: 5 },
     specialEffects: ["착탄 지점에서 무작위 총성 발생"],
   },
   handcrossbow_choke: {
@@ -5076,7 +5076,7 @@ const AMMO_TYPES = {
     icon: "☁️",
     description: "초크 볼트 - 착탄 지점에 소형 초크 구름 생성.",
     cost: 10,
-    statOverrides: { damage: 1, ammoExtra: 10 },
+    statOverrides: { damage: 1, ammoExtra: 5 },
     specialEffects: ["착탄 지점에 소형 초크 구름 생성"],
   },
   handcrossbow_dragon: {
@@ -5087,7 +5087,7 @@ const AMMO_TYPES = {
     icon: "🔥",
     description: "드래곤 볼트 - 중급 화상 효과, 착탄 지점에 소형 화염지대 생성. 초크 구름 접촉 시 즉시 소멸.",
     cost: 40,
-    statOverrides: { damage: 11, ammoExtra: 4 },
+    statOverrides: { damage: 11, ammoExtra: 2 },
     specialEffects: ["중급 화상 효과 발생", "착탄 지점에 소형 화염지대 생성"],
   },
   handcrossbow_poison: {
@@ -5098,7 +5098,7 @@ const AMMO_TYPES = {
     icon: "🟢",
     description: "중독 볼트 - 약한 중독 효과, 착탄 지점에 소형 중독 구름 생성.",
     cost: 25,
-    statOverrides: { damage: 110 },
+    statOverrides: { damage: 110, ammoExtra: 8 },
     specialEffects: ["약한 중독 효과 발생", "착탄 지점에 소형 중독 구름 생성"],
   },
 
@@ -5591,6 +5591,9 @@ const ITEMS = [
         ammoTypes: ["bornheim_match_compact", "bornheim_high_velocity", "bornheim_incendiary", "bornheim_subsonic"],
         defaultAmmo: "bornheim_match_compact",
         price: 180,
+        chamber: {
+          extra: 20,
+        },
         stats: {
           damage: 80,
           dropRange: 85,
