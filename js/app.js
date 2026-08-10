@@ -702,7 +702,7 @@ async function cleanupExpiredOfficeReports(reports, idToken) {
 // -------------------------------------------------------------------------
 // 사이트 업데이트 내역 — 새 항목은 배열 맨 앞에 추가(최신순으로 그대로 출력됨)
 const CHANGELOG = [
-  { date: "8.10", text: "맵에 거리 측정 기능 추가 — 지도를 그냥 클릭하면 지점이 찍히고 거리(m)가 표시됨(1km x 1km 가정), 클릭한 채로 끌면 기존처럼 지도 이동, 다음 지점 찍기 전까진 커서를 따라다니는 미리보기 선 표시, 우클릭으로 최근 지점부터 취소, Esc로 전부 한 번에 취소" },
+  { date: "8.10", text: "맵에 거리 측정 기능 추가 — 지도를 그냥 클릭하면 지점이 찍히고 거리(m)가 표시됨(1km x 1km 가정), 클릭한 채로 끌면 기존처럼 지도 이동, 다음 지점 찍기 전까진 커서를 따라다니는 미리보기 선 표시, 우클릭으로 최근 지점부터 취소, Esc로 찍은 지점은 그대로 두고 선 잇기만 끊기(다음 클릭은 새 시작점)" },
   { date: "8.10", text: "폭탄 발사기/폭탄 창 한방컷(OHK) 거리를 활처럼 막대 하나로 통합(가슴 46m 기준 막대에 팔 29m/복부 39m 보조 눈금 표시)" },
   { date: "8.10", text: "센테니얼 포인트맨 여유탄 9발, 본하임 No. 3 매치 여유탄 20발로 수정" },
   { date: "8.10", text: "폭탄 발사기/폭탄 창(밤랜스) 작살 여유탄 6발, 철환탄 여유탄 4발, 왁스 파편탄 여유탄 4발로 수정" },
@@ -7006,6 +7006,7 @@ function renderMapSelectRow() {
       resetMapView();
       state.mapMeasurePoints = []; // 다른 지도로 넘어가면 이전 지도 좌표는 의미 없으므로 초기화
       mapMeasureHoverPos = null;
+      mapMeasureChainBroken = false;
       renderMapMeasureLayer();
       renderMapSelectRow();
       renderMapLegendPanel();
@@ -7386,6 +7387,10 @@ function mapMeasureDistanceMeters(p1, p2) {
 // 이을 대상이 없으므로 표시하지 않는다.
 let mapMeasureHoverPos = null;
 
+// Esc를 누르면 지금까지 찍은 지점은 그대로 두고 "선 잇기"만 멈춘다(true인 동안엔
+// 커서 미리보기가 안 뜸) — 그 다음 클릭은 이전 지점과 안 이어진 새 시작점이 된다.
+let mapMeasureChainBroken = false;
+
 function renderMapMeasureLayer() {
   const svg = document.getElementById("map-measure-layer");
   if (!svg) return;
@@ -7394,6 +7399,7 @@ function renderMapMeasureLayer() {
   for (let i = 1; i < points.length; i++) {
     const a = points[i - 1];
     const b = points[i];
+    if (b.chainStart) continue; // 새로 끊고 시작한 지점은 이전 지점과 잇지 않음
     const midX = (a.x + b.x) / 2;
     const midY = (a.y + b.y) / 2;
     html += `<line class="map-measure-line" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"></line>`;
@@ -7451,7 +7457,10 @@ function setupMapMeasureInteractions() {
     if (state.mapEditMode || !wasClick) { wasClick = false; return; }
     wasClick = false;
     const { x, y } = clientToPercent(e.clientX, e.clientY);
-    state.mapMeasurePoints.push({ x, y });
+    const point = { x, y };
+    if (mapMeasureChainBroken) point.chainStart = true; // 끊긴 뒤 첫 클릭은 새 시작점
+    mapMeasureChainBroken = false;
+    state.mapMeasurePoints.push(point);
     renderMapMeasureLayer();
   });
 
@@ -7462,9 +7471,9 @@ function setupMapMeasureInteractions() {
     renderMapMeasureLayer();
   });
 
-  // 마지막 지점 ~ 커서 위치를 잇는 미리보기 선을 실시간으로 갱신
+  // 마지막 지점 ~ 커서 위치를 잇는 미리보기 선을 실시간으로 갱신(선을 끊은 직후엔 표시 안 함)
   viewport.addEventListener("mousemove", (e) => {
-    if (state.mapEditMode || state.mapMeasurePoints.length === 0) return;
+    if (state.mapEditMode || state.mapMeasurePoints.length === 0 || mapMeasureChainBroken) return;
     mapMeasureHoverPos = clientToPercent(e.clientX, e.clientY);
     renderMapMeasureLayer();
   });
@@ -7475,10 +7484,11 @@ function setupMapMeasureInteractions() {
     renderMapMeasureLayer();
   });
 
-  // Esc — 우클릭으로 하나씩 취소할 필요 없이 지금까지 찍은 지점을 한 번에 전부 취소
+  // Esc — 찍어둔 지점은 그대로 두고 지금 잇고 있는 선만 끊는다(전부 지우는 게 아님).
+  // 끊긴 뒤 다음 클릭은 새로운(안 이어진) 지점으로 시작한다.
   document.addEventListener("keydown", (e) => {
-    if (e.key !== "Escape" || state.mapMeasurePoints.length === 0) return;
-    state.mapMeasurePoints = [];
+    if (e.key !== "Escape" || state.mapMeasurePoints.length === 0 || mapMeasureChainBroken) return;
+    mapMeasureChainBroken = true;
     mapMeasureHoverPos = null;
     renderMapMeasureLayer();
   });
