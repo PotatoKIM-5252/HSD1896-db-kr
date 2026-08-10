@@ -2852,6 +2852,10 @@ button { font-family: var(--font-body); cursor: pointer; }
   aspect-ratio: 1 / 1;
   overflow: hidden;
   cursor: grab;
+  /* 지도를 클릭+드래그(팬/거리측정/지점편집)할 때 마커나 빈 공간 위로 끌려도
+     브라우저 기본 텍스트/요소 선택(파란 하이라이트)이 뜨지 않게 함 */
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 #map-viewport.panning { cursor: grabbing; }
