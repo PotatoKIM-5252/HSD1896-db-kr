@@ -703,7 +703,7 @@ async function cleanupExpiredOfficeReports(reports, idToken) {
 // -------------------------------------------------------------------------
 // 사이트 업데이트 내역 — 새 항목은 배열 맨 앞에 추가(최신순으로 그대로 출력됨)
 const CHANGELOG = [
-  { date: "8.10", text: "맵에 \"동선 & 거리측정\" 기능 추가 — 버튼을 누르면 뜨는 바에서 색상 선택 후 지도를 클릭해 동선을 그리면 지점 사이 거리(m)가 표시됨(1km x 1km 가정), 클릭한 채로 끌면 지도 이동, 우클릭/Esc로 되돌리기, 완료·취소 버튼은 둘 다 동선은 지우지 않고 바만 닫음(완전히 지우려면 휴지통 버튼), 다시 켜도 기존 동선은 안 지워지고 이어서 새 동선 추가 가능" },
+  { date: "8.10", text: "맵에 \"동선 & 거리측정\" 기능 추가 — 버튼을 누르면 뜨는 바에서 색상 선택 후 지도를 클릭해 동선을 그리면 지점 사이 거리(m)가 표시됨(1km x 1km 가정), 클릭한 채로 끌면 지도 이동, 우클릭/Esc로 되돌리기. 완료는 그린 그대로 두고 바만 닫고, 취소는 이번에 새로 그린 부분만 지우고 기존에 완료해둔 동선은 남김(휴지통은 전체 지우기), 다시 켜도 기존 동선은 유지된 채 이어서 새 동선 추가 가능" },
   { date: "8.10", text: "폭탄 발사기/폭탄 창 한방컷(OHK) 거리를 활처럼 막대 하나로 통합(가슴 46m 기준 막대에 팔 29m/복부 39m 보조 눈금 표시)" },
   { date: "8.10", text: "센테니얼 포인트맨 여유탄 9발, 본하임 No. 3 매치 여유탄 20발로 수정" },
   { date: "8.10", text: "폭탄 발사기/폭탄 창(밤랜스) 작살 여유탄 6발, 철환탄 여유탄 4발, 왁스 파편탄 여유탄 4발로 수정" },
@@ -7010,6 +7010,7 @@ function renderMapSelectRow() {
       state.mapMeasurePoints = [];
       mapMeasureHoverPos = null;
       mapMeasureChainBroken = false;
+      mapMeasureSnapshotBeforeOpen = [];
       document.getElementById("map-measure-toggle-btn").classList.remove("active");
       document.getElementById("map-measure-bar").hidden = true;
       document.getElementById("map-viewport").classList.remove("map-measure-active");
@@ -7402,6 +7403,10 @@ let mapMeasureHoverPos = null;
 // 커서 미리보기가 안 뜸) — 그 다음 클릭은 이전 지점과 안 이어진 새 시작점이 된다.
 let mapMeasureChainBroken = false;
 
+// 도구를 열 때(openTool) 시점의 지점들을 스냅샷으로 저장해둔다 — "취소"를 누르면
+// 이번에 새로 그린 것만 지우고 이 스냅샷 상태로 되돌아간다("완료"는 스냅샷을 안 씀).
+let mapMeasureSnapshotBeforeOpen = [];
+
 function renderMapMeasureLayer() {
   const svg = document.getElementById("map-measure-layer");
   if (!svg) return;
@@ -7472,7 +7477,8 @@ function setupMapMeasureInteractions() {
     state.mapMeasureMode = true;
     mapMeasureHoverPos = null;
     // 이미 완료해둔 동선이 있으면 지우지 않고 그대로 둔 채, 다음 클릭이 거기 이어지지
-    // 않고 새 동선으로 시작하도록만 끊어둔다("취소"/휴지통을 눌러야 완전히 지워짐).
+    // 않고 새 동선으로 시작하도록만 끊어둔다("취소"를 누르면 이 스냅샷으로 되돌아감).
+    mapMeasureSnapshotBeforeOpen = state.mapMeasurePoints.map((p) => ({ ...p }));
     mapMeasureChainBroken = state.mapMeasurePoints.length > 0;
     updateColorSwatchSelection();
     toggleBtn.classList.add("active");
@@ -7483,6 +7489,7 @@ function setupMapMeasureInteractions() {
 
   // "완료"/"취소" 둘 다 지금까지 그린 동선은 지우지 않고 도구(바)만 닫는다 — 완전히
   // 지우려면 휴지통 버튼을 따로 눌러야 한다.
+  // "완료" — 지금 그려진 그대로 두고 도구(바)만 닫는다.
   function closeTool() {
     state.mapMeasureMode = false;
     mapMeasureHoverPos = null;
@@ -7492,9 +7499,16 @@ function setupMapMeasureInteractions() {
     renderMapMeasureLayer();
   }
 
+  // "취소" — 이번에 도구를 연 뒤로 새로 그린 부분만 지우고, 원래 있던(이전에 완료해둔)
+  // 동선은 그대로 둔 채 도구를 닫는다.
+  function cancelNewRoute() {
+    state.mapMeasurePoints = mapMeasureSnapshotBeforeOpen.map((p) => ({ ...p }));
+    closeTool();
+  }
+
   toggleBtn.addEventListener("click", openTool);
   finishBtn.addEventListener("click", closeTool);
-  cancelBtn.addEventListener("click", closeTool);
+  cancelBtn.addEventListener("click", cancelNewRoute);
   clearBtn.addEventListener("click", () => {
     state.mapMeasurePoints = [];
     mapMeasureHoverPos = null;
