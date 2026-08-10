@@ -81,10 +81,9 @@ const state = {
   mapPanX: 0,
   mapPanY: 0,
 
-  // 맵 탭 거리 측정 — 모든 이용자가 쓸 수 있는 기능(운영자 전용 아님). 지도를 1km x 1km
-  // 정사각형으로 가정하고(대각선 1414m), 클릭한 지점들을 percent 좌표로 저장해두고
-  // 이어서 거리(m)를 계산해서 보여준다.
-  mapMeasureMode: false,
+  // 맵 탭 거리 측정 — 기본 지도 기능(운영자 전용 아님, 별도 모드 켜기 없이 항상 동작).
+  // 지도를 1km x 1km 정사각형으로 가정하고(대각선 1414m), 클릭한 지점들을 percent
+  // 좌표로 저장해두고 이어서 거리(m)를 계산해서 보여준다.
   mapMeasurePoints: [], // [{x, y}, ...] percent 좌표
 
   // 맵 탭 편집(운영자 전용) — mapOverridePoints는 현재 지도의 "게시된" 지점(없으면
@@ -703,7 +702,7 @@ async function cleanupExpiredOfficeReports(reports, idToken) {
 // -------------------------------------------------------------------------
 // 사이트 업데이트 내역 — 새 항목은 배열 맨 앞에 추가(최신순으로 그대로 출력됨)
 const CHANGELOG = [
-  { date: "8.8", text: "맵 탭에 거리 측정 기능 추가 — 지도를 1km x 1km로 가정하고 클릭한 지점 사이 거리(m)를 표시, 우클릭으로 최근 지점부터 취소" },
+  { date: "8.8", text: "맵을 그냥 클릭만 하면 지점이 찍히고 거리(m)가 표시됨(1km x 1km 가정) — 클릭한 채로 끌면 기존처럼 지도 이동, 우클릭으로 최근 지점부터 취소" },
   { date: "8.8", text: "폭탄 발사기/폭탄 창 한방컷(OHK) 거리를 활처럼 막대 하나로 통합(가슴 46m 기준 막대에 팔 29m/복부 39m 보조 눈금 표시)" },
   { date: "8.8", text: "센테니얼 포인트맨 여유탄 9발, 본하임 No. 3 매치 여유탄 20발로 수정" },
   { date: "8.8", text: "폭탄 발사기/폭탄 창(밤랜스) 작살 여유탄 6발, 철환탄 여유탄 4발, 왁스 파편탄 여유탄 4발로 수정" },
@@ -7400,11 +7399,12 @@ function renderMapMeasureLayer() {
   svg.innerHTML = html;
 }
 
-// 지도를 클릭(드래그 아닌 순수 클릭)하면 지점을 추가, 우클릭하면 가장 최근 지점부터
-// 하나씩 취소한다. 팬(드래그) 동작과 헷갈리지 않도록 mousedown~mouseup 사이 이동
-// 거리가 4px을 넘으면 클릭으로 치지 않는다(지점 편집 모드의 판별 방식과 동일).
+// 기본 지도 기능(항상 켜져 있음, 별도 모드 전환 없음) — 지도를 그냥 클릭(드래그 아닌
+// 순수 클릭)하면 지점을 추가, 우클릭하면 가장 최근 지점부터 하나씩 취소한다. 클릭한
+// 채로 끌면(드래그) 기존 팬 기능이 그대로 동작하도록, mousedown~mouseup 사이 이동
+// 거리가 4px을 넘으면 클릭으로 치지 않는다. 운영자의 "지점 편집" 모드 중엔 클릭이
+// 지점 추가/이동 용도로 쓰이므로 거리 측정은 그 동안 비활성화한다.
 function setupMapMeasureInteractions() {
-  const toggleBtn = document.getElementById("map-measure-toggle-btn");
   const viewport = document.getElementById("map-viewport");
   const img = document.getElementById("map-base-img");
 
@@ -7418,18 +7418,10 @@ function setupMapMeasureInteractions() {
     };
   }
 
-  toggleBtn.addEventListener("click", () => {
-    state.mapMeasureMode = !state.mapMeasureMode;
-    if (!state.mapMeasureMode) state.mapMeasurePoints = [];
-    toggleBtn.classList.toggle("active", state.mapMeasureMode);
-    viewport.classList.toggle("map-measure-active", state.mapMeasureMode);
-    renderMapMeasureLayer();
-  });
-
   let downX = 0, downY = 0, wasClick = false;
 
   viewport.addEventListener("mousedown", (e) => {
-    if (!state.mapMeasureMode || e.button !== 0) return; // 우클릭(취소)은 contextmenu에서 따로 처리
+    if (state.mapEditMode || e.button !== 0) return; // 우클릭(취소)은 contextmenu에서 따로 처리
     downX = e.clientX;
     downY = e.clientY;
     wasClick = true;
@@ -7441,7 +7433,7 @@ function setupMapMeasureInteractions() {
   });
 
   window.addEventListener("mouseup", (e) => {
-    if (!state.mapMeasureMode || !wasClick) { wasClick = false; return; }
+    if (state.mapEditMode || !wasClick) { wasClick = false; return; }
     wasClick = false;
     const { x, y } = clientToPercent(e.clientX, e.clientY);
     state.mapMeasurePoints.push({ x, y });
@@ -7449,7 +7441,7 @@ function setupMapMeasureInteractions() {
   });
 
   viewport.addEventListener("contextmenu", (e) => {
-    if (!state.mapMeasureMode) return;
+    if (state.mapEditMode || state.mapMeasurePoints.length === 0) return;
     e.preventDefault();
     state.mapMeasurePoints.pop();
     renderMapMeasureLayer();

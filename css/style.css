@@ -2960,18 +2960,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 #map-zoom-controls button:hover { color: var(--text-primary); border-color: var(--accent-strong); }
 
-/* ===== 거리 측정(누구나 사용 가능) ===== */
-
-#map-zoom-controls #map-measure-toggle-btn {
-  width: auto;
-  height: auto;
-  padding: 6px 10px;
-  font-size: 11px;
-  white-space: nowrap;
-}
-#map-measure-toggle-btn.active { background: var(--accent-strong); color: var(--bg-panel); border-color: var(--accent-strong); }
-
-#map-viewport.map-measure-active #map-viewport-canvas { cursor: crosshair; }
+/* ===== 거리 측정(기본 지도 기능 — 누구나 클릭만 하면 바로 사용 가능) ===== */
 
 #map-measure-layer { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
 
