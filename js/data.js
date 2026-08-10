@@ -4814,12 +4814,15 @@ const AMMO_TYPES = {
     cost: 5,
     statOverrides: { damage: 260, spread: 9, muzzleVelocity: 80, ammoExtra: 6 },
     specialEffects: ["강한 출혈 효과 발생", "회수 후 재사용 가능"],
-    // 사용자 실측(부위별): 가슴 46m / 팔 29m / 복부 39m — 전부 불안정 구간 없이 바로 불가로 전환
-    ohkRange: { guaranteed: 46 },
-    ohkRangeVariants: [
-      { label: "팔 기준 한방컷(OHK) 거리", ohkRange: { guaranteed: 29 } },
-      { label: "복부 기준 한방컷(OHK) 거리", ohkRange: { guaranteed: 39 } },
-    ],
+    // 사용자 실측(부위별): 가슴 46m / 팔 29m / 복부 39m — 전부 불안정 구간 없이 바로 불가로 전환.
+    // 활(Hundred Hands)처럼 부위별 보장거리를 막대 하나에 보조 눈금으로 합쳐서 표시.
+    ohkRange: {
+      guaranteed: 46,
+      extraMarks: [
+        { at: 29, label: "29m까지 팔도 한방" },
+        { at: 39, label: "39m까지 복부도 한방" },
+      ],
+    },
     // 하체 실측 데미지 140 확인(사용자, 가슴 260 기준) — 표준 하체 배율(0.8)로 계산하면 160이
     // 나와서 실측과 안 맞음. 이 탄약만 하체 배율이 0.7(=140/(260/1.3))인 것으로 확인돼 덮어씀.
     bodyPartMultiplierOverrides: { lower: 0.7 },
@@ -4880,12 +4883,15 @@ const AMMO_TYPES = {
     cost: 5,
     statOverrides: { damage: 260, spread: 9, muzzleVelocity: 80, ammoExtra: 6 },
     specialEffects: ["강한 출혈 효과 발생", "회수 후 재사용 가능"],
-    // 밤 런처와 동일한 탄약군이라는 사용자 확인에 따라 동일 값 적용 (가슴 46m / 팔 29m / 복부 39m)
-    ohkRange: { guaranteed: 46 },
-    ohkRangeVariants: [
-      { label: "팔 기준 한방컷(OHK) 거리", ohkRange: { guaranteed: 29 } },
-      { label: "복부 기준 한방컷(OHK) 거리", ohkRange: { guaranteed: 39 } },
-    ],
+    // 밤 런처와 동일한 탄약군이라는 사용자 확인에 따라 동일 값 적용 (가슴 46m / 팔 29m / 복부 39m).
+    // 활(Hundred Hands)처럼 부위별 보장거리를 막대 하나에 보조 눈금으로 합쳐서 표시.
+    ohkRange: {
+      guaranteed: 46,
+      extraMarks: [
+        { at: 29, label: "29m까지 팔도 한방" },
+        { at: 39, label: "39m까지 복부도 한방" },
+      ],
+    },
     // 밤 런처와 동일 탄약군 — 하체 실측 데미지 140 확인(사용자), 표준 배율(0.8)이면 160으로
     // 안 맞아서 이 탄약의 하체 배율만 0.7로 덮어씀
     bodyPartMultiplierOverrides: { lower: 0.7 },
