@@ -702,7 +702,7 @@ async function cleanupExpiredOfficeReports(reports, idToken) {
 // -------------------------------------------------------------------------
 // 사이트 업데이트 내역 — 새 항목은 배열 맨 앞에 추가(최신순으로 그대로 출력됨)
 const CHANGELOG = [
-  { date: "8.8", text: "맵을 그냥 클릭만 하면 지점이 찍히고 거리(m)가 표시됨(1km x 1km 가정) — 클릭한 채로 끌면 기존처럼 지도 이동, 우클릭으로 최근 지점부터 취소" },
+  { date: "8.8", text: "맵을 그냥 클릭만 하면 지점이 찍히고 거리(m)가 표시됨(1km x 1km 가정) — 클릭한 채로 끌면 기존처럼 지도 이동, 우클릭으로 최근 지점부터 취소, 다음 지점을 찍기 전까진 커서를 따라다니는 미리보기 선으로 거리 확인 가능" },
   { date: "8.8", text: "폭탄 발사기/폭탄 창 한방컷(OHK) 거리를 활처럼 막대 하나로 통합(가슴 46m 기준 막대에 팔 29m/복부 39m 보조 눈금 표시)" },
   { date: "8.8", text: "센테니얼 포인트맨 여유탄 9발, 본하임 No. 3 매치 여유탄 20발로 수정" },
   { date: "8.8", text: "폭탄 발사기/폭탄 창(밤랜스) 작살 여유탄 6발, 철환탄 여유탄 4발, 왁스 파편탄 여유탄 4발로 수정" },
@@ -7005,6 +7005,7 @@ function renderMapSelectRow() {
       state.activeMapId = btn.dataset.mapId;
       resetMapView();
       state.mapMeasurePoints = []; // 다른 지도로 넘어가면 이전 지도 좌표는 의미 없으므로 초기화
+      mapMeasureHoverPos = null;
       renderMapMeasureLayer();
       renderMapSelectRow();
       renderMapLegendPanel();
@@ -7380,6 +7381,11 @@ function mapMeasureDistanceMeters(p1, p2) {
   return Math.round(Math.hypot(dx, dy));
 }
 
+// 마지막으로 찍은 지점과 지금 마우스 커서 위치를 잇는 미리보기 선/점 — 다음 지점을
+// 찍기 전까지 커서를 따라다니며 실시간으로 거리를 보여준다. 지점이 하나도 없으면
+// 이을 대상이 없으므로 표시하지 않는다.
+let mapMeasureHoverPos = null;
+
 function renderMapMeasureLayer() {
   const svg = document.getElementById("map-measure-layer");
   if (!svg) return;
@@ -7392,6 +7398,15 @@ function renderMapMeasureLayer() {
     const midY = (a.y + b.y) / 2;
     html += `<line class="map-measure-line" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"></line>`;
     html += `<text class="map-measure-label" x="${midX}" y="${midY}">${mapMeasureDistanceMeters(a, b)}m</text>`;
+  }
+  if (points.length > 0 && mapMeasureHoverPos) {
+    const a = points[points.length - 1];
+    const b = mapMeasureHoverPos;
+    const midX = (a.x + b.x) / 2;
+    const midY = (a.y + b.y) / 2;
+    html += `<line class="map-measure-line map-measure-line-preview" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"></line>`;
+    html += `<text class="map-measure-label map-measure-label-preview" x="${midX}" y="${midY}">${mapMeasureDistanceMeters(a, b)}m</text>`;
+    html += `<circle class="map-measure-point map-measure-point-preview" cx="${b.x}" cy="${b.y}" r="0.9"></circle>`;
   }
   points.forEach((p) => {
     html += `<circle class="map-measure-point" cx="${p.x}" cy="${p.y}" r="0.9"></circle>`;
@@ -7444,6 +7459,19 @@ function setupMapMeasureInteractions() {
     if (state.mapEditMode || state.mapMeasurePoints.length === 0) return;
     e.preventDefault();
     state.mapMeasurePoints.pop();
+    renderMapMeasureLayer();
+  });
+
+  // 마지막 지점 ~ 커서 위치를 잇는 미리보기 선을 실시간으로 갱신
+  viewport.addEventListener("mousemove", (e) => {
+    if (state.mapEditMode || state.mapMeasurePoints.length === 0) return;
+    mapMeasureHoverPos = clientToPercent(e.clientX, e.clientY);
+    renderMapMeasureLayer();
+  });
+
+  viewport.addEventListener("mouseleave", () => {
+    if (!mapMeasureHoverPos) return;
+    mapMeasureHoverPos = null;
     renderMapMeasureLayer();
   });
 }

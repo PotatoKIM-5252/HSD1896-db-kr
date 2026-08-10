@@ -2978,6 +2978,11 @@ button { font-family: var(--font-body); cursor: pointer; }
   stroke-width: 0.5px;
 }
 
+/* 다음 지점을 찍기 전까지 커서를 따라다니는 미리보기 선/점/라벨 — 확정된 것보다 옅게 */
+.map-measure-line-preview { opacity: 0.55; }
+.map-measure-point-preview { opacity: 0.55; }
+.map-measure-label-preview { opacity: 0.7; }
+
 /* ===== 지점 편집(운영자 전용) ===== */
 
 #map-edit-toggle-btn {
