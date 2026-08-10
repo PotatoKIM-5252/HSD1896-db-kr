@@ -3167,6 +3167,8 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 
 .changelog-text { font-size: 13px; color: var(--text-primary); line-height: 1.5; }
 
+.changelog-text-group { display: flex; flex-direction: column; gap: 6px; }
+
 .reportbox-meta {
   display: flex;
   gap: 8px;

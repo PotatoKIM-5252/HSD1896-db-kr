@@ -1181,29 +1181,42 @@ function setupReportWidget() {
   });
 }
 
+// 날짜가 같은 항목끼리 묶어서 그려준다 — 날짜 한 번만 표시하고 그 아래 해당 날짜의
+// 항목들을 전부 나열(entries는 이미 날짜 내림차순이라 같은 날짜끼리는 항상 붙어있음).
+function renderChangelogGroups(entries, listEl) {
+  listEl.innerHTML = "";
+  let i = 0;
+  while (i < entries.length) {
+    const date = entries[i].date;
+    const item = document.createElement("div");
+    item.className = "changelog-item";
+
+    const dateEl = document.createElement("span");
+    dateEl.className = "changelog-date";
+    dateEl.textContent = date;
+    item.appendChild(dateEl);
+
+    const textGroup = document.createElement("div");
+    textGroup.className = "changelog-text-group";
+    while (i < entries.length && entries[i].date === date) {
+      const textEl = document.createElement("span");
+      textEl.className = "changelog-text";
+      textEl.textContent = entries[i].text;
+      textGroup.appendChild(textEl);
+      i++;
+    }
+    item.appendChild(textGroup);
+    listEl.appendChild(item);
+  }
+}
+
 function setupChangelogWidget() {
   const fabBtn = document.getElementById("changelog-fab-btn");
   const overlay = document.getElementById("changelog-modal-overlay");
   const closeBtn = document.getElementById("changelog-modal-close-btn");
   const listEl = document.getElementById("changelog-list");
 
-  listEl.innerHTML = "";
-  CHANGELOG.forEach((entry) => {
-    const item = document.createElement("div");
-    item.className = "changelog-item";
-
-    const dateEl = document.createElement("span");
-    dateEl.className = "changelog-date";
-    dateEl.textContent = entry.date;
-
-    const textEl = document.createElement("span");
-    textEl.className = "changelog-text";
-    textEl.textContent = entry.text;
-
-    item.appendChild(dateEl);
-    item.appendChild(textEl);
-    listEl.appendChild(item);
-  });
+  renderChangelogGroups(CHANGELOG, listEl);
 
   const openModal = () => { overlay.hidden = false; };
   const closeModal = () => { overlay.hidden = true; };
@@ -1246,20 +1259,7 @@ function maybeShowOfficeChangelogPopup() {
   if (newEntries.length === 0) return;
 
   const listEl = document.getElementById("office-changelog-list");
-  listEl.innerHTML = "";
-  newEntries.forEach((entry) => {
-    const item = document.createElement("div");
-    item.className = "changelog-item";
-    const dateEl = document.createElement("span");
-    dateEl.className = "changelog-date";
-    dateEl.textContent = entry.date;
-    const textEl = document.createElement("span");
-    textEl.className = "changelog-text";
-    textEl.textContent = entry.text;
-    item.appendChild(dateEl);
-    item.appendChild(textEl);
-    listEl.appendChild(item);
-  });
+  renderChangelogGroups(newEntries, listEl);
   document.getElementById("office-changelog-modal-overlay").hidden = false;
 }
 
