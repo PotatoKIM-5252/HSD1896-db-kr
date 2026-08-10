@@ -81,9 +81,10 @@ const state = {
   mapPanX: 0,
   mapPanY: 0,
 
-  // 맵 탭 거리 측정 — 기본 지도 기능(운영자 전용 아님, 별도 모드 켜기 없이 항상 동작).
+  // 맵 탭 동선 & 거리 측정 — 운영자 전용 아님, 오른쪽 버튼으로 켜고 끄는 별도 모드.
   // 지도를 1km x 1km 정사각형으로 가정하고(대각선 1414m), 클릭한 지점들을 percent
   // 좌표로 저장해두고 이어서 거리(m)를 계산해서 보여준다.
+  mapMeasureMode: false,
   mapMeasurePoints: [], // [{x, y}, ...] percent 좌표
 
   // 맵 탭 편집(운영자 전용) — mapOverridePoints는 현재 지도의 "게시된" 지점(없으면
@@ -702,7 +703,7 @@ async function cleanupExpiredOfficeReports(reports, idToken) {
 // -------------------------------------------------------------------------
 // 사이트 업데이트 내역 — 새 항목은 배열 맨 앞에 추가(최신순으로 그대로 출력됨)
 const CHANGELOG = [
-  { date: "8.10", text: "맵에 거리 측정 기능 추가 — 지도를 그냥 클릭하면 지점이 찍히고 거리(m)가 표시됨(1km x 1km 가정), 클릭한 채로 끌면 기존처럼 지도 이동, 다음 지점 찍기 전까진 커서를 따라다니는 미리보기 선 표시, 우클릭으로 최근 지점부터 취소, Esc로 찍은 지점은 그대로 두고 선 잇기만 끊기(다음 클릭은 새 시작점)" },
+  { date: "8.10", text: "맵에 \"동선 & 거리측정\" 기능 추가 — 버튼을 누르면 뜨는 바에서 색상 선택 후 지도를 클릭해 동선을 그리면 지점 사이 거리(m)가 표시됨(1km x 1km 가정), 클릭한 채로 끌면 지도 이동, 우클릭/Esc로 되돌리기, 완료(동선 남기고 닫기)·취소(전체 취소) 버튼 제공" },
   { date: "8.10", text: "폭탄 발사기/폭탄 창 한방컷(OHK) 거리를 활처럼 막대 하나로 통합(가슴 46m 기준 막대에 팔 29m/복부 39m 보조 눈금 표시)" },
   { date: "8.10", text: "센테니얼 포인트맨 여유탄 9발, 본하임 No. 3 매치 여유탄 20발로 수정" },
   { date: "8.10", text: "폭탄 발사기/폭탄 창(밤랜스) 작살 여유탄 6발, 철환탄 여유탄 4발, 왁스 파편탄 여유탄 4발로 수정" },
@@ -7004,9 +7005,14 @@ function renderMapSelectRow() {
       if (state.mapEditMode) return;
       state.activeMapId = btn.dataset.mapId;
       resetMapView();
-      state.mapMeasurePoints = []; // 다른 지도로 넘어가면 이전 지도 좌표는 의미 없으므로 초기화
+      // 다른 지도로 넘어가면 이전 지도 좌표는 의미 없으므로 도구를 닫고 초기화
+      state.mapMeasureMode = false;
+      state.mapMeasurePoints = [];
       mapMeasureHoverPos = null;
       mapMeasureChainBroken = false;
+      document.getElementById("map-measure-toggle-btn").classList.remove("active");
+      document.getElementById("map-measure-bar").hidden = true;
+      document.getElementById("map-viewport").classList.remove("map-measure-active");
       renderMapMeasureLayer();
       renderMapSelectRow();
       renderMapLegendPanel();
@@ -7373,9 +7379,14 @@ function setupMapEditControls() {
 }
 
 // -------------------------------------------------------------------------
-// 맵 거리 측정 — 지도를 1km x 1km 정사각형(대각선 1414m)으로 가정하고, 클릭한 지점들
-// 사이 거리(m)를 보여준다. 운영자 전용이 아니라 모든 이용자가 쓸 수 있고, 지점 편집
-// 모드와는 독립적으로 동작한다. percent 좌표(0~100) 1%가 실제 10m에 해당한다.
+// 맵 동선 & 거리 측정 — 지도를 1km x 1km 정사각형(대각선 1414m)으로 가정하고, 클릭한
+// 지점들 사이 거리(m)를 보여준다. 운영자 전용이 아니라 모든 이용자가 쓸 수 있고, 지점
+// 편집 모드와는 독립적으로 동작한다. percent 좌표(0~100) 1%가 실제 10m에 해당한다.
+// 오른쪽 "동선 & 거리측정" 버튼으로 켜고, 아래 뜨는 바에서 색상 선택/전체 지우기/완료/
+// 취소를 할 수 있다("완료"는 그려둔 동선을 남긴 채로 도구만 닫고, "취소"는 다 지운다).
+const MAP_MEASURE_COLORS = ["#f2c94c", "#eb5757", "#2fd9c9", "#27ae60", "#9b51e0", "#f2994a", "#f06292", "#2f80ed"];
+let mapMeasureColor = MAP_MEASURE_COLORS[0];
+
 function mapMeasureDistanceMeters(p1, p2) {
   const dx = (p2.x - p1.x) * 10;
   const dy = (p2.y - p1.y) * 10;
@@ -7402,32 +7413,50 @@ function renderMapMeasureLayer() {
     if (b.chainStart) continue; // 새로 끊고 시작한 지점은 이전 지점과 잇지 않음
     const midX = (a.x + b.x) / 2;
     const midY = (a.y + b.y) / 2;
-    html += `<line class="map-measure-line" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"></line>`;
+    html += `<line class="map-measure-line" style="stroke:${mapMeasureColor}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"></line>`;
     html += `<text class="map-measure-label" x="${midX}" y="${midY}">${mapMeasureDistanceMeters(a, b)}m</text>`;
   }
-  if (points.length > 0 && mapMeasureHoverPos) {
+  if (state.mapMeasureMode && points.length > 0 && mapMeasureHoverPos) {
     const a = points[points.length - 1];
     const b = mapMeasureHoverPos;
     const midX = (a.x + b.x) / 2;
     const midY = (a.y + b.y) / 2;
-    html += `<line class="map-measure-line map-measure-line-preview" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"></line>`;
+    html += `<line class="map-measure-line map-measure-line-preview" style="stroke:${mapMeasureColor}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"></line>`;
     html += `<text class="map-measure-label map-measure-label-preview" x="${midX}" y="${midY}">${mapMeasureDistanceMeters(a, b)}m</text>`;
-    html += `<circle class="map-measure-point map-measure-point-preview" cx="${b.x}" cy="${b.y}" r="0.9"></circle>`;
+    html += `<circle class="map-measure-point map-measure-point-preview" style="fill:${mapMeasureColor}" cx="${b.x}" cy="${b.y}" r="0.9"></circle>`;
   }
   points.forEach((p) => {
-    html += `<circle class="map-measure-point" cx="${p.x}" cy="${p.y}" r="0.9"></circle>`;
+    html += `<circle class="map-measure-point" style="fill:${mapMeasureColor}" cx="${p.x}" cy="${p.y}" r="0.9"></circle>`;
   });
   svg.innerHTML = html;
 }
 
-// 기본 지도 기능(항상 켜져 있음, 별도 모드 전환 없음) — 지도를 그냥 클릭(드래그 아닌
-// 순수 클릭)하면 지점을 추가, 우클릭하면 가장 최근 지점부터 하나씩 취소한다. 클릭한
-// 채로 끌면(드래그) 기존 팬 기능이 그대로 동작하도록, mousedown~mouseup 사이 이동
-// 거리가 4px을 넘으면 클릭으로 치지 않는다. 운영자의 "지점 편집" 모드 중엔 클릭이
-// 지점 추가/이동 용도로 쓰이므로 거리 측정은 그 동안 비활성화한다.
 function setupMapMeasureInteractions() {
+  const toggleBtn = document.getElementById("map-measure-toggle-btn");
+  const bar = document.getElementById("map-measure-bar");
+  const colorRow = document.getElementById("map-measure-color-row");
+  const clearBtn = document.getElementById("map-measure-clear-btn");
+  const finishBtn = document.getElementById("map-measure-finish-btn");
+  const cancelBtn = document.getElementById("map-measure-cancel-btn");
   const viewport = document.getElementById("map-viewport");
   const img = document.getElementById("map-base-img");
+
+  colorRow.innerHTML = MAP_MEASURE_COLORS.map((c) =>
+    `<button type="button" class="map-measure-color-swatch" data-color="${c}" style="background:${c}"></button>`
+  ).join("");
+  function updateColorSwatchSelection() {
+    colorRow.querySelectorAll(".map-measure-color-swatch").forEach((btn) => {
+      btn.classList.toggle("selected", btn.dataset.color === mapMeasureColor);
+    });
+  }
+  updateColorSwatchSelection();
+  colorRow.querySelectorAll(".map-measure-color-swatch").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      mapMeasureColor = btn.dataset.color;
+      updateColorSwatchSelection();
+      renderMapMeasureLayer();
+    });
+  });
 
   function clientToPercent(clientX, clientY) {
     const rect = img.getBoundingClientRect();
@@ -7439,10 +7468,49 @@ function setupMapMeasureInteractions() {
     };
   }
 
+  function openTool() {
+    state.mapMeasureMode = true;
+    state.mapMeasurePoints = [];
+    mapMeasureHoverPos = null;
+    mapMeasureChainBroken = false;
+    mapMeasureColor = MAP_MEASURE_COLORS[0];
+    updateColorSwatchSelection();
+    toggleBtn.classList.add("active");
+    bar.hidden = false;
+    viewport.classList.add("map-measure-active");
+    renderMapMeasureLayer();
+  }
+
+  // "완료" — 지금까지 그린 동선은 남겨두고 도구만 닫는다(더 이상 편집은 안 됨).
+  function closeToolKeepRoute() {
+    state.mapMeasureMode = false;
+    mapMeasureHoverPos = null;
+    toggleBtn.classList.remove("active");
+    bar.hidden = true;
+    viewport.classList.remove("map-measure-active");
+    renderMapMeasureLayer();
+  }
+
+  // "취소" — 그린 동선까지 전부 지우고 도구를 닫는다.
+  function closeToolDiscardRoute() {
+    state.mapMeasurePoints = [];
+    closeToolKeepRoute();
+  }
+
+  toggleBtn.addEventListener("click", openTool);
+  finishBtn.addEventListener("click", closeToolKeepRoute);
+  cancelBtn.addEventListener("click", closeToolDiscardRoute);
+  clearBtn.addEventListener("click", () => {
+    state.mapMeasurePoints = [];
+    mapMeasureHoverPos = null;
+    mapMeasureChainBroken = false;
+    renderMapMeasureLayer();
+  });
+
   let downX = 0, downY = 0, wasClick = false;
 
   viewport.addEventListener("mousedown", (e) => {
-    if (state.mapEditMode || e.button !== 0) return; // 우클릭(취소)은 contextmenu에서 따로 처리
+    if (!state.mapMeasureMode || state.mapEditMode || e.button !== 0) return; // 우클릭(취소)은 contextmenu에서 따로 처리
     downX = e.clientX;
     downY = e.clientY;
     wasClick = true;
@@ -7454,7 +7522,7 @@ function setupMapMeasureInteractions() {
   });
 
   window.addEventListener("mouseup", (e) => {
-    if (state.mapEditMode || !wasClick) { wasClick = false; return; }
+    if (!state.mapMeasureMode || state.mapEditMode || !wasClick) { wasClick = false; return; }
     wasClick = false;
     const { x, y } = clientToPercent(e.clientX, e.clientY);
     const point = { x, y };
@@ -7465,7 +7533,7 @@ function setupMapMeasureInteractions() {
   });
 
   viewport.addEventListener("contextmenu", (e) => {
-    if (state.mapEditMode || state.mapMeasurePoints.length === 0) return;
+    if (!state.mapMeasureMode || state.mapEditMode || state.mapMeasurePoints.length === 0) return;
     e.preventDefault();
     state.mapMeasurePoints.pop();
     renderMapMeasureLayer();
@@ -7473,7 +7541,7 @@ function setupMapMeasureInteractions() {
 
   // 마지막 지점 ~ 커서 위치를 잇는 미리보기 선을 실시간으로 갱신(선을 끊은 직후엔 표시 안 함)
   viewport.addEventListener("mousemove", (e) => {
-    if (state.mapEditMode || state.mapMeasurePoints.length === 0 || mapMeasureChainBroken) return;
+    if (!state.mapMeasureMode || state.mapEditMode || state.mapMeasurePoints.length === 0 || mapMeasureChainBroken) return;
     mapMeasureHoverPos = clientToPercent(e.clientX, e.clientY);
     renderMapMeasureLayer();
   });
@@ -7487,7 +7555,7 @@ function setupMapMeasureInteractions() {
   // Esc — 찍어둔 지점은 그대로 두고 지금 잇고 있는 선만 끊는다(전부 지우는 게 아님).
   // 끊긴 뒤 다음 클릭은 새로운(안 이어진) 지점으로 시작한다.
   document.addEventListener("keydown", (e) => {
-    if (e.key !== "Escape" || state.mapMeasurePoints.length === 0 || mapMeasureChainBroken) return;
+    if (e.key !== "Escape" || !state.mapMeasureMode || state.mapMeasurePoints.length === 0 || mapMeasureChainBroken) return;
     mapMeasureChainBroken = true;
     mapMeasureHoverPos = null;
     renderMapMeasureLayer();

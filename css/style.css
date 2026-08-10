@@ -2964,9 +2964,67 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 #map-zoom-controls button:hover { color: var(--text-primary); border-color: var(--accent-strong); }
 
-/* ===== 거리 측정(기본 지도 기능 — 누구나 클릭만 하면 바로 사용 가능) ===== */
+/* ===== 동선 & 거리 측정(누구나 사용 가능 — 오른쪽 버튼으로 켜고 끔) ===== */
+
+#map-zoom-controls #map-measure-toggle-btn {
+  width: auto;
+  height: auto;
+  padding: 6px 10px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+#map-zoom-controls #map-measure-toggle-btn.active { background: var(--accent-strong); color: var(--bg-panel); border-color: var(--accent-strong); }
+
+#map-viewport.map-measure-active #map-viewport-canvas { cursor: crosshair; }
 
 #map-measure-layer { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+
+/* 지도 아래쪽 가운데에 뜨는 컨트롤 바 — 켜져 있는 동안만 표시 */
+#map-measure-bar {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(20, 22, 15, 0.95);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  max-width: calc(100% - 24px);
+}
+#map-measure-bar[hidden] { display: none; }
+
+#map-measure-bar-label { font-size: 12px; font-weight: 600; color: var(--accent-strong); white-space: nowrap; }
+#map-measure-bar-hint { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+
+#map-measure-color-row { display: flex; align-items: center; gap: 5px; }
+
+.map-measure-color-swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  padding: 0;
+  cursor: pointer;
+}
+.map-measure-color-swatch.selected { border-color: #fff; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5); }
+
+#map-measure-clear-btn {
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text-muted);
+  border-radius: 6px;
+  font-size: 13px;
+  padding: 5px 8px;
+  cursor: pointer;
+}
+#map-measure-clear-btn:hover { border-color: var(--danger-strong); color: var(--danger-strong); }
+
+#map-measure-bar .office-btn { padding: 6px 12px; font-size: 12px; }
 
 .map-measure-point { fill: var(--accent-strong); stroke: var(--bg-panel); stroke-width: 0.4; }
 
