@@ -703,7 +703,7 @@ async function cleanupExpiredOfficeReports(reports, idToken) {
 // -------------------------------------------------------------------------
 // 사이트 업데이트 내역 — 새 항목은 배열 맨 앞에 추가(최신순으로 그대로 출력됨)
 const CHANGELOG = [
-  { date: "8.10", text: "맵에 \"동선 & 거리측정\" 기능 추가 — 버튼을 누르면 뜨는 바에서 색상 선택 후 지도를 클릭해 동선을 그리면 지점 사이 거리(m)가 표시됨(1km x 1km 가정), 클릭한 채로 끌면 지도 이동, 우클릭/Esc로 되돌리기, 완료(동선 남기고 닫기)·취소(전체 취소) 버튼 제공" },
+  { date: "8.10", text: "맵에 \"동선 & 거리측정\" 기능 추가 — 버튼을 누르면 뜨는 바에서 색상 선택 후 지도를 클릭해 동선을 그리면 지점 사이 거리(m)가 표시됨(1km x 1km 가정), 클릭한 채로 끌면 지도 이동, 우클릭/Esc로 되돌리기, 완료(동선 남기고 닫기)·취소(전체 취소) 버튼 제공, 완료 후 다시 켜도 기존 동선은 안 지워지고 이어서 새 동선 추가 가능" },
   { date: "8.10", text: "폭탄 발사기/폭탄 창 한방컷(OHK) 거리를 활처럼 막대 하나로 통합(가슴 46m 기준 막대에 팔 29m/복부 39m 보조 눈금 표시)" },
   { date: "8.10", text: "센테니얼 포인트맨 여유탄 9발, 본하임 No. 3 매치 여유탄 20발로 수정" },
   { date: "8.10", text: "폭탄 발사기/폭탄 창(밤랜스) 작살 여유탄 6발, 철환탄 여유탄 4발, 왁스 파편탄 여유탄 4발로 수정" },
@@ -7470,10 +7470,10 @@ function setupMapMeasureInteractions() {
 
   function openTool() {
     state.mapMeasureMode = true;
-    state.mapMeasurePoints = [];
     mapMeasureHoverPos = null;
-    mapMeasureChainBroken = false;
-    mapMeasureColor = MAP_MEASURE_COLORS[0];
+    // 이미 완료해둔 동선이 있으면 지우지 않고 그대로 둔 채, 다음 클릭이 거기 이어지지
+    // 않고 새 동선으로 시작하도록만 끊어둔다("취소"/휴지통을 눌러야 완전히 지워짐).
+    mapMeasureChainBroken = state.mapMeasurePoints.length > 0;
     updateColorSwatchSelection();
     toggleBtn.classList.add("active");
     bar.hidden = false;
