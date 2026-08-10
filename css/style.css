@@ -2960,6 +2960,35 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 #map-zoom-controls button:hover { color: var(--text-primary); border-color: var(--accent-strong); }
 
+/* ===== 거리 측정(누구나 사용 가능) ===== */
+
+#map-zoom-controls #map-measure-toggle-btn {
+  width: auto;
+  height: auto;
+  padding: 6px 10px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+#map-measure-toggle-btn.active { background: var(--accent-strong); color: var(--bg-panel); border-color: var(--accent-strong); }
+
+#map-viewport.map-measure-active #map-viewport-canvas { cursor: crosshair; }
+
+#map-measure-layer { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+
+.map-measure-point { fill: var(--accent-strong); stroke: var(--bg-panel); stroke-width: 0.4; }
+
+.map-measure-line { stroke: var(--accent-strong); stroke-width: 0.3; stroke-dasharray: 1 0.8; }
+
+.map-measure-label {
+  fill: var(--text-primary);
+  font-size: 2.6px;
+  font-family: var(--font-mono);
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: rgba(10, 12, 7, 0.85);
+  stroke-width: 0.5px;
+}
+
 /* ===== 지점 편집(운영자 전용) ===== */
 
 #map-edit-toggle-btn {

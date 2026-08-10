@@ -205,12 +205,14 @@
               <button id="map-zoom-in-btn" type="button" title="확대">＋</button>
               <button id="map-zoom-out-btn" type="button" title="축소">－</button>
               <button id="map-zoom-reset-btn" type="button" title="원래 크기로">⟲</button>
+              <button id="map-measure-toggle-btn" type="button" title="지도를 1km x 1km로 가정해 두 지점 사이 거리를 잽니다">거리 측정</button>
             </div>
             <div id="map-viewport">
               <div id="map-viewport-canvas">
                 <img id="map-base-img" alt="" onerror="this.style.display='none'; const ph=document.getElementById('map-img-placeholder'); if(ph) ph.hidden=false;">
                 <div id="map-img-placeholder" class="map-img-placeholder" hidden>지도 이미지 준비 중</div>
                 <div id="map-markers-layer"></div>
+                <svg id="map-measure-layer" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
               </div>
             </div>
           </div>
