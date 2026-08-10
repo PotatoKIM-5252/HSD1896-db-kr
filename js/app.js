@@ -702,7 +702,7 @@ async function cleanupExpiredOfficeReports(reports, idToken) {
 // -------------------------------------------------------------------------
 // 사이트 업데이트 내역 — 새 항목은 배열 맨 앞에 추가(최신순으로 그대로 출력됨)
 const CHANGELOG = [
-  { date: "8.10", text: "맵에 거리 측정 기능 추가 — 지도를 그냥 클릭하면 지점이 찍히고 거리(m)가 표시됨(1km x 1km 가정), 클릭한 채로 끌면 기존처럼 지도 이동, 다음 지점 찍기 전까진 커서를 따라다니는 미리보기 선 표시, 우클릭으로 최근 지점부터 취소" },
+  { date: "8.10", text: "맵에 거리 측정 기능 추가 — 지도를 그냥 클릭하면 지점이 찍히고 거리(m)가 표시됨(1km x 1km 가정), 클릭한 채로 끌면 기존처럼 지도 이동, 다음 지점 찍기 전까진 커서를 따라다니는 미리보기 선 표시, 우클릭으로 최근 지점부터 취소, Esc로 전부 한 번에 취소" },
   { date: "8.10", text: "폭탄 발사기/폭탄 창 한방컷(OHK) 거리를 활처럼 막대 하나로 통합(가슴 46m 기준 막대에 팔 29m/복부 39m 보조 눈금 표시)" },
   { date: "8.10", text: "센테니얼 포인트맨 여유탄 9발, 본하임 No. 3 매치 여유탄 20발로 수정" },
   { date: "8.10", text: "폭탄 발사기/폭탄 창(밤랜스) 작살 여유탄 6발, 철환탄 여유탄 4발, 왁스 파편탄 여유탄 4발로 수정" },
@@ -7471,6 +7471,14 @@ function setupMapMeasureInteractions() {
 
   viewport.addEventListener("mouseleave", () => {
     if (!mapMeasureHoverPos) return;
+    mapMeasureHoverPos = null;
+    renderMapMeasureLayer();
+  });
+
+  // Esc — 우클릭으로 하나씩 취소할 필요 없이 지금까지 찍은 지점을 한 번에 전부 취소
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape" || state.mapMeasurePoints.length === 0) return;
+    state.mapMeasurePoints = [];
     mapMeasureHoverPos = null;
     renderMapMeasureLayer();
   });
