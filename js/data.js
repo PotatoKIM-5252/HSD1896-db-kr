@@ -2802,8 +2802,8 @@ const AMMO_TYPES = {
       [90, 0.6176],
       [100, 0.6103],
     ],
-    // ammoExtra: 위키엔 "9 → 6 (1슬롯 기준)"으로 표기, 무기 전체 예비탄(18=9×2슬롯) 기준으로 환산해 12로 변환.
-    statOverrides: { damage: 132, dropRange: 130, verticalRecoil: 11, muzzleVelocity: 480, ammoExtra: 12 },
+    // ammoExtra: 위키 기준 슬롯당 예비탄(9 → 6)을 그대로 사용(사용자 확인).
+    statOverrides: { damage: 132, dropRange: 130, verticalRecoil: 11, muzzleVelocity: 480, ammoExtra: 6 },
   },
 
   krag_special_long: {
@@ -3596,7 +3596,7 @@ const AMMO_TYPES = {
     description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고피해, 원거리 부정확.",
     cost: 5,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
-    statOverrides: { damage: 192, spread: 75, ammoExtra: 4 },
+    statOverrides: { damage: 192, spread: 75, ammoExtra: 10 },
   },
 
   romero77_slug: {
@@ -3712,7 +3712,7 @@ const AMMO_TYPES = {
     icon: "🪙",
     description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고피해, 원거리 부정확.",
     cost: 5,
-    statOverrides: { damage: 97, spread: 100, ammoExtra: 6 },
+    statOverrides: { damage: 97, spread: 100, ammoExtra: 3 },
   },
 
   romero77shorty_slug: {
@@ -3723,7 +3723,7 @@ const AMMO_TYPES = {
     icon: "●",
     description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
     cost: 65,
-    statOverrides: { damage: 157, spread: 125, ammoExtra: 2 },
+    statOverrides: { damage: 157, spread: 125, ammoExtra: 1 },
     // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
     ohkRange: { guaranteed: 11 },
   },
@@ -3736,7 +3736,7 @@ const AMMO_TYPES = {
     icon: "🌟",
     description: "신호탄 - 조명탄 발사, 명중한 대상에 강한 화상 효과.",
     cost: 5,
-    statOverrides: { damage: 2, spread: 50, verticalRecoil: 5, muzzleVelocity: 75, ammoExtra: 2 },
+    statOverrides: { damage: 2, spread: 50, verticalRecoil: 5, muzzleVelocity: 75, ammoExtra: 1 },
     specialEffects: ["강한(intense) 화상 효과 발생"],
   },
 
@@ -4746,7 +4746,7 @@ const AMMO_TYPES = {
     description: "폭발 볼트 - 광범위 폭발 피해. 상점 구매 불가(월드 획득 전용).",
     cost: null,
     scarce: true,
-    statOverrides: { damage: 220, dropRange: 10, spread: 37.5, muzzleVelocity: 60, ammoExtra: 8 },
+    statOverrides: { damage: 220, dropRange: 10, spread: 37.5, muzzleVelocity: 60, ammoExtra: 4 },
   },
   crossbow_shot_bolt: {
     label: "샷 볼트",
@@ -4756,7 +4756,7 @@ const AMMO_TYPES = {
     icon: "🔫",
     description: "샷 볼트 - 명중 시 산탄으로 확산.",
     cost: 40,
-    statOverrides: { damage: 454, dropRange: 15, muzzleVelocity: 100, ammoExtra: 12 },
+    statOverrides: { damage: 454, dropRange: 15, muzzleVelocity: 100, ammoExtra: 6 },
   },
   crossbow_steel_bolt: {
     label: "강철 볼트",
@@ -4765,7 +4765,7 @@ const AMMO_TYPES = {
     icon: "🔩",
     description: "강철 볼트 - 낙하범위·탄속 증가, 반동 증가. 회수 후 재사용 가능.",
     cost: 40,
-    statOverrides: { dropRange: 35, verticalRecoil: 8, muzzleVelocity: 225, ammoExtra: 14 },
+    statOverrides: { dropRange: 35, verticalRecoil: 8, muzzleVelocity: 225, ammoExtra: 7 },
     specialEffects: ["회수 후 재사용 가능"],
   },
 
@@ -4953,7 +4953,7 @@ const AMMO_TYPES = {
     icon: "🩸",
     description: "철조망 화살 - 착탄 지점에 철조망 생성, 중급 출혈.",
     cost: 30,
-    statOverrides: { damage: 152, dropRange: 10, spread: 40, muzzleVelocity: 80, ammoExtra: 10 },
+    statOverrides: { damage: 152, dropRange: 10, spread: 40, muzzleVelocity: 80, ammoExtra: 5 },
     specialEffects: ["중급 출혈 효과 발생", "착탄 지점에 철조망 생성"],
   },
   huntingbow_frag: {
@@ -4965,7 +4965,7 @@ const AMMO_TYPES = {
     description: "파편 화살 - 2초 후 폭발, 중급 출혈. 상점 구매 불가(월드 획득 전용).",
     cost: null,
     scarce: true,
-    statOverrides: { damage: 134, dropRange: 10, muzzleVelocity: 80, ammoExtra: 10 },
+    statOverrides: { damage: 134, dropRange: 10, muzzleVelocity: 80, ammoExtra: 5 },
     specialEffects: ["중급 출혈 효과 발생", "2초 후 폭발"],
   },
   huntingbow_poison: {
@@ -4976,7 +4976,7 @@ const AMMO_TYPES = {
     icon: "🟢",
     description: "중독 화살 - 강한 중독 효과. 회수 후 재사용 가능.",
     cost: 25,
-    statOverrides: { spread: 30, ammoExtra: 10 },
+    statOverrides: { spread: 30, ammoExtra: 5 },
     specialEffects: ["강한 중독 효과 발생", "회수 후 재사용 가능"],
   },
 
@@ -6636,6 +6636,8 @@ const ITEMS = [
         chamber: {
           extra: 20,
         },
+        // 본체와 탄종(ammoTypes)을 공유하지만 고속탄 예비탄만 본체(8)와 달라 개별 오버라이드
+        ammoExtraOverrides: { springfield1866_high_velocity: 7 },
         stats: {
           damage: 130,
           dropRange: 120,
@@ -7252,10 +7254,16 @@ const ITEMS = [
         image: "images/weapons/variants/martinihenry_ironside.png",
         description: "",
         price: 159,
+        // 본체(Martini-Henry)는 dualAmmoSlot:true(2탄종 동시 장전)이지만, 아이언사이드는 그
+        // 기믹이 없는 파생형이라 명시적으로 false 오버라이드(사용자 확인) — 안 그러면 스프레드
+        // 병합 시 본체 값을 그대로 물려받아 잘못 이중탄약으로 표시됨.
+        dualAmmoSlot: false,
         chamber: {
           loaded: "5+1",
           extra: 15,
         },
+        // 본체와 탄종(ammoTypes)을 공유하지만 고속탄 예비탄만 본체(7)와 달라 개별 오버라이드
+        ammoExtraOverrides: { martinihenry_high_velocity: 10 },
         stats: {
           cycleTime: 1.8,
           reloadSpeed: 14.7,

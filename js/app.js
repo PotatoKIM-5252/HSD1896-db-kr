@@ -705,6 +705,7 @@ async function cleanupExpiredOfficeReports(reports, idToken) {
 // 기능을 만드는 과정에서 있었던 세부 수정/조정은 각각 올리지 말고, 오류 수정·정보
 // 수정·기능 추가만 한 줄로 간단히 요약해서 올린다.
 const CHANGELOG = [
+  { date: "8.11", text: "이중 탄약(2슬롯) 무기의 특수탄 예비탄 수치를 슬롯당 기준으로 정정, 표시도 \"(슬롯당)\"으로 명시" },
   { date: "8.10", text: "맵에 \"동선 & 거리측정\" 기능 추가" },
   { date: "8.10", text: "폭탄 발사기/폭탄 창 한방컷(OHK) 거리를 활처럼 막대 하나로 통합(가슴 46m 기준 막대에 팔 29m/복부 39m 보조 눈금 표시)" },
   { date: "8.10", text: "센테니얼 포인트맨 여유탄 9발, 본하임 No. 3 매치 여유탄 20발로 수정" },
@@ -3621,7 +3622,7 @@ function openBodyPartView(parentItem, ammoId) {
         <!-- 탄약 상태: [탄약 아이콘] 장탄/예비탄 [칸수 아이콘] | [달러 아이콘] 가격 -->
         <div class="ammo-status-row">
           ${ammo?.image ? `<img src="${ammo.image}" alt="${ammo.label}" class="ammo-status-icon">` : ""}
-          <span class="ammo-status-count">${chamber.loaded ?? "-"}/${chamber.extra ?? "-"}</span>
+          <span class="ammo-status-count">${chamber.loaded ?? "-"}/${chamber.extra ?? "-"}${currentItem.dualAmmoSlot ? ` <span class="ammo-status-perslot">(슬롯당)</span>` : ""}</span>
           <img src="images/ui/slot_${currentItem.slotSize || 1}.png" alt="${currentItem.slotSize}칸" class="ammo-status-slots">
           ${currentItem.scarce
             ? `<img src="images/ui/scarce.png" alt="Scarce" class="ammo-status-dollar" title="Scarce (상점 구매 불가, 월드에서만 획득)">`
@@ -4072,6 +4073,10 @@ function resolveWeaponWithAmmo(item, ammoId) {
   const chamber = { ...(item.chamber || {}) };
   if (overrides.ammoExtra != null) chamber.extra = overrides.ammoExtra;
   if (overrides.ammoLoaded != null) chamber.loaded = overrides.ammoLoaded;
+  // 변형(variant)이 본체와 탄종을 공유하지만 예비탄 수량만 달라야 하는 경우(예: 스프링필드 1866
+  // 쇼티, 마티니-헨리 아이언사이드) 최우선으로 적용
+  const extraOverride = item.ammoExtraOverrides && item.ammoExtraOverrides[ammoId];
+  if (extraOverride != null) chamber.extra = extraOverride;
   return { stats, chamber, ammo };
 }
 
@@ -4111,7 +4116,7 @@ function renderWeaponDetailHTML(item, selectedAmmoId) {
     <!-- 한 줄: [탄약 아이콘] 장탄/예비탄 [칸수 아이콘] | [달러 아이콘] 가격 -->
     <div class="ammo-status-row">
       ${ammo?.image ? `<img src="${ammo.image}" alt="${ammo.label}" class="ammo-status-icon">` : ""}
-      <span class="ammo-status-count">${chamber.loaded ?? "-"}/${chamber.extra ?? "-"}</span>
+      <span class="ammo-status-count">${chamber.loaded ?? "-"}/${chamber.extra ?? "-"}${item.dualAmmoSlot ? ` <span class="ammo-status-perslot">(슬롯당)</span>` : ""}</span>
       <img src="images/ui/slot_${item.slotSize || 1}.png" alt="${item.slotSize}칸" class="ammo-status-slots">
       ${item.scarce
         ? `<img src="images/ui/scarce.png" alt="Scarce" class="ammo-status-dollar" title="Scarce (상점 구매 불가, 월드에서만 획득)">`
