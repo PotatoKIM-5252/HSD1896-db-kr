@@ -447,12 +447,21 @@ button { font-family: var(--font-body); cursor: pointer; }
   min-width: 0;
 }
 
+/* 간략히 보기 패널이 열려있을 땐 카드가 더 이상 폭을 꽉 채우지 않으므로(아래 #item-grid
+   참고), 검색창/필터 영역도 그리드 트랙 전체로 늘어나지 않고 실제 카드가 차지하는
+   폭까지만 차지하게 함(패널이 닫혀있을 땐 기존처럼 전체 폭 사용) */
+#search-body:has(#item-detail-panel:not([hidden])) #search-left {
+  justify-self: start;
+}
+
 #item-grid {
   display: grid;
   /* 카드 최대폭을 200px로 고정 — 상세 패널이 넓어져 남는 폭이 줄어도 카드가 커지지
      않고(1fr처럼 늘어나지 않음) 기존 크기 그대로 유지되고, 대신 칸 수만 줄어듦 */
   grid-template-columns: repeat(auto-fill, minmax(180px, 200px));
   gap: 14px;
+  width: fit-content;
+  max-width: 100%;
 }
 
 .item-card {
@@ -3145,13 +3154,6 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 /* 자세히 보기 등 전체화면 오버레이가 열려있을 땐 우측 하단 유틸리티 버튼이 내용과 겹치므로 숨김 */
 body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
-
-/* 간략히 보기 패널이 열려있을 땐 패널이 우측 하단까지 오는 경우가 있어, 무기목록 폭은 그대로
-   두고 유틸리티 버튼만 패널과 안 겹치게 왼쪽으로 이동. 880px 이하는 패널이 목록 아래로
-   쌓이는 반응형 레이아웃이라 겹칠 일이 없으므로 이 폭 이상에서만 적용 */
-@media (min-width: 881px) {
-  body:has(#item-detail-panel:not([hidden])) #site-utility-bar { right: 600px; }
-}
 
 #report-modal-overlay, #changelog-modal-overlay, #office-changelog-modal-overlay, #office-rules-modal-overlay, #office-report-modal-overlay, #office-report-admin-modal-overlay, #office-join-info-modal-overlay {
   position: fixed;
