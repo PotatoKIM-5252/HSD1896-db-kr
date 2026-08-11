@@ -3622,7 +3622,7 @@ function openBodyPartView(parentItem, ammoId) {
         <!-- 탄약 상태: [탄약 아이콘] 장탄/예비탄 [칸수 아이콘] | [달러 아이콘] 가격 -->
         <div class="ammo-status-row">
           ${ammo?.image ? `<img src="${ammo.image}" alt="${ammo.label}" class="ammo-status-icon">` : ""}
-          <span class="ammo-status-count">${chamber.loaded ?? "-"}/${chamber.extra ?? "-"}${currentItem.dualAmmoSlot ? ` <span class="ammo-status-perslot">(슬롯당)</span>` : ""}</span>
+          <span class="ammo-status-count">${chamber.loaded ?? "-"}/${chamber.extra ?? "-"}${currentItem.dualAmmoSlot && chamber.extra != null ? ` <span class="ammo-status-perslot">(슬롯당 ${chamber.extra / 2})</span>` : ""}</span>
           <img src="images/ui/slot_${currentItem.slotSize || 1}.png" alt="${currentItem.slotSize}칸" class="ammo-status-slots">
           ${currentItem.scarce
             ? `<img src="images/ui/scarce.png" alt="Scarce" class="ammo-status-dollar" title="Scarce (상점 구매 불가, 월드에서만 획득)">`
@@ -4071,12 +4071,15 @@ function resolveWeaponWithAmmo(item, ammoId) {
   const overrides = ammo.statOverrides || {};
   const stats = { ...item.stats, ...overrides };
   const chamber = { ...(item.chamber || {}) };
-  if (overrides.ammoExtra != null) chamber.extra = overrides.ammoExtra;
+  // 이중탄약(dualAmmoSlot) 무기는 ammoExtra가 위키 원본대로 "슬롯당" 값으로 저장돼 있으므로,
+  // 양쪽 슬롯을 다 채운 총 예비탄(슬롯당×2)으로 환산해 chamber.extra에 반영한다.
+  // 슬롯당 수치 자체는 렌더링 쪽에서 chamber.extra/2로 다시 계산해 "(슬롯당 N)"으로 표기.
+  if (overrides.ammoExtra != null) chamber.extra = item.dualAmmoSlot ? overrides.ammoExtra * 2 : overrides.ammoExtra;
   if (overrides.ammoLoaded != null) chamber.loaded = overrides.ammoLoaded;
   // 변형(variant)이 본체와 탄종을 공유하지만 예비탄 수량만 달라야 하는 경우(예: 스프링필드 1866
-  // 쇼티, 마티니-헨리 아이언사이드) 최우선으로 적용
+  // 쇼티, 마티니-헨리 아이언사이드) 최우선으로 적용 — 마찬가지로 이중탄약이면 슬롯당 값을 총량으로 환산
   const extraOverride = item.ammoExtraOverrides && item.ammoExtraOverrides[ammoId];
-  if (extraOverride != null) chamber.extra = extraOverride;
+  if (extraOverride != null) chamber.extra = item.dualAmmoSlot ? extraOverride * 2 : extraOverride;
   return { stats, chamber, ammo };
 }
 
@@ -4116,7 +4119,7 @@ function renderWeaponDetailHTML(item, selectedAmmoId) {
     <!-- 한 줄: [탄약 아이콘] 장탄/예비탄 [칸수 아이콘] | [달러 아이콘] 가격 -->
     <div class="ammo-status-row">
       ${ammo?.image ? `<img src="${ammo.image}" alt="${ammo.label}" class="ammo-status-icon">` : ""}
-      <span class="ammo-status-count">${chamber.loaded ?? "-"}/${chamber.extra ?? "-"}${item.dualAmmoSlot ? ` <span class="ammo-status-perslot">(슬롯당)</span>` : ""}</span>
+      <span class="ammo-status-count">${chamber.loaded ?? "-"}/${chamber.extra ?? "-"}${item.dualAmmoSlot && chamber.extra != null ? ` <span class="ammo-status-perslot">(슬롯당 ${chamber.extra / 2})</span>` : ""}</span>
       <img src="images/ui/slot_${item.slotSize || 1}.png" alt="${item.slotSize}칸" class="ammo-status-slots">
       ${item.scarce
         ? `<img src="images/ui/scarce.png" alt="Scarce" class="ammo-status-dollar" title="Scarce (상점 구매 불가, 월드에서만 획득)">`
