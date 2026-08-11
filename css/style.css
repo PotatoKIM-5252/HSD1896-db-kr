@@ -163,8 +163,11 @@ button { font-family: var(--font-body); cursor: pointer; }
    max-width가 상한일 뿐이라 자연히 좁아짐(반응형 폴백은 그대로 동작).
    오른쪽에 여유 패딩을 둬서 패널이 우측 하단 고정 버튼(업데이트 내역/문의)과 겹치지 않게 함
    — 카드는 더 이상 폭에 맞춰 늘어나지 않으므로(auto-fill 고정폭) 칸 수만 줄어들 뿐 커지지 않음.
-   max-width는 넓은 화면에서 칸 수가 불필요하게 낮게 제한되지 않도록 넉넉하게 잡음. */
-#app-main:has(#item-detail-panel:not([hidden])) { max-width: 2400px; padding-right: 165px; }
+   max-width는 넓은 화면에서 칸 수가 불필요하게 낮게 제한되지 않도록 넉넉하게 잡음.
+   #tab-search가 보이는 상태일 때만 적용 — 패널을 닫지 않고 다른 탭(로드아웃 등)으로 넘어가도
+   #item-detail-panel 자체의 hidden 속성은 그대로라 :has()가 계속 매칭돼서 로드아웃 탭까지
+   폭이 바뀌는 문제가 있었음. */
+#app-main:has(#tab-search:not([hidden]) #item-detail-panel:not([hidden])) { max-width: 2400px; padding-right: 165px; }
 
 .tab-panel[hidden] { display: none; }
 .empty-msg { color: var(--text-muted); font-size: 14px; padding: 24px 4px; }
