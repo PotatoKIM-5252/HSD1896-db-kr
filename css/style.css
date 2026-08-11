@@ -438,11 +438,14 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 /* 간략히 보기(item-detail-panel)가 열려있을 때는 무기목록/필터가 grid 트랙 전체가 아니라
-   실제 콘텐츠 폭만큼만 차지하고 상세 패널이 바로 옆에 붙도록 grid 대신 flex 레이아웃 사용
-   (남는 폭은 그냥 빈 공간으로 남김 — 우측 하단 유틸리티 버튼과는 안 겹침) */
+   실제 콘텐츠 폭만큼만 차지하고 상세 패널이 바로 옆에 붙도록 grid 대신 flex 레이아웃 사용.
+   패널이 닫혀있을 때(grid, 1열)와 비슷하게 남는 여백은 좌우로 나눠서 전체를 가운데 정렬
+   (우측 하단 유틸리티 버튼과의 여유 폭은 #app-main의 padding-right로 이미 확보돼 있어서
+   가운데 정렬해도 안 겹침) */
 #search-body:has(#item-detail-panel:not([hidden])) {
   display: flex;
   align-items: flex-start;
+  justify-content: center;
   /* 무기 카드 사이 간격(#item-grid의 gap)과 동일하게, 목록과 패널 사이도 14px로 붙임 */
   gap: 14px;
 }
