@@ -888,6 +888,14 @@ function init() {
   renderItemGrid();
   renderLoadoutBoard();
 
+  // #item-grid의 실제 가용 폭이 바뀔 때마다(창 크기 변경, 자세히 보기 패널 열림/닫힘 등)
+  // 검색창/필터 영역 폭을 카드 칸 수에 맞춰 재계산
+  const itemGridEl = document.getElementById("item-grid");
+  if (itemGridEl && window.ResizeObserver) {
+    new ResizeObserver(syncSearchControlsWidth).observe(itemGridEl);
+  }
+  syncSearchControlsWidth();
+
   setupReportWidget();
   setupChangelogWidget();
   setupOfficeChangelogPopup();
@@ -3289,9 +3297,65 @@ function renderItemGrid() {
   grid.innerHTML = "";
   if (items.length === 0) {
     grid.innerHTML = `<p class="empty-msg">아이템이 없습니다. data.js의 ITEMS 배열에 데이터를 추가해주세요.</p>`;
+    syncSearchControlsWidth();
     return;
   }
   items.forEach((item) => grid.appendChild(createItemCard(item)));
+  syncSearchControlsWidth();
+}
+
+// 검색창/필터 영역(#search-controls) 폭을 카드가 실제로 몇 칸 들어가는지에 맞춰 조정.
+// #item-grid 카드 폭은 200px로 고정돼 있어서(auto-fill), 남는 폭만큼(또는 검색결과
+// 카드 수가 한 줄을 다 못 채울 때) 필터 영역이 불필요하게 길어지는 걸 방지.
+// 패널이 열려있을 땐 #search-body가 grid 대신 flex라서, #search-left가 콘텐츠 기준으로
+// 줄어드는 flex 기본 동작 때문에 #item-grid가 실제 가용 폭을 다 못 쓰고 칸 수가 줄어드는
+// 문제가 있어서 — #search-body 전체 폭에서 패널 폭을 뺀 실제 가용 폭을 직접 계산해
+// #search-left에 명시적으로 지정해준다(패널이 닫혀있을 땐 grid가 알아서 전체 폭을 채우므로
+// 굳이 지정할 필요 없음 — 오히려 지정하면 방해될 수 있어 초기화).
+// "폭 기준으로 몇 칸이 들어갈 수 있는지"뿐 아니라 "실제로 첫 줄에 카드가 몇 개
+// 렌더링됐는지"까지 반영해야 정확해서(검색결과가 적으면 자리는 있어도 카드가 없음),
+// 렌더링된 카드들의 offsetTop을 비교해 첫 줄 칸 수를 직접 셈.
+// #item-grid 크기가 바뀔 때마다(창 크기 변경, 자세히 보기 패널 열림/닫힘 등) 자동 재계산됨.
+function syncSearchControlsWidth() {
+  const grid = document.getElementById("item-grid");
+  const controls = document.getElementById("search-controls");
+  const searchLeft = document.getElementById("search-left");
+  const searchBody = document.getElementById("search-body");
+  const panel = document.getElementById("item-detail-panel");
+  if (!grid || !controls || !searchLeft || !searchBody) return;
+
+  const cardWidth = 200, gap = 14;
+  const panelOpen = panel && !panel.hidden;
+  let available;
+  if (panelOpen) {
+    const bodyWidth = searchBody.getBoundingClientRect().width;
+    const panelWidth = panel.getBoundingClientRect().width;
+    available = bodyWidth - panelWidth - 14; // #search-body의 gap(14px)만큼 뺌
+    // 일단 넉넉하게 넓혀서(실제 가용 폭) 몇 칸까지 들어가는지부터 정확히 측정
+    searchLeft.style.width = `${Math.max(0, available)}px`;
+  } else {
+    searchLeft.style.width = ""; // 패널 닫혀있을 땐 grid가 전체 폭을 채우도록 초기화
+    available = grid.getBoundingClientRect().width;
+  }
+  if (available <= 0) return;
+
+  const maxColsByWidth = Math.max(1, Math.floor((available + gap) / (cardWidth + gap)));
+  const cards = grid.querySelectorAll(".item-card");
+  let cols = maxColsByWidth;
+  if (cards.length > 0) {
+    const firstTop = cards[0].offsetTop;
+    let firstRowCount = 0;
+    for (const c of cards) {
+      if (Math.abs(c.offsetTop - firstTop) < 2) firstRowCount++;
+      else break; // 카드가 위→아래 순서로 렌더링되므로 첫 줄이 끝나면 중단
+    }
+    cols = Math.min(maxColsByWidth, firstRowCount);
+  }
+  const usedWidth = cols * cardWidth + (cols - 1) * gap;
+  controls.style.maxWidth = `${usedWidth}px`;
+  // 패널이 열려있을 땐 #search-left 자체도 실제 카드가 차지하는 폭까지만 좁혀서, 패널이
+  // 카드 줄 바로 옆(카드 사이 간격과 동일한 14px)에 붙게 함(그 전엔 남는 여백만큼 떨어져 있었음)
+  if (panelOpen) searchLeft.style.width = `${usedWidth}px`;
 }
 
 function createItemCard(item) {

@@ -159,9 +159,12 @@ button { font-family: var(--font-body); cursor: pointer; }
 #app-main { max-width: 1240px; margin: 0 auto; padding: 28px 32px 60px; }
 
 /* 간략히 보기 패널이 열리면 무기목록/필터 폭은 그대로 두고, 화면에 여유가 있는 만큼만
-   컨테이너 자체를 넓혀서 오른쪽 여백에 패널을 띄운다 (목록이 6칸→4칸으로 줄어드는 것 방지).
-   뷰포트가 좁아 여유가 없으면 max-width가 상한일 뿐이라 자연히 좁아짐(반응형 폴백은 그대로 동작). */
-#app-main:has(#item-detail-panel:not([hidden])) { max-width: 1704px; }
+   컨테이너 자체를 넓혀서 오른쪽 여백에 패널을 띄운다. 뷰포트가 좁아 여유가 없으면
+   max-width가 상한일 뿐이라 자연히 좁아짐(반응형 폴백은 그대로 동작).
+   오른쪽에 여유 패딩을 둬서 패널이 우측 하단 고정 버튼(업데이트 내역/문의)과 겹치지 않게 함
+   — 카드는 더 이상 폭에 맞춰 늘어나지 않으므로(auto-fill 고정폭) 칸 수만 줄어들 뿐 커지지 않음.
+   max-width는 넓은 화면에서 칸 수가 불필요하게 낮게 제한되지 않도록 넉넉하게 잡음. */
+#app-main:has(#item-detail-panel:not([hidden])) { max-width: 2400px; padding-right: 165px; }
 
 .tab-panel[hidden] { display: none; }
 .empty-msg { color: var(--text-muted); font-size: 14px; padding: 24px 4px; }
@@ -434,10 +437,18 @@ button { font-family: var(--font-body); cursor: pointer; }
   align-items: start;
 }
 
-/* 간략히 보기(item-detail-panel)가 열려있을 때만 오른쪽에 칸을 내줌 —
-   닫혀있을 땐 무기목록(#item-grid)이 전체 폭을 써서 열이 더 많이 표시됨 */
+/* 간략히 보기(item-detail-panel)가 열려있을 때는 무기목록/필터가 grid 트랙 전체가 아니라
+   실제 콘텐츠 폭만큼만 차지하고 상세 패널이 바로 옆에 붙도록 grid 대신 flex 레이아웃 사용
+   (남는 폭은 그냥 빈 공간으로 남김 — 우측 하단 유틸리티 버튼과는 안 겹침) */
 #search-body:has(#item-detail-panel:not([hidden])) {
-  grid-template-columns: 1fr 440px;
+  display: flex;
+  align-items: flex-start;
+  /* 무기 카드 사이 간격(#item-grid의 gap)과 동일하게, 목록과 패널 사이도 14px로 붙임 */
+  gap: 14px;
+}
+
+#search-body:has(#item-detail-panel:not([hidden])) #item-detail-panel {
+  flex: 0 0 440px;
 }
 
 #search-left {
@@ -447,21 +458,13 @@ button { font-family: var(--font-body); cursor: pointer; }
   min-width: 0;
 }
 
-/* 간략히 보기 패널이 열려있을 땐 카드가 더 이상 폭을 꽉 채우지 않으므로(아래 #item-grid
-   참고), 검색창/필터 영역도 그리드 트랙 전체로 늘어나지 않고 실제 카드가 차지하는
-   폭까지만 차지하게 함(패널이 닫혀있을 땐 기존처럼 전체 폭 사용) */
-#search-body:has(#item-detail-panel:not([hidden])) #search-left {
-  justify-self: start;
-}
-
 #item-grid {
   display: grid;
   /* 카드 최대폭을 200px로 고정 — 상세 패널이 넓어져 남는 폭이 줄어도 카드가 커지지
-     않고(1fr처럼 늘어나지 않음) 기존 크기 그대로 유지되고, 대신 칸 수만 줄어듦 */
+     않고(1fr처럼 늘어나지 않음) 기존 크기 그대로 유지되고, 대신 칸 수만 줄어듦.
+     실제 칸 수에 맞춰 #search-controls 폭을 맞추는 건 JS(syncSearchControlsWidth)가 처리 */
   grid-template-columns: repeat(auto-fill, minmax(180px, 200px));
   gap: 14px;
-  width: fit-content;
-  max-width: 100%;
 }
 
 .item-card {
@@ -3736,7 +3739,9 @@ label.office-field-checkbox input[type="checkbox"] { width: auto; }
 @media (max-width: 880px) {
   #app-header { padding: 16px 18px; }
   #app-main { padding: 20px 16px 48px; }
-  #search-body, #search-body:has(#item-detail-panel:not([hidden])) { grid-template-columns: 1fr; }
+  #search-body { grid-template-columns: 1fr; }
+  #search-body:has(#item-detail-panel:not([hidden])) { flex-direction: column; }
+  #search-body:has(#item-detail-panel:not([hidden])) #item-detail-panel { flex-basis: auto; width: 100%; }
   #item-detail-panel { position: static; max-height: none; }
   .weapon-filter-group { grid-template-columns: 1fr; gap: 6px; }
   .detail-stats { grid-template-columns: 1fr; }
