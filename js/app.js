@@ -3351,6 +3351,11 @@ function syncSearchControlsWidth() {
     }
     cols = Math.min(maxColsByWidth, firstRowCount);
   }
+  // 검색결과가 너무 적으면(예: 필터를 좁게 걸어서 카드가 1~2개뿐일 때) 필터 영역까지
+  // 카드 수에 맞춰 좁아져서 무기 칸수/분류/탄약 종류 버튼들이 줄바꿈되며 찌그러져 보이는
+  // 문제가 있어서, 폭이 허용하는 한 기존(카드 많을 때) 기준인 5칸만큼은 확보
+  // (그보다 좁은 화면이면 화면 폭이 상한).
+  cols = Math.min(maxColsByWidth, Math.max(cols, 5));
   const usedWidth = cols * cardWidth + (cols - 1) * gap;
   controls.style.maxWidth = `${usedWidth}px`;
   // 패널이 열려있을 땐 #search-left 자체도 실제 카드가 차지하는 폭까지만 좁혀서, 패널이
