@@ -92,16 +92,22 @@ button { font-family: var(--font-body); cursor: pointer; }
   align-items: center;
   gap: 6px;
   font-size: 11px;
-  color: var(--text-muted);
-  border: 1px solid var(--border);
+  color: var(--text-primary);
+  border: 1px solid var(--accent);
   border-radius: var(--radius);
   padding: 4px 10px 4px 4px;
-  background: transparent;
+  background: rgba(201, 196, 179, 0.08);
+  animation: office-entry-glow 2.4s ease-in-out infinite;
 }
 
 #office-entry-btn img { height: 52px; width: auto; border-radius: 3px; display: block; }
 
-#office-entry-btn:hover { color: var(--text-primary); border-color: var(--accent); }
+#office-entry-btn:hover { color: var(--accent-strong); border-color: var(--accent-strong); }
+
+@keyframes office-entry-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 196, 179, 0.4); }
+  50% { box-shadow: 0 0 12px 2px rgba(201, 196, 179, 0.4); }
+}
 
 #app-footer {
   border-top: 1px solid var(--border);
