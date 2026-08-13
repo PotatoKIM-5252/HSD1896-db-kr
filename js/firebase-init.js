@@ -17,7 +17,7 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged,
+  getAuth, signInAnonymously, onAuthStateChanged,
   setPersistence, browserLocalPersistence,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
@@ -75,14 +75,6 @@ setPersistence(auth, browserLocalPersistence)
 async function getUid() {
   if (auth.currentUser) return auth.currentUser.uid;
   return authReady;
-}
-
-// 지금 로그인된 사용자 본인의 Firebase ID 토큰 — 신고 영상 업로드/조회/삭제 때
-// Cloudflare Worker에 "나 맞다"는 걸 증명하는 용도로만 쓴다.
-async function getMyIdToken() {
-  if (!auth.currentUser) await authReady;
-  if (!auth.currentUser) throw new Error("로그인 상태를 확인할 수 없습니다.");
-  return auth.currentUser.getIdToken();
 }
 
 const LOADOUTS_COLLECTION = "sharedLoadouts";
@@ -266,86 +258,33 @@ async function toggleWeaponCommentAgree(weaponId, reviewOwnerUid, currentlyAgree
   });
 }
 
-// 사무소(매칭 게시판) 이용 등록 — 진짜 스팀 로그인(OpenID)으로 검증된 SteamID64를 그대로
-// Firebase Auth의 uid로 쓴다. 검증은 Cloudflare Worker가 스팀에 직접 물어봐서
-// (check_authentication) 확인한 뒤에만 로그인 토큰(Custom Token)을 발급해주므로, 이 uid를
-// 가지려면 반드시 그 스팀 계정으로 실제 로그인을 통과해야 한다 — 클라이언트가 Firestore에
-// 직접 요청을 보내도 검증 없이는 원하는 SteamID를 위조할 수 없다(자세한 이유는
-// firestore.rules의 officeMembers 규칙 주석 참고).
-// 문서 ID도 SteamID64라서 같은 스팀ID로 중복 등록도 구조적으로 막힌다.
+// 사무소(매칭 게시판) 이용 등록 — 스팀 로그인 없이, 위에서 이미 쓰고 있는 파이어베이스
+// 익명 인증 uid를 그대로 신원 기준으로 쓴다(로그인 절차 자체가 없음). 쿠키/사이트데이터를
+// 지우면 새 uid가 발급되므로 완전히 새 사람으로 취급된다 — 의도된 동작이며 복구 수단은
+// 없다(자세한 이유는 firestore.rules의 officeMembers 규칙 주석 참고).
+// 문서 ID도 이 uid라서 중복 등록이 구조적으로 막힌다.
 const OFFICE_MEMBERS_COLLECTION = "officeMembers";
-const STEAM_ID64_FORMAT_RE = /^\d{17}$/;
-const STEAM_VERIFY_WORKER_URL = "https://potatokim.cisd456.workers.dev";
 
-function buildSteamLoginUrl() {
-  const returnTo = `${location.origin}${location.pathname}?steamAuth=1`;
-  const params = new URLSearchParams({
-    "openid.ns": "http://specs.openid.net/auth/2.0",
-    "openid.mode": "checkid_setup",
-    "openid.return_to": returnTo,
-    "openid.realm": `${location.origin}/`,
-    "openid.identity": "http://specs.openid.net/auth/2.0/identifier_select",
-    "openid.claimed_id": "http://specs.openid.net/auth/2.0/identifier_select",
-  });
-  return `https://steamcommunity.com/openid/login?${params.toString()}`;
-}
-
-// 스팀에서 돌아온 직후(콜백)인지 URL 쿼리로 판단 — 맞으면 openid.* 파라미터를 그대로 반환
-function getSteamOpenIdParamsFromUrl() {
-  const params = new URLSearchParams(location.search);
-  if (params.get("steamAuth") !== "1" || params.get("openid.mode") !== "id_res") return null;
-  const out = {};
-  params.forEach((value, key) => { out[key] = value; });
-  return out;
-}
-
-// Cloudflare Worker에 검증을 맡기고, 통과하면 받은 토큰으로 실제 로그인까지 마친다.
-// 로그인에 성공하면 이후 getUid()가 돌려주는 uid가 이 SteamID64로 바뀐다.
-async function verifySteamLoginAndSignIn(openidParams) {
-  const res = await fetch(STEAM_VERIFY_WORKER_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(openidParams),
-  }).catch(() => null);
-  if (!res || !res.ok) throw new Error("스팀 인증 확인에 실패했습니다. 잠시 후 다시 시도해주세요.");
-  const data = await res.json();
-  if (!data.valid || !data.steamId || !data.token) throw new Error("스팀 로그인 검증에 실패했습니다.");
-  await signInWithCustomToken(auth, data.token);
-  return data.steamId;
-}
-
-// 지금 로그인된 uid가 스팀 인증을 마친 상태인지, 등록된 사무소 회원인지 조회 (아니면 null)
+// 지금 로그인된 uid가 등록된 사무소 회원인지 조회 (아니면 null)
 async function getMyOfficeMembership() {
   const uid = await getUid();
-  if (!STEAM_ID64_FORMAT_RE.test(uid)) return null; // 아직 스팀 로그인 전(익명 uid)
   const snap = await getDoc(doc(db, OFFICE_MEMBERS_COLLECTION, uid));
-  return snap.exists() ? { steamId: uid, ...snap.data() } : null;
+  return snap.exists() ? { uid, ...snap.data() } : null;
 }
 
-// 영구 차단(banned) 또는 아직 안 끝난 기간제 차단(bannedUntil)이면 차단 상태로 본다.
-// firestore.rules의 isCurrentlyBanned와 같은 판정 기준.
-function isOfficeMembershipBanned(membership) {
-  if (!membership) return false;
-  if (membership.banned) return true;
-  const until = membership.bannedUntil;
-  if (!until) return false;
-  const ms = typeof until.toMillis === "function" ? until.toMillis() : (typeof until.seconds === "number" ? until.seconds * 1000 : null);
-  return ms != null && Date.now() < ms;
-}
-
-// 스팀 로그인까지 마친 uid(=steamId64) 기준으로 사무소 등록 문서를 만든다.
-// 이미 등록돼 있으면(재로그인 등) 새로 쓰지 않고 기존 상태 그대로 반환.
-async function ensureOfficeMembership(steamId) {
-  const ref = doc(db, OFFICE_MEMBERS_COLLECTION, steamId);
+// 지금 uid 기준으로 사무소 등록 문서를 만든다. 이미 등록돼 있으면 새로 쓰지 않고
+// 기존 상태 그대로 반환.
+async function ensureOfficeMembership() {
+  const uid = await getUid();
+  const ref = doc(db, OFFICE_MEMBERS_COLLECTION, uid);
   const snap = await getDoc(ref);
-  if (snap.exists()) return { steamId, ...snap.data() };
+  if (snap.exists()) return { uid, ...snap.data() };
   await setDoc(ref, {
-    ownerId: steamId,
+    ownerId: uid,
     pledgeAgreedAt: serverTimestamp(),
     createdAt: serverTimestamp(),
-    banned: false,
   });
-  return { steamId, ownerId: steamId, banned: false };
+  return { uid, ownerId: uid };
 }
 
 // 사무소 탈퇴 — 등록해둔 스팀 ID(officeMembers)를 본인이 직접 지울 수 있게 한다.
@@ -375,7 +314,7 @@ async function deleteMyOfficeMembership() {
   await deleteDoc(doc(db, OFFICE_MEMBERS_COLLECTION, uid));
 }
 
-// 파티 모집 — 문서 ID = 파티장 uid(=steamId64)라서 "한 사람당 활성 파티 1개"가 구조적으로
+// 파티 모집 — 문서 ID = 파티장 uid라서 "한 사람당 활성 파티 1개"가 구조적으로
 // 강제됨. 모집 정보(활동서버/파티MMR/최소KDA/전투성향/음성여부)는 사무소 회원이면 누구나
 // 보지만, 합류 코드(private/code)와 지원자 목록(applications)은 각각 별도 하위 경로라
 // Firestore 규칙이 따로 접근을 제한한다(코드는 파티장 본인과 "수락된" 지원자만, 지원자
@@ -450,10 +389,10 @@ function officePartyDayKey(date = new Date()) {
   return `${yy}${mm}${dd}`;
 }
 
-// 파티 참여 이력(officePartyHistory) 문서 ID — "{파티번호}_{스팀ID}" 고정 형식이라
-// firestore.rules가 "신고자가 이 파티에 정말 있었는지"를 exists()로 바로 확인할 수 있다.
-function officePartyHistoryDocId(partyNumber, steamId) {
-  return `${partyNumber}_${steamId}`;
+// 파티 참여 이력(officePartyHistory) 문서 ID — "{파티번호}_{uid}" 고정 형식이라
+// firestore.rules가 "이 uid가 정말 이 파티에 있었는지"를 exists()로 바로 확인할 수 있다.
+function officePartyHistoryDocId(partyNumber, uid) {
+  return `${partyNumber}_${uid}`;
 }
 
 const OFFICE_MEMBER_NUMBER_HISTORY_COLLECTION = "officeMemberNumberHistory";
@@ -490,7 +429,7 @@ async function generateMemberNumber(uid) {
     const suffix = String(Math.floor(Math.random() * 1000)).padStart(3, "0");
     const candidate = `${dayKey}${suffix}`;
     try {
-      await setDoc(doc(db, OFFICE_MEMBER_NUMBER_HISTORY_COLLECTION, candidate), { steamId: uid, assignedAt: serverTimestamp() });
+      await setDoc(doc(db, OFFICE_MEMBER_NUMBER_HISTORY_COLLECTION, candidate), { uid, assignedAt: serverTimestamp() });
       return candidate;
     } catch {
       // 이미 그 번호를 누가 먼저 가져갔음 — 다른 무작위 번호로 재시도
@@ -535,10 +474,10 @@ async function saveMyParty(fields) {
       tx.set(counterRef, { count: nextSeq });
       tx.set(ref, { leaderId: uid, ...sanitized, codePublic: false, status: "open", acceptedCount: 0, partyNumber, createdAt: serverTimestamp(), renewedAt: serverTimestamp() });
       tx.set(doc(db, OFFICE_PARTY_HISTORY_COLLECTION, officePartyHistoryDocId(partyNumber, uid)), {
-        steamId: uid, partyNumber, leaderId: uid, role: "leader", joinedAt: serverTimestamp(), leftAt: null, memberNumberAtJoin: memberNumber, expireAt: officeHistoryExpiry(),
+        uid, partyNumber, leaderId: uid, role: "leader", joinedAt: serverTimestamp(), leftAt: null, memberNumberAtJoin: memberNumber, expireAt: officeHistoryExpiry(),
       });
       tx.set(doc(db, OFFICE_PARTY_ROSTER_COLLECTION, partyNumber), {
-        leaderId: uid, members: [{ role: "leader", memberNumber, resumeSnapshot: resumeSnapshotFields(resumeSnap.data()) }], expireAt: officeHistoryExpiry(),
+        leaderId: uid, members: [{ uid, role: "leader", memberNumber, resumeSnapshot: resumeSnapshotFields(resumeSnap.data()) }], expireAt: officeHistoryExpiry(),
       });
     });
   }
@@ -657,10 +596,10 @@ async function respondToApplication(applicantId, accepted) {
   batch.update(appRef, { status: "accepted", respondedAt: serverTimestamp() });
   batch.update(doc(db, OFFICE_PARTIES_COLLECTION, uid), { acceptedCount: increment(1) });
   batch.set(doc(db, OFFICE_PARTY_HISTORY_COLLECTION, officePartyHistoryDocId(partyNumber, applicantId)), {
-    steamId: applicantId, partyNumber, leaderId: uid, role: "member", joinedAt: serverTimestamp(), leftAt: null, memberNumberAtJoin: memberNumber, expireAt: officeHistoryExpiry(),
+    uid: applicantId, partyNumber, leaderId: uid, role: "member", joinedAt: serverTimestamp(), leftAt: null, memberNumberAtJoin: memberNumber, expireAt: officeHistoryExpiry(),
   });
   batch.update(doc(db, OFFICE_PARTY_ROSTER_COLLECTION, partyNumber), {
-    members: arrayUnion({ role: "member", memberNumber, resumeSnapshot: resumeSnapshotFields(applicantResumeSnap.data()) }),
+    members: arrayUnion({ uid: applicantId, role: "member", memberNumber, resumeSnapshot: resumeSnapshotFields(applicantResumeSnap.data()) }),
   });
   await batch.commit();
 }
@@ -733,10 +672,10 @@ async function respondToInvite(leaderId, accepted) {
   batch.update(appRef, { status: "accepted", respondedAt: serverTimestamp() });
   batch.update(doc(db, OFFICE_PARTIES_COLLECTION, leaderId), { acceptedCount: increment(1) });
   batch.set(doc(db, OFFICE_PARTY_HISTORY_COLLECTION, officePartyHistoryDocId(partyNumber, uid)), {
-    steamId: uid, partyNumber, leaderId, role: "member", joinedAt: serverTimestamp(), leftAt: null, memberNumberAtJoin: memberNumber, expireAt: officeHistoryExpiry(),
+    uid, partyNumber, leaderId, role: "member", joinedAt: serverTimestamp(), leftAt: null, memberNumberAtJoin: memberNumber, expireAt: officeHistoryExpiry(),
   });
   batch.update(doc(db, OFFICE_PARTY_ROSTER_COLLECTION, partyNumber), {
-    members: arrayUnion({ role: "member", memberNumber, resumeSnapshot: resumeSnapshotFields(myResumeSnap.data()) }),
+    members: arrayUnion({ uid, role: "member", memberNumber, resumeSnapshot: resumeSnapshotFields(myResumeSnap.data()) }),
   });
   await batch.commit();
 }
@@ -806,7 +745,7 @@ async function getPartyCode(leaderId) {
 }
 
 // 이력서("인력 목록") — 사무소 회원이면 누구나 전체 목록을 볼 수 있다. 문서 ID가
-// steamId지만 화면에는 절대 노출하지 않기 위해, 목록 조회 함수는 항목 데이터만 돌려주고
+// uid지만 화면에는 절대 노출하지 않기 위해, 목록 조회 함수는 항목 데이터만 돌려주고
 // 문서 ID(d.id)는 반환값에 아예 포함하지 않는다.
 const OFFICE_RESUMES_COLLECTION = "officeResumes";
 const RESUME_FIELD_KEYS = ["mmr", "kda", "preferredStyle", "voice", "preferredPartyType", "preferredGameMode"];
@@ -814,7 +753,7 @@ const MAX_RESUME_FIELD_LEN = 100;
 
 // 파티 로스터(officePartyRoster)에 같이 저장해 둘 "가입 당시 정보" 스냅샷 — 프로필
 // 원본이 재등록/만료로 바뀌어도 그 파티에 가입했던 시점의 값이 그대로 남아있게 한다.
-// steamId는 포함하지 않는다(로스터는 가명 전용이라 실명이 섞이면 안 됨).
+// uid는 포함하지 않는다(로스터는 가명 전용).
 function resumeSnapshotFields(data) {
   return {
     preferredPartyType: data.preferredPartyType || "",
@@ -891,59 +830,21 @@ async function getApplicantResume(applicantId) {
   }
 }
 
-// 프로필 목록 — 등록된 이력서 전체를 사무소 회원 누구나 조회. steamId는 파티장이
+// 프로필 목록 — 등록된 이력서 전체를 사무소 회원 누구나 조회. uid는 파티장이
 // "초대" 버튼을 눌렀을 때 대상을 지정하는 용도로만 쓰고, 화면에 텍스트로 절대
 // 노출하지 않는 게 클라이언트 쪽 원칙이다(블라인드 유지).
 async function listAllResumes() {
   const snap = await getDocs(collection(db, OFFICE_RESUMES_COLLECTION));
-  return snap.docs.map((d) => ({ ...d.data(), steamId: d.id }));
+  return snap.docs.map((d) => ({ ...d.data(), uid: d.id }));
 }
 
-// 사무소 위반 신고 — 기존 오류제보(reports)와 완전히 별개 컬렉션. 영상/설명은 신고자
-// 본인과 운영자만 볼 수 있고(전체공개 아님), 목록은 본인 것만 조회 가능(규칙 참고).
-// ⚠ Firebase Storage는 유료(Blaze) 요금제가 필요해서 안 쓴다 — 영상은 외부 링크
-//   (유튜브/스트리머블 등)만 붙여넣는 방식으로 한다.
-const OFFICE_REPORTS_COLLECTION = "officeReports";
-const MAX_OFFICE_REPORT_DESC_LEN = 200;
-
-const PARTY_NUMBER_RE = /^\d{8}$/;
-const MEMBER_NUMBER_RE = /^\d{9}$/;
-
-// 신고 등록 — videoUrl은 사용자가 직접 붙여넣은 외부 링크(유튜브/스트리머블 등)만 받는다.
-// incidentPartyNumber(파티번호) + targetMemberNumber(신고 대상의 등록번호)를
-// 같이 받는다. Firestore 규칙이 "신고자가 정말 그 파티에 있었는지"와 "지목한 등록번호의
-// 주인도 정말 같은 파티에 있었는지"를 제출 시점에 이중으로 검증한다(클라이언트가 우회
-// 불가) — 번호를 잘못 입력해도 두 조건이 우연히 동시에 맞아떨어질 확률이 낮아서 안전하다.
-async function submitOfficeReport({ description, videoUrl, incidentPartyNumber, targetMemberNumber }) {
-  const trimmedUrl = (videoUrl || "").trim();
-  if (!trimmedUrl) throw new Error("영상 링크를 입력해주세요.");
-  const trimmedPartyNumber = (incidentPartyNumber || "").trim();
-  if (!PARTY_NUMBER_RE.test(trimmedPartyNumber)) throw new Error("파티번호(8자리)를 정확히 입력해주세요.");
-  const trimmedMemberNumber = (targetMemberNumber || "").trim();
-  if (!MEMBER_NUMBER_RE.test(trimmedMemberNumber)) throw new Error("신고 대상 등록번호(9자리)를 정확히 입력해주세요.");
-  const uid = await getUid();
-  try {
-    await addDoc(collection(db, OFFICE_REPORTS_COLLECTION), {
-      reporterId: uid,
-      description: (description || "").trim().slice(0, MAX_OFFICE_REPORT_DESC_LEN),
-      videoUrl: trimmedUrl,
-      incidentPartyNumber: trimmedPartyNumber,
-      targetMemberNumber: trimmedMemberNumber,
-      createdAt: serverTimestamp(),
-      resolved: false,
-      keep: false,
-    });
-  } catch {
-    throw new Error("신고 접수에 실패했습니다. 파티번호·등록번호가 정확한지, 둘 다 그 파티에 있었는지 확인해주세요.");
-  }
-}
-
-// "최근 기록" — 내가 참여했던 파티들과, 그때 같이 있었던 사람들의 등록번호(가명, 실명
-// 아님)를 보여준다. 신고할 때 "그때 몇 번이었는지" 기억을 돕는 용도. 진짜 스팀ID는
-// 전혀 노출되지 않는다(officePartyRoster엔 등록번호만 담겨 있음 — firestore.rules 참고).
+// "최근 기록" — 내가 참여했던 파티들과, 그때 같이 있었던 사람들의 등록번호(가명)를
+// 보여준다. 파티원 목록과 함께 여기서도 등록번호를 대상으로 차단/메모를 할 수 있다
+// (app.js 참고). 진짜 신원은 전혀 노출되지 않는다(officePartyRoster엔 등록번호만
+// 담겨 있음 — firestore.rules 참고).
 async function listMyPartyHistory() {
   const uid = await getUid();
-  const q = query(collection(db, OFFICE_PARTY_HISTORY_COLLECTION), where("steamId", "==", uid));
+  const q = query(collection(db, OFFICE_PARTY_HISTORY_COLLECTION), where("uid", "==", uid));
   const snap = await getDocs(q);
   return snap.docs.map((d) => d.data());
 }
@@ -953,24 +854,15 @@ async function getPartyRoster(partyNumber) {
   return snap.exists() ? snap.data() : null;
 }
 
-// 내가 제출한 신고 내역 — 규칙상 reporterId==내 uid로 필터가 걸린 쿼리만 조회 허용됨
-async function listMyOfficeReports() {
-  const uid = await getUid();
-  const q = query(collection(db, OFFICE_REPORTS_COLLECTION), where("reporterId", "==", uid));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-}
-
 window.LoadoutCloud = {
   saveLoadout, listLoadouts, toggleLike, deleteLoadout,
   submitReport, reportNeedsCaptcha, listReports,
   listComments, addComment, getCurrentUid, OPERATOR_UID,
   getWeaponReviews, setWeaponHeart, saveWeaponComment, toggleWeaponCommentAgree,
-  buildSteamLoginUrl, getSteamOpenIdParamsFromUrl, verifySteamLoginAndSignIn,
-  getMyOfficeMembership, ensureOfficeMembership, deleteMyOfficeMembership, isOfficeMembershipBanned,
+  getMyOfficeMembership, ensureOfficeMembership, deleteMyOfficeMembership,
   listAllParties, watchAllParties, getMyParty, getPartyByLeaderId, saveMyParty, renewMyParty, setMyPartyStatus, setMyPartyCode, deleteMyParty,
   listApplicationsForMyParty, applyToParty, respondToApplication, listMyApplications, getPartyCode,
   watchMyPartyApplications, watchMyApplications, kickApplicant, inviteToParty, cancelInvite, respondToInvite, leaveParty,
   getMyResume, saveMyResume, renewMyResume, deleteMyResume, getApplicantResume, listAllResumes,
-  submitOfficeReport, listMyOfficeReports, getMyIdToken, listMyPartyHistory, getPartyRoster,
+  listMyPartyHistory, getPartyRoster,
 };

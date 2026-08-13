@@ -243,9 +243,6 @@ function addToLoadoutQuick(item, ammoId = null) {
 const OPERATOR_TOKEN_KEY = "hsddb_operator_refresh_token";
 const FIREBASE_API_KEY = "AIzaSyD3SbLMnzxnDypLXa4kLizKJQkn30bl3CU";
 const FIRESTORE_PROJECT_ID = "hsd-db-1a8d7";
-// 사무소 신고 영상 업로드/조회/삭제를 중계하는 Cloudflare Worker(스팀 로그인 검증과 같은 Worker)
-const OFFICE_REPORT_WORKER_URL = "https://potatokim.cisd456.workers.dev";
-
 
 function getOperatorRefreshToken() {
   return localStorage.getItem(OPERATOR_TOKEN_KEY) || null;
@@ -338,8 +335,7 @@ async function deleteReportAsOperator(reportId, operatorAuth) {
 }
 
 // Firestore REST 응답의 typed value({stringValue:"..."} 등)를 평범한 JS 값으로 변환 —
-// 운영자가 스팀 인증 없이 사무소 게시판을 "열람"만 할 때 SDK 대신 REST로 직접 조회하는
-// 용도로만 쓴다(쓰기는 여기 구현하지 않음 + 규칙도 열람만 허용).
+// 맵 탭 지점/범례(mapOverrides, mapCustomLayers)를 로그인 없이 REST로 읽어올 때 쓴다.
 function firestoreRestValueToJs(v) {
   if (v.stringValue !== undefined) return v.stringValue;
   if (v.booleanValue !== undefined) return v.booleanValue;
@@ -372,25 +368,6 @@ function jsToFirestoreFields(obj) {
   const out = {};
   for (const [k, v] of Object.entries(obj || {})) out[k] = jsValueToFirestore(v);
   return out;
-}
-
-// 파티 목록 — 운영자 열람 전용(REST). leaderId는 화면에 노출 안 함.
-async function listOfficePartiesAsOperator(idToken) {
-  const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/officeParties`;
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${idToken}` } });
-  if (!res.ok) throw new Error("파티 목록을 불러오지 못했습니다.");
-  const data = await res.json();
-  return (data.documents || []).map((d) => firestoreRestFieldsToJs(d.fields));
-}
-
-// 프로필 목록 — 운영자 열람 전용(REST). 화면엔 steamId를 노출하지 않지만(블라인드
-// 원칙), 파티장 필터링(renderOperatorResumeList)에 쓰려고 값 자체는 같이 돌려준다.
-async function listOfficeResumesAsOperator(idToken) {
-  const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/officeResumes`;
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${idToken}` } });
-  if (!res.ok) throw new Error("프로필 목록을 불러오지 못했습니다.");
-  const data = await res.json();
-  return (data.documents || []).map((d) => ({ steamId: d.name.split("/").pop(), ...firestoreRestFieldsToJs(d.fields) }));
 }
 
 // -------------------------------------------------------------------------
@@ -442,269 +419,12 @@ async function publishMapCustomLayers(layers, idToken) {
   }
 }
 
-// 신고에 적힌 신고 대상 등록번호(targetMemberNumber)로 실제 스팀ID를 조회(운영자 전용,
-// REST) — officeMemberNumberHistory는 한 번 배정되면 절대 안 바뀌는 영구 기록이라
-// 시점과 무관하게 항상 정확하다(이력서를 나중에 재등록해서 새 번호를 받아도 예전
-// 신고 기록의 정확성에는 영향이 없음).
-async function resolveMemberNumberAsOperator(memberNumber, idToken) {
-  const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/officeMemberNumberHistory/${memberNumber}`;
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${idToken}` } });
-  if (res.status === 404) return null;
-  if (!res.ok) throw new Error("등록번호를 조회하지 못했습니다.");
-  const data = await res.json();
-  return firestoreRestFieldsToJs(data.fields).steamId;
-}
-
-// 사무소 위반 신고 관리(운영자 전용, REST) — 목록 조회/처리·보류 표시/삭제.
-// 신고자 본인이 아닌 운영자만 전체를 볼 수 있는 컬렉션이라 SDK 세션이 아니라 REST로 처리한다.
-async function listOfficeReportsAsOperator(idToken) {
-  const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/officeReports`;
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${idToken}` } });
-  if (!res.ok) throw new Error("신고 목록을 불러오지 못했습니다.");
-  const data = await res.json();
-  return (data.documents || []).map((d) => ({ id: d.name.split("/").pop(), ...firestoreRestFieldsToJs(d.fields) }));
-}
-
-// 운영자가 스팀 로그인 없이도 신고 기능을 테스트할 수 있게, 운영자 uid로 직접
-// 신고를 등록(REST) — SDK 세션은 운영자로 바뀌지 않으니(의도적으로 안 바꿈) 일반
-// submitOfficeReport(SDK)로는 안 되고, 이 함수로 REST 인증 헤더를 직접 붙여 써야 한다.
-// createdAt은 규칙이 request.time과 정확히 같아야 한다고 요구해서(클라이언트가 임의로
-// 값을 못 넣게) updateTransforms로 서버 시각을 지정한다 — addCommentAsOperator와 동일 패턴.
-async function submitOfficeReportAsOperator(description, videoUrl, idToken, incidentPartyNumber, targetMemberNumber) {
-  const docId = randomFirestoreDocId();
-  const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents:commit`;
-  const fields = {
-    reporterId: { stringValue: window.LoadoutCloud.OPERATOR_UID },
-    description: { stringValue: (description || "").slice(0, 200) },
-    videoUrl: { stringValue: videoUrl },
-    incidentPartyNumber: { stringValue: incidentPartyNumber },
-    targetMemberNumber: { stringValue: targetMemberNumber },
-    resolved: { booleanValue: false },
-    keep: { booleanValue: false },
-  };
-  const body = {
-    writes: [{
-      update: {
-        name: `projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/officeReports/${docId}`,
-        fields,
-      },
-      updateTransforms: [{ fieldPath: "createdAt", setToServerValue: "REQUEST_TIME" }],
-      currentDocument: { exists: false },
-    }],
-  };
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => null);
-    throw new Error(err?.error?.message || "신고 접수에 실패했습니다.");
-  }
-}
-
-async function setOfficeReportFieldAsOperator(reportId, field, value, idToken) {
-  const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/officeReports/${reportId}?updateMask.fieldPaths=${field}`;
-  const res = await fetch(url, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
-    body: JSON.stringify({ fields: { [field]: { booleanValue: !!value } } }),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => null);
-    throw new Error(err?.error?.message || "처리에 실패했습니다.");
-  }
-}
-
-async function deleteOfficeReportAsOperator(reportId, idToken) {
-  const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/officeReports/${reportId}`;
-  const res = await fetch(url, { method: "DELETE", headers: { Authorization: `Bearer ${idToken}` } });
-  if (!res.ok) throw new Error("삭제에 실패했습니다.");
-}
-
-// 신고 영상 — Cloudflare Worker(R2)를 통해 업로드/조회/삭제. Firebase Storage는
-// 유료 요금제가 필요해서 안 쓴다. idToken은 본인 신고면 getMyIdToken(), 운영자
-// 조회/삭제면 운영자 idToken(officeReportAdminIdToken)을 넘긴다.
-const OFFICE_REPORT_VIDEO_ERROR_MESSAGES = {
-  video_too_large: "영상 용량이 너무 큽니다(300MB 이하).",
-  storage_full: "저장 공간이 가득 찼습니다. 잠시 후 다시 시도해주세요.",
-  daily_limit_exceeded: "하루 신고 가능 횟수(5건)를 넘었습니다.",
-  not_video: "영상 파일만 업로드할 수 있습니다.",
-  unauthorized: "로그인 상태를 확인할 수 없습니다.",
-  forbidden: "이 영상을 볼 권한이 없습니다.",
-};
-
-async function uploadOfficeReportVideo(file, idToken) {
-  const res = await fetch(`${OFFICE_REPORT_WORKER_URL}/report-video`, {
-    method: "POST",
-    headers: { "Content-Type": file.type, Authorization: `Bearer ${idToken}` },
-    body: file,
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => null);
-    throw new Error(OFFICE_REPORT_VIDEO_ERROR_MESSAGES[err?.error] || "영상 업로드에 실패했습니다.");
-  }
-  const data = await res.json();
-  return data.key;
-}
-
-// 영상을 받아서 재생 가능한 blob URL로 바꿔 돌려준다 — <video src>는 커스텀 인증
-// 헤더를 못 보내서, fetch로 직접 인증 헤더를 붙여 받아온 뒤 객체 URL로 바꿔야 한다.
-async function fetchOfficeReportVideoObjectUrl(key, idToken) {
-  const res = await fetch(`${OFFICE_REPORT_WORKER_URL}/report-video/${encodeURIComponent(key)}`, {
-    headers: { Authorization: `Bearer ${idToken}` },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => null);
-    throw new Error(OFFICE_REPORT_VIDEO_ERROR_MESSAGES[err?.error] || "영상을 불러오지 못했습니다.");
-  }
-  const blob = await res.blob();
-  return URL.createObjectURL(blob);
-}
-
-// "영상 보기" 버튼 — 누르면 그때 인증된 fetch로 영상을 받아와 그 자리에 <video>로 재생.
-// getIdTokenFn은 본인 신고 목록이면 getMyIdToken, 운영자 패널이면 운영자 idToken을 돌려주는 함수.
-function createOfficeReportVideoButton(videoKey, getIdTokenFn) {
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.className = "office-btn office-btn-secondary";
-  btn.textContent = "영상 보기";
-  btn.addEventListener("click", async () => {
-    btn.disabled = true;
-    btn.textContent = "불러오는 중...";
-    try {
-      const idToken = await getIdTokenFn();
-      const objectUrl = await fetchOfficeReportVideoObjectUrl(videoKey, idToken);
-      const videoEl = document.createElement("video");
-      videoEl.src = objectUrl;
-      videoEl.controls = true;
-      videoEl.className = "office-report-video-player";
-      btn.replaceWith(videoEl);
-    } catch (err) {
-      showToast(err.message || "영상을 불러오지 못했습니다.");
-      btn.disabled = false;
-      btn.textContent = "영상 보기";
-    }
-  });
-  return btn;
-}
-
-// 신고 관리 화면에서 파티번호 + 신고 대상 등록번호를 보여주는 영역 — "스팀ID 조회"를
-// 누르면 officeMemberNumberHistory(영구 등록부)로 등록번호의 진짜 주인을 바로 찾는다.
-// 이 매핑은 시점과 무관하게 항상 정확하다(등록번호가 나중에 새로 바뀌어도 예전
-// 신고 기록은 그 당시 번호 그대로 남아있음).
-// 밴 처리(운영자 전용, REST) — duration은 "1"/"3"/"7"/"30"(일수 문자열), "permanent"(영구),
-// "unban"(해제) 중 하나. banned/bannedUntil을 항상 같이 써서 의도를 명확히 한다
-// (firestore.rules 참고 — 기간이 지나면 자동으로 차단 아님으로 판정되므로 별도 해제 불필요).
-async function setOfficeMemberBanAsOperator(steamId, duration, idToken) {
-  const fields = duration === "permanent"
-    ? { banned: true, bannedUntil: null }
-    : duration === "unban"
-      ? { banned: false, bannedUntil: null }
-      : { banned: false, bannedUntil: new Date(Date.now() + Number(duration) * 24 * 60 * 60 * 1000) };
-  const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/officeMembers/${steamId}`;
-  const res = await fetch(url, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
-    body: JSON.stringify({ fields: jsToFirestoreFields(fields) }),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => null);
-    throw new Error(err?.error?.message || "차단 처리에 실패했습니다.");
-  }
-}
-
-function createTargetLookupRow(incidentPartyNumber, targetMemberNumber, idToken) {
-  const row = document.createElement("div");
-  row.className = "muted-text";
-  const labelSpan = document.createElement("p");
-  labelSpan.textContent = `파티번호 · ${incidentPartyNumber} / 신고 대상 등록번호 · ${targetMemberNumber}`;
-  row.appendChild(labelSpan);
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.className = "office-btn office-btn-secondary";
-  btn.textContent = "스팀ID 조회";
-  btn.addEventListener("click", async () => {
-    btn.disabled = true;
-    btn.textContent = "조회 중...";
-    try {
-      const steamId = await resolveMemberNumberAsOperator(targetMemberNumber, idToken);
-      btn.replaceWith(document.createTextNode(steamId || "등록된 적 없는 번호입니다."));
-      if (steamId) row.appendChild(createBanControlRow(steamId, idToken));
-    } catch (err) {
-      btn.disabled = false;
-      btn.textContent = "스팀ID 조회";
-      showToast(err.message || "조회에 실패했습니다.");
-    }
-  });
-  row.appendChild(btn);
-  return row;
-}
-
-// 스팀ID가 조회된 뒤 붙는 차단 컨트롤 — 기간 선택 + 차단 버튼
-function createBanControlRow(steamId, idToken) {
-  const wrap = document.createElement("div");
-  wrap.className = "office-ban-control";
-  const select = document.createElement("select");
-  select.innerHTML = `
-    <option value="1">1일</option>
-    <option value="3">3일</option>
-    <option value="7">7일</option>
-    <option value="30">30일</option>
-    <option value="permanent">영구</option>
-    <option value="unban">차단 해제</option>
-  `;
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.className = "office-btn office-btn-secondary";
-  btn.textContent = "적용";
-  btn.addEventListener("click", async () => {
-    btn.disabled = true;
-    try {
-      await setOfficeMemberBanAsOperator(steamId, select.value, idToken);
-      showToast("차단 상태가 변경됐습니다.", "info");
-    } catch (err) {
-      showToast(err.message || "차단 처리에 실패했습니다.");
-    } finally {
-      btn.disabled = false;
-    }
-  });
-  wrap.appendChild(select);
-  wrap.appendChild(btn);
-  return wrap;
-}
-
-async function deleteOfficeReportVideo(key, idToken) {
-  if (!key) return;
-  await fetch(`${OFFICE_REPORT_WORKER_URL}/report-video/${encodeURIComponent(key)}`, {
-    method: "DELETE",
-    headers: { Authorization: `Bearer ${idToken}` },
-  }).catch(() => {});
-}
-
-// 신고 등록 후 1주일이 지났고, 운영자가 "보류"로 남겨두지 않았으면 자동 삭제 —
-// 서버 스케줄 작업이 없는 정적 사이트라 진짜 "자동"은 아니고, 운영자가 신고 관리
-// 패널을 열 때마다 오래된 것들을 정리하는 방식으로 대신한다.
-const OFFICE_REPORT_AUTO_DELETE_MS = 7 * 24 * 60 * 60 * 1000;
-async function cleanupExpiredOfficeReports(reports, idToken) {
-  const now = Date.now();
-  const expired = reports.filter((r) => {
-    if (r.keep) return false;
-    const ms = officeTimestampMillis(r.createdAt);
-    return ms != null && now - ms > OFFICE_REPORT_AUTO_DELETE_MS;
-  });
-  for (const r of expired) {
-    await deleteOfficeReportAsOperator(r.id, idToken).catch(() => {});
-    await deleteOfficeReportVideo(r.videoUrl, idToken);
-  }
-  return expired.map((r) => r.id);
-}
-
 // -------------------------------------------------------------------------
 // 사이트 업데이트 내역 — 새 항목은 배열 맨 앞에 추가(최신순으로 그대로 출력됨).
 // 기능을 만드는 과정에서 있었던 세부 수정/조정은 각각 올리지 말고, 오류 수정·정보
 // 수정·기능 추가만 한 줄로 간단히 요약해서 올린다.
 const CHANGELOG = [
+  { date: "8.13", text: "사무소: 스팀 로그인 인증과 신고·제재 시스템을 없애고, 이용자가 직접 상대를 차단·메모하는 방식으로 전면 개편" },
   { date: "8.11", text: "이중 탄약(2슬롯) 무기의 특수탄 예비탄 수치를 슬롯당 기준으로 정정, 표시도 \"(슬롯당)\"으로 명시" },
   { date: "8.10", text: "맵에 \"동선 & 거리측정\" 기능 추가" },
   { date: "8.10", text: "폭탄 발사기/폭탄 창 한방컷(OHK) 거리를 활처럼 막대 하나로 통합(가슴 46m 기준 막대에 팔 29m/복부 39m 보조 눈금 표시)" },
@@ -900,7 +620,6 @@ function init() {
   setupChangelogWidget();
   setupOfficeChangelogPopup();
   setupOfficeTab();
-  handleSteamOpenIdCallback();
 }
 
 function setupReportWidget() {
@@ -1275,28 +994,79 @@ function maybeShowOfficeChangelogPopup() {
   document.getElementById("office-changelog-modal-overlay").hidden = false;
 }
 
-// 사무소 탭 — 처음엔 규칙 안내 + "스팀으로 로그인" 화면, 이미 스팀 인증을 마친 uid면
-// 바로 등록 완료 화면. 등록 여부 조회는 Firestore 요청이 들어가므로 사무소 탭에 처음
-// 들어갈 때만 지연 로딩한다(loadOfficeMembership은 switchTab에서 호출). 스팀 로그인은
-// 페이지 전체를 스팀으로 이동시켰다가 돌아오는 방식이라, 돌아온 직후엔 탭 상태가
-// 초기화돼 있으므로 init()에서 별도로 콜백을 처리한다.
+// 사무소 탭 — 처음엔 이용규칙 안내 화면, 이미 등록을 마친 uid면 바로 등록 완료 화면.
+// 로그인 절차 없이 사이트 전역에서 쓰는 파이어베이스 익명 인증 uid를 그대로 신원
+// 기준으로 쓴다. 등록 여부 조회는 Firestore 요청이 들어가므로 사무소 탭에 처음
+// 들어갈 때만 지연 로딩한다(loadOfficeMembership은 switchTab에서 호출).
 let officeMembershipLoaded = false;
 let myPartyApplicationsUnsub = null;
 let knownPendingApplicantIds = null;
-// 운영자가 스팀 인증 없이 게시판을 열람만 하는 모드 — 켜져 있으면 파티/프로필 등록
-// 등 쓰기 폼이 있는 왼쪽 열은 아예 숨기고, 목록은 SDK 대신 REST(운영자 토큰)로 조회한다.
-let officeOperatorViewActive = false;
-let officeOperatorIdToken = null;
-// 신고 관리(운영자 전용) 버튼 노출 여부 — 실제 스팀 등록이 있는 회원 화면이든 운영자
-// 열람 모드든 상관없이, 운영자 키가 있으면 항상 "신고 관리"를 볼 수 있어야 하므로
-// showOfficeMemberView/showOfficeOperatorView 양쪽에서 공통으로 이 값을 갱신한다.
-let officeReportAdminIdToken = null;
 
-// 운영자 키가 있으면 "신고 관리" 버튼을 노출하고, 그 REST idToken을 저장해둔다.
-async function refreshOfficeReportAdminAccess() {
-  const opAuth = await operatorAuthenticate();
-  officeReportAdminIdToken = opAuth ? opAuth.idToken : null;
-  document.getElementById("office-report-admin-btn").hidden = !opAuth;
+// 차단/메모 — 서버로 전혀 전송되지 않고 이 브라우저의 localStorage에만 저장된다.
+// 그래서 상대방은 자신이 차단됐다는 사실을 알 방법이 없다. uid(내부 신원) 기준으로
+// 저장하므로 상대가 재등록해서 표시 등록번호가 바뀌어도 차단은 유지되지만, 쿠키/
+// 사이트 데이터를 지워 완전히 새 uid가 발급되면(사실상 다른 사람 취급) 풀린다.
+const OFFICE_BLOCKLIST_KEY = "officeBlocklist";
+
+function getOfficeBlocklist() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(OFFICE_BLOCKLIST_KEY) || "{}");
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveOfficeBlocklist(blocklist) {
+  try {
+    localStorage.setItem(OFFICE_BLOCKLIST_KEY, JSON.stringify(blocklist));
+  } catch {
+    // 저장 공간이 없거나 접근 불가한 경우 조용히 무시
+  }
+}
+
+function isOfficeUserBlocked(uid) {
+  return !!uid && Object.prototype.hasOwnProperty.call(getOfficeBlocklist(), uid);
+}
+
+function blockOfficeUser(uid, memo) {
+  if (!uid) return;
+  const blocklist = getOfficeBlocklist();
+  blocklist[uid] = { memo: memo || "", blockedAt: Date.now() };
+  saveOfficeBlocklist(blocklist);
+}
+
+function unblockOfficeUser(uid) {
+  const blocklist = getOfficeBlocklist();
+  delete blocklist[uid];
+  saveOfficeBlocklist(blocklist);
+}
+
+// 파티원 목록/최근 기록에서 쓰는 차단 토글 버튼 — 클릭 한 번으로 차단↔해제, 차단할
+// 때만 메모를 같이 받는다. onchange는 다시 그려야 할 목록의 렌더 함수.
+function createOfficeBlockButton(uid, onchange) {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "office-btn office-btn-outline office-block-btn";
+  const refresh = () => {
+    const blocked = isOfficeUserBlocked(uid);
+    btn.textContent = blocked ? "차단됨" : "차단";
+    btn.classList.toggle("blocked", blocked);
+  };
+  refresh();
+  btn.addEventListener("click", () => {
+    if (isOfficeUserBlocked(uid)) {
+      if (!confirm("차단을 해제할까요?")) return;
+      unblockOfficeUser(uid);
+    } else {
+      const memo = prompt("차단 사유(메모, 선택)를 입력하세요. 이 메모는 나만 볼 수 있습니다.");
+      if (memo === null) return; // 취소
+      blockOfficeUser(uid, memo);
+    }
+    refresh();
+    if (onchange) onchange();
+  });
+  return btn;
 }
 
 // 새 신청/초대 알림용 사운드 + 탭 제목 깜빡임 — 보조 모니터에 인력사무소를 띄워두고
@@ -1406,12 +1176,23 @@ function setupOfficeTab() {
     registerBtn.disabled = !agreeCheckbox.checked;
   });
 
-  registerBtn.addEventListener("click", () => {
+  registerBtn.addEventListener("click", async () => {
     if (!window.LoadoutCloud || !agreeCheckbox.checked) return;
-    window.location.href = window.LoadoutCloud.buildSteamLoginUrl();
+    registerBtn.disabled = true;
+    try {
+      await window.LoadoutCloud.ensureOfficeMembership();
+      officeMembershipLoaded = true;
+      showOfficeMemberView();
+    } catch (err) {
+      const introMsgEl = document.getElementById("office-intro-msg");
+      introMsgEl.textContent = err.message || "등록에 실패했습니다.";
+      introMsgEl.classList.add("error");
+      introMsgEl.hidden = false;
+      registerBtn.disabled = !agreeCheckbox.checked;
+    }
   });
 
-  // 로그인 후엔 이용규칙/권장사항/신고와 처벌 안내가 화면에서 사라지므로,
+  // 로그인 후엔 이용규칙/권장사항/차단 기능 안내가 화면에서 사라지므로,
   // 언제든 다시 볼 수 있도록 별도 모달로 열어줌
   const rulesBtn = document.getElementById("office-rules-btn");
   const rulesOverlay = document.getElementById("office-rules-modal-overlay");
@@ -1425,19 +1206,18 @@ function setupOfficeTab() {
     if (e.key === "Escape" && !rulesOverlay.hidden) closeRulesModal();
   });
 
-  // 신고하기 모달 — 실제 스팀 등록이 있는 회원만 버튼이 보인다(showOfficeMemberView 참고).
-  const reportBtn = document.getElementById("office-report-btn");
-  const reportOverlay = document.getElementById("office-report-modal-overlay");
-  const reportCloseBtn = document.getElementById("office-report-modal-close-btn");
-  const openReportModal = () => { reportOverlay.hidden = false; renderMyOfficeReports(); };
-  const closeReportModal = () => { reportOverlay.hidden = true; };
-  reportBtn.addEventListener("click", openReportModal);
-  reportCloseBtn.addEventListener("click", closeReportModal);
-  reportOverlay.addEventListener("click", (e) => { if (e.target === reportOverlay) closeReportModal(); });
+  // 최근 기록 모달
+  const recentBtn = document.getElementById("office-recent-btn");
+  const recentOverlay = document.getElementById("office-recent-modal-overlay");
+  const recentCloseBtn = document.getElementById("office-recent-modal-close-btn");
+  const openRecentModal = () => { recentOverlay.hidden = false; renderRecentPartyRecord(); };
+  const closeRecentModal = () => { recentOverlay.hidden = true; };
+  recentBtn.addEventListener("click", openRecentModal);
+  recentCloseBtn.addEventListener("click", closeRecentModal);
+  recentOverlay.addEventListener("click", (e) => { if (e.target === recentOverlay) closeRecentModal(); });
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && !reportOverlay.hidden) closeReportModal();
+    if (e.key === "Escape" && !recentOverlay.hidden) closeRecentModal();
   });
-  document.getElementById("office-report-recent-btn").addEventListener("click", renderRecentPartyRecord);
 
   // 최근 기록에서 등록번호를 누르면 뜨는 "가입 당시 정보" 팝업 닫기 처리
   const joinInfoOverlay = document.getElementById("office-join-info-modal-overlay");
@@ -1449,87 +1229,25 @@ function setupOfficeTab() {
     if (e.key === "Escape" && !joinInfoOverlay.hidden) closeJoinInfoModal();
   });
 
-  const reportMsgEl = document.getElementById("office-report-msg");
-  const reportSubmitBtn = document.getElementById("office-report-submit-btn");
-  reportSubmitBtn.addEventListener("click", async () => {
-    if (!window.LoadoutCloud) return;
-    reportMsgEl.hidden = true;
-    const fileInput = document.getElementById("office-report-video-file");
-    const descInput = document.getElementById("office-report-desc");
-    const numberInput = document.getElementById("office-report-party-number");
-    const targetInput = document.getElementById("office-report-target-number");
-    const file = fileInput.files[0];
-    if (!file) {
-      reportMsgEl.textContent = "영상 파일을 선택해주세요.";
-      reportMsgEl.classList.add("error");
-      reportMsgEl.hidden = false;
-      return;
-    }
-    const incidentPartyNumber = numberInput.value.trim();
-    if (!/^\d{8}$/.test(incidentPartyNumber)) {
-      reportMsgEl.textContent = "파티번호(8자리)를 정확히 입력해주세요.";
-      reportMsgEl.classList.add("error");
-      reportMsgEl.hidden = false;
-      return;
-    }
-    const targetMemberNumber = targetInput.value.trim();
-    if (!/^\d{9}$/.test(targetMemberNumber)) {
-      reportMsgEl.textContent = "신고 대상 등록번호(9자리)를 정확히 입력해주세요.";
-      reportMsgEl.classList.add("error");
-      reportMsgEl.hidden = false;
-      return;
-    }
-    reportSubmitBtn.disabled = true;
-    reportSubmitBtn.textContent = "업로드 중...";
-    try {
-      // 운영자 열람 모드(스팀 로그인 없이 운영자 키만 있는 상태)에서는 SDK 세션이
-      // 운영자가 아니라서 getMyIdToken/submitOfficeReport(SDK)를 못 쓰고, 운영자
-      // REST idToken으로 대신 처리한다(신고 기능 테스트용).
-      const idToken = officeOperatorViewActive ? officeReportAdminIdToken : await window.LoadoutCloud.getMyIdToken();
-      const videoKey = await uploadOfficeReportVideo(file, idToken);
-      if (officeOperatorViewActive) {
-        await submitOfficeReportAsOperator(descInput.value, videoKey, idToken, incidentPartyNumber, targetMemberNumber);
-      } else {
-        await window.LoadoutCloud.submitOfficeReport({ description: descInput.value, videoUrl: videoKey, incidentPartyNumber, targetMemberNumber });
-      }
-      fileInput.value = "";
-      descInput.value = "";
-      numberInput.value = "";
-      targetInput.value = "";
-      reportMsgEl.textContent = officeOperatorViewActive
-        ? "신고가 접수됐습니다. \"신고 관리\"에서 확인하세요."
-        : "신고가 접수됐습니다.";
-      reportMsgEl.classList.remove("error");
-      reportMsgEl.hidden = false;
-      if (!officeOperatorViewActive) renderMyOfficeReports();
-    } catch (err) {
-      reportMsgEl.textContent = err.message || "신고 접수에 실패했습니다.";
-      reportMsgEl.classList.add("error");
-      reportMsgEl.hidden = false;
-    } finally {
-      reportSubmitBtn.disabled = false;
-      reportSubmitBtn.textContent = "신고 제출";
-    }
-  });
-
-  // 신고 관리(운영자 전용) 모달 — refreshOfficeReportAdminAccess가 버튼 노출을 관리
-  const reportAdminBtn = document.getElementById("office-report-admin-btn");
-  const reportAdminOverlay = document.getElementById("office-report-admin-modal-overlay");
-  const reportAdminCloseBtn = document.getElementById("office-report-admin-modal-close-btn");
-  const openReportAdminModal = () => { reportAdminOverlay.hidden = false; renderOfficeReportAdmin(); };
-  const closeReportAdminModal = () => { reportAdminOverlay.hidden = true; };
-  reportAdminBtn.addEventListener("click", openReportAdminModal);
-  reportAdminCloseBtn.addEventListener("click", closeReportAdminModal);
-  reportAdminOverlay.addEventListener("click", (e) => { if (e.target === reportAdminOverlay) closeReportAdminModal(); });
+  // 차단 관리 모달
+  const blockManageBtn = document.getElementById("office-block-manage-btn");
+  const blockManageOverlay = document.getElementById("office-block-manage-modal-overlay");
+  const blockManageCloseBtn = document.getElementById("office-block-manage-modal-close-btn");
+  const openBlockManageModal = () => { blockManageOverlay.hidden = false; renderBlockManageList(); };
+  const closeBlockManageModal = () => { blockManageOverlay.hidden = true; };
+  blockManageBtn.addEventListener("click", openBlockManageModal);
+  blockManageCloseBtn.addEventListener("click", closeBlockManageModal);
+  blockManageOverlay.addEventListener("click", (e) => { if (e.target === blockManageOverlay) closeBlockManageModal(); });
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && !reportAdminOverlay.hidden) closeReportAdminModal();
+    if (e.key === "Escape" && !blockManageOverlay.hidden) closeBlockManageModal();
   });
 
-  // 사무소 탈퇴 — 등록해둔 스팀 ID를 스스로 지운다. 파티/프로필/신청·초대 내역까지
-  // 같이 정리되므로(deleteMyOfficeMembership 참고) 되돌릴 수 없다는 걸 미리 확인시킨다.
+  // 사무소 탈퇴 — 등록을 스스로 지운다. 파티/프로필/신청·초대 내역까지 같이
+  // 정리되므로(deleteMyOfficeMembership 참고) 되돌릴 수 없다는 걸 미리 확인시킨다.
+  // (차단/메모 목록은 이 브라우저 로컬 저장소에 남아있는 것이라 탈퇴와 무관하게 유지됨)
   document.getElementById("office-withdraw-btn").addEventListener("click", async () => {
     if (!window.LoadoutCloud) return;
-    if (!confirm("사무소를 탈퇴할까요? 등록된 스팀 ID와 파티/프로필, 신청·초대 내역이 모두 삭제되며 되돌릴 수 없습니다.")) return;
+    if (!confirm("사무소를 탈퇴할까요? 등록 정보와 파티/프로필, 신청·초대 내역이 모두 삭제되며 되돌릴 수 없습니다.")) return;
     try {
       await window.LoadoutCloud.deleteMyOfficeMembership();
       if (myPartyApplicationsUnsub) { myPartyApplicationsUnsub(); myPartyApplicationsUnsub = null; }
@@ -1547,29 +1265,13 @@ function setupOfficeTab() {
   setupOfficePartyBoard();
 }
 
-// 차단된 계정 화면 — 영구 차단이면 그대로, 기간제 차단이면 해제 시각을 같이 보여준다.
-function showOfficeBannedView(membership) {
-  document.getElementById("office-banned-view").hidden = false;
-  const detailEl = document.getElementById("office-banned-detail");
-  if (membership.banned) {
-    detailEl.textContent = "영구 차단된 계정입니다.";
-  } else if (membership.bannedUntil) {
-    const ms = officeTimestampMillis(membership.bannedUntil);
-    detailEl.textContent = ms ? `차단 해제 예정: ${new Date(ms).toLocaleString("ko-KR")}` : "";
-  } else {
-    detailEl.textContent = "";
-  }
-}
-
-// 인증된 회원 화면으로 전환 + 기본 모드(파티) 렌더 — loadOfficeMembership과
-// handleSteamOpenIdCallback 양쪽에서 공통으로 씀
-function showOfficeMemberView(steamId) {
-  officeOperatorViewActive = false;
-  officeOperatorIdToken = null;
+// 등록 완료 회원 화면으로 전환 + 기본 모드(파티) 렌더 — loadOfficeMembership과
+// registerBtn 클릭 핸들러 양쪽에서 공통으로 씀
+function showOfficeMemberView() {
   document.getElementById("office-col-write").hidden = false;
   document.getElementById("office-withdraw-btn").hidden = false;
-  document.getElementById("office-report-btn").hidden = false;
-  document.getElementById("office-member-status").textContent = `인증 완료 · SteamID: ${steamId}`;
+  document.getElementById("office-block-manage-btn").hidden = false;
+  document.getElementById("office-member-status").textContent = "등록 완료";
   document.getElementById("office-member-view").hidden = false;
   document.querySelectorAll(".office-mode-btn").forEach((b) => b.classList.toggle("active", b.dataset.officeMode === "party"));
   document.getElementById("office-mode-party").hidden = false;
@@ -1580,28 +1282,6 @@ function showOfficeMemberView(steamId) {
   renderMyParty();
   setupMyPartyApplicationsWatch();
   setupMyApplicationsWatch();
-  refreshOfficeReportAdminAccess();
-}
-
-// 운영자 열람 화면 — 스팀 인증(officeMembers 등록) 없이 파티/프로필 목록만 REST로
-// 조회해서 보여준다. 왼쪽 작성 열(파티 등록, 프로필 등록 등 쓰기 폼) 자체를 통째로
-// 숨겨서 파티 생성/프로필 등록을 할 수 없게 한다(규칙에서도 이중으로 막혀 있음).
-function showOfficeOperatorView(opAuth) {
-  officeOperatorViewActive = true;
-  officeOperatorIdToken = opAuth.idToken;
-  officeReportAdminIdToken = opAuth.idToken;
-  document.getElementById("office-member-status").textContent = "운영자 열람 모드 (스팀 인증 없이 목록만 조회 · 신고는 운영자 계정으로 테스트 가능)";
-  document.getElementById("office-member-view").hidden = false;
-  document.getElementById("office-col-write").hidden = true;
-  document.getElementById("office-withdraw-btn").hidden = true;
-  // 신고 기능은 운영자 키만으로도 테스트할 수 있어야 해서(스팀 로그인 없이), 신고
-  // 관련 두 버튼은 예외적으로 운영자 열람 모드에서도 보여준다.
-  document.getElementById("office-report-btn").hidden = false;
-  document.getElementById("office-report-admin-btn").hidden = false;
-  document.querySelectorAll(".office-mode-btn").forEach((b) => b.classList.toggle("active", b.dataset.officeMode === "party"));
-  document.getElementById("office-list-party").hidden = false;
-  document.getElementById("office-list-resume").hidden = true;
-  renderOperatorPartyList();
 }
 
 async function loadOfficeMembership() {
@@ -1609,85 +1289,25 @@ async function loadOfficeMembership() {
   const loadingEl = document.getElementById("office-loading");
   const introView = document.getElementById("office-intro-view");
   const memberView = document.getElementById("office-member-view");
-  const bannedView = document.getElementById("office-banned-view");
 
   loadingEl.hidden = false;
   introView.hidden = true;
   memberView.hidden = true;
-  bannedView.hidden = true;
   if (!window.LoadoutCloud) {
     loadingEl.textContent = "기능을 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.";
     return;
   }
   try {
-    const opAuth = await operatorAuthenticate();
-    if (opAuth) {
-      const membership = await window.LoadoutCloud.getMyOfficeMembership();
-      loadingEl.hidden = true;
-      if (!membership) {
-        showOfficeOperatorView(opAuth);
-      } else if (window.LoadoutCloud.isOfficeMembershipBanned(membership)) {
-        showOfficeBannedView(membership);
-      } else {
-        showOfficeMemberView(membership.steamId);
-      }
-      officeMembershipLoaded = true;
-      return;
-    }
     const membership = await window.LoadoutCloud.getMyOfficeMembership();
     loadingEl.hidden = true;
     if (!membership) {
       introView.hidden = false;
-    } else if (window.LoadoutCloud.isOfficeMembershipBanned(membership)) {
-      showOfficeBannedView(membership);
     } else {
-      showOfficeMemberView(membership.steamId);
+      showOfficeMemberView();
     }
     officeMembershipLoaded = true;
   } catch {
     loadingEl.textContent = "사무소 정보를 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.";
-  }
-}
-
-// 스팀 로그인 후 돌아온 직후(?steamAuth=1&openid.mode=id_res...)라면 검증 → 로그인 →
-// 사무소 등록까지 이어서 처리하고, 처리 후엔 URL에서 openid 파라미터를 지운다(새로고침해도
-// 같은 로그인 응답을 재검증하려 들지 않게).
-async function handleSteamOpenIdCallback() {
-  if (!window.LoadoutCloud) return;
-  const params = window.LoadoutCloud.getSteamOpenIdParamsFromUrl();
-  if (!params) return;
-
-  history.replaceState(null, "", `${location.origin}${location.pathname}`);
-  officeMembershipLoaded = true; // 아래에서 직접 상태를 채우므로 switchTab의 자동 로딩은 건너뜀
-  switchTab("office");
-
-  const loadingEl = document.getElementById("office-loading");
-  const introView = document.getElementById("office-intro-view");
-  const memberView = document.getElementById("office-member-view");
-  const bannedView = document.getElementById("office-banned-view");
-  const introMsgEl = document.getElementById("office-intro-msg");
-
-  loadingEl.hidden = false;
-  loadingEl.textContent = "스팀 로그인 확인 중...";
-  introView.hidden = true;
-  memberView.hidden = true;
-  bannedView.hidden = true;
-
-  try {
-    const steamId = await window.LoadoutCloud.verifySteamLoginAndSignIn(params);
-    const membership = await window.LoadoutCloud.ensureOfficeMembership(steamId);
-    loadingEl.hidden = true;
-    if (window.LoadoutCloud.isOfficeMembershipBanned(membership)) {
-      showOfficeBannedView(membership);
-    } else {
-      showOfficeMemberView(steamId);
-    }
-  } catch (err) {
-    loadingEl.hidden = true;
-    introView.hidden = false;
-    introMsgEl.textContent = err.message || "스팀 인증에 실패했습니다.";
-    introMsgEl.classList.add("error");
-    introMsgEl.hidden = false;
   }
 }
 
@@ -1703,10 +1323,7 @@ function setupOfficePartyBoard() {
       document.getElementById("office-mode-resume").hidden = mode !== "resume";
       document.getElementById("office-list-party").hidden = mode !== "party";
       document.getElementById("office-list-resume").hidden = mode !== "resume";
-      if (officeOperatorViewActive) {
-        if (mode === "party") renderOperatorPartyList();
-        else renderOperatorResumeList();
-      } else if (mode === "party") {
+      if (mode === "party") {
         renderPartyList();
         renderMyParty();
       } else {
@@ -1717,12 +1334,8 @@ function setupOfficePartyBoard() {
     });
   });
 
-  document.getElementById("office-party-refresh-btn").addEventListener("click", () => {
-    officeOperatorViewActive ? renderOperatorPartyList() : renderPartyList();
-  });
-  document.getElementById("office-resume-refresh-btn").addEventListener("click", () => {
-    officeOperatorViewActive ? renderOperatorResumeList() : renderResumeList();
-  });
+  document.getElementById("office-party-refresh-btn").addEventListener("click", renderPartyList);
+  document.getElementById("office-resume-refresh-btn").addEventListener("click", renderResumeList);
 
   const saveMsgEl = document.getElementById("office-myparty-msg");
   const codeInput = document.getElementById("office-myparty-code-input");
@@ -1979,6 +1592,7 @@ function renderPartyListItems(parties, myUid, hasResume) {
     const isClosed = party.status !== "open";
     const item = document.createElement("div");
     item.className = "office-party-item";
+    item.classList.toggle("office-blocked-item", isOfficeUserBlocked(party.leaderId));
 
     const descEl = document.createElement("p");
     descEl.className = "office-party-desc";
@@ -2074,40 +1688,6 @@ function setupPartyListWatch() {
   });
 }
 
-// 파티 목록(운영자 열람 전용) — 읽기 전용, 참가 신청 등 쓰기 관련 UI는 아예 만들지 않는다.
-async function renderOperatorPartyList() {
-  const listEl = document.getElementById("office-party-list");
-  listEl.textContent = "불러오는 중...";
-  try {
-    const parties = await listOfficePartiesAsOperator(officeOperatorIdToken);
-    const activeParties = parties.filter((p) => !isOfficeEntryExpired(p.renewedAt || p.createdAt));
-    listEl.innerHTML = "";
-    if (activeParties.length === 0) {
-      listEl.textContent = "현재 등록된 파티가 없습니다.";
-      return;
-    }
-    activeParties.forEach((party) => {
-      const isClosed = party.status !== "open";
-      const item = document.createElement("div");
-      item.className = "office-party-item";
-
-      const descEl = document.createElement("p");
-      descEl.className = "office-party-desc";
-      descEl.textContent = (isClosed ? "[모집 마감] " : "") + formatPartyFields(party);
-      item.appendChild(descEl);
-
-      const headcountEl = document.createElement("p");
-      headcountEl.className = "office-headcount-badge";
-      headcountEl.textContent = `${partyStatusDot(party)} 인원: ${1 + (party.acceptedCount || 0)}/${partyMaxSize(party.partyType)}명`;
-      item.appendChild(headcountEl);
-
-      listEl.appendChild(item);
-    });
-  } catch (err) {
-    listEl.textContent = err.message || "파티 목록을 불러오지 못했습니다.";
-  }
-}
-
 // 내 파티 — 모집 정보/상태 + 받은 신청 목록. 지원자는 uid 없이 이력서(있으면)+메시지만 보여줌.
 async function renderMyParty() {
   if (!window.LoadoutCloud) return;
@@ -2195,6 +1775,7 @@ async function renderMyParty() {
       for (const m of members) {
         const item = document.createElement("div");
         item.className = "office-applicant-item";
+        item.classList.toggle("office-blocked-item", isOfficeUserBlocked(m.applicantId));
 
         const infoWrap = document.createElement("div");
         infoWrap.className = "office-applicant-info";
@@ -2209,6 +1790,7 @@ async function renderMyParty() {
 
         const actionsEl = document.createElement("div");
         actionsEl.className = "office-applicant-actions";
+        actionsEl.appendChild(createOfficeBlockButton(m.applicantId, renderMyParty));
         const kickBtn = document.createElement("button");
         kickBtn.type = "button";
         kickBtn.className = "office-btn office-btn-outline";
@@ -2237,6 +1819,7 @@ async function renderMyParty() {
     for (const a of others) {
       const item = document.createElement("div");
       item.className = "office-applicant-item";
+      item.classList.toggle("office-blocked-item", isOfficeUserBlocked(a.applicantId));
 
       const infoWrap = document.createElement("div");
       infoWrap.className = "office-applicant-info";
@@ -2248,6 +1831,13 @@ async function renderMyParty() {
       window.LoadoutCloud.getApplicantResume(a.applicantId).then((resume) => {
         resumeEl.textContent = resume ? formatResumeFields(resume) : "프로필을 작성하지 않은 신청자입니다.";
       });
+
+      if (isOfficeUserBlocked(a.applicantId)) {
+        const blockedTagEl = document.createElement("p");
+        blockedTagEl.className = "office-blocked-tag";
+        blockedTagEl.textContent = "⚠ 내가 차단한 상대입니다.";
+        infoWrap.appendChild(blockedTagEl);
+      }
 
       if (a.message) {
         const msgEl = document.createElement("p");
@@ -2403,7 +1993,7 @@ async function renderMyResume() {
 }
 
 // 프로필 목록 — 등록된 이력서 전체를 신원 정보 없이 쭉 보여줌 + 인원수 표시.
-// 내가 파티장(활성 파티 있음)이면 각 프로필 옆에 "초대" 버튼이 붙는다 — steamId는
+// 내가 파티장(활성 파티 있음)이면 각 프로필 옆에 "초대" 버튼이 붙는다 — uid는
 // 초대 대상 지정 용도로만 쓰고 화면 텍스트로는 절대 보여주지 않는다(블라인드 유지).
 async function renderResumeList() {
   const listEl = document.getElementById("office-resume-list");
@@ -2420,7 +2010,7 @@ async function renderResumeList() {
     // "인력 목록"엔 계속 안 보여야 한다(파티장이지 구직자가 아니므로) — 현재 파티장
     // 목록과 대조해서 걸러낸다.
     const currentLeaderIds = new Set(allParties.map((p) => p.leaderId));
-    const activeResumes = resumes.filter((r) => !isOfficeEntryExpired(r.updatedAt) && !currentLeaderIds.has(r.steamId));
+    const activeResumes = resumes.filter((r) => !isOfficeEntryExpired(r.updatedAt) && !currentLeaderIds.has(r.uid));
     countEl.textContent = `(${activeResumes.length}명)`;
     listEl.innerHTML = "";
     if (activeResumes.length === 0) {
@@ -2430,6 +2020,7 @@ async function renderResumeList() {
     activeResumes.forEach((resume) => {
       const item = document.createElement("div");
       item.className = "office-resume-item";
+      item.classList.toggle("office-blocked-item", isOfficeUserBlocked(resume.uid));
 
       const textEl = document.createElement("p");
       textEl.className = "office-resume-item-text";
@@ -2454,7 +2045,7 @@ async function renderResumeList() {
         inviteBtn.addEventListener("click", async () => {
           inviteBtn.disabled = true;
           try {
-            await window.LoadoutCloud.inviteToParty(resume.steamId, input.value);
+            await window.LoadoutCloud.inviteToParty(resume.uid, input.value);
             inviteBtn.textContent = "초대 완료";
             input.disabled = true;
           } catch (err) {
@@ -2469,41 +2060,6 @@ async function renderResumeList() {
   } catch {
     countEl.textContent = "";
     listEl.textContent = "인력 목록을 불러오지 못했습니다.";
-  }
-}
-
-// 프로필 목록(운영자 열람 전용) — 읽기 전용, 초대 등 쓰기 관련 UI는 아예 만들지 않는다.
-async function renderOperatorResumeList() {
-  const listEl = document.getElementById("office-resume-list");
-  const countEl = document.getElementById("office-resume-count");
-  listEl.textContent = "불러오는 중...";
-  try {
-    const [resumes, parties] = await Promise.all([
-      listOfficeResumesAsOperator(officeOperatorIdToken),
-      listOfficePartiesAsOperator(officeOperatorIdToken),
-    ]);
-    const currentLeaderIds = new Set(parties.map((p) => p.leaderId));
-    const activeResumes = resumes.filter((r) => !isOfficeEntryExpired(r.updatedAt) && !currentLeaderIds.has(r.steamId));
-    countEl.textContent = `(${activeResumes.length}명)`;
-    listEl.innerHTML = "";
-    if (activeResumes.length === 0) {
-      listEl.textContent = "등록된 프로필이 없습니다.";
-      return;
-    }
-    activeResumes.forEach((resume) => {
-      const item = document.createElement("div");
-      item.className = "office-resume-item";
-
-      const textEl = document.createElement("p");
-      textEl.className = "office-resume-item-text";
-      textEl.textContent = formatResumeFields(resume);
-      item.appendChild(textEl);
-
-      listEl.appendChild(item);
-    });
-  } catch (err) {
-    countEl.textContent = "";
-    listEl.textContent = err.message || "인력 목록을 불러오지 못했습니다.";
   }
 }
 
@@ -2523,7 +2079,6 @@ function openOfficeJoinInfoModal(resumeSnapshot) {
 async function renderRecentPartyRecord() {
   const wrap = document.getElementById("office-report-recent-list");
   if (!window.LoadoutCloud) return;
-  wrap.hidden = false;
   wrap.textContent = "불러오는 중...";
   try {
     const myHistory = await window.LoadoutCloud.listMyPartyHistory();
@@ -2546,6 +2101,7 @@ async function renderRecentPartyRecord() {
       let othersSeen = 0;
       members.forEach((m) => {
         const li = document.createElement("li");
+        li.classList.toggle("office-blocked-item", isOfficeUserBlocked(m.uid));
         const isMe = m.memberNumber === h.memberNumberAtJoin;
         const roleText = m.role === "leader" ? "파티장" : "파티원";
         const btn = document.createElement("button");
@@ -2559,6 +2115,11 @@ async function renderRecentPartyRecord() {
         }
         btn.addEventListener("click", () => openOfficeJoinInfoModal(m.resumeSnapshot));
         li.appendChild(btn);
+        // 이 기능 이전에 만들어진 로스터 항목엔 uid가 없어 차단을 걸 수 없다(안내
+        // 문구만 뜬다 — openOfficeJoinInfoModal과 같은 맥락의 하위호환).
+        if (!isMe && m.uid) {
+          li.appendChild(createOfficeBlockButton(m.uid, renderRecentPartyRecord));
+        }
         list.appendChild(li);
       });
       box.appendChild(list);
@@ -2569,151 +2130,58 @@ async function renderRecentPartyRecord() {
   }
 }
 
-// 내 신고 내역 — 신고하기 모달 안에서 제출 폼 밑에 같이 보여줌(제출한 사람 본인만 조회 가능)
-
-async function renderMyOfficeReports() {
-  const listEl = document.getElementById("office-report-mylist");
-  if (!window.LoadoutCloud) return;
-  listEl.textContent = "불러오는 중...";
-  try {
-    const reports = await window.LoadoutCloud.listMyOfficeReports();
-    reports.sort((a, b) => (officeTimestampMillis(b.createdAt) || 0) - (officeTimestampMillis(a.createdAt) || 0));
-    listEl.innerHTML = "";
-    if (reports.length === 0) {
-      listEl.textContent = "제출한 신고가 없습니다.";
-      return;
-    }
-    reports.forEach((r) => {
-      const item = document.createElement("div");
-      item.className = "office-applicant-item";
-
-      const infoWrap = document.createElement("div");
-      infoWrap.className = "office-applicant-info";
-      infoWrap.appendChild(createOfficeReportVideoButton(r.videoUrl, () => window.LoadoutCloud.getMyIdToken()));
-      if (r.description) {
-        const descEl = document.createElement("p");
-        descEl.className = "office-applicant-msg";
-        descEl.textContent = r.description;
-        infoWrap.appendChild(descEl);
-      }
-      item.appendChild(infoWrap);
-
-      const statusEl = document.createElement("span");
-      statusEl.className = "office-applicant-status";
-      statusEl.textContent = r.resolved ? "처리됨" : "처리 대기중";
-      item.appendChild(statusEl);
-
-      listEl.appendChild(item);
-    });
-  } catch {
-    listEl.textContent = "신고 내역을 불러오지 못했습니다.";
-  }
-}
-
-// 신고 관리(운영자 전용) — 전체 신고 조회 + 처리됨/보류 토글 + 삭제. 열 때마다 1주일
-// 지났고 보류 아닌 신고는 자동으로 정리한다(서버 스케줄이 없어 "열 때마다"가 최선).
-async function renderOfficeReportAdmin() {
-  const listEl = document.getElementById("office-report-admin-list");
-  const idToken = officeReportAdminIdToken;
-  if (!idToken) {
-    listEl.textContent = "운영자 권한이 필요합니다.";
+// 차단 관리 — 지금까지 차단한 uid + 메모를 쭉 보여주고 해제/메모 수정을 할 수 있게 함.
+// 전부 로컬 저장소(localStorage)에서만 읽고 쓴다.
+function renderBlockManageList() {
+  const listEl = document.getElementById("office-block-manage-list");
+  const blocklist = getOfficeBlocklist();
+  const entries = Object.entries(blocklist).sort((a, b) => (b[1].blockedAt || 0) - (a[1].blockedAt || 0));
+  listEl.innerHTML = "";
+  if (entries.length === 0) {
+    listEl.textContent = "차단한 상대가 없습니다.";
     return;
   }
-  listEl.textContent = "불러오는 중...";
-  try {
-    let reports = await listOfficeReportsAsOperator(idToken);
-    const deletedIds = await cleanupExpiredOfficeReports(reports, idToken);
-    if (deletedIds.length > 0) reports = reports.filter((r) => !deletedIds.includes(r.id));
-    reports.sort((a, b) => (officeTimestampMillis(b.createdAt) || 0) - (officeTimestampMillis(a.createdAt) || 0));
-    listEl.innerHTML = "";
-    if (reports.length === 0) {
-      listEl.textContent = "등록된 신고가 없습니다.";
-    } else {
-      reports.forEach((r) => {
-        const item = document.createElement("div");
-        item.className = "office-applicant-item";
+  entries.forEach(([uid, info]) => {
+    const item = document.createElement("div");
+    item.className = "office-applicant-item";
 
-        const infoWrap = document.createElement("div");
-        infoWrap.className = "office-applicant-info";
-        infoWrap.appendChild(createOfficeReportVideoButton(r.videoUrl, () => Promise.resolve(idToken)));
-        if (r.description) {
-          const descEl = document.createElement("p");
-          descEl.className = "office-applicant-msg";
-          descEl.textContent = r.description;
-          infoWrap.appendChild(descEl);
-        }
-        if (r.incidentPartyNumber && r.targetMemberNumber) {
-          infoWrap.appendChild(createTargetLookupRow(r.incidentPartyNumber, r.targetMemberNumber, idToken));
-        }
-        const remainText = r.keep ? null : formatOfficeRemainingTime(r.createdAt, OFFICE_REPORT_AUTO_DELETE_MS, "자동 삭제");
-        if (remainText) {
-          const timerEl = document.createElement("p");
-          timerEl.className = "muted-text";
-          timerEl.textContent = remainText;
-          infoWrap.appendChild(timerEl);
-        }
-        item.appendChild(infoWrap);
+    const infoWrap = document.createElement("div");
+    infoWrap.className = "office-applicant-info";
+    const memoEl = document.createElement("p");
+    memoEl.className = "office-applicant-resume";
+    memoEl.textContent = info.memo ? info.memo : "(메모 없음)";
+    infoWrap.appendChild(memoEl);
+    item.appendChild(infoWrap);
 
-        const actionsEl = document.createElement("div");
-        actionsEl.className = "office-applicant-actions";
+    const actionsEl = document.createElement("div");
+    actionsEl.className = "office-applicant-actions";
 
-        const statusEl = document.createElement("span");
-        statusEl.className = "office-applicant-status";
-        statusEl.textContent = r.resolved ? "처리됨" : "처리 대기중";
-        actionsEl.appendChild(statusEl);
+    const editBtn = document.createElement("button");
+    editBtn.type = "button";
+    editBtn.className = "office-btn office-btn-secondary";
+    editBtn.textContent = "메모 수정";
+    editBtn.addEventListener("click", () => {
+      const memo = prompt("메모를 수정하세요.", info.memo || "");
+      if (memo === null) return;
+      blockOfficeUser(uid, memo);
+      renderBlockManageList();
+    });
+    actionsEl.appendChild(editBtn);
 
-        const resolveBtn = document.createElement("button");
-        resolveBtn.type = "button";
-        resolveBtn.className = "office-btn office-btn-secondary";
-        resolveBtn.textContent = r.resolved ? "미처리로" : "처리됨으로";
-        resolveBtn.addEventListener("click", async () => {
-          try {
-            await setOfficeReportFieldAsOperator(r.id, "resolved", !r.resolved, idToken);
-            renderOfficeReportAdmin();
-          } catch (err) {
-            showToast(err.message || "처리에 실패했습니다.");
-          }
-        });
-        actionsEl.appendChild(resolveBtn);
+    const unblockBtn = document.createElement("button");
+    unblockBtn.type = "button";
+    unblockBtn.className = "office-btn office-btn-outline";
+    unblockBtn.textContent = "차단 해제";
+    unblockBtn.addEventListener("click", () => {
+      if (!confirm("차단을 해제할까요?")) return;
+      unblockOfficeUser(uid);
+      renderBlockManageList();
+    });
+    actionsEl.appendChild(unblockBtn);
 
-        const keepBtn = document.createElement("button");
-        keepBtn.type = "button";
-        keepBtn.className = "office-btn office-btn-secondary";
-        keepBtn.textContent = r.keep ? "보류 해제" : "보류(자동삭제 방지)";
-        keepBtn.addEventListener("click", async () => {
-          try {
-            await setOfficeReportFieldAsOperator(r.id, "keep", !r.keep, idToken);
-            renderOfficeReportAdmin();
-          } catch (err) {
-            showToast(err.message || "처리에 실패했습니다.");
-          }
-        });
-        actionsEl.appendChild(keepBtn);
-
-        const deleteBtn = document.createElement("button");
-        deleteBtn.type = "button";
-        deleteBtn.className = "office-btn office-btn-outline";
-        deleteBtn.textContent = "삭제";
-        deleteBtn.addEventListener("click", async () => {
-          if (!confirm("이 신고를 삭제할까요?")) return;
-          try {
-            await deleteOfficeReportAsOperator(r.id, idToken);
-            await deleteOfficeReportVideo(r.videoUrl, idToken);
-            renderOfficeReportAdmin();
-          } catch (err) {
-            showToast(err.message || "삭제에 실패했습니다.");
-          }
-        });
-        actionsEl.appendChild(deleteBtn);
-
-        item.appendChild(actionsEl);
-        listEl.appendChild(item);
-      });
-    }
-    if (deletedIds.length > 0) showToast(`오래된 신고 ${deletedIds.length}건이 자동 삭제됐습니다.`, "info");
-  } catch (err) {
-    listEl.textContent = err.message || "신고 목록을 불러오지 못했습니다.";
-  }
+    item.appendChild(actionsEl);
+    listEl.appendChild(item);
+  });
 }
 
 // 내 신청 현황(수락된 건에 한해서만 로비 코드를 추가로 불러와 보여줌) + 받은 초대
