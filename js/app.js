@@ -1029,10 +1029,11 @@ function isOfficeUserBlocked(uid) {
   return !!uid && Object.prototype.hasOwnProperty.call(getOfficeBlocklist(), uid);
 }
 
-function blockOfficeUser(uid, memo) {
+function blockOfficeUser(uid, memo, label) {
   if (!uid) return;
   const blocklist = getOfficeBlocklist();
-  blocklist[uid] = { memo: memo || "", blockedAt: Date.now() };
+  const prevLabel = blocklist[uid]?.label || "";
+  blocklist[uid] = { memo: memo || "", label: label || prevLabel, blockedAt: Date.now() };
   saveOfficeBlocklist(blocklist);
 }
 
@@ -1043,8 +1044,10 @@ function unblockOfficeUser(uid) {
 }
 
 // 파티원 목록/최근 기록에서 쓰는 차단 토글 버튼 — 클릭 한 번으로 차단↔해제, 차단할
-// 때만 메모를 같이 받는다. onchange는 다시 그려야 할 목록의 렌더 함수.
-function createOfficeBlockButton(uid, onchange) {
+// 때만 메모를 같이 받는다. onchange는 다시 그려야 할 목록의 렌더 함수. label은 차단
+// 관리 화면에서 "누구를 차단한 건지" 알아볼 수 있게 남겨두는 표시용 번호(등록번호 등,
+// 있으면) — 실제 신원과 무관한 스냅샷이라 나중에 안 맞아도 상관없음.
+function createOfficeBlockButton(uid, onchange, label) {
   const btn = document.createElement("button");
   btn.type = "button";
   btn.className = "office-btn office-btn-outline office-block-btn";
@@ -1061,7 +1064,7 @@ function createOfficeBlockButton(uid, onchange) {
     } else {
       const memo = prompt("차단 사유(메모, 선택)를 입력하세요. 이 메모는 나만 볼 수 있습니다.");
       if (memo === null) return; // 취소
-      blockOfficeUser(uid, memo);
+      blockOfficeUser(uid, memo, label);
     }
     refresh();
     if (onchange) onchange();
@@ -2082,6 +2085,7 @@ async function renderRecentPartyRecord() {
       let othersSeen = 0;
       members.forEach((m) => {
         const li = document.createElement("li");
+        li.className = "office-recent-member-row";
         li.classList.toggle("office-blocked-item", isOfficeUserBlocked(m.uid));
         const isMe = m.memberNumber === h.memberNumberAtJoin;
         const roleText = m.role === "leader" ? "파티장" : "파티원";
@@ -2099,7 +2103,7 @@ async function renderRecentPartyRecord() {
         // 이 기능 이전에 만들어진 로스터 항목엔 uid가 없어 차단을 걸 수 없다(안내
         // 문구만 뜬다 — openOfficeJoinInfoModal과 같은 맥락의 하위호환).
         if (!isMe && m.uid) {
-          li.appendChild(createOfficeBlockButton(m.uid, renderRecentPartyRecord));
+          li.appendChild(createOfficeBlockButton(m.uid, renderRecentPartyRecord, m.memberNumber));
         }
         list.appendChild(li);
       });
@@ -2128,8 +2132,13 @@ function renderBlockManageList() {
 
     const infoWrap = document.createElement("div");
     infoWrap.className = "office-applicant-info";
+    const titleEl = document.createElement("p");
+    titleEl.className = "office-applicant-resume";
+    const dateText = info.blockedAt ? new Date(info.blockedAt).toLocaleDateString("ko-KR") : "";
+    titleEl.textContent = (info.label ? `등록번호 ${info.label}` : "등록번호 정보 없음") + (dateText ? ` · ${dateText} 차단` : "");
+    infoWrap.appendChild(titleEl);
     const memoEl = document.createElement("p");
-    memoEl.className = "office-applicant-resume";
+    memoEl.className = "office-applicant-msg";
     memoEl.textContent = info.memo ? info.memo : "(메모 없음)";
     infoWrap.appendChild(memoEl);
     item.appendChild(infoWrap);
