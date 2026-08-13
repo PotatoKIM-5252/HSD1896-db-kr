@@ -1268,6 +1268,8 @@ function setupOfficeTab() {
 // 등록 완료 회원 화면으로 전환 + 기본 모드(파티) 렌더 — loadOfficeMembership과
 // registerBtn 클릭 핸들러 양쪽에서 공통으로 씀
 function showOfficeMemberView() {
+  document.getElementById("office-loading").hidden = true;
+  document.getElementById("office-intro-view").hidden = true;
   document.getElementById("office-col-write").hidden = false;
   document.getElementById("office-withdraw-btn").hidden = false;
   document.getElementById("office-block-manage-btn").hidden = false;
