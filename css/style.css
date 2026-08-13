@@ -88,20 +88,20 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 /* 다른 버튼들과 다르게 "여기 새로운 게 있다"는 느낌을 주려고 사이트의 무채색/베이지
-   톤 대신 헌트 특유의 핏빛 레드 톤으로 일부러 튀게 만든 버튼 */
+   톤 대신 흰 배경 + 검정 글씨로 일부러 튀게 만든 버튼 */
 #office-entry-btn {
   display: flex;
   align-items: center;
   gap: 10px;
-  border: 1px solid #a33636;
+  border: 1px solid #ffffff;
   border-radius: var(--radius);
   padding: 4px 14px 4px 4px;
-  background: linear-gradient(135deg, #3a1414, #1c0a0a);
+  background: #ffffff;
 }
 
 #office-entry-btn img { height: 52px; width: auto; border-radius: 3px; display: block; }
 
-#office-entry-btn:hover { border-color: #d9605a; }
+#office-entry-btn:hover { background: #e6e6e6; }
 
 #office-entry-label {
   display: flex;
@@ -110,7 +110,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   font-weight: 700;
   line-height: 1.25;
   letter-spacing: 1px;
-  color: #e8b4a0;
+  color: #0a0a0a;
 }
 
 #app-footer {
