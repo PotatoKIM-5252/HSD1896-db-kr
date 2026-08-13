@@ -287,33 +287,6 @@ async function ensureOfficeMembership() {
   return { uid, ownerId: uid };
 }
 
-// 사무소 탈퇴 — 등록해둔 스팀 ID(officeMembers)를 본인이 직접 지울 수 있게 한다.
-// 파티/이력서(있으면 최대 하나)와, 다른 사람 파티에 걸려 있는 신청·초대까지 먼저
-// 정리해야 고아 문서가 안 남는다 — 수락된 파티원 자리는 leaveParty로 인원수까지
-// 맞추고, 그 외(대기중/받은 초대 등)는 그냥 지운다.
-async function deleteMyOfficeMembership() {
-  const uid = await getUid();
-
-  const partySnap = await getDoc(doc(db, OFFICE_PARTIES_COLLECTION, uid));
-  if (partySnap.exists()) await deleteMyParty();
-
-  const resumeSnap = await getDoc(doc(db, OFFICE_RESUMES_COLLECTION, uid));
-  if (resumeSnap.exists()) await deleteMyResume();
-
-  const appsQ = query(collectionGroup(db, "applications"), where("applicantId", "==", uid));
-  const appsSnap = await getDocs(appsQ);
-  for (const d of appsSnap.docs) {
-    const leaderId = d.ref.parent.parent.id;
-    if (d.data().status === "accepted") {
-      await leaveParty(leaderId).catch(() => {});
-    } else {
-      await deleteDoc(d.ref).catch(() => {});
-    }
-  }
-
-  await deleteDoc(doc(db, OFFICE_MEMBERS_COLLECTION, uid));
-}
-
 // 파티 모집 — 문서 ID = 파티장 uid라서 "한 사람당 활성 파티 1개"가 구조적으로
 // 강제됨. 모집 정보(활동서버/파티MMR/최소KDA/전투성향/음성여부)는 사무소 회원이면 누구나
 // 보지만, 합류 코드(private/code)와 지원자 목록(applications)은 각각 별도 하위 경로라
@@ -859,7 +832,7 @@ window.LoadoutCloud = {
   submitReport, reportNeedsCaptcha, listReports,
   listComments, addComment, getCurrentUid, OPERATOR_UID,
   getWeaponReviews, setWeaponHeart, saveWeaponComment, toggleWeaponCommentAgree,
-  getMyOfficeMembership, ensureOfficeMembership, deleteMyOfficeMembership,
+  getMyOfficeMembership, ensureOfficeMembership,
   listAllParties, watchAllParties, getMyParty, getPartyByLeaderId, saveMyParty, renewMyParty, setMyPartyStatus, setMyPartyCode, deleteMyParty,
   listApplicationsForMyParty, applyToParty, respondToApplication, listMyApplications, getPartyCode,
   watchMyPartyApplications, watchMyApplications, kickApplicant, inviteToParty, cancelInvite, respondToInvite, leaveParty,

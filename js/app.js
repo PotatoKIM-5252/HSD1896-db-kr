@@ -1242,26 +1242,6 @@ function setupOfficeTab() {
     if (e.key === "Escape" && !blockManageOverlay.hidden) closeBlockManageModal();
   });
 
-  // 사무소 탈퇴 — 등록을 스스로 지운다. 파티/프로필/신청·초대 내역까지 같이
-  // 정리되므로(deleteMyOfficeMembership 참고) 되돌릴 수 없다는 걸 미리 확인시킨다.
-  // (차단/메모 목록은 이 브라우저 로컬 저장소에 남아있는 것이라 탈퇴와 무관하게 유지됨)
-  document.getElementById("office-withdraw-btn").addEventListener("click", async () => {
-    if (!window.LoadoutCloud) return;
-    if (!confirm("사무소를 탈퇴할까요? 등록 정보와 파티/프로필, 신청·초대 내역이 모두 삭제되며 되돌릴 수 없습니다.")) return;
-    try {
-      await window.LoadoutCloud.deleteMyOfficeMembership();
-      if (myPartyApplicationsUnsub) { myPartyApplicationsUnsub(); myPartyApplicationsUnsub = null; }
-      if (myApplicationsUnsub) { myApplicationsUnsub(); myApplicationsUnsub = null; }
-      if (partyListUnsub) { partyListUnsub(); partyListUnsub = null; }
-      document.getElementById("office-member-view").hidden = true;
-      officeMembershipLoaded = false;
-      loadOfficeMembership();
-      showToast("사무소 탈퇴가 완료됐습니다.", "info");
-    } catch (err) {
-      showToast(err.message || "탈퇴에 실패했습니다.");
-    }
-  });
-
   setupOfficePartyBoard();
 }
 
@@ -1271,7 +1251,6 @@ function showOfficeMemberView() {
   document.getElementById("office-loading").hidden = true;
   document.getElementById("office-intro-view").hidden = true;
   document.getElementById("office-col-write").hidden = false;
-  document.getElementById("office-withdraw-btn").hidden = false;
   document.getElementById("office-block-manage-btn").hidden = false;
   document.getElementById("office-member-status").textContent = "등록 완료";
   document.getElementById("office-member-view").hidden = false;
