@@ -1045,8 +1045,9 @@ function unblockOfficeUser(uid) {
 
 // 파티원 목록/최근 기록에서 쓰는 차단 토글 버튼 — 클릭 한 번으로 차단↔해제, 차단할
 // 때만 메모를 같이 받는다. onchange는 다시 그려야 할 목록의 렌더 함수. label은 차단
-// 관리 화면에서 "누구를 차단한 건지" 알아볼 수 있게 남겨두는 표시용 번호(등록번호 등,
-// 있으면) — 실제 신원과 무관한 스냅샷이라 나중에 안 맞아도 상관없음.
+// 관리 화면에서 "누구를 차단한 건지" 알아볼 수 있게 남겨두는 표시용 등록번호 — 값을
+// 바로 못 구하는 경우(프로필을 비동기로 불러와야 하는 파티원 목록 등)를 위해 함수로도
+// 받을 수 있다(클릭 시점에 평가). 실제 신원과 무관한 스냅샷이라 나중에 안 맞아도 상관없음.
 function createOfficeBlockButton(uid, onchange, label) {
   const btn = document.createElement("button");
   btn.type = "button";
@@ -1064,7 +1065,7 @@ function createOfficeBlockButton(uid, onchange, label) {
     } else {
       const memo = prompt("차단 사유(메모, 선택)를 입력하세요. 이 메모는 나만 볼 수 있습니다.");
       if (memo === null) return; // 취소
-      blockOfficeUser(uid, memo, label);
+      blockOfficeUser(uid, memo, typeof label === "function" ? label() : label);
     }
     refresh();
     if (onchange) onchange();
@@ -1767,14 +1768,16 @@ async function renderMyParty() {
         resumeEl.className = "office-applicant-resume";
         resumeEl.textContent = "프로필 불러오는 중...";
         infoWrap.appendChild(resumeEl);
+        let memberRegNumber = null; // 차단 시 등록번호를 같이 남기려고 비동기로 채워둠
         window.LoadoutCloud.getApplicantResume(m.applicantId).then((resume) => {
           resumeEl.textContent = resume ? formatResumeFields(resume) : "프로필을 작성하지 않은 파티원입니다.";
+          memberRegNumber = resume?.resumeNumber || null;
         });
         item.appendChild(infoWrap);
 
         const actionsEl = document.createElement("div");
         actionsEl.className = "office-applicant-actions";
-        actionsEl.appendChild(createOfficeBlockButton(m.applicantId, renderMyParty));
+        actionsEl.appendChild(createOfficeBlockButton(m.applicantId, renderMyParty, () => memberRegNumber));
         const kickBtn = document.createElement("button");
         kickBtn.type = "button";
         kickBtn.className = "office-btn office-btn-outline";
