@@ -6828,6 +6828,7 @@ const ITEMS = [
         image: "images/weapons/variants/vetterli71_cyclone.png",
         description: "",
         weaponClass: "rifle",
+        slotSize: 4,
         price: 280,
         chamber: {
           loaded: "3+1",
