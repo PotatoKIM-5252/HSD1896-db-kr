@@ -180,7 +180,6 @@
 
     <!-- ===================== 4. 맵 탭 (인터랙티브 맵) ===================== -->
     <section id="tab-maps" class="tab-panel" hidden>
-      <div id="map-select-row"></div>
       <div id="map-edit-actions" hidden>
         <p id="map-edit-hint">지도를 클릭해 선택한 범례로 지점 추가 · 지점을 드래그해 위치 조정 · 지점의 × 배지를 눌러 삭제(우클릭도 가능)</p>
         <button id="map-edit-publish-btn" type="button">확정(게시)</button>
@@ -197,16 +196,12 @@
               <button id="map-edit-toggle-btn" type="button" hidden>지점 편집</button>
             </div>
           </div>
+          <p id="map-select-heading">지도 선택</p>
+          <div id="map-select-row"></div>
           <div id="map-layer-toggles"></div>
         </aside>
         <div id="maps-main">
           <div id="map-viewport-wrap">
-            <div id="map-zoom-controls">
-              <button id="map-zoom-in-btn" type="button" title="확대">＋</button>
-              <button id="map-zoom-out-btn" type="button" title="축소">－</button>
-              <button id="map-zoom-reset-btn" type="button" title="원래 크기로">⟲</button>
-              <button id="map-measure-toggle-btn" type="button" title="지도를 1km x 1km로 가정해 동선을 그리며 거리를 잽니다">동선 &amp; 거리측정</button>
-            </div>
             <div id="map-viewport">
               <div id="map-viewport-canvas">
                 <img id="map-base-img" alt="" onerror="this.style.display='none'; const ph=document.getElementById('map-img-placeholder'); if(ph) ph.hidden=false;">
@@ -214,14 +209,22 @@
                 <div id="map-markers-layer"></div>
                 <svg id="map-measure-layer" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
               </div>
-            </div>
-            <div id="map-measure-bar" hidden>
-              <span id="map-measure-bar-label">🧭 동선</span>
-              <span id="map-measure-bar-hint">지점을 클릭해 추가</span>
-              <div id="map-measure-color-row"></div>
-              <button id="map-measure-clear-btn" type="button" title="전체 지우기">🗑</button>
-              <button id="map-measure-finish-btn" type="button" class="office-btn office-btn-primary">완료</button>
-              <button id="map-measure-cancel-btn" type="button" class="office-btn office-btn-outline">취소</button>
+              <!-- wrap이 아니라 이 뷰포트(실제 지도 정사각형) 기준으로 absolute 배치해야
+                   지도가 wrap 폭보다 좁아졌을 때도 지도 모서리에 딱 붙는다 -->
+              <div id="map-zoom-controls">
+                <button id="map-zoom-in-btn" type="button" title="확대">＋</button>
+                <button id="map-zoom-out-btn" type="button" title="축소">－</button>
+                <button id="map-zoom-reset-btn" type="button" title="원래 크기로">⟲</button>
+                <button id="map-measure-toggle-btn" type="button" title="지도를 1km x 1km로 가정해 동선을 그리며 거리를 잽니다">동선 &amp; 거리측정</button>
+              </div>
+              <div id="map-measure-bar" hidden>
+                <span id="map-measure-bar-label">🧭 동선</span>
+                <span id="map-measure-bar-hint">지점을 클릭해 추가</span>
+                <div id="map-measure-color-row"></div>
+                <button id="map-measure-clear-btn" type="button" title="전체 지우기">🗑</button>
+                <button id="map-measure-finish-btn" type="button" class="office-btn office-btn-primary">완료</button>
+                <button id="map-measure-cancel-btn" type="button" class="office-btn office-btn-outline">취소</button>
+              </div>
             </div>
           </div>
         </div>

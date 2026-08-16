@@ -2716,15 +2716,18 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 /* ===================== 맵 탭 (인터랙티브 맵) ===================== */
 
-#map-select-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+#map-select-heading { font-size: 13px; font-weight: 600; color: var(--text-primary); letter-spacing: 0.03em; margin: 0 0 8px; }
+
+#map-select-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
 
 .map-select-btn {
   background: var(--bg-panel);
   border: 1px solid var(--border-strong);
   color: var(--text-secondary);
-  border-radius: 999px;
-  padding: 6px 14px;
+  border-radius: var(--radius);
+  padding: 8px 12px;
   font-size: 13px;
+  text-align: left;
   cursor: pointer;
 }
 
@@ -2795,6 +2798,8 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 #map-legend-panel.collapsed #map-legend-title,
 #map-legend-panel.collapsed #map-legend-header-actions,
+#map-legend-panel.collapsed #map-select-heading,
+#map-legend-panel.collapsed #map-select-row,
 #map-legend-panel.collapsed #map-layer-toggles {
   display: none;
 }
@@ -2878,7 +2883,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 /* 지도가 화면 세로 길이를 넘지 않고 한눈에 들어오도록 뷰포트 높이 기준으로 크기 상한을 둠 */
 #map-viewport {
   position: relative;
-  width: min(100%, 62vh);
+  width: min(100%, calc(100vh - 140px));
   aspect-ratio: 1 / 1;
   overflow: hidden;
   cursor: grab;
@@ -3774,8 +3779,11 @@ label.office-field-checkbox input[type="checkbox"] { width: auto; }
   #map-legend-panel, #map-legend-panel.collapsed { width: 100%; }
   #map-legend-panel.collapsed #map-legend-title,
   #map-legend-panel.collapsed #map-legend-header-actions,
+  #map-legend-panel.collapsed #map-select-heading,
+  #map-legend-panel.collapsed #map-select-row,
   #map-legend-panel.collapsed #map-layer-toggles { display: flex; }
   #map-legend-panel.collapsed #map-layer-toggles { flex-direction: column; }
+  #map-legend-panel.collapsed #map-select-row { flex-direction: column; }
   #site-utility-bar { right: 14px; bottom: 14px; gap: 6px; }
   .utility-fab-btn { padding: 9px 13px; font-size: 12px; }
   #office-columns { grid-template-columns: 1fr; }
