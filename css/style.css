@@ -87,32 +87,6 @@ button { font-family: var(--font-body); cursor: pointer; }
   line-height: 0;
 }
 
-/* 다른 버튼들과 다르게 "여기 새로운 게 있다"는 느낌을 주려고 사이트의 무채색/베이지
-   톤 대신 흰 배경 + 검정 글씨로 일부러 튀게 만든 버튼 */
-#office-entry-btn {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border: 1px solid #ffffff;
-  border-radius: var(--radius);
-  padding: 4px 14px 4px 4px;
-  background: #ffffff;
-}
-
-#office-entry-btn img { height: 52px; width: auto; border-radius: 3px; display: block; }
-
-#office-entry-btn:hover { background: #e6e6e6; }
-
-#office-entry-label {
-  display: flex;
-  flex-direction: column;
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1.25;
-  letter-spacing: 1px;
-  color: #0a0a0a;
-}
-
 #app-footer {
   border-top: 1px solid var(--border);
   background: var(--bg-panel);
@@ -3179,7 +3153,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 /* 자세히 보기 등 전체화면 오버레이가 열려있을 땐 우측 하단 유틸리티 버튼이 내용과 겹치므로 숨김 */
 body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 
-#report-modal-overlay, #changelog-modal-overlay, #office-changelog-modal-overlay, #office-rules-modal-overlay, #office-recent-modal-overlay, #office-block-manage-modal-overlay, #office-join-info-modal-overlay {
+#report-modal-overlay, #changelog-modal-overlay {
   position: fixed;
   inset: 0;
   z-index: 2200;
@@ -3190,9 +3164,9 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
   padding: 20px;
 }
 
-#report-modal-overlay[hidden], #changelog-modal-overlay[hidden], #office-changelog-modal-overlay[hidden], #office-rules-modal-overlay[hidden], #office-recent-modal-overlay[hidden], #office-block-manage-modal-overlay[hidden], #office-join-info-modal-overlay[hidden] { display: none; }
+#report-modal-overlay[hidden], #changelog-modal-overlay[hidden] { display: none; }
 
-#report-modal, #changelog-modal, #office-changelog-modal, #office-rules-modal, #office-recent-modal, #office-block-manage-modal, #office-join-info-modal {
+#report-modal, #changelog-modal {
   width: 100%;
   max-width: 420px;
   max-height: min(600px, 80vh);
@@ -3203,8 +3177,6 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
   padding: 20px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
 }
-
-#office-rules-modal, #office-block-manage-modal, #office-recent-modal { max-width: 560px; }
 
 .utility-modal-header {
   display: flex;
@@ -3220,7 +3192,7 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 
 .utility-modal-header h3 { margin: 0; font-size: 15px; color: var(--text-primary); }
 
-#report-modal-close-btn, #changelog-modal-close-btn, #office-changelog-modal-close-btn, #office-rules-modal-close-btn, #office-recent-modal-close-btn, #office-block-manage-modal-close-btn, #office-join-info-modal-close-btn {
+#report-modal-close-btn, #changelog-modal-close-btn {
   background: transparent;
   font-size: 12px;
   color: var(--text-muted);
@@ -3229,7 +3201,7 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
   padding: 5px 10px;
 }
 
-#report-modal-close-btn:hover, #changelog-modal-close-btn:hover, #office-changelog-modal-close-btn:hover, #office-rules-modal-close-btn:hover, #office-recent-modal-close-btn:hover, #office-block-manage-modal-close-btn:hover, #office-join-info-modal-close-btn:hover {
+#report-modal-close-btn:hover, #changelog-modal-close-btn:hover {
   color: var(--text-primary);
   border-color: var(--accent);
 }
@@ -3241,7 +3213,7 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
   color: var(--text-secondary);
 }
 
-#changelog-list, #office-changelog-list, #report-history-list { display: flex; flex-direction: column; }
+#changelog-list, #report-history-list { display: flex; flex-direction: column; }
 
 .changelog-item, .reportbox-item {
   padding: 10px 0;
@@ -3460,53 +3432,9 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 #report-history-close-btn:hover, #report-operator-mode-btn:hover { color: var(--text-primary); border-color: var(--accent); }
 #report-operator-mode-btn.active { color: var(--accent-strong); border-color: var(--accent); }
 
-/* ===================== 사무소 탭 ===================== */
+/* ===================== 공용 버튼 (원래 사무소 탭에서 쓰던 체계, 맵 탭 동선측정
+   완료/취소 버튼 등에서 계속 재사용 중이라 사무소 제거 후에도 남겨둠) ===================== */
 
-#tab-office { max-width: 1080px; }
-#office-intro-view, #office-loading { max-width: 640px; }
-
-#office-loading { color: var(--text-muted); font-size: 13px; }
-
-#office-intro-view h2 { font-size: 18px; margin: 0 0 6px; color: var(--text-primary); }
-
-.office-rules-box, #office-consent-box {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px 18px;
-  margin: 16px 0;
-  max-height: min(400px, 50vh);
-  overflow-y: auto;
-}
-
-.office-rules-box ol { margin: 0 0 16px; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; }
-.office-rules-box ol:last-child { margin-bottom: 0; }
-.office-rules-box li { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
-.office-rules-box p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 8px; }
-.office-rules-box p:last-child { margin-bottom: 0; }
-
-.office-rules-heading { font-size: 13px; font-weight: 600; color: var(--text-primary) !important; margin: 16px 0 8px !important; }
-.office-rules-heading:first-child { margin-top: 0 !important; }
-
-#office-consent-box h4 { font-size: 14px; margin: 0 0 8px; color: var(--text-primary); }
-#office-consent-box p { font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 8px; }
-#office-consent-box ul { margin: 0 0 8px; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
-#office-consent-box li { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
-
-#office-pledge-row { margin-bottom: 16px; }
-
-#office-agree-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--text-secondary);
-  cursor: pointer;
-}
-
-/* 사무소 버튼 체계 — 등록/저장/신청/수락처럼 확정적인 행동은 accent로 채운 primary,
-   마감/재개처럼 상태를 오가는 중립적 행동은 secondary(테두리만), 취소/삭제/거절처럼
-   되돌리거나 거부하는 행동은 outline(평소엔 무채색, 호버 시에만 danger로 경고)로 구분한다. */
 .office-btn {
   border-radius: var(--radius);
   font-size: 13px;
@@ -3531,21 +3459,6 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 }
 .office-btn-secondary:hover { border-color: var(--accent); color: var(--accent-strong); }
 
-.office-ban-control {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 6px;
-}
-.office-ban-control select {
-  background: var(--bg-input);
-  border: 1px solid var(--border-strong);
-  color: var(--text-primary);
-  border-radius: 6px;
-  padding: 4px 8px;
-  font-size: 12px;
-}
-
 .office-btn-outline {
   border: 1px solid var(--border-strong);
   background: transparent;
@@ -3553,215 +3466,6 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
 }
 .office-btn-outline:hover { border-color: var(--danger-strong); color: var(--danger-strong); }
 .office-btn-outline:disabled { opacity: 0.6; cursor: default; }
-
-#office-intro-msg { margin: 10px 0 0; font-size: 12px; color: var(--success); }
-#office-intro-msg.error { color: var(--danger-strong); }
-
-#office-member-status-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 6px; flex-wrap: wrap; }
-#office-member-status { font-size: 14px; color: var(--text-primary); margin: 0; }
-#office-member-status-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-
-/* 차단 관리는 일부러 다른 파티원과 나란히 있는 상단 버튼 줄에서 떼어내 화면 맨
-   아래 구석에, 눈에 덜 띄는 텍스트 링크 스타일로 배치한다(주 액션들과 같은
-   비중으로 보이면 심리적으로 부담스러울 수 있어서). */
-#office-block-manage-btn-row { display: flex; justify-content: flex-end; margin-top: 16px; }
-.office-report-btn-quiet {
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 12px;
-  padding: 4px 2px;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-.office-report-btn-quiet:hover { color: var(--danger-strong); }
-
-#office-mode-toggle { display: flex; gap: 6px; margin: 16px 0; border-bottom: 1px solid var(--border); }
-
-.office-mode-btn {
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-muted);
-  padding: 8px 14px;
-  transition: color 0.15s, border-color 0.15s;
-}
-
-.office-mode-btn:hover { color: var(--text-primary); }
-.office-mode-btn.active { color: var(--accent-strong); border-bottom-color: var(--accent); }
-
-#office-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
-
-#office-col-write, #office-col-list { min-width: 0; }
-
-.office-list-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
-#office-col-list h3 { font-size: 14px; margin: 0; color: var(--text-primary); }
-
-.office-list-header button {
-  background: transparent;
-  font-size: 12px;
-  color: var(--text-muted);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 5px 10px;
-  white-space: nowrap;
-  transition: color 0.15s, border-color 0.15s;
-}
-
-.office-list-header button:hover { color: var(--text-primary); border-color: var(--accent); }
-#office-resume-count { font-size: 12px; color: var(--text-muted); font-weight: 400; }
-
-#office-party-list, #office-applicant-list, #office-myapps-list, #office-resume-list { display: flex; flex-direction: column; gap: 10px; }
-
-.office-resume-item {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 10px 12px;
-}
-
-.office-resume-item-text { margin: 0 0 10px; font-size: 13px; color: var(--text-primary); }
-.office-resume-item .office-party-apply-row:last-child { margin-bottom: 0; }
-.office-resume-item > .office-resume-item-text:last-child { margin-bottom: 0; }
-
-.office-mode-panel h4 { font-size: 13px; color: var(--text-muted); margin: 20px 0 10px; }
-
-.office-party-item, .office-applicant-item, .office-myapp-item {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 12px 14px;
-}
-
-/* 내가 차단한 사람이 낀 파티/프로필/신청 — 나에게만 보이는 표시(상대는 모름) */
-.office-resume-item.office-blocked-item,
-.office-party-item.office-blocked-item,
-.office-applicant-item.office-blocked-item {
-  border-color: var(--danger-strong);
-}
-li.office-blocked-item { color: var(--danger-strong); }
-
-.office-recent-member-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.office-recent-member-row .office-block-btn { flex-shrink: 0; font-size: 12px; padding: 3px 8px; }
-
-.office-block-btn { color: var(--text-muted); }
-.office-block-btn.blocked { color: var(--danger-strong); border-color: var(--danger-strong); }
-.office-blocked-tag { font-size: 12px; color: var(--danger-strong); }
-
-.office-party-desc { margin: 0 0 10px; font-size: 13px; color: var(--text-primary); white-space: pre-wrap; }
-
-.office-party-code { margin: 0 0 10px; font-size: 13px; color: var(--accent-strong); font-family: var(--font-mono); }
-
-.office-headcount-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin: 0 0 10px;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--accent-strong);
-  background: rgba(201, 196, 179, 0.12);
-  border: 1px solid var(--accent);
-  border-radius: var(--radius);
-  padding: 3px 10px;
-}
-
-/* display:inline-flex가 있으면 [hidden]의 기본 display:none이 밀려나므로 명시적으로 되살림 */
-.office-headcount-badge[hidden] { display: none; }
-
-#office-myparty-status-row { display: flex; gap: 8px; flex-wrap: wrap; }
-
-.office-party-apply-row { display: flex; gap: 8px; }
-
-.office-party-apply-row input {
-  flex: 1;
-  background: var(--bg-input);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
-  padding: 8px 10px;
-  color: var(--text-primary);
-  font-size: 12px;
-}
-
-.office-party-apply-row .office-btn, .office-applicant-actions .office-btn { font-size: 12px; padding: 8px 14px; }
-
-.office-field-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 4px; }
-
-.office-field-form label { display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: var(--text-muted); }
-
-.office-field-form label input[type="text"], .office-field-form label select {
-  background: var(--bg-input);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
-  padding: 9px 12px;
-  color: var(--text-primary);
-  font-size: 13px;
-}
-
-label.office-field-checkbox {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-  color: var(--text-secondary);
-  font-size: 13px;
-}
-
-label.office-field-checkbox input[type="checkbox"] { width: auto; }
-
-.office-field-checkbox-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 14px;
-}
-
-.office-field-checkbox-group-label {
-  flex-basis: 100%;
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-#office-myparty-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-
-.office-blocked-msg { font-size: 12px; color: var(--danger-strong); margin: 0 0 12px; }
-
-#office-myparty-msg { margin: 10px 0 0; font-size: 12px; color: var(--success); }
-#office-myparty-msg.error { color: var(--danger-strong); }
-
-#office-myparty-code-row { margin: 20px 0; }
-
-#office-myparty-code-row > label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
-
-#office-myparty-code-input-row { display: flex; gap: 8px; }
-
-#office-myparty-code-input {
-  flex: 1;
-  background: var(--bg-input);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
-  padding: 9px 12px;
-  color: var(--text-primary);
-  font-size: 13px;
-}
-
-.office-applicant-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.office-applicant-info { display: flex; flex-direction: column; gap: 4px; }
-.office-applicant-resume { margin: 0; font-size: 13px; color: var(--text-primary); }
-.office-applicant-msg { margin: 0; font-size: 12px; color: var(--text-muted); }
-.office-applicant-actions { display: flex; gap: 8px; flex-shrink: 0; }
-.office-applicant-status { font-size: 12px; color: var(--text-muted); flex-shrink: 0; }
-
-.office-myapp-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.office-myapp-status { font-size: 13px; color: var(--text-primary); }
-
-#office-myresume-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-
-#office-myresume-msg { margin: 10px 0 0; font-size: 12px; color: var(--success); }
-#office-myresume-msg.error { color: var(--danger-strong); }
-.office-myapp-code { font-size: 13px; color: var(--accent-strong); font-family: var(--font-mono); }
 
 /* ===================== 반응형 ===================== */
 
@@ -3786,5 +3490,4 @@ label.office-field-checkbox input[type="checkbox"] { width: auto; }
   #map-legend-panel.collapsed #map-select-row { flex-direction: column; }
   #site-utility-bar { right: 14px; bottom: 14px; gap: 6px; }
   .utility-fab-btn { padding: 9px 13px; font-size: 12px; }
-  #office-columns { grid-template-columns: 1fr; }
 }
