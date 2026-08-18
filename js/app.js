@@ -4902,7 +4902,8 @@ function renderAnalysis() {
     listEl.innerHTML = `<p class="empty-msg">비교할 항목이 없습니다. DB 검색 → 무기 클릭 → 탄약 선택 → "비교 목록에 추가"를 눌러주세요.</p>`;
     chartWrap.innerHTML = "";
     ohkSection.hidden = true;
-    ohkChartWrap.innerHTML = "";
+    ohkShotgunWrap.innerHTML = "";
+    ohkOtherWrap.innerHTML = "";
     state.statCompareSelection = [];
     renderCompareStatsSection();
     return;
