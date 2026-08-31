@@ -3205,7 +3205,7 @@ const AMMO_TYPES = {
   },
 
 
-  // ── Auto-5 / Homestead 78 / Rival 78 / Romero 77 / Slate / Specter 1882 / Terminus (샷건, 낙하곡선 없음) ──
+  // ── Auto-5 / Burgess / Homestead 78 / Rival 78 / Romero 77 / Slate / Specter 1882 / Terminus (샷건, 낙하곡선 없음) ──
   auto5_shells: {
     label: "Shells",
     category: "shotgun",
@@ -3306,6 +3306,67 @@ const AMMO_TYPES = {
     statOverrides: { damage: 157, spread: 160, ammoExtra: 3 },
     // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
     ohkRange: { guaranteed: 10 },
+  },
+
+  burgess_shells: {
+    label: "Shells",
+    category: "shotgun",
+    image: "images/ui/ammo_effects/ammo_shotgun_shells_shelltight_scaled.png",
+    icon: "🔫",
+    description: "Shells - 기본 샷건탄(벅샷).",
+    cost: 0,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: {  },
+  },
+
+  burgess_dragonbreath: {
+    label: "드래곤브레스",
+    category: "shotgun",
+    effect: "dragonbreath",
+    image: "images/ui/ammo_effect_icons/dragonbreath_shell_shelltight.png",
+    icon: "🔥",
+    description: "드래곤브레스 - 화염 분사, 명중한 대상을 발화시킴.",
+    cost: 20,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 125, spread: 80, muzzleVelocity: 100 },
+    specialEffects: ["중급 화상 효과 발생"],
+  },
+
+  burgess_flechette: {
+    label: "플리셰트",
+    category: "shotgun",
+    effect: "flechette",
+    image: "images/ui/ammo_effect_icons/flechette_shelltight.png",
+    icon: "➶",
+    description: "플리셰트 - 다수의 작은 다트형 투사체 발사. 명중 시 출혈 효과.",
+    cost: 40,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 110 },
+    specialEffects: ["중급 출혈 효과 발생"],
+  },
+
+  burgess_pennyshot: {
+    label: "페니샷",
+    category: "shotgun",
+    effect: "pennyshot",
+    image: "images/ui/ammo_effect_icons/pennyshot_shelltight.png",
+    icon: "🪙",
+    description: "페니샷 - 산탄 대신 동전형 탄자 발사. 근거리 고피해, 원거리 부정확.",
+    cost: 10,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 178, spread: 80, ammoExtra: 9 },
+  },
+
+  burgess_slug: {
+    label: "슬러그",
+    category: "shotgun",
+    effect: "slug",
+    image: "images/ui/ammo_effect_icons/slug_shelltight.png",
+    icon: "●",
+    description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
+    cost: 130,
+    // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
+    statOverrides: { damage: 163, spread: 75, ammoExtra: 4 },
   },
 
   homestead78_shells: {
@@ -8293,6 +8354,84 @@ const ITEMS = [
           meleeLight: 13,
           meleeHeavy: 31,
           staminaConsumption: 20,
+        },
+      },
+    ],
+  },
+
+  {
+    id: "weapon_burgess",
+    category: "weapon",
+    name: "Burgess",
+    nameKo: "버제스",
+    image: "images/weapons/burgess.png",
+
+    // 검색 필터용
+    slotSize: 3,
+    ammoCategory: "shotgun",
+    weaponClass: "shotgun", // handgun/rifle/shotgun
+    ammoEffects: ["dragonbreath", "flechette", "pennyshot", "slug"],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "burgess_shells",
+      "burgess_dragonbreath",
+      "burgess_flechette",
+      "burgess_pennyshot",
+      "burgess_slug",
+    ],
+    defaultAmmo: "burgess_shells",
+
+    // 기본 정보
+    price: 300,
+    updateAdded: "Update 2.9",
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "6+1",
+      extra: 6,
+    },
+
+    // 기본 스탯
+    stats: {
+      damage: 207,
+      dropRange: 25,
+      rateOfFire: 25,
+      cycleTime: 1.4,
+      spread: 30,
+      sway: 77,
+      verticalRecoil: 26,
+      reloadSpeed: 9.2,
+      muzzleVelocity: 425,
+      meleeLight: 27,
+      meleeHeavy: 54,
+      staminaConsumption: 25,
+    },
+
+    description: "",
+
+    // 파생형 (위키 실측치 기준, 2종)
+    variants: [
+      {
+        id: "burgess_bayonet",
+        name: "Burgess Bayonet",
+        nameKo: "버제스 바요넷",
+        image: "images/weapons/variants/burgess_bayonet.png",
+        description: "",
+        price: 320,
+        stats: {
+          meleeHeavy: 168,
+        },
+      },
+      {
+        id: "burgess_trauma",
+        name: "Burgess Trauma",
+        nameKo: "버제스 트라우마",
+        image: "images/weapons/variants/burgess_trauma.png",
+        description: "",
+        price: 340,
+        stats: {
+          meleeHeavy: 216,
         },
       },
     ],
