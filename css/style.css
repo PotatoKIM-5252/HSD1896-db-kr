@@ -1188,6 +1188,22 @@ button { font-family: var(--font-body); cursor: pointer; }
   padding: 12px;
 }
 
+/* 하부 총열 샷건탄 선택 시 마네킹 대신 표시되는 빈 자리 — 마네킹(body-svg)과 같은
+   비율(1024:1536)로 높이를 맞춰서, 탄약 탭 전환할 때 옆 칸이 밀리지 않게 함 */
+.bodypart-figure-empty {
+  width: 100%;
+  aspect-ratio: 1024 / 1536;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 12px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
 /* 거리에서 적용되는 상태이상 효과 박스 */
 .status-effect-box {
   background: var(--bg-panel);

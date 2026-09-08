@@ -1772,8 +1772,12 @@ function openBodyPartView(parentItem, ammoId) {
       </button>`;
   }).join("");
 
-  // 무기 자체가 샷건/근접무기이거나(거리 기반 데미지 개념이 없음), 지금 선택된 탄약 자체가 샷건탄인 경우 마네킹을 숨김
-  const isShotgun = currentItem.ammoCategory === "shotgun" || currentItem.ammoCategory === "melee" || ammo?.category === "shotgun";
+  // 무기 자체가 샷건/근접무기인 경우(거리 기반 데미지 개념이 없음) 마네킹 칸 자체를 없애고 2단 레이아웃 사용.
+  // ※ 르맷/드릴링/헤이메이커처럼 무기는 샷건이 아니지만 "선택한 탄약"만 하부 총열 샷건탄인 경우는
+  //    별도로 처리(ammoIsShotgun) — 칸을 아예 없애면 탄약 탭 전환할 때마다 레이아웃이 옆으로
+  //    당겨져서(사용자 확인), 칸은 항상 유지하고 마네킹 대신 빈 자리만 보여준다.
+  const isShotgun = currentItem.ammoCategory === "shotgun" || currentItem.ammoCategory === "melee";
+  const ammoIsShotgun = isShotgun || ammo?.category === "shotgun";
 
   // 이 무기의 어떤 탄약도 거리별 데이터(낙하곡선/한방컷)를 안 가지고 있으면(예: 슈레더, 화염소총처럼 탄종이 하나뿐이고
   // 그마저 거리 데이터가 없는 경우) "거리별 데미지" 그래프 섹션 자체를 숨기고 있는 스탯만 보여줌
@@ -1794,10 +1798,13 @@ function openBodyPartView(parentItem, ammoId) {
     <!-- 본문: 좌측 마네킹(샷건 제외) / 중앙 무기이미지+기본정보+스탯 / 우측 그래프+특수탄+효과 -->
     <div class="bodypart-layout ${isShotgun ? "bodypart-layout--no-figure" : ""}">
       ${isShotgun ? "" : `
-      <!-- 좌측: 마네킹 -->
+      <!-- 좌측: 마네킹. 칸 자체는 항상 유지하고(탄약탭 전환 시 레이아웃 안 밀리게), 선택한
+           탄약이 하부 총열 샷건탄이면 마네킹 대신 빈 자리만 표시 -->
       <div class="bodypart-figure-col">
         <div class="bodypart-figure">
-          ${renderBodyFigureSVG(partInfo, refRange)}
+          ${ammoIsShotgun
+            ? `<div class="bodypart-figure-empty">샷건탄은 부위별 데미지 미지원</div>`
+            : renderBodyFigureSVG(partInfo, refRange)}
         </div>
       </div>`}
 
