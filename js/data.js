@@ -9030,11 +9030,11 @@ const ITEMS = [
 
     // 기본 스탯
     stats: {
-      damage: 186,
+      damage: 207,
       dropRange: 25,
       rateOfFire: 21,
       cycleTime: 1.6,
-      spread: 40,
+      spread: 30,
       sway: 77,
       verticalRecoil: 22,
       reloadSpeed: 12.2,
@@ -9069,10 +9069,10 @@ const ITEMS = [
         ],
         defaultAmmo: "terminusshorty_shells",
         stats: {
-          damage: 168,
+          damage: 188,
           dropRange: 20,
           rateOfFire: 19,
-          spread: 50,
+          spread: 40,
           sway: 133,
           verticalRecoil: 27,
           reloadSpeed: 10.6,
