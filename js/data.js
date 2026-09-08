@@ -1092,6 +1092,41 @@ const AMMO_TYPES = {
     specialEffects: ["30m부터 피해 감소 시작"],
   },
 
+  lemat_hv: {
+    label: "고속탄",
+    category: "compact",
+    effect: "high_velocity",
+    image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.6037],
+      [100, 0.4999],
+    ],
+    statOverrides: { damage: 92, dropRange: 85, verticalRecoil: 8, muzzleVelocity: 450, ammoExtra: 8 },
+  },
+
+  // 르맷 카빈 전용 — 르맷(권총)과 총열 길이가 달라 데미지/사거리/반동/탄속/예비탄이 다름(위키 확인)
+  lemat_carbine_hv: {
+    label: "고속탄",
+    category: "compact",
+    effect: "high_velocity",
+    image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.6037],
+      [100, 0.4999],
+    ],
+    statOverrides: { damage: 101, dropRange: 150, verticalRecoil: 4.5, muzzleVelocity: 560, ammoExtra: 12 },
+  },
+
   lemat_incendiary: {
     label: "소이탄",
     category: "compact",
@@ -5805,12 +5840,13 @@ const ITEMS = [
     ammoCategory: "compact",
     weaponClass: "handgun", // handgun/rifle/shotgun
     secondaryAmmoCategories: ["shotgun"], // 하부 총열 샷건 보유 (르맷)
-    ammoEffects: ["full_metal", "incendiary", "slug", "flare", "dragonbreath"],
+    ammoEffects: ["full_metal", "high_velocity", "incendiary", "slug", "flare", "dragonbreath"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
     ammoTypes: [
       "lemat_compact",
       "lemat_fmj",
+      "lemat_hv",
       "lemat_incendiary",
       "lemat_shells",
       "lemat_dragonbreath",
@@ -5857,7 +5893,7 @@ const ITEMS = [
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
         slotSize: 3,
-        ammoTypes: ["lemat_carbine_compact", "lemat_carbine_fmj", "lemat_incendiary", "lemat_carbine_shells", "lemat_carbine_dragonbreath", "lemat_carbine_slug", "lemat_carbine_starshell"],
+        ammoTypes: ["lemat_carbine_compact", "lemat_carbine_fmj", "lemat_carbine_hv", "lemat_incendiary", "lemat_carbine_shells", "lemat_carbine_dragonbreath", "lemat_carbine_slug", "lemat_carbine_starshell"],
         defaultAmmo: "lemat_carbine_compact",
         price: 115,
         stats: {
@@ -5880,7 +5916,7 @@ const ITEMS = [
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
         slotSize: 3,
-        ammoTypes: ["lemat_carbine_compact", "lemat_carbine_fmj", "lemat_incendiary", "lemat_carbine_shells", "lemat_carbine_dragonbreath", "lemat_carbine_slug", "lemat_carbine_starshell"],
+        ammoTypes: ["lemat_carbine_compact", "lemat_carbine_fmj", "lemat_carbine_hv", "lemat_incendiary", "lemat_carbine_shells", "lemat_carbine_dragonbreath", "lemat_carbine_slug", "lemat_carbine_starshell"],
         defaultAmmo: "lemat_carbine_compact",
         price: 127,
         stats: {
