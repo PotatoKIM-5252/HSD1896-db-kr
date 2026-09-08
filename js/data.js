@@ -3370,7 +3370,9 @@ const AMMO_TYPES = {
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 163, spread: 75, ammoExtra: 4 },
     // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
-    ohkRange: { guaranteed: 14 },
+    // ⚠ 게임 내에서 14.0m 정확히 지점에 서서 쏘는 게 불가능해 13.9m까지만 확인됨(사용자 확인).
+    // 14m에서도 한방일 가능성이 높지만 미확인이라 보수적으로 13.9로 기록.
+    ohkRange: { guaranteed: 13.9 },
   },
 
   homestead78_shells: {
@@ -4035,7 +4037,7 @@ const AMMO_TYPES = {
     cost: 0,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
-    ohkRange: { guaranteed: 10, unstableEnd: 12, noneFrom: 13 },
+    ohkRange: { guaranteed: 12, unstableEnd: 13, noneFrom: 14 },
     statOverrides: {  },
   },
 
@@ -4090,7 +4092,9 @@ const AMMO_TYPES = {
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 165, spread: 75, ammoExtra: 8 },
     // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
-    ohkRange: { guaranteed: 13 },
+    // ⚠ 게임 내에서 14.0m 정확히 지점에 서서 쏘는 게 불가능해 13.9m까지만 확인됨(사용자 확인).
+    // 14m에서도 한방일 가능성이 높지만 미확인이라 보수적으로 13.9로 기록.
+    ohkRange: { guaranteed: 13.9 },
   },
 
   // ⚠ Terminus Shorty 전용 탄약 (위키 실측치 기준)
