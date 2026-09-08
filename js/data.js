@@ -4294,10 +4294,9 @@ const AMMO_TYPES = {
     icon: "🔫",
     description: "Shells - 하부 총열 기본 샷건탄(벅샷).",
     cost: 0,
-    // 하부 총열(샷건 모드) 전용 스탯 — 위키 확인. 데미지는 위키에 명시되지 않고
-    // 실측도 안 돼서 정보 없음 처리(사용자 확인)
+    // 하부 총열(샷건 모드) 전용 스탯 — 사용자 실측 데이터
     statOverrides: {
-      damage: null,
+      damage: 184, spread: 45,
       dropRange: 25, rateOfFire: 10, cycleTime: 6.3, verticalRecoil: 15, reloadSpeed: 5, muzzleVelocity: 425,
     },
     // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
@@ -4387,9 +4386,13 @@ const AMMO_TYPES = {
     cost: 0,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 재실측 데이터
-    // 데미지 수치는 위키에 명시되지 않고 실측도 안 돼서 정보 없음 처리(사용자 확인)
+    // 하부 총열(샷건 모드) 전용 스탯 — 사용자 실측 데이터. 상부 총열(권총 모드)과
+    // 완전히 별개의 발사 메커니즘이라 damage 외에 발사속도/사이클타임/반동/재장전/탄속도 전부 override.
     ohkRange: { guaranteed: 10, unstableEnd: 11, noneFrom: 12 },
-    statOverrides: { damage: null },
+    statOverrides: {
+      damage: 158, spread: 55,
+      dropRange: 10, rateOfFire: 12, cycleTime: 5.2, verticalRecoil: 35, reloadSpeed: 3.9, muzzleVelocity: 350,
+    },
   },
 
   haymaker_shells: {
@@ -4401,9 +4404,12 @@ const AMMO_TYPES = {
     cost: 0,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 재실측 데이터
-    // 데미지 수치는 위키에 명시되지 않고 실측도 안 돼서 정보 없음 처리(사용자 확인)
+    // 하부 총열(샷건 모드) 전용 스탯 — 사용자 실측 데이터
     ohkRange: { guaranteed: 10, unstableEnd: 11, noneFrom: 12 },
-    statOverrides: { damage: null },
+    statOverrides: {
+      damage: 158, spread: 55,
+      dropRange: 20, rateOfFire: 10, cycleTime: 6, verticalRecoil: 35, reloadSpeed: 1.4, muzzleVelocity: 350,
+    },
   },
 
   drilling_shells: {
@@ -4415,10 +4421,12 @@ const AMMO_TYPES = {
     cost: 0,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
-    // ✅ [확인됨] Drilling(콤보건)은 하부 샷건탄 데미지가 위키에 원래 명시 안 되는 게 정상 —
-    // 예전엔 추정치(220)를 넣어뒀지만 실측/확인된 값이 아니라 정보 없음으로 비움(사용자 확인)
+    // 하부 총열(샷건 모드) 전용 스탯 — 사용자 실측 데이터로 확정(이전 추정치 220과 일치).
     ohkRange: { guaranteed: 12, unstableEnd: 14, noneFrom: 15 },
-    statOverrides: { damage: null, spread: 20 },
+    statOverrides: {
+      damage: 220, spread: 20,
+      dropRange: 20, rateOfFire: 9, cycleTime: 6.2, verticalRecoil: 20, reloadSpeed: 5.1, muzzleVelocity: 450,
+    },
   },
 
   // ⚠ Drilling Shorty/Hatchet 공용 샷건쉘 — 두 파생형은 근접무기(도끼) 유무만 다를 뿐
@@ -4430,9 +4438,13 @@ const AMMO_TYPES = {
     icon: "🔫",
     description: "Shells - 하부 총열 기본 샷건탄(벅샷).",
     cost: 0,
-    // 데미지 수치는 확인된 값이 아니라 정보 없음으로 비움(사용자 확인)
+    // 하부 총열(샷건 모드) 전용 스탯 — 사용자 실측 데이터. 본체 Drilling과는
+    // 총열 길이가 달라 데미지/발사속도 등 수치가 다름.
     ohkRange: { guaranteed: 12, unstableEnd: 13, noneFrom: 14 },
-    statOverrides: { damage: null, spread: 25 },
+    statOverrides: {
+      damage: 214, spread: 25,
+      dropRange: 20, rateOfFire: 11, cycleTime: 5.8, verticalRecoil: 30, reloadSpeed: 4.6, muzzleVelocity: 375,
+    },
   },
 
   // ─────────────────────────────────────────────────────────────
