@@ -3851,7 +3851,7 @@ const AMMO_TYPES = {
     cost: 0,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
-    ohkRange: { guaranteed: 11, unstableEnd: 12, noneFrom: 13 },
+    ohkRange: { guaranteed: 12, unstableEnd: 13, noneFrom: 14 },
     statOverrides: {  },
   },
 
