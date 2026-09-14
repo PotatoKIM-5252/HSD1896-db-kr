@@ -1369,7 +1369,8 @@ const AMMO_TYPES = {
       [60, 0.4713],
       [100, 0.4713],
     ],
-    statOverrides: { damage: 87, dropRange: 80, verticalRecoil: 7.5, muzzleVelocity: 405, ammoExtra: 9 },
+    // 예비탄(7/7)은 2.9 패치 기준(패치 전 7/9에서 감소)
+    statOverrides: { damage: 87, dropRange: 80, verticalRecoil: 7.5, muzzleVelocity: 405, ammoExtra: 7 },
   },
 
   officer_poison: {
@@ -1406,7 +1407,8 @@ const AMMO_TYPES = {
       [60, 0.4653],
       [100, 0.4653],
     ],
-    statOverrides: { dropRange: 55, muzzleVelocity: 238, ammoExtra: 16 },
+    // 예비탄(7/12)은 2.9 패치 기준(패치 전 7/16에서 감소)
+    statOverrides: { dropRange: 55, muzzleVelocity: 238, ammoExtra: 12 },
     specialEffects: ["발사음 감소"],
   },
 
@@ -3708,7 +3710,7 @@ const AMMO_TYPES = {
     image: "images/ui/ammo_effect_icons/slug_shelltight.png",
     icon: "●",
     description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
-    cost: 65,
+    cost: 40, // 2.9 패치로 슬러그 가격 65 → 40으로 인하
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 179, spread: 65, ammoExtra: 4 },
     // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
@@ -3824,7 +3826,7 @@ const AMMO_TYPES = {
     image: "images/ui/ammo_effect_icons/slug_shelltight.png",
     icon: "●",
     description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
-    cost: 65,
+    cost: 40, // 2.9 패치로 슬러그 가격 65 → 40으로 인하
     statOverrides: { damage: 157, spread: 125, ammoExtra: 1 },
     // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
     ohkRange: { guaranteed: 11 },
@@ -4230,7 +4232,7 @@ const AMMO_TYPES = {
     image: "images/ui/ammo_effect_icons/slug_shelltight.png",
     icon: "●",
     description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
-    cost: 65,
+    cost: 40, // 2.9 패치로 슬러그 가격 65 → 40으로 인하
     // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
     statOverrides: { damage: 179, spread: 65, ammoExtra: 3 },
     // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측, 드릴링 본체 기준)
@@ -4246,7 +4248,7 @@ const AMMO_TYPES = {
     image: "images/ui/ammo_effect_icons/slug_shelltight.png",
     icon: "●",
     description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
-    cost: 65,
+    cost: 40, // 2.9 패치로 슬러그 가격 65 → 40으로 인하
     statOverrides: { damage: 179, spread: 65, ammoExtra: 3 },
     // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
     ohkRange: { guaranteed: 11 },
@@ -4262,8 +4264,9 @@ const AMMO_TYPES = {
     cost: 10,
     // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
     // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
+    // 탄창(1/2)은 2.9 패치 기준(패치 전 1/3에서 감소)
     ohkRange: { guaranteed: 4 },
-    statOverrides: { damage: 40, spread: 150, muzzleVelocity: 100 },
+    statOverrides: { damage: 40, spread: 150, muzzleVelocity: 100, ammoLoaded: 1, ammoExtra: 2 },
     specialEffects: ["중급 화상 효과 발생"],
   },
   // 르맷 카빈(총열이 긴 파생형) 전용 — 컴팩트탄/셸/슬러그처럼 총열 길이에 따라 데미지·분산이
@@ -4295,9 +4298,10 @@ const AMMO_TYPES = {
     image: "images/ui/ammo_effect_icons/slug_shelltight.png",
     icon: "●",
     description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
-    cost: 65,
+    cost: 40, // 2.9 패치로 슬러그 가격 65 → 40으로 인하
     // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
-    statOverrides: { damage: 157, spread: 115, ammoExtra: 2 },
+    // 탄창(1/1)은 2.9 패치 기준(패치 전 1/2에서 감소)
+    statOverrides: { damage: 157, spread: 115, ammoLoaded: 1, ammoExtra: 1 },
     // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
     ohkRange: { guaranteed: 10 },
   },
@@ -4310,7 +4314,7 @@ const AMMO_TYPES = {
     image: "images/ui/ammo_effect_icons/slug_shelltight.png",
     icon: "●",
     description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
-    cost: 65,
+    cost: 40, // 2.9 패치로 슬러그 가격 65 → 40으로 인하
     // 나머지(dropRange/rateOfFire/cycleTime/verticalRecoil/reloadSpeed/muzzleVelocity)는
     // 하부 총열 공용 기준치를 그대로 씀(슬러그 자체는 그 값들을 추가로 바꾸지 않음)
     statOverrides: {
@@ -4347,7 +4351,8 @@ const AMMO_TYPES = {
     description: "신호탄 - 조명탄 발사, 명중한 대상에 강한 화상 효과.",
     cost: 5,
     // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
-    statOverrides: { damage: 1, spread: 50, verticalRecoil: 5, muzzleVelocity: 75 },
+    // 탄창(1/2)은 2.9 패치 기준(패치 전 1/3에서 감소)
+    statOverrides: { damage: 1, spread: 50, verticalRecoil: 5, muzzleVelocity: 75, ammoLoaded: 1, ammoExtra: 2 },
     specialEffects: ["강한(intense) 화상 효과 발생"],
   },
 
@@ -4390,7 +4395,7 @@ const AMMO_TYPES = {
     image: "images/ui/ammo_effect_icons/slug_shelltight.png",
     icon: "●",
     description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
-    cost: 65,
+    cost: 40, // 2.9 패치로 슬러그 가격 65 → 40으로 인하
     // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
     statOverrides: { damage: 159, spread: 115, ammoExtra: 2 },
     // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
@@ -4423,10 +4428,12 @@ const AMMO_TYPES = {
     // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 재실측 데이터
     // 하부 총열(샷건 모드) 전용 스탯 — 사용자 실측 데이터. 상부 총열(권총 모드)과
     // 완전히 별개의 발사 메커니즘이라 damage 외에 발사속도/사이클타임/반동/재장전/탄속도 전부 override.
+    // 탄창(1/2)은 2.9 패치 기준(패치 전 1/3에서 감소)
     ohkRange: { guaranteed: 10, unstableEnd: 11, noneFrom: 12 },
     statOverrides: {
       damage: 158, spread: 55,
       dropRange: 10, rateOfFire: 12, cycleTime: 5.2, verticalRecoil: 35, reloadSpeed: 3.9, muzzleVelocity: 350,
+      ammoLoaded: 1, ammoExtra: 2,
     },
   },
 
@@ -5069,7 +5076,8 @@ const AMMO_TYPES = {
     icon: "🩸",
     description: "철조망 화살 - 착탄 지점에 철조망 생성, 중급 출혈.",
     cost: 30,
-    statOverrides: { damage: 152, dropRange: 10, spread: 40, muzzleVelocity: 80, ammoExtra: 5 },
+    // 예비탄(슬롯당 4)은 2.9 패치 기준(패치 전 슬롯당 5에서 감소)
+    statOverrides: { damage: 152, dropRange: 10, spread: 40, muzzleVelocity: 80, ammoExtra: 4 },
     specialEffects: ["중급 출혈 효과 발생", "착탄 지점에 철조망 생성"],
   },
   huntingbow_frag: {
@@ -5081,7 +5089,8 @@ const AMMO_TYPES = {
     description: "파편 화살 - 2초 후 폭발, 중급 출혈. 상점 구매 불가(월드 획득 전용).",
     cost: null,
     scarce: true,
-    statOverrides: { damage: 134, dropRange: 10, muzzleVelocity: 80, ammoExtra: 5 },
+    // 예비탄(슬롯당 4)은 2.9 패치 기준(패치 전 슬롯당 5에서 감소)
+    statOverrides: { damage: 134, dropRange: 10, muzzleVelocity: 80, ammoExtra: 4 },
     specialEffects: ["중급 출혈 효과 발생", "2초 후 폭발"],
   },
   huntingbow_poison: {
@@ -5092,7 +5101,8 @@ const AMMO_TYPES = {
     icon: "🟢",
     description: "중독 화살 - 강한 중독 효과. 회수 후 재사용 가능.",
     cost: 25,
-    statOverrides: { spread: 30, ammoExtra: 5 },
+    // 예비탄(슬롯당 4)은 2.9 패치 기준(패치 전 슬롯당 5에서 감소)
+    statOverrides: { spread: 30, ammoExtra: 4 },
     specialEffects: ["강한 중독 효과 발생", "회수 후 재사용 가능"],
   },
 
@@ -5859,10 +5869,10 @@ const ITEMS = [
     price: 83,
     updateAdded: "Update Early Access 6.0",
 
-    // 탄창 (기본탄 기준)
+    // 탄창 (기본탄 기준) — 2.9 패치로 예비탄 18 → 12로 감소
     chamber: {
       loaded: "9",
-      extra: 18,
+      extra: 12,
     },
 
     // 기본 스탯
@@ -6136,10 +6146,10 @@ const ITEMS = [
     price: 96,
     updateAdded: "Update Early Access 2.2",
 
-    // 탄창 (기본탄 기준)
+    // 탄창 (기본탄 기준) — 2.9 패치로 예비탄 14 → 10으로 감소
     chamber: {
       loaded: "7",
-      extra: 14,
+      extra: 10,
     },
 
     // 기본 스탯
@@ -9349,7 +9359,8 @@ const ITEMS = [
     price: 57,
     updateAdded: "Update 1.6.1",
 
-    chamber: { loaded: "1", extra: 16 },
+    // 2.9 패치로 기본 화살 예비탄 슬롯당 8발(총 16) → 슬롯당 6발(총 12)로 감소
+    chamber: { loaded: "1", extra: 12 },
 
     stats: {
       damage: 250,
@@ -9805,7 +9816,7 @@ const ITEMS = [
     image: "images/tools/decoy_fuses.png",
     toolClass: "distraction",
     toolTags: ["throwable", "noise"],
-    price: 30,
+    price: 15, // 2.9 패치 가격 변경 (기존 30)
     updateAdded: "Update 1.3",
     unlockRank: 52,
     uses: 5,
@@ -9934,7 +9945,7 @@ const ITEMS = [
     image: "images/tools/throwing_axes.png",
     toolClass: "throwable_melee",
     toolTags: ["throwable", "rending"],
-    price: 50,
+    price: 80, // 2.9 패치 가격 변경 (기존 50)
     updateAdded: "Update 1.6.1",
     unlockRank: 8,
     uses: 3,
@@ -9972,7 +9983,7 @@ const ITEMS = [
     image: "images/tools/throwing_spear.png",
     toolClass: "throwable_melee",
     toolTags: ["throwable", "rending"],
-    price: 80,
+    price: 145, // 2.9 패치 가격 변경 (기존 80)
     updateAdded: "Update 1.16.2",
     unlockRank: 33,
     uses: 1,
@@ -9993,7 +10004,7 @@ const ITEMS = [
     image: "images/tools/derringer_pennyshot.png",
     toolClass: "pocket_pistol",
     toolTags: [], // ✅ [확인됨] 위키 자체에 해당 태그 카테고리 없음
-    price: 63,
+    price: 100, // 2.9 패치 가격 변경 (기존 63)
     updateAdded: "Update 1.14",
     unlockRank: 17,
     chamber: { loaded: 2, extra: 2 }, // Penny Shot 탄약
@@ -10076,7 +10087,7 @@ const ITEMS = [
     image: "images/tools/bear_traps.png",
     toolClass: "trap",
     toolTags: ["placeable", "rending"],
-    price: 70,
+    price: 35, // 2.9 패치 가격 변경 (기존 70)
     updateAdded: "Update 2.0",
     unlockRank: 35,
     uses: 2,
@@ -10149,7 +10160,7 @@ const ITEMS = [
     image: "images/consumables/tool_box.png",
     consumableClass: "resupply",
     consumableTags: ["placeable"],
-    price: 70,
+    price: 25, // 2.9 패치 가격 변경 (기존 70)
     updateAdded: "Update 1.13",
     unlockRank: 55,
     stats: { meleeLight: 31, meleeHeavy: 90 },
@@ -10441,7 +10452,7 @@ const ITEMS = [
     image: "images/consumables/medical_pack.png",
     consumableClass: "healing",
     consumableTags: ["healing", "placeable"],
-    price: 35,
+    price: 15, // 2.9 패치 가격 변경 (기존 35)
     updateAdded: "Update 1.13",
     unlockRank: 1,
     stats: { meleeLight: 13, meleeHeavy: 31 },
@@ -11121,10 +11132,11 @@ const ITEMS = [
     image: "images/traits/trait_lightfoot.png",
     detailImage: "images/traits/trait_lightfoot_detail.png",
     traitClass: "movement",
-    traitTags: [],
+    traitTags: ["catalyst"],
     price: 5,
     stats: {},
-    description: "장애물을 넘거나 낙하하거나 사다리를 오를 때 소리가 나지 않는다. 소음 트랩을 지날 때 나는 발소리도 줄여준다.",
+    // 2.9 패치: 나뭇가지를 밟아도 소리가 나지 않는 촉매제 효과가 Beastface에서 이곳으로 이동
+    description: "장애물을 넘거나 낙하하거나 사다리를 오를 때 소리가 나지 않는다. 소음 트랩을 지날 때 나는 발소리도 줄여준다. (촉매제: Catalyst 특성을 함께 보유하면 나뭇가지를 밟아도 소리가 나지 않는다.)",
     variants: [],
   },
   {
@@ -11182,7 +11194,7 @@ const ITEMS = [
     traitTags: ["catalyst"],
     price: 4,
     stats: {},
-    description: "야생 동물이 반응하는 거리를 줄인다(헬하운드 같은 몬스터에는 적용되지 않음). (촉매제: Catalyst 특성을 함께 보유하면 야생 동물에게 전혀 들키지 않고, 나뭇가지를 밟아도 소리가 나지 않는다.)",
+    description: "야생 동물이 반응하는 거리를 줄인다(헬하운드 같은 몬스터에는 적용되지 않음). (촉매제: Catalyst 특성을 함께 보유하면 야생 동물에게 전혀 들키지 않는다.)",
     variants: [],
   },
   {
@@ -11238,7 +11250,22 @@ const ITEMS = [
     traitTags: ["scarce"],
     price: null,
     stats: {},
-    description: "Beastface, Kiteskin, Vigilant, Pain Sense, Frontiersman 특성의 촉매제(조건부) 효과를 활성화한다. 각 특성을 함께 장착하면: Beastface(야생동물에게 전혀 들키지 않고 나뭇가지 소리도 나지 않음) / Kiteskin(낙하로는 사망하지 않음) / Vigilant(다크사이트 강조 범위 2배) / Pain Sense(기력이 없는 헌터도 표시) / Frontiersman(솔로 플레이 시 도구를 2회 더 사용 가능) 효과가 각각 추가로 발동한다.",
+    description: "Beastface, Kiteskin, Lightfoot, Vigilant, Pain Sense, Frontiersman, Vulture 특성의 촉매제(조건부) 효과를 활성화한다. 각 특성을 함께 장착하면: Beastface(야생동물에게 전혀 들키지 않음) / Kiteskin(낙하로는 사망하지 않음) / Lightfoot(나뭇가지를 밟아도 소리가 나지 않음) / Vigilant(다크사이트 강조 범위 2배) / Pain Sense(기력이 없는 헌터도 표시) / Frontiersman(솔로 플레이 시 도구를 2회 더 사용 가능) / Vulture(쓰러진 헌터 루팅 시 탄약도 획득) 효과가 각각 추가로 발동한다.",
+    variants: [],
+  },
+  {
+    // 2.9 패치 신규 Burn Trait. 이미지는 추후 추가 예정
+    id: "trait_chupacabra",
+    category: "trait",
+    name: "Chupacabra",
+    nameKo: "추파카브라",
+    image: "images/traits/trait_chupacabra.png",
+    detailImage: "images/traits/trait_chupacabra_detail.png",
+    traitClass: "support",
+    traitTags: ["burn", "scarce"],
+    price: null,
+    stats: {},
+    description: "살아 있는 말, 소 또는 동물 우리와 상호작용하면 체력 청크(Health Chunk) 1개를 회복한다.",
     variants: [],
   },
   {
@@ -11530,6 +11557,21 @@ const ITEMS = [
     variants: [],
   },
   {
+    // 2.9 패치 신규 Burn Trait. 이미지는 추후 추가 예정
+    id: "trait_siphon",
+    category: "trait",
+    name: "Siphon",
+    nameKo: "사이펀",
+    image: "images/traits/trait_siphon.png",
+    detailImage: "images/traits/trait_siphon_detail.png",
+    traitClass: "support",
+    traitTags: ["burn", "scarce"],
+    price: null,
+    stats: {},
+    description: "적 헌터의 시체를 루팅할 때 해당 헌터가 보유한 Scarce Trait(희귀 특성) 하나를 빼앗을 수 있다. 빼앗긴 헌터에게는 대신 Siphon이 남는다. Siphon은 Blood Well과 상호작용하거나 다른 Scarce Trait처럼 월드에서 직접 발견할 수도 있다. 가능하면 Death Cheat를 최우선으로 빼앗으며, Death Cheat가 없으면 보유한 Scarce Trait 중 하나를 무작위로 빼앗는다(솔로 플레이어의 경우 Death Cheat가 없으면 Necromancer를 우선하되, 다른 솔로 플레이어에게서는 Necromancer를 빼앗을 수 없고 팀 소속 플레이어에게서만 가능하다). Death Cheat를 빼앗기더라도 해당 라운드가 끝날 때까지는 Death Cheat 효과가 그대로 적용된다.",
+    variants: [],
+  },
+  {
     id: "trait_vigilant",
     category: "trait",
     name: "Vigilant",
@@ -11551,10 +11593,11 @@ const ITEMS = [
     image: "images/traits/trait_vulture.png",
     detailImage: "images/traits/trait_vulture_detail.png",
     traitClass: "support",
-    traitTags: [],
+    traitTags: ["catalyst"],
     price: 2,
     stats: {},
-    description: "헌터를 루팅(Looting)하면 항상 금전(헌트 달러) 보상을 받는다.",
+    // 2.9 패치: 쓰러진 헌터 루팅 시 탄약도 획득하는 촉매제 효과 추가
+    description: "헌터를 루팅(Looting)하면 항상 금전(헌트 달러) 보상을 받는다. (촉매제: Catalyst 특성을 함께 보유하면 쓰러진 헌터를 루팅할 때 일정량의 탄약도 획득한다.)",
     variants: [],
   },
   {

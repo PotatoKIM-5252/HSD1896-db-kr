@@ -424,6 +424,10 @@ async function publishMapCustomLayers(layers, idToken) {
 // 기능을 만드는 과정에서 있었던 세부 수정/조정은 각각 올리지 말고, 오류 수정·정보
 // 수정·기능 추가만 한 줄로 간단히 요약해서 올린다.
 const CHANGELOG = [
+  { date: "9.14", text: "슬레이트 벅샷 한방컷(OHK) 거리 정정" },
+  { date: "9.14", text: "르맷 권총/카빈에 고속탄(High Velocity) 탄약 추가" },
+  { date: "9.14", text: "2.9 패치: 르맷/오피서 예비 탄약 감소, 사냥용 활 예비 화살 감소, 각종 슬러그탄 가격 인하, 도구·소모품 가격 조정 반영" },
+  { date: "9.14", text: "2.9 패치: 신규 특성 Siphon/Chupacabra 추가, Vulture/Lightfoot 촉매제(Catalyst) 효과 반영" },
   { date: "9.8", text: "르맷/드릴링/헤이메이커 하부 총열 산탄 스탯 보완(발사속도·사이클타임·반동·재장전·탄속 등)" },
   { date: "9.8", text: "터미누스/터미누스 쇼티 2.9 패치 스탯 및 한방컷(OHK) 거리 업데이트" },
   { date: "9.8", text: "버제스 한방컷(OHK) 거리 데이터 추가" },
