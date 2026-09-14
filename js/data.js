@@ -11289,8 +11289,8 @@ const ITEMS = [
   },
   {
     // 2.9 패치 신규 Burn Trait. 이미지는 추후 추가 예정
-    // ⚠ Burn 특성이지만 월드 드랍(Scarce)이 아니라 특성 포인트 2점으로 구매하는 방식이라
-    // scarce 태그는 붙이지 않음(사용자 확인). 설명에도 명시.
+    // ⚠ Burn 특성이지만 월드 드랍(Scarce)이 아니라 다른 일반 특성들처럼 업그레이드
+    // 포인트 2점으로 구매하는 방식이라 scarce 태그는 붙이지 않고 price:2로 표기(사용자 확인).
     id: "trait_chupacabra",
     category: "trait",
     name: "Chupacabra",
@@ -11299,9 +11299,9 @@ const ITEMS = [
     detailImage: "images/traits/trait_chupacabra_detail.png",
     traitClass: "support",
     traitTags: ["burn"],
-    price: null,
+    price: 2,
     stats: {},
-    description: "살아 있는 말, 소 또는 동물 우리와 상호작용하면 체력 청크(Health Chunk) 1개를 회복한다. (월드 드랍이 아닌 특성 포인트 2점으로 구매하는 특성)",
+    description: "살아 있는 말, 소 또는 동물 우리와 상호작용하면 체력 청크(Health Chunk) 1개를 회복한다.",
     variants: [],
   },
   {
