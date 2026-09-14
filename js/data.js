@@ -4284,11 +4284,11 @@ const AMMO_TYPES = {
     ohkRange: { guaranteed: 4 },
     // 르맷 카빈 하부 총열(샷건) 전용 스탯 — 위키 확인(damage/spread/muzzleVelocity는 드래곤브레스 자체
     // 오버라이드, 나머지는 하부 총열 공용 기준치)
-    // ⚠ 장탄수(1)는 확정, 예비탄 수는 아직 미확인이라 본체(권총) 값을 임시로 상속 중 — 확인되면 채울 것
+    // 탄창(1/5)은 사용자 실측 데이터
     statOverrides: {
       damage: 50, spread: 125, muzzleVelocity: 100,
       dropRange: 25, rateOfFire: 10, cycleTime: 6.3, verticalRecoil: 15, reloadSpeed: 5,
-      ammoLoaded: 1,
+      ammoLoaded: 1, ammoExtra: 5,
     },
     specialEffects: ["중급 화상 효과 발생"],
   },
@@ -4335,10 +4335,9 @@ const AMMO_TYPES = {
     icon: "🔫",
     description: "Shells - 하부 총열 기본 샷건탄(벅샷).",
     cost: 0,
-    // 하부 총열(샷건 모드) 전용 스탯 — 사용자 실측 데이터
-    // ⚠ 장탄수(1)는 확정, 예비탄 수는 아직 미확인이라 본체(권총) 값을 임시로 상속 중 — 확인되면 채울 것
+    // 하부 총열(샷건 모드) 전용 스탯 — 사용자 실측 데이터. 탄창(1/5)도 사용자 실측 데이터
     statOverrides: {
-      damage: 184, spread: 45, ammoLoaded: 1,
+      damage: 184, spread: 45, ammoLoaded: 1, ammoExtra: 5,
       dropRange: 25, rateOfFire: 10, cycleTime: 6.3, verticalRecoil: 15, reloadSpeed: 5, muzzleVelocity: 425,
     },
     // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
@@ -4369,9 +4368,9 @@ const AMMO_TYPES = {
     icon: "🌟",
     description: "신호탄 - 조명탄 발사, 명중한 대상에 강한 화상 효과.",
     cost: 5,
-    // ⚠ 장탄수(1)는 확정, 예비탄 수는 아직 미확인이라 본체(권총) 값을 임시로 상속 중 — 확인되면 채울 것
+    // 탄창(1/5)은 사용자 실측 데이터
     statOverrides: {
-      damage: 1, spread: 50, verticalRecoil: 5, muzzleVelocity: 75, ammoLoaded: 1,
+      damage: 1, spread: 50, verticalRecoil: 5, muzzleVelocity: 75, ammoLoaded: 1, ammoExtra: 5,
       dropRange: 25, rateOfFire: 10, cycleTime: 6.3, reloadSpeed: 5,
     },
     specialEffects: ["강한(intense) 화상 효과 발생"],
