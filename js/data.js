@@ -5907,6 +5907,10 @@ const ITEMS = [
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
         slotSize: 3,
+        // 2.9 패치의 예비탄 감소(9/18→9/12)는 르맷 권총 본체에만 적용되고 카빈은
+        // 대상이 아님(사용자 확인) — 카빈은 패치 이전 18을 그대로 유지하도록 명시 오버라이드.
+        // 고속탄만 원래부터 별도로 낮은 12(위키 확인, 패치와 무관)
+        chamber: { loaded: "9", extra: 18 },
         ammoTypes: ["lemat_carbine_compact", "lemat_carbine_fmj", "lemat_carbine_hv", "lemat_incendiary", "lemat_carbine_shells", "lemat_carbine_dragonbreath", "lemat_carbine_slug", "lemat_carbine_starshell"],
         defaultAmmo: "lemat_carbine_compact",
         price: 115,
@@ -5930,6 +5934,9 @@ const ITEMS = [
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
         slotSize: 3,
+        // 2.9 패치의 예비탄 감소(9/18→9/12)는 르맷 권총 본체에만 적용되고 카빈은
+        // 대상이 아님(사용자 확인) — 카빈은 패치 이전 18을 그대로 유지하도록 명시 오버라이드.
+        chamber: { loaded: "9", extra: 18 },
         ammoTypes: ["lemat_carbine_compact", "lemat_carbine_fmj", "lemat_carbine_hv", "lemat_incendiary", "lemat_carbine_shells", "lemat_carbine_dragonbreath", "lemat_carbine_slug", "lemat_carbine_starshell"],
         defaultAmmo: "lemat_carbine_compact",
         price: 127,
