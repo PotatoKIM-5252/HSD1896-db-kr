@@ -424,6 +424,9 @@ async function publishMapCustomLayers(layers, idToken) {
 // 기능을 만드는 과정에서 있었던 세부 수정/조정은 각각 올리지 말고, 오류 수정·정보
 // 수정·기능 추가만 한 줄로 간단히 요약해서 올린다.
 const CHANGELOG = [
+  { date: "9.14", text: "르맷 카빈 하부 총열 예비탄 및 장탄수 표시 오류 정정" },
+  { date: "9.14", text: "2.9 패치: 사냥용 활 한방컷(OHK) 거리를 공식 발표치로 정정" },
+  { date: "9.14", text: "신규 특성 Crack Shot(명사수)/Blademancer(블레이드맨서)/Corpse Seer(시체를 보는 자) 추가" },
   { date: "9.14", text: "슬레이트 벅샷 한방컷(OHK) 거리 정정" },
   { date: "9.14", text: "르맷 권총/카빈에 고속탄(High Velocity) 탄약 추가" },
   { date: "9.14", text: "2.9 패치: 르맷/오피서 예비 탄약 감소, 사냥용 활 예비 화살 감소, 각종 슬러그탄 가격 인하, 도구·소모품 가격 조정 반영" },
