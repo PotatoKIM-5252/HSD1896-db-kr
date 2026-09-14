@@ -4284,9 +4284,11 @@ const AMMO_TYPES = {
     ohkRange: { guaranteed: 4 },
     // 르맷 카빈 하부 총열(샷건) 전용 스탯 — 위키 확인(damage/spread/muzzleVelocity는 드래곤브레스 자체
     // 오버라이드, 나머지는 하부 총열 공용 기준치)
+    // ⚠ 장탄수(1)는 확정, 예비탄 수는 아직 미확인이라 본체(권총) 값을 임시로 상속 중 — 확인되면 채울 것
     statOverrides: {
       damage: 50, spread: 125, muzzleVelocity: 100,
       dropRange: 25, rateOfFire: 10, cycleTime: 6.3, verticalRecoil: 15, reloadSpeed: 5,
+      ammoLoaded: 1,
     },
     specialEffects: ["중급 화상 효과 발생"],
   },
@@ -4318,7 +4320,7 @@ const AMMO_TYPES = {
     // 나머지(dropRange/rateOfFire/cycleTime/verticalRecoil/reloadSpeed/muzzleVelocity)는
     // 하부 총열 공용 기준치를 그대로 씀(슬러그 자체는 그 값들을 추가로 바꾸지 않음)
     statOverrides: {
-      damage: 165, spread: 95, ammoExtra: 4,
+      damage: 165, spread: 95, ammoExtra: 4, ammoLoaded: 1,
       dropRange: 25, rateOfFire: 10, cycleTime: 6.3, verticalRecoil: 15, reloadSpeed: 5, muzzleVelocity: 425,
     },
     ohkRange: { guaranteed: 13 },
@@ -4334,8 +4336,9 @@ const AMMO_TYPES = {
     description: "Shells - 하부 총열 기본 샷건탄(벅샷).",
     cost: 0,
     // 하부 총열(샷건 모드) 전용 스탯 — 사용자 실측 데이터
+    // ⚠ 장탄수(1)는 확정, 예비탄 수는 아직 미확인이라 본체(권총) 값을 임시로 상속 중 — 확인되면 채울 것
     statOverrides: {
-      damage: 184, spread: 45,
+      damage: 184, spread: 45, ammoLoaded: 1,
       dropRange: 25, rateOfFire: 10, cycleTime: 6.3, verticalRecoil: 15, reloadSpeed: 5, muzzleVelocity: 425,
     },
     // 가슴 정조준 기준 한방컷(OHK) 거리: 사용자 실측 데이터
@@ -4366,8 +4369,9 @@ const AMMO_TYPES = {
     icon: "🌟",
     description: "신호탄 - 조명탄 발사, 명중한 대상에 강한 화상 효과.",
     cost: 5,
+    // ⚠ 장탄수(1)는 확정, 예비탄 수는 아직 미확인이라 본체(권총) 값을 임시로 상속 중 — 확인되면 채울 것
     statOverrides: {
-      damage: 1, spread: 50, verticalRecoil: 5, muzzleVelocity: 75,
+      damage: 1, spread: 50, verticalRecoil: 5, muzzleVelocity: 75, ammoLoaded: 1,
       dropRange: 25, rateOfFire: 10, cycleTime: 6.3, reloadSpeed: 5,
     },
     specialEffects: ["강한(intense) 화상 효과 발생"],
@@ -5053,16 +5057,17 @@ const AMMO_TYPES = {
     description: "기본 화살.",
     cost: 0,
     statOverrides: {  },
-    // 사용자 실측: 불안정 구간 없이 보장거리에서 바로 불가로 전환
-    ohkRange: { guaranteed: 28 },
-    // "백 개의 손(Hundred Hands)" 특성 장착 시 데미지가 늘어나 한방컷 거리가 달라짐(사용자 실측) —
-    // 0~7m는 부위 무관 항상 한방, 7~34m는 가슴 정조준 시에만 한방(랜덤 불안정 구간 아니라
-    // 확정적인 구간이므로 별도 색상/그라데이션 없이 7m 지점에 보조 눈금만 표기), 34m 초과부터 불가
+    // 2.9 패치 공식 발표치: 불안정 구간 없이 보장거리에서 바로 불가로 전환 (29m → 27m)
+    ohkRange: { guaranteed: 27 },
+    // "백 개의 손(Hundred Hands)" 특성 장착 시 데미지가 늘어나 한방컷 거리가 달라짐 —
+    // 0~7m는 부위 무관 항상 한방, 7m~보장거리는 가슴 정조준 시에만 한방(랜덤 불안정 구간 아니라
+    // 확정적인 구간이므로 별도 색상/그라데이션 없이 7m 지점에 보조 눈금만 표기), 그 이후부터 불가.
+    // 2.9 패치 공식 발표치로 갱신 (36m → 30m)
     ohkRangeVariants: [
       {
         label: "Hundred Hands 착용 시 한방컷(OHK) 거리",
         ohkRange: {
-          guaranteed: 34,
+          guaranteed: 30,
           extraMarks: [{ at: 7, label: "7m까지 부위구분없이 한방" }],
         },
       },
