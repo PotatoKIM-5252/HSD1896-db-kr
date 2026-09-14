@@ -8493,7 +8493,7 @@ const ITEMS = [
         id: "burgess_trauma",
         name: "Burgess Trauma",
         nameKo: "버제스 트라우마",
-        image: "images/weapons/variants/burgess_trauma.png",
+        image: "images/weapons/variants/burgess_trauma.webp",
         description: "",
         price: 340,
         stats: {
