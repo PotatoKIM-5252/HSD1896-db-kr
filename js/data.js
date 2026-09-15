@@ -324,6 +324,25 @@ const AMMO_TYPES = {
     statOverrides: {},
   },
 
+  // 프론티어 73C 사일런서 전용 — 소음기 무기는 감쇠 곡선이 훨씬 가파름
+  // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 확인)
+  frontier73c_silencer_compact: {
+    label: "Compact",
+    category: "compact",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_compact_regular_tight.png",
+    icon: "🟫",
+    description: "Compact - 20m부터 피해 감소 시작. 관통력 낮음.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.4853],
+      [60, 0.4306],
+    ],
+    statOverrides: {},
+  },
+
   compact_fmj: {
     label: "전피갑탄(FMJ)",
     category: "compact",
@@ -337,6 +356,31 @@ const AMMO_TYPES = {
       [30, 1.00],
       [60, 0.6182],
       [100, 0.5273],
+    ],
+    statOverrides: {
+      dropRange: 125,
+      verticalRecoil: 8,
+      muzzleVelocity: 330,
+    },
+    specialEffects: ["30m부터 피해 감소 시작"],
+  },
+
+  // 프론티어 73C 사일런서 FMJ 전용 — 소음기 달리면 FMJ도 감쇠 곡선이 훨씬 가파름
+  // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 확인)
+  frontier73c_silencer_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "compact",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_compact_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [50, 0.6538],
+      [60, 0.4808],
+      [70, 0.4423],
     ],
     statOverrides: {
       dropRange: 125,
@@ -369,6 +413,31 @@ const AMMO_TYPES = {
     },
   },
 
+  // 프론티어 73C 사일런서 고속탄 전용 — 소음기 달리면 고속탄도 기본탄과 같은(더 가파른) 곡선을 씀
+  // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 확인)
+  frontier73c_silencer_high_velocity: {
+    label: "고속탄",
+    category: "compact",
+    effect: "high_velocity",
+    image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.4853],
+      [60, 0.4306],
+    ],
+    statOverrides: {
+      damage: 104,
+      dropRange: 160,
+      verticalRecoil: 8,
+      muzzleVelocity: 500,
+      ammoExtra: 15,
+    },
+  },
+
   compact_incendiary: {
     label: "소이탄",
     category: "compact",
@@ -381,11 +450,32 @@ const AMMO_TYPES = {
       [0, 1.00],
       [20, 1.00],
       [50, 0.6182],
-      [100, 0.5018],
+      [100, 0.5011],
     ],
     statOverrides: {},
     specialEffects: ["20m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
     effectMaxRange: 20,  // 20m 이내에서만 발화 효과 발동 (그 이상은 효과 미적용으로 가정)
+  },
+
+  // ⚠ 프론티어 73C 사일런서 소이탄 전용 — 시트에 소이탄 전용 데이터는 없으나,
+  //    사용자 확인 하에 사일런서 기본탄(frontier73c_silencer_compact)과 동일한 곡선 적용
+  frontier73c_silencer_incendiary: {
+    label: "소이탄",
+    category: "compact",
+    effect: "incendiary",
+    image: "images/ui/ammo_effects/ammo_compact_incendiary.png",
+    icon: "🔥",
+    description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
+    cost: 40,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.4853],
+      [60, 0.4306],
+    ],
+    statOverrides: {},
+    specialEffects: ["20m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
+    effectMaxRange: 20,
   },
 
   compact_poison: {
@@ -400,7 +490,27 @@ const AMMO_TYPES = {
       [0, 1.00],
       [20, 1.00],
       [50, 0.6182],
-      [100, 0.5018],
+      [100, 0.5011],
+    ],
+    statOverrides: {},
+    specialEffects: ["중급 중독 효과 발생"],
+  },
+
+  // ⚠ 프론티어 73C 사일런서 중독탄 전용 — 시트에 중독탄 전용 데이터는 없으나,
+  //    사용자 확인 하에 사일런서 기본탄(frontier73c_silencer_compact)과 동일한 곡선 적용
+  frontier73c_silencer_poison: {
+    label: "중독탄",
+    category: "compact",
+    effect: "poison",
+    image: "images/ui/ammo_effects/ammo_compact_poison.png",
+    icon: "🟢",
+    description: "중독탄 - 명중 시 독 효과. 관통 불가.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.4853],
+      [60, 0.4306],
     ],
     statOverrides: {},
     specialEffects: ["중급 중독 효과 발생"],
@@ -417,8 +527,32 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [20, 1.00],
-      [50, 0.6179],
-      [100, 0.5012],
+      [50, 0.6182],
+      [100, 0.5011],
+    ],
+    statOverrides: {
+      dropRange: 110,
+      muzzleVelocity: 263,
+      ammoExtra: 34,
+    },
+    specialEffects: ["발사음 감소"],
+  },
+
+  // ⚠ 프론티어 73C 사일런서 서브소닉 전용 — 시트에 서브소닉 전용 데이터는 없으나,
+  //    사용자 확인 하에 사일런서 기본탄(frontier73c_silencer_compact)과 동일한 곡선 적용
+  frontier73c_silencer_subsonic: {
+    label: "아음속탄",
+    category: "compact",
+    effect: "subsonic",
+    image: "images/ui/ammo_effects/ammo_compact_subsonic.png",
+    icon: "🔇",
+    description: "아음속탄 - 탄속 감소, 낙하거리 감소, 예비 탄약 수 변동, 발사음 감소.",
+    cost: 5,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.4853],
+      [60, 0.4306],
     ],
     statOverrides: {
       dropRange: 110,
@@ -503,7 +637,7 @@ const AMMO_TYPES = {
       [0, 1.00],
       [20, 1.00],
       [50, 0.6182],
-      [100, 0.5018],
+      [100, 0.5011],
     ],
     statOverrides: {},
     specialEffects: ["20m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
@@ -522,7 +656,7 @@ const AMMO_TYPES = {
       [0, 1.00],
       [20, 1.00],
       [50, 0.6182],
-      [100, 0.5018],
+      [100, 0.5011],
     ],
     statOverrides: {},
     specialEffects: ["중급 중독 효과 발생"],
@@ -539,8 +673,8 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [20, 1.00],
-      [50, 0.6179],
-      [100, 0.5012],
+      [50, 0.6182],
+      [100, 0.5011],
     ],
     statOverrides: {
       dropRange: 115,
@@ -625,7 +759,7 @@ const AMMO_TYPES = {
       [0, 1.00],
       [20, 1.00],
       [50, 0.6182],
-      [100, 0.5018],
+      [100, 0.5011],
     ],
     statOverrides: {},
     specialEffects: ["20m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
@@ -644,7 +778,7 @@ const AMMO_TYPES = {
       [0, 1.00],
       [20, 1.00],
       [50, 0.6182],
-      [100, 0.5018],
+      [100, 0.5011],
     ],
     statOverrides: {},
     specialEffects: ["중급 중독 효과 발생"],
@@ -716,7 +850,7 @@ const AMMO_TYPES = {
       [0, 1.00],
       [20, 1.00],
       [50, 0.6182],
-      [100, 0.5018],
+      [100, 0.5011],
     ],
     statOverrides: {  },
     specialEffects: ["20m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
@@ -735,7 +869,7 @@ const AMMO_TYPES = {
       [0, 1.00],
       [20, 1.00],
       [50, 0.6182],
-      [100, 0.5018],
+      [100, 0.5011],
     ],
     statOverrides: {  },
     specialEffects: ["중급 중독 효과 발생"],
@@ -752,8 +886,8 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [20, 1.00],
-      [50, 0.6179],
-      [100, 0.5012],
+      [50, 0.6182],
+      [100, 0.5011],
     ],
     statOverrides: { dropRange: 110, muzzleVelocity: 263, ammoExtra: 24 },
     specialEffects: ["발사음 감소"],
@@ -823,7 +957,7 @@ const AMMO_TYPES = {
       [0, 1.00],
       [20, 1.00],
       [50, 0.6182],
-      [100, 0.5018],
+      [100, 0.5011],
     ],
     statOverrides: {  },
     specialEffects: ["20m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
@@ -842,7 +976,7 @@ const AMMO_TYPES = {
       [0, 1.00],
       [20, 1.00],
       [50, 0.6182],
-      [100, 0.5018],
+      [100, 0.5011],
     ],
     statOverrides: {  },
     specialEffects: ["중급 중독 효과 발생"],
@@ -859,8 +993,8 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [20, 1.00],
-      [50, 0.6179],
-      [100, 0.5012],
+      [50, 0.6182],
+      [100, 0.5011],
     ],
     statOverrides: { dropRange: 95, muzzleVelocity: 252, ammoExtra: 34 },
     specialEffects: ["발사음 감소"],
@@ -878,6 +1012,25 @@ const AMMO_TYPES = {
       [50, 0.5438],
       [60, 0.4695],
       [100, 0.4695],
+    ],
+    statOverrides: {  },
+  },
+
+  // 본헤임 No.3 사일런서 전용 — 소음기 무기는 감쇠 곡선이 훨씬 가파름
+  // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 확인)
+  bornheim_silencer_compact: {
+    label: "Compact",
+    category: "compact",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_compact_regular_tight.png",
+    icon: "🟫",
+    description: "Compact - 20m부터 피해 감소 시작. 관통력 낮음.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.4697],
+      [60, 0.4071],
     ],
     statOverrides: {  },
   },
@@ -919,6 +1072,26 @@ const AMMO_TYPES = {
     statOverrides: { damage: 70, dropRange: 85, verticalRecoil: 7.5, muzzleVelocity: 455, ammoExtra: 10 },
   },
 
+  // 본헤임 사일런서 고속탄 전용 — 소음기 달리면 고속탄도 기본탄과 같은(더 가파른) 곡선을 씀
+  // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 확인)
+  bornheim_silencer_high_velocity: {
+    label: "고속탄",
+    category: "compact",
+    effect: "high_velocity",
+    image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.4697],
+      [60, 0.4071],
+    ],
+    statOverrides: { damage: 70, dropRange: 85, verticalRecoil: 7.5, muzzleVelocity: 455, ammoExtra: 10 },
+  },
+
+  // 낙하곡선 시트에 소이탄 전용 데이터는 없으나, 사용자 확인 하에 기본탄(bornheim_compact)과 동일하게 정정
   bornheim_incendiary: {
     label: "소이탄",
     category: "compact",
@@ -930,15 +1103,57 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [20, 1.00],
-      [50, 0.5435],
-      [60, 0.4736],
-      [100, 0.4736],
+      [50, 0.5438],
+      [60, 0.4695],
+      [100, 0.4695],
     ],
     statOverrides: {  },
     specialEffects: ["20m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
     effectMaxRange: 20,
   },
 
+  // ⚠ Bornheim No. 3 Match 전용 소이탄 — Match는 낙하곡선이 본체와 달라(bornheim_match_compact) 별도 필요
+  bornheim_match_incendiary: {
+    label: "소이탄",
+    category: "compact",
+    effect: "incendiary",
+    image: "images/ui/ammo_effects/ammo_compact_incendiary.png",
+    icon: "🔥",
+    description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
+    cost: 40,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.6182],
+      [100, 0.5011],
+    ],
+    statOverrides: {  },
+    specialEffects: ["20m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
+    effectMaxRange: 20,
+  },
+
+  // ⚠ 본헤임 사일런서 소이탄 전용 — 시트에 소이탄 전용 데이터는 없으나,
+  //    사용자 확인 하에 사일런서 기본탄(bornheim_silencer_compact)과 동일한 곡선 적용
+  bornheim_silencer_incendiary: {
+    label: "소이탄",
+    category: "compact",
+    effect: "incendiary",
+    image: "images/ui/ammo_effects/ammo_compact_incendiary.png",
+    icon: "🔥",
+    description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
+    cost: 40,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.4697],
+      [60, 0.4071],
+    ],
+    statOverrides: {  },
+    specialEffects: ["20m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
+    effectMaxRange: 20,
+  },
+
+  // 낙하곡선 시트에 서브소닉 전용 데이터는 없으나, 사용자 확인 하에 기본탄(bornheim_compact)과 동일하게 정정
   bornheim_subsonic: {
     label: "아음속탄",
     category: "compact",
@@ -950,9 +1165,48 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [20, 1.00],
-      [50, 0.5392],
-      [60, 0.4653],
-      [100, 0.4653],
+      [50, 0.5438],
+      [60, 0.4695],
+      [100, 0.4695],
+    ],
+    statOverrides: { dropRange: 60, muzzleVelocity: 256, ammoExtra: 18 },
+    specialEffects: ["발사음 감소"],
+  },
+
+  // ⚠ Bornheim No. 3 Match 전용 서브소닉 — Match는 낙하곡선이 본체와 달라(bornheim_match_compact) 별도 필요
+  bornheim_match_subsonic: {
+    label: "아음속탄",
+    category: "compact",
+    effect: "subsonic",
+    image: "images/ui/ammo_effects/ammo_compact_subsonic.png",
+    icon: "🔇",
+    description: "아음속탄 - 탄속 감소, 낙하거리 감소, 예비 탄약 수 변동, 발사음 감소.",
+    cost: 5,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.6182],
+      [100, 0.5011],
+    ],
+    statOverrides: { dropRange: 60, muzzleVelocity: 256, ammoExtra: 18 },
+    specialEffects: ["발사음 감소"],
+  },
+
+  // ⚠ 본헤임 사일런서 서브소닉 전용 — 시트에 서브소닉 전용 데이터는 없으나,
+  //    사용자 확인 하에 사일런서 기본탄(bornheim_silencer_compact)과 동일한 곡선 적용
+  bornheim_silencer_subsonic: {
+    label: "아음속탄",
+    category: "compact",
+    effect: "subsonic",
+    image: "images/ui/ammo_effects/ammo_compact_subsonic.png",
+    icon: "🔇",
+    description: "아음속탄 - 탄속 감소, 낙하거리 감소, 예비 탄약 수 변동, 발사음 감소.",
+    cost: 5,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.4697],
+      [60, 0.4071],
     ],
     statOverrides: { dropRange: 60, muzzleVelocity: 256, ammoExtra: 18 },
     specialEffects: ["발사음 감소"],
@@ -988,9 +1242,9 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [20, 1.00],
-      [50, 0.5429],
-      [60, 0.4671],
-      [100, 0.4671],
+      [50, 0.5438],
+      [60, 0.4695],
+      [100, 0.4695],
     ],
     statOverrides: { dropRange: 70, muzzleVelocity: 270 },
     specialEffects: ["중급 출혈 효과 발생"],
@@ -1127,6 +1381,7 @@ const AMMO_TYPES = {
     statOverrides: { damage: 101, dropRange: 150, verticalRecoil: 4.5, muzzleVelocity: 560, ammoExtra: 12 },
   },
 
+  // 낙하곡선 시트에 소이탄 전용 데이터는 없으나, 사용자 확인 하에 기본탄(lemat_compact)과 동일하게 정정
   lemat_incendiary: {
     label: "소이탄",
     category: "compact",
@@ -1138,14 +1393,36 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [20, 1.00],
-      [50, 0.5435],
-      [60, 0.4736],
-      [100, 0.4736],
+      [50, 0.5438],
+      [60, 0.4695],
+      [100, 0.4695],
     ],
     statOverrides: {  },
     specialEffects: ["20m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
     effectMaxRange: 20,
-  },  nagant_compact: {
+  },
+
+  // ⚠ LeMat Carbine / Carbine Marksman 전용 소이탄 — 낙하곡선이 본체와 달라(lemat_carbine_compact) 별도 필요
+  lemat_carbine_incendiary: {
+    label: "소이탄",
+    category: "compact",
+    effect: "incendiary",
+    image: "images/ui/ammo_effects/ammo_compact_incendiary.png",
+    icon: "🔥",
+    description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
+    cost: 40,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.6182],
+      [100, 0.5011],
+    ],
+    statOverrides: {  },
+    specialEffects: ["20m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
+    effectMaxRange: 20,
+  },
+
+  nagant_compact: {
     label: "Compact",
     category: "compact",
     isBase: true,
@@ -1163,6 +1440,25 @@ const AMMO_TYPES = {
     statOverrides: {  },
   },
 
+  // 나강 M1895 사일런서 전용 — 소음기 무기는 감쇠 곡선이 훨씬 가파름
+  // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 확인)
+  nagant_silencer_compact: {
+    label: "Compact",
+    category: "compact",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_compact_regular_tight.png",
+    icon: "🟫",
+    description: "Compact - 20m부터 피해 감소 시작. 관통력 낮음.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.4697],
+      [60, 0.4071],
+    ],
+    statOverrides: {  },
+  },
+
   nagant_dumdum: {
     label: "덤덤탄(출혈)",
     category: "compact",
@@ -1175,9 +1471,30 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [20, 1.00],
-      [50, 0.5429],
-      [60, 0.4671],
-      [100, 0.4671],
+      [50, 0.5438],
+      [60, 0.4695],
+      [100, 0.4695],
+    ],
+    statOverrides: { dropRange: 65, muzzleVelocity: 300 },
+    specialEffects: ["중급 출혈 효과 발생"],
+  },
+
+  // ⚠ 나강 사일런서 덤덤탄 전용 — 시트에 덤덤탄 전용 데이터는 없으나,
+  //    사용자 확인 하에 사일런서 기본탄(nagant_silencer_compact)과 동일한 곡선 적용
+  nagant_silencer_dumdum: {
+    label: "덤덤탄(출혈)",
+    category: "compact",
+    effect: "bleed",
+    image: "images/ui/ammo_effects/ammo_compact_bleed.png",
+    icon: "🩸",
+    description: "덤덤탄 - 명중 시 중급 출혈 효과. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.4697],
+      [60, 0.4071],
     ],
     statOverrides: { dropRange: 65, muzzleVelocity: 300 },
     specialEffects: ["중급 출혈 효과 발생"],
@@ -1201,6 +1518,25 @@ const AMMO_TYPES = {
     statOverrides: { damage: 87, dropRange: 80, verticalRecoil: 6, muzzleVelocity: 405, ammoExtra: 14 },
   },
 
+  // 나강 사일런서 고속탄 전용 — 소음기 달리면 고속탄도 기본탄과 같은(더 가파른) 곡선을 씀
+  // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 확인)
+  nagant_silencer_high_velocity: {
+    label: "고속탄",
+    category: "compact",
+    effect: "high_velocity",
+    image: "images/ui/ammo_effects/ammo_compact_high_velocity.png",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.4697],
+      [60, 0.4071],
+    ],
+    statOverrides: { damage: 87, dropRange: 80, verticalRecoil: 6, muzzleVelocity: 405, ammoExtra: 14 },
+  },
+
   nagant_poison: {
     label: "중독탄",
     category: "compact",
@@ -1212,9 +1548,29 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [20, 1.00],
-      [50, 0.5385],
-      [60, 0.4615],
-      [100, 0.4615],
+      [50, 0.5438],
+      [60, 0.4695],
+      [100, 0.4695],
+    ],
+    statOverrides: {  },
+    specialEffects: ["중급 중독 효과 발생"],
+  },
+
+  // ⚠ 나강 사일런서 중독탄 전용 — 시트에 중독탄 전용 데이터는 없으나,
+  //    사용자 확인 하에 사일런서 기본탄(nagant_silencer_compact)과 동일한 곡선 적용
+  nagant_silencer_poison: {
+    label: "중독탄",
+    category: "compact",
+    effect: "poison",
+    image: "images/ui/ammo_effects/ammo_compact_poison.png",
+    icon: "🟢",
+    description: "중독탄 - 명중 시 독 효과. 관통 불가.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.4697],
+      [60, 0.4071],
     ],
     statOverrides: {  },
     specialEffects: ["중급 중독 효과 발생"],
@@ -1231,9 +1587,29 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [20, 1.00],
-      [50, 0.5392],
-      [60, 0.4653],
-      [100, 0.4653],
+      [50, 0.5438],
+      [60, 0.4695],
+      [100, 0.4695],
+    ],
+    statOverrides: { dropRange: 55, muzzleVelocity: 238, ammoExtra: 14 },
+    specialEffects: ["발사음 감소"],
+  },
+
+  // ⚠ 나강 사일런서 서브소닉 전용 — 시트에 서브소닉 전용 데이터는 없으나,
+  //    사용자 확인 하에 사일런서 기본탄(nagant_silencer_compact)과 동일한 곡선 적용
+  nagant_silencer_subsonic: {
+    label: "아음속탄",
+    category: "compact",
+    effect: "subsonic",
+    image: "images/ui/ammo_effects/ammo_compact_subsonic.png",
+    icon: "🔇",
+    description: "아음속탄 - 탄속 감소, 낙하거리 감소, 예비 탄약 수 변동, 발사음 감소.",
+    cost: 5,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.4697],
+      [60, 0.4071],
     ],
     statOverrides: { dropRange: 55, muzzleVelocity: 238, ammoExtra: 14 },
     specialEffects: ["발사음 감소"],
@@ -1269,9 +1645,9 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [20, 1.00],
-      [50, 0.5429],
-      [60, 0.4671],
-      [100, 0.4671],
+      [50, 0.5438],
+      [60, 0.4695],
+      [100, 0.4695],
     ],
     statOverrides: { dropRange: 70, muzzleVelocity: 200 },
     specialEffects: ["중급 출혈 효과 발생"],
@@ -1334,6 +1710,7 @@ const AMMO_TYPES = {
     statOverrides: {  },
   },
 
+  // 낙하곡선 시트에 덤덤탄 전용 데이터는 없으나, 사용자 확인 하에 기본탄(officer_compact)과 동일하게 정정
   officer_dumdum: {
     label: "덤덤탄(출혈)",
     category: "compact",
@@ -1346,9 +1723,29 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [20, 1.00],
-      [50, 0.5429],
-      [60, 0.4671],
-      [100, 0.4671],
+      [50, 0.5438],
+      [60, 0.4695],
+      [100, 0.4695],
+    ],
+    statOverrides: { dropRange: 65, muzzleVelocity: 300 },
+    specialEffects: ["중급 출혈 효과 발생"],
+  },
+
+  // ⚠ Officer Carbine / Carbine Deadeye 전용 덤덤탄 — 낙하곡선이 본체와 달라(officer_carbine_compact) 별도 필요
+  officer_carbine_dumdum: {
+    label: "덤덤탄(출혈)",
+    category: "compact",
+    effect: "bleed",
+    image: "images/ui/ammo_effects/ammo_compact_bleed.png",
+    icon: "🩸",
+    description: "덤덤탄 - 명중 시 중급 출혈 효과. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.6182],
+      [100, 0.5011],
     ],
     statOverrides: { dropRange: 65, muzzleVelocity: 300 },
     specialEffects: ["중급 출혈 효과 발생"],
@@ -1373,6 +1770,7 @@ const AMMO_TYPES = {
     statOverrides: { damage: 87, dropRange: 80, verticalRecoil: 7.5, muzzleVelocity: 405, ammoExtra: 7 },
   },
 
+  // 낙하곡선 시트에 중독탄 전용 데이터는 없으나, 사용자 확인 하에 기본탄(officer_compact)과 동일하게 정정
   officer_poison: {
     label: "중독탄",
     category: "compact",
@@ -1384,14 +1782,34 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [20, 1.00],
-      [50, 0.5385],
-      [60, 0.4615],
-      [100, 0.4615],
+      [50, 0.5438],
+      [60, 0.4695],
+      [100, 0.4695],
     ],
     statOverrides: {  },
     specialEffects: ["중급 중독 효과 발생"],
   },
 
+  // ⚠ Officer Carbine / Carbine Deadeye 전용 중독탄 — 낙하곡선이 본체와 달라(officer_carbine_compact) 별도 필요
+  officer_carbine_poison: {
+    label: "중독탄",
+    category: "compact",
+    effect: "poison",
+    image: "images/ui/ammo_effects/ammo_compact_poison.png",
+    icon: "🟢",
+    description: "중독탄 - 명중 시 독 효과. 관통 불가.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.6182],
+      [100, 0.5011],
+    ],
+    statOverrides: {  },
+    specialEffects: ["중급 중독 효과 발생"],
+  },
+
+  // 낙하곡선 시트에 서브소닉 전용 데이터는 없으나, 사용자 확인 하에 기본탄(officer_compact)과 동일하게 정정
   officer_subsonic: {
     label: "아음속탄",
     category: "compact",
@@ -1403,11 +1821,30 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [20, 1.00],
-      [50, 0.5392],
-      [60, 0.4653],
-      [100, 0.4653],
+      [50, 0.5438],
+      [60, 0.4695],
+      [100, 0.4695],
     ],
     // 예비탄(7/12)은 2.9 패치 기준(패치 전 7/16에서 감소)
+    statOverrides: { dropRange: 55, muzzleVelocity: 238, ammoExtra: 12 },
+    specialEffects: ["발사음 감소"],
+  },
+
+  // ⚠ Officer Carbine / Carbine Deadeye 전용 서브소닉 — 낙하곡선이 본체와 달라(officer_carbine_compact) 별도 필요
+  officer_carbine_subsonic: {
+    label: "아음속탄",
+    category: "compact",
+    effect: "subsonic",
+    image: "images/ui/ammo_effects/ammo_compact_subsonic.png",
+    icon: "🔇",
+    description: "아음속탄 - 탄속 감소, 낙하거리 감소, 예비 탄약 수 변동, 발사음 감소.",
+    cost: 5,
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.6182],
+      [100, 0.5011],
+    ],
     statOverrides: { dropRange: 55, muzzleVelocity: 238, ammoExtra: 12 },
     specialEffects: ["발사음 감소"],
   },
@@ -1431,6 +1868,25 @@ const AMMO_TYPES = {
     statOverrides: {  },
   },
 
+  // 센테니얼 쇼티 사일런서 전용 — 소음기 무기는 감쇠 곡선이 훨씬 가파름
+  // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 확인)
+  centennial_silencer_medium: {
+    label: "Medium",
+    category: "medium",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_medium_regular_tight.png",
+    icon: "🟫",
+    description: "Medium - 30m부터 피해 감소 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.4913],
+      [80, 0.4308],
+    ],
+    statOverrides: {  },
+  },
+
   centennial_dumdum: {
     label: "덤덤탄(출혈)",
     category: "medium",
@@ -1443,8 +1899,29 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [30, 1.00],
-      [80, 0.6322],
-      [100, 0.5764],
+      [80, 0.6336],
+      [100, 0.5772],
+    ],
+    statOverrides: { dropRange: 125, muzzleVelocity: 480 },
+    specialEffects: ["강한 출혈 효과 발생"],
+  },
+
+  // ⚠ 센테니얼 쇼티 사일런서 덤덤탄 전용 — 시트에 덤덤탄 전용 데이터는 없으나,
+  //    사용자 확인 하에 사일런서 기본탄(centennial_silencer_medium)과 동일한 곡선 적용
+  centennial_silencer_dumdum: {
+    label: "덤덤탄(출혈)",
+    category: "medium",
+    effect: "bleed",
+    image: "images/ui/ammo_effects/ammo_medium_bleed.png",
+    icon: "🩸",
+    description: "덤덤탄 - 명중 시 강한 출혈 효과. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.4913],
+      [80, 0.4308],
     ],
     statOverrides: { dropRange: 125, muzzleVelocity: 480 },
     specialEffects: ["강한 출혈 효과 발생"],
@@ -1468,6 +1945,27 @@ const AMMO_TYPES = {
     specialEffects: ["40m부터 피해 감소 시작"],
   },
 
+  // 센테니얼 쇼티 사일런서 FMJ 전용 — 소음기 달리면 FMJ도 감쇠 곡선이 훨씬 가파름
+  // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 확인)
+  centennial_silencer_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "medium",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_medium_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [60, 0.6602],
+      [70, 0.4891],
+      [80, 0.4519],
+    ],
+    statOverrides: { dropRange: 125, verticalRecoil: 14, muzzleVelocity: 480 },
+    specialEffects: ["40m부터 피해 감소 시작"],
+  },
+
   centennial_high_velocity: {
     label: "고속탄",
     category: "medium",
@@ -1485,6 +1983,25 @@ const AMMO_TYPES = {
     statOverrides: { damage: 116, dropRange: 155, verticalRecoil: 14, muzzleVelocity: 725, ammoExtra: 8 },
   },
 
+  // 센테니얼 쇼티 사일런서 고속탄 전용 — 소음기 달리면 고속탄도 기본탄과 같은(더 가파른) 곡선을 씀
+  // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 확인)
+  centennial_silencer_high_velocity: {
+    label: "고속탄",
+    category: "medium",
+    effect: "high_velocity",
+    image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.4913],
+      [80, 0.4308],
+    ],
+    statOverrides: { damage: 116, dropRange: 155, verticalRecoil: 14, muzzleVelocity: 725, ammoExtra: 8 },
+  },
+
   centennial_poison: {
     label: "중독탄",
     category: "medium",
@@ -1496,8 +2013,28 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [30, 1.00],
-      [80, 0.6296],
-      [100, 0.5719],
+      [80, 0.6336],
+      [100, 0.5772],
+    ],
+    statOverrides: {  },
+    specialEffects: ["중급 중독 효과 발생"],
+  },
+
+  // ⚠ 센테니얼 쇼티 사일런서 중독탄 전용 — 시트에 중독탄 전용 데이터는 없으나,
+  //    사용자 확인 하에 사일런서 기본탄(centennial_silencer_medium)과 동일한 곡선 적용
+  centennial_silencer_poison: {
+    label: "중독탄",
+    category: "medium",
+    effect: "poison",
+    image: "images/ui/ammo_effects/ammo_medium_poison.png",
+    icon: "🟢",
+    description: "중독탄 - 명중 시 독 효과. 관통 불가.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.4913],
+      [80, 0.4308],
     ],
     statOverrides: {  },
     specialEffects: ["중급 중독 효과 발생"],
@@ -1514,8 +2051,28 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [30, 1.00],
-      [80, 0.6393],
-      [100, 0.5788],
+      [80, 0.6336],
+      [100, 0.5772],
+    ],
+    statOverrides: { dropRange: 105, muzzleVelocity: 333, ammoExtra: 14 },
+    specialEffects: ["발사음 감소"],
+  },
+
+  // ⚠ 센테니얼 쇼티 사일런서 서브소닉 전용 — 시트에 서브소닉 전용 데이터는 없으나,
+  //    사용자 확인 하에 사일런서 기본탄(centennial_silencer_medium)과 동일한 곡선 적용
+  centennial_silencer_subsonic: {
+    label: "아음속탄",
+    category: "medium",
+    effect: "subsonic",
+    image: "images/ui/ammo_effects/ammo_medium_subsonic.png",
+    icon: "🔇",
+    description: "아음속탄 - 탄속 감소, 낙하거리 감소, 예비 탄약 수 변동, 발사음 감소.",
+    cost: 10,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.4913],
+      [80, 0.4308],
     ],
     statOverrides: { dropRange: 105, muzzleVelocity: 333, ammoExtra: 14 },
     specialEffects: ["발사음 감소"],
@@ -1555,8 +2112,8 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [30, 1.00],
-      [80, 0.6322],
-      [100, 0.5764],
+      [80, 0.6336],
+      [100, 0.5772],
     ],
     statOverrides: { dropRange: 130, muzzleVelocity: 510 },
     specialEffects: ["강한 출혈 효과 발생"],
@@ -1608,8 +2165,8 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [30, 1.00],
-      [80, 0.6296],
-      [100, 0.5719],
+      [80, 0.6336],
+      [100, 0.5772],
     ],
     statOverrides: {  },
     specialEffects: ["중급 중독 효과 발생"],
@@ -1626,8 +2183,8 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [30, 1.00],
-      [80, 0.6393],
-      [100, 0.5788],
+      [80, 0.6336],
+      [100, 0.5772],
     ],
     statOverrides: { dropRange: 110, muzzleVelocity: 336, ammoExtra: 18 },
     specialEffects: ["발사음 감소"],
@@ -1664,8 +2221,8 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [30, 1.00],
-      [80, 0.6322],
-      [100, 0.5764],
+      [80, 0.6336],
+      [100, 0.5772],
     ],
     statOverrides: { dropRange: 125, muzzleVelocity: 371 },
     specialEffects: ["강한 출혈 효과 발생"],
@@ -1723,6 +2280,25 @@ const AMMO_TYPES = {
     statOverrides: {  },
   },
 
+  // 메이너드 스나이퍼 사일런서 전용 — 소음기 무기는 감쇠 곡선이 훨씬 가파름
+  // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 확인)
+  maynard_silencer_medium: {
+    label: "Medium",
+    category: "medium",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_medium_regular_tight.png",
+    icon: "🟫",
+    description: "Medium - 30m부터 피해 감소 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.4913],
+      [80, 0.4308],
+    ],
+    statOverrides: {  },
+  },
+
   maynard_dumdum: {
     label: "덤덤탄(출혈)",
     category: "medium",
@@ -1735,8 +2311,29 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [30, 1.00],
-      [80, 0.6322],
-      [100, 0.5764],
+      [80, 0.6336],
+      [100, 0.5772],
+    ],
+    statOverrides: { dropRange: 150, muzzleVelocity: 448 },
+    specialEffects: ["강한 출혈 효과 발생"],
+  },
+
+  // ⚠ 메이너드 스나이퍼 사일런서 덤덤탄 전용 — 시트에 덤덤탄 전용 데이터는 없으나,
+  //    사용자 확인 하에 사일런서 기본탄(maynard_silencer_medium)과 동일한 곡선 적용
+  maynard_silencer_dumdum: {
+    label: "덤덤탄(출혈)",
+    category: "medium",
+    effect: "bleed",
+    image: "images/ui/ammo_effects/ammo_medium_bleed.png",
+    icon: "🩸",
+    description: "덤덤탄 - 명중 시 강한 출혈 효과. 상점 구매 불가(월드 획득 전용).",
+    cost: null,
+    scarce: true, // Scarce (상점 구매 불가, 월드에서만 획득)
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.4913],
+      [80, 0.4308],
     ],
     statOverrides: { dropRange: 150, muzzleVelocity: 448 },
     specialEffects: ["강한 출혈 효과 발생"],
@@ -1759,6 +2356,25 @@ const AMMO_TYPES = {
     statOverrides: { damage: 137, dropRange: 170, verticalRecoil: 12, muzzleVelocity: 660, ammoExtra: 9 },
   },
 
+  // 메이너드 스나이퍼 사일런서 고속탄 전용 — 소음기 달리면 고속탄도 기본탄과 같은(더 가파른) 곡선을 씀
+  // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 확인)
+  maynard_silencer_high_velocity: {
+    label: "고속탄",
+    category: "medium",
+    effect: "high_velocity",
+    image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.4913],
+      [80, 0.4308],
+    ],
+    statOverrides: { damage: 137, dropRange: 170, verticalRecoil: 12, muzzleVelocity: 660, ammoExtra: 9 },
+  },
+
   maynard_subsonic: {
     label: "아음속탄",
     category: "medium",
@@ -1770,8 +2386,28 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [30, 1.00],
-      [80, 0.6393],
-      [100, 0.5788],
+      [80, 0.6336],
+      [100, 0.5772],
+    ],
+    statOverrides: { dropRange: 130, muzzleVelocity: 319, ammoExtra: 15 },
+    specialEffects: ["발사음 감소"],
+  },
+
+  // ⚠ 메이너드 스나이퍼 사일런서 서브소닉 전용 — 시트에 서브소닉 전용 데이터는 없으나,
+  //    사용자 확인 하에 사일런서 기본탄(maynard_silencer_medium)과 동일한 곡선 적용
+  maynard_silencer_subsonic: {
+    label: "아음속탄",
+    category: "medium",
+    effect: "subsonic",
+    image: "images/ui/ammo_effects/ammo_medium_subsonic.png",
+    icon: "🔇",
+    description: "아음속탄 - 탄속 감소, 낙하거리 감소, 예비 탄약 수 변동, 발사음 감소.",
+    cost: 5,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.4913],
+      [80, 0.4308],
     ],
     statOverrides: { dropRange: 130, muzzleVelocity: 319, ammoExtra: 15 },
     specialEffects: ["발사음 감소"],
@@ -1806,8 +2442,8 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [30, 1.00],
-      [80, 0.6322],
-      [100, 0.5764],
+      [80, 0.6336],
+      [100, 0.5772],
     ],
     statOverrides: { dropRange: 155, muzzleVelocity: 440 },
     specialEffects: ["강한 출혈 효과 발생"],
@@ -1858,8 +2494,8 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [30, 1.00],
-      [80, 0.6296],
-      [100, 0.5719],
+      [80, 0.6336],
+      [100, 0.5772],
     ],
     statOverrides: {  },
     specialEffects: ["중급 중독 효과 발생"],
@@ -1882,6 +2518,25 @@ const AMMO_TYPES = {
     statOverrides: {  },
   },
 
+  // 1865 카빈 사일런서 전용 — 소음기 무기는 감쇠 곡선이 훨씬 가파름
+  // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 확인)
+  carbine1865_silencer_medium: {
+    label: "Medium",
+    category: "medium",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_medium_regular_tight.png",
+    icon: "🟫",
+    description: "Medium - 30m부터 피해 감소 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.4913],
+      [80, 0.4308],
+    ],
+    statOverrides: {  },
+  },
+
   carbine1865_fmj: {
     label: "전피갑탄(FMJ)",
     category: "medium",
@@ -1900,6 +2555,27 @@ const AMMO_TYPES = {
     specialEffects: ["40m부터 피해 감소 시작"],
   },
 
+  // 1865 카빈 사일런서 FMJ 전용 — 소음기 달리면 FMJ도 감쇠 곡선이 훨씬 가파름
+  // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 확인)
+  carbine1865_silencer_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "medium",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_medium_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [60, 0.6602],
+      [70, 0.4891],
+      [80, 0.4519],
+    ],
+    statOverrides: { dropRange: 105, verticalRecoil: 7, muzzleVelocity: 272 },
+    specialEffects: ["40m부터 피해 감소 시작"],
+  },
+
   carbine1865_subsonic: {
     label: "아음속탄",
     category: "medium",
@@ -1911,12 +2587,34 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [30, 1.00],
-      [80, 0.6393],
-      [100, 0.5788],
+      [80, 0.6336],
+      [100, 0.5772],
     ],
     statOverrides: { dropRange: 95, muzzleVelocity: 242, ammoExtra: 25 },
     specialEffects: ["발사음 감소"],
-  },  vetterli71_medium: {
+  },
+
+  // ⚠ 1865 카빈 사일런서 서브소닉 전용 — 시트에 서브소닉 전용 데이터는 없으나,
+  //    사용자 확인 하에 사일런서 기본탄(carbine1865_silencer_medium)과 동일한 곡선 적용
+  carbine1865_silencer_subsonic: {
+    label: "아음속탄",
+    category: "medium",
+    effect: "subsonic",
+    image: "images/ui/ammo_effects/ammo_medium_subsonic.png",
+    icon: "🔇",
+    description: "아음속탄 - 탄속 감소, 낙하거리 감소, 예비 탄약 수 변동, 발사음 감소.",
+    cost: 10,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.4913],
+      [80, 0.4308],
+    ],
+    statOverrides: { dropRange: 95, muzzleVelocity: 242, ammoExtra: 25 },
+    specialEffects: ["발사음 감소"],
+  },
+
+  vetterli71_medium: {
     label: "Medium",
     category: "medium",
     isBase: true,
@@ -1929,6 +2627,25 @@ const AMMO_TYPES = {
       [30, 1.00],
       [80, 0.6336],
       [100, 0.5772],
+    ],
+    statOverrides: {  },
+  },
+
+  // 베테를리 71 사일런서 전용 — 소음기 무기는 감쇠 곡선이 훨씬 가파름
+  // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 확인)
+  vetterli71_silencer_medium: {
+    label: "Medium",
+    category: "medium",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_medium_regular_tight.png",
+    icon: "🟫",
+    description: "Medium - 30m부터 피해 감소 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.4913],
+      [80, 0.4308],
     ],
     statOverrides: {  },
   },
@@ -1951,6 +2668,27 @@ const AMMO_TYPES = {
     specialEffects: ["40m부터 피해 감소 시작"],
   },
 
+  // 베테를리 71 사일런서 FMJ 전용 — 소음기 달리면 FMJ도 감쇠 곡선이 훨씬 가파름
+  // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 확인)
+  vetterli71_silencer_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "medium",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_medium_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
+    cost: 50,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [60, 0.6602],
+      [70, 0.4891],
+      [80, 0.4519],
+    ],
+    statOverrides: { dropRange: 115, verticalRecoil: 9, muzzleVelocity: 350 },
+    specialEffects: ["40m부터 피해 감소 시작"],
+  },
+
   vetterli71_high_velocity: {
     label: "고속탄",
     category: "medium",
@@ -1968,6 +2706,25 @@ const AMMO_TYPES = {
     statOverrides: { damage: 123, dropRange: 140, verticalRecoil: 9, muzzleVelocity: 510, ammoExtra: 10 },
   },
 
+  // 베테를리 71 사일런서 고속탄 전용 — 소음기 달리면 고속탄도 기본탄과 같은(더 가파른) 곡선을 씀
+  // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 확인)
+  vetterli71_silencer_high_velocity: {
+    label: "고속탄",
+    category: "medium",
+    effect: "high_velocity",
+    image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
+    cost: 60,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.4913],
+      [80, 0.4308],
+    ],
+    statOverrides: { damage: 123, dropRange: 140, verticalRecoil: 9, muzzleVelocity: 510, ammoExtra: 10 },
+  },
+
   vetterli71_incendiary: {
     label: "소이탄",
     category: "medium",
@@ -1979,8 +2736,29 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [30, 1.00],
-      [80, 0.6385],
-      [100, 0.5769],
+      [80, 0.6336],
+      [100, 0.5772],
+    ],
+    statOverrides: {  },
+    specialEffects: ["30m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
+    effectMaxRange: 30,
+  },
+
+  // ⚠ 베테를리 71 사일런서 소이탄 전용 — 시트에 소이탄 전용 데이터는 없으나,
+  //    사용자 확인 하에 사일런서 기본탄(vetterli71_silencer_medium)과 동일한 곡선 적용
+  vetterli71_silencer_incendiary: {
+    label: "소이탄",
+    category: "medium",
+    effect: "incendiary",
+    image: "images/ui/ammo_effects/ammo_medium_incendiary.png",
+    icon: "🔥",
+    description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
+    cost: 40,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.4913],
+      [80, 0.4308],
     ],
     statOverrides: {  },
     specialEffects: ["30m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
@@ -1998,8 +2776,28 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [30, 1.00],
-      [80, 0.6393],
-      [100, 0.5788],
+      [80, 0.6336],
+      [100, 0.5772],
+    ],
+    statOverrides: { dropRange: 100, muzzleVelocity: 266, ammoExtra: 24 },
+    specialEffects: ["발사음 감소"],
+  },
+
+  // ⚠ 베테를리 71 사일런서 서브소닉 전용 — 시트에 서브소닉 전용 데이터는 없으나,
+  //    사용자 확인 하에 사일런서 기본탄(vetterli71_silencer_medium)과 동일한 곡선 적용
+  vetterli71_silencer_subsonic: {
+    label: "아음속탄",
+    category: "medium",
+    effect: "subsonic",
+    image: "images/ui/ammo_effects/ammo_medium_subsonic.png",
+    icon: "🔇",
+    description: "아음속탄 - 탄속 감소, 낙하거리 감소, 예비 탄약 수 변동, 발사음 감소.",
+    cost: 10,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.4913],
+      [80, 0.4308],
     ],
     statOverrides: { dropRange: 100, muzzleVelocity: 266, ammoExtra: 24 },
     specialEffects: ["발사음 감소"],
@@ -2035,9 +2833,9 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [30, 1.00],
-      [60, 0.553],
-      [80, 0.47],
-      [100, 0.47],
+      [60, 0.5535],
+      [80, 0.4709],
+      [100, 0.4709],
     ],
     statOverrides: { dropRange: 60, muzzleVelocity: 300 },
     specialEffects: ["중급 출혈 효과 발생"],
@@ -2094,9 +2892,9 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [30, 1.00],
-      [60, 0.553],
-      [80, 0.47],
-      [100, 0.47],
+      [60, 0.5535],
+      [80, 0.4709],
+      [100, 0.4709],
     ],
     statOverrides: { dropRange: 75, muzzleVelocity: 405 },
     specialEffects: ["중급 출혈 효과 발생"],
@@ -2150,9 +2948,9 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [30, 1.00],
-      [60, 0.553],
-      [80, 0.47],
-      [100, 0.47],
+      [60, 0.5535],
+      [80, 0.4709],
+      [100, 0.4709],
     ],
     statOverrides: {  },
     specialEffects: ["30m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
@@ -2170,9 +2968,9 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [30, 1.00],
-      [60, 0.5545],
-      [80, 0.4727],
-      [100, 0.4727],
+      [60, 0.5535],
+      [80, 0.4709],
+      [100, 0.4709],
     ],
     statOverrides: {  },
     specialEffects: ["중급 중독 효과 발생"],
@@ -2208,9 +3006,9 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [30, 1.00],
-      [60, 0.553],
-      [80, 0.47],
-      [100, 0.47],
+      [60, 0.5535],
+      [80, 0.4709],
+      [100, 0.4709],
     ],
     statOverrides: { dropRange: 60, muzzleVelocity: 250 },
     specialEffects: ["중급 출혈 효과 발생"],
@@ -2264,9 +3062,9 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [30, 1.00],
-      [60, 0.553],
-      [80, 0.47],
-      [100, 0.47],
+      [60, 0.5535],
+      [80, 0.4709],
+      [100, 0.4709],
     ],
     statOverrides: {  },
     specialEffects: ["30m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
@@ -2409,8 +3207,8 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [40, 1.00],
-      [90, 0.6164],
-      [100, 0.6096],
+      [90, 0.6169],
+      [100, 0.6095],
     ],
     statOverrides: {  },
     specialEffects: ["40m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
@@ -2434,6 +3232,25 @@ const AMMO_TYPES = {
     statOverrides: {  },
   },
 
+  // 스팍스 사일런서 전용 — 소음기 무기는 감쇠 곡선 자체가 일반형보다 훨씬 가파름
+  // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 확인)
+  sparks_silencer_long: {
+    label: "Long",
+    category: "long",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_long_regular_tight.png",
+    icon: "🟫",
+    description: "Long - 40m부터 피해 감소 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [70, 0.4915],
+      [90, 0.4349],
+    ],
+    statOverrides: {  },
+  },
+
   sparks_fmj: {
     label: "전피갑탄(FMJ)",
     category: "long",
@@ -2448,9 +3265,29 @@ const AMMO_TYPES = {
       [100, 0.6169],
     ],
     statOverrides: { dropRange: 125, verticalRecoil: 13, muzzleVelocity: 370 },
+  },
+
+  // 스팍스 사일런서 FMJ 전용 — 소음기 달리면 FMJ도 감쇠 곡선이 훨씬 가파름
+  // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 확인)
+  sparks_silencer_fmj: {
+    label: "전피갑탄(FMJ)",
+    category: "long",
+    effect: "full_metal",
+    image: "images/ui/ammo_effects/ammo_long_full_metal.png",
+    icon: "🟤",
+    description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
+    cost: 30,
+    falloff: [
+      [0, 1.00],
+      [50, 1.00],
+      [80, 0.4915],
+      [90, 0.4594],
+    ],
+    statOverrides: { dropRange: 125, verticalRecoil: 13, muzzleVelocity: 370 },
     specialEffects: ["50m부터 피해 감소 시작"],
   },
 
+  // 낙하곡선 시트에 소이탄 전용 데이터는 없으나, 사용자 확인 하에 기본탄(sparks_long)과 동일하게 정정
   sparks_incendiary: {
     label: "소이탄",
     category: "long",
@@ -2462,14 +3299,78 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [40, 1.00],
-      [90, 0.6164],
-      [100, 0.6096],
+      [90, 0.6169],
+      [100, 0.6095],
     ],
     statOverrides: {  },
     specialEffects: ["40m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
     effectMaxRange: 40,
   },
 
+  // ⚠ Sparks Pistol 전용 소이탄 — 낙하곡선이 본체와 달라(sparkspistol_long) 별도 필요
+  sparkspistol_incendiary: {
+    label: "소이탄",
+    category: "long",
+    effect: "incendiary",
+    image: "images/ui/ammo_effects/ammo_long_incendiary.png",
+    icon: "🔥",
+    description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
+    cost: 35,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [70, 0.5808],
+      [90, 0.4679],
+      [100, 0.4679],
+    ],
+    statOverrides: {  },
+    specialEffects: ["40m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
+    effectMaxRange: 40,
+  },
+
+  // ⚠ 스팍스 사일런서 소이탄 전용 — 시트에 소이탄 전용 데이터는 없으나,
+  //    사용자 확인 하에 사일런서 기본탄(sparks_silencer_long)과 동일한 곡선 적용
+  sparks_silencer_incendiary: {
+    label: "소이탄",
+    category: "long",
+    effect: "incendiary",
+    image: "images/ui/ammo_effects/ammo_long_incendiary.png",
+    icon: "🔥",
+    description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
+    cost: 35,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [70, 0.4915],
+      [90, 0.4349],
+    ],
+    statOverrides: {  },
+    specialEffects: ["40m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
+    effectMaxRange: 40,
+  },
+
+  // ⚠ 스팍스 피스톨 사일런서 소이탄 전용 — 시트에 소이탄 전용 데이터는 없으나,
+  //    사용자 확인 하에 사일런서 기본탄(sparkspistolsilencer_long)과 동일한 곡선 적용
+  sparkspistolsilencer_incendiary: {
+    label: "소이탄",
+    category: "long",
+    effect: "incendiary",
+    image: "images/ui/ammo_effects/ammo_long_incendiary.png",
+    icon: "🔥",
+    description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
+    cost: 35,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [70, 0.4737],
+      [90, 0.4135],
+    ],
+    statOverrides: {  },
+    specialEffects: ["40m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
+    effectMaxRange: 40,
+  },
+
+  // 낙하곡선 시트에 중독탄 전용 데이터는 없으나, 사용자 확인 하에 기본탄(sparks_long)과 동일하게 정정
   sparks_poison: {
     label: "중독탄",
     category: "long",
@@ -2481,8 +3382,68 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [40, 1.00],
-      [90, 0.6174],
-      [100, 0.6107],
+      [90, 0.6169],
+      [100, 0.6095],
+    ],
+    statOverrides: {  },
+    specialEffects: ["강한(intense) 중독 효과 발생"],
+  },
+
+  // ⚠ Sparks Pistol 전용 중독탄 — 낙하곡선이 본체와 달라(sparkspistol_long) 별도 필요
+  sparkspistol_poison: {
+    label: "중독탄",
+    category: "long",
+    effect: "poison",
+    image: "images/ui/ammo_effects/ammo_long_poison.png",
+    icon: "🟢",
+    description: "중독탄 - 명중 시 강한 독 효과. 관통 불가.",
+    cost: 30,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [70, 0.5808],
+      [90, 0.4679],
+      [100, 0.4679],
+    ],
+    statOverrides: {  },
+    specialEffects: ["강한(intense) 중독 효과 발생"],
+  },
+
+  // ⚠ 스팍스 사일런서 중독탄 전용 — 시트에 중독탄 전용 데이터는 없으나,
+  //    사용자 확인 하에 사일런서 기본탄(sparks_silencer_long)과 동일한 곡선 적용
+  sparks_silencer_poison: {
+    label: "중독탄",
+    category: "long",
+    effect: "poison",
+    image: "images/ui/ammo_effects/ammo_long_poison.png",
+    icon: "🟢",
+    description: "중독탄 - 명중 시 강한 독 효과. 관통 불가.",
+    cost: 30,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [70, 0.4915],
+      [90, 0.4349],
+    ],
+    statOverrides: {  },
+    specialEffects: ["강한(intense) 중독 효과 발생"],
+  },
+
+  // ⚠ 스팍스 피스톨 사일런서 중독탄 전용 — 시트에 중독탄 전용 데이터는 없으나,
+  //    사용자 확인 하에 사일런서 기본탄(sparkspistolsilencer_long)과 동일한 곡선 적용
+  sparkspistolsilencer_poison: {
+    label: "중독탄",
+    category: "long",
+    effect: "poison",
+    image: "images/ui/ammo_effects/ammo_long_poison.png",
+    icon: "🟢",
+    description: "중독탄 - 명중 시 강한 독 효과. 관통 불가.",
+    cost: 30,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [70, 0.4737],
+      [90, 0.4135],
     ],
     statOverrides: {  },
     specialEffects: ["강한(intense) 중독 효과 발생"],
@@ -2499,8 +3460,28 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [40, 1.00],
-      [90, 0.6174],
-      [100, 0.6107],
+      [90, 0.6169],
+      [100, 0.6095],
+    ],
+    statOverrides: { dropRange: 115, muzzleVelocity: 309, ammoExtra: 9 },
+    specialEffects: ["발사음 감소"],
+  },
+
+  // ⚠ 스팍스 사일런서 서브소닉 전용 — 시트에 서브소닉 전용 데이터는 없으나,
+  //    사용자 확인 하에 사일런서 기본탄(sparks_silencer_long)과 동일한 곡선 적용
+  sparks_silencer_subsonic: {
+    label: "아음속탄",
+    category: "long",
+    effect: "subsonic",
+    image: "images/ui/ammo_effects/ammo_long_subsonic.png",
+    icon: "🔇",
+    description: "아음속탄 - 탄속 감소, 낙하거리 감소, 예비 탄약 수 변동, 발사음 감소.",
+    cost: 10,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [70, 0.4915],
+      [90, 0.4349],
     ],
     statOverrides: { dropRange: 115, muzzleVelocity: 309, ammoExtra: 9 },
     specialEffects: ["발사음 감소"],
@@ -2554,8 +3535,9 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [40, 1.00],
-      [90, 0.6174],
-      [100, 0.6107],
+      [70, 0.5808],
+      [90, 0.4679],
+      [100, 0.4679],
     ],
     statOverrides: { dropRange: 75, muzzleVelocity: 281, ammoExtra: 8 },
     specialEffects: ["발사음 감소"],
@@ -2570,12 +3552,12 @@ const AMMO_TYPES = {
     icon: "🟫",
     description: "Long - 40m부터 피해 감소 시작.",
     cost: 0,
+    // 낙하곡선 2.9 패치 데미지표 기준으로 정정(사용자 제공 스프레드시트로 확인)
     falloff: [
       [0, 1.00],
       [40, 1.00],
-      [70, 0.5808],
-      [90, 0.4679],
-      [100, 0.4679],
+      [70, 0.4737],
+      [90, 0.4135],
     ],
     statOverrides: {  },
   },
@@ -2588,15 +3570,19 @@ const AMMO_TYPES = {
     icon: "🟤",
     description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 30,
+    // 낙하곡선 2.9 패치 데미지표 기준으로 정정(사용자 제공 스프레드시트로 확인)
     falloff: [
       [0, 1.00],
       [50, 1.00],
-      [100, 0.6169],
+      [70, 0.6541],
+      [80, 0.4737],
+      [90, 0.4361],
     ],
     statOverrides: { dropRange: 80, verticalRecoil: 28, muzzleVelocity: 308 },
     specialEffects: ["50m부터 피해 감소 시작"],
   },
 
+  // 낙하곡선 시트에 서브소닉 전용 데이터는 없으나, 사용자 확인 하에 사일런서 기본탄(sparkspistolsilencer_long)과 동일하게 정정
   sparkspistolsilencer_subsonic: {
     label: "아음속탄",
     category: "long",
@@ -2608,8 +3594,8 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [40, 1.00],
-      [90, 0.6174],
-      [100, 0.6107],
+      [70, 0.4737],
+      [90, 0.4135],
     ],
     statOverrides: { dropRange: 75, muzzleVelocity: 258, ammoExtra: 8 },
     specialEffects: ["발사음 감소"],
@@ -2663,9 +3649,9 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [40, 1.00],
-      [70, 0.5902],
-      [90, 0.4754],
-      [100, 0.4754],
+      [70, 0.5808],
+      [90, 0.4679],
+      [100, 0.4679],
     ],
     statOverrides: {  },
     specialEffects: ["강한(intense) 중독 효과 발생"],
@@ -2738,9 +3724,9 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [40, 1.00],
-      [70, 0.5714],
-      [90, 0.4603],
-      [100, 0.4603],
+      [70, 0.5808],
+      [90, 0.4679],
+      [100, 0.4679],
     ],
     statOverrides: {  },
     specialEffects: ["40m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
@@ -2860,6 +3846,25 @@ const AMMO_TYPES = {
     statOverrides: {  },
   },
 
+  // 크래그 사일런서 전용 — 소음기 무기는 감쇠 곡선이 훨씬 가파름(Long 계열과 동일 취급)
+  // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 확인)
+  krag_silencer_special_long: {
+    label: "Special Long",
+    category: "special_long",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_special_long_regular_tight.png",
+    icon: "🟫",
+    description: "Special Long - 40m부터 피해 감소 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [70, 0.4915],
+      [90, 0.4349],
+    ],
+    statOverrides: {  },
+  },
+
   krag_fmj: {
     label: "전피갑탄(FMJ)",
     category: "special_long",
@@ -2896,6 +3901,27 @@ const AMMO_TYPES = {
     effectMaxRange: 40,
   },
 
+  // ⚠ 크래그 사일런서 소이탄 전용 — 시트에 소이탄 전용 데이터는 없으나,
+  //    사용자 확인 하에 사일런서 기본탄(krag_silencer_special_long)과 동일한 곡선 적용
+  krag_silencer_incendiary: {
+    label: "소이탄",
+    category: "special_long",
+    effect: "incendiary",
+    image: "images/ui/ammo_effects/ammo_special_long_incendiary.png",
+    icon: "🔥",
+    description: "소이탄 - 명중 시 발화. 관통 불가, 흔적이 보임.",
+    cost: 70,
+    falloff: [
+      [0, 1.00],
+      [40, 1.00],
+      [70, 0.4915],
+      [90, 0.4349],
+    ],
+    statOverrides: {  },
+    specialEffects: ["40m 이내 명중 시 즉시 발화", "중급 화상 효과 발생"],
+    effectMaxRange: 40,
+  },
+
   krag_subsonic: {
     label: "아음속탄",
     category: "special_long",
@@ -2923,15 +3949,18 @@ const AMMO_TYPES = {
     icon: "🟤",
     description: "Full Metal Jacket - 관통력 증가, 피해 유지력 증가. 탄속 감소.",
     cost: 60,
+    // 낙하곡선 2.9 패치 데미지표 기준으로 정정(사용자 제공 스프레드시트로 확인, Long 계열과 동일 취급)
     falloff: [
       [0, 1.00],
       [50, 1.00],
-      [100, 0.6190],
+      [80, 0.4915],
+      [90, 0.4594],
     ],
     statOverrides: { dropRange: 120, verticalRecoil: 6, muzzleVelocity: 414 },
     specialEffects: ["50m부터 피해 감소 시작"],
   },
 
+  // 낙하곡선 시트에 서브소닉 전용 데이터는 없으나, 사용자 확인 하에 사일런서 기본탄(krag_silencer_special_long)과 동일하게 정정
   krag_silencer_subsonic: {
     label: "아음속탄",
     category: "special_long",
@@ -2943,8 +3972,8 @@ const AMMO_TYPES = {
     falloff: [
       [0, 1.00],
       [40, 1.00],
-      [90, 0.6190],
-      [100, 0.6032],
+      [70, 0.4915],
+      [90, 0.4349],
     ],
     statOverrides: { dropRange: 105, muzzleVelocity: 304, ammoExtra: 12 },
     specialEffects: ["발사음 감소"],
@@ -5175,6 +6204,14 @@ const AMMO_TYPES = {
     icon: "🩸",
     description: "덤덤탄 - 명중 시 중급 출혈 효과. 상점 구매 불가(월드 획득 전용).",
     cost: null,
+    // 낙하곡선 시트에 덤덤탄 전용 데이터는 없으나, 사용자 확인 하에 기본탄(dolch96_special)과 동일하게 추가
+    falloff: [
+      [0, 1.00],
+      [20, 1.00],
+      [50, 0.5464],
+      [80, 0.4742],
+      [100, 0.4742],
+    ],
     scarce: true,
     statOverrides: { dropRange: 65, muzzleVelocity: 390 },
     specialEffects: ["중급 출혈 효과 발생"],
@@ -5319,6 +6356,9 @@ const ITEMS = [
         image: "images/weapons/variants/frontier73c_silencer.png",
         description: "",
         price: 55,
+        // 소음기 무기 전용 낙하곡선(frontier73c_silencer_compact) 적용을 위해 탄약 배열 명시
+        ammoTypes: ["frontier73c_silencer_compact", "frontier73c_silencer_fmj", "frontier73c_silencer_high_velocity", "frontier73c_silencer_incendiary", "frontier73c_silencer_poison", "frontier73c_silencer_subsonic"],
+        defaultAmmo: "frontier73c_silencer_compact",
         stats: {
           damage: 104,
           dropRange: 120,
@@ -5724,7 +6764,7 @@ const ITEMS = [
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
         slotSize: 2,
-        ammoTypes: ["bornheim_match_compact", "bornheim_high_velocity", "bornheim_incendiary", "bornheim_subsonic"],
+        ammoTypes: ["bornheim_match_compact", "bornheim_high_velocity", "bornheim_match_incendiary", "bornheim_match_subsonic"],
         defaultAmmo: "bornheim_match_compact",
         price: 180,
         chamber: {
@@ -5747,6 +6787,9 @@ const ITEMS = [
         image: "images/weapons/variants/bornheim_silencer.png",
         description: "",
         price: 174,
+        // 소음기 무기 전용 낙하곡선(bornheim_silencer_compact) 적용을 위해 탄약 배열 명시
+        ammoTypes: ["bornheim_silencer_compact", "bornheim_silencer_high_velocity", "bornheim_silencer_incendiary", "bornheim_silencer_subsonic"],
+        defaultAmmo: "bornheim_silencer_compact",
         stats: {
           damage: 70,
           dropRange: 70,
@@ -5911,7 +6954,7 @@ const ITEMS = [
         // 대상이 아님(사용자 확인) — 카빈은 패치 이전 18을 그대로 유지하도록 명시 오버라이드.
         // 고속탄만 원래부터 별도로 낮은 12(위키 확인, 패치와 무관)
         chamber: { loaded: "9", extra: 18 },
-        ammoTypes: ["lemat_carbine_compact", "lemat_carbine_fmj", "lemat_carbine_hv", "lemat_incendiary", "lemat_carbine_shells", "lemat_carbine_dragonbreath", "lemat_carbine_slug", "lemat_carbine_starshell"],
+        ammoTypes: ["lemat_carbine_compact", "lemat_carbine_fmj", "lemat_carbine_hv", "lemat_carbine_incendiary", "lemat_carbine_shells", "lemat_carbine_dragonbreath", "lemat_carbine_slug", "lemat_carbine_starshell"],
         defaultAmmo: "lemat_carbine_compact",
         price: 115,
         stats: {
@@ -5937,7 +6980,7 @@ const ITEMS = [
         // 2.9 패치의 예비탄 감소(9/18→9/12)는 르맷 권총 본체에만 적용되고 카빈은
         // 대상이 아님(사용자 확인) — 카빈은 패치 이전 18을 그대로 유지하도록 명시 오버라이드.
         chamber: { loaded: "9", extra: 18 },
-        ammoTypes: ["lemat_carbine_compact", "lemat_carbine_fmj", "lemat_carbine_hv", "lemat_incendiary", "lemat_carbine_shells", "lemat_carbine_dragonbreath", "lemat_carbine_slug", "lemat_carbine_starshell"],
+        ammoTypes: ["lemat_carbine_compact", "lemat_carbine_fmj", "lemat_carbine_hv", "lemat_carbine_incendiary", "lemat_carbine_shells", "lemat_carbine_dragonbreath", "lemat_carbine_slug", "lemat_carbine_starshell"],
         defaultAmmo: "lemat_carbine_compact",
         price: 127,
         stats: {
@@ -6035,6 +7078,9 @@ const ITEMS = [
         image: "images/weapons/variants/nagant_silencer.png",
         description: "",
         price: 27,
+        // 소음기 무기 전용 낙하곡선(nagant_silencer_compact) 적용을 위해 탄약 배열 명시
+        ammoTypes: ["nagant_silencer_compact", "nagant_silencer_dumdum", "nagant_silencer_high_velocity", "nagant_silencer_poison", "nagant_silencer_subsonic"],
+        defaultAmmo: "nagant_silencer_compact",
         stats: {
           damage: 85,
           dropRange: 60,
@@ -6204,7 +7250,7 @@ const ITEMS = [
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
         slotSize: 3,
-        ammoTypes: ["officer_carbine_compact", "officer_dumdum", "officer_high_velocity", "officer_poison", "officer_subsonic"],
+        ammoTypes: ["officer_carbine_compact", "officer_carbine_dumdum", "officer_high_velocity", "officer_carbine_poison", "officer_carbine_subsonic"],
         defaultAmmo: "officer_carbine_compact",
         price: 183,
         stats: {
@@ -6225,7 +7271,7 @@ const ITEMS = [
         description: "",
         weaponClass: "rifle", // 카빈/개조형은 소총 판정으로 override
         slotSize: 3,
-        ammoTypes: ["officer_carbine_compact", "officer_dumdum", "officer_high_velocity", "officer_poison", "officer_subsonic"],
+        ammoTypes: ["officer_carbine_compact", "officer_carbine_dumdum", "officer_high_velocity", "officer_carbine_poison", "officer_carbine_subsonic"],
         defaultAmmo: "officer_carbine_compact",
         price: 192,
         stats: {
@@ -6342,6 +7388,9 @@ const ITEMS = [
         description: "",
         price: 118,
         slotSize: 2,
+        // 소음기 무기 전용 낙하곡선(centennial_silencer_medium) 적용을 위해 탄약 배열 명시
+        ammoTypes: ["centennial_silencer_medium", "centennial_silencer_dumdum", "centennial_silencer_fmj", "centennial_silencer_high_velocity", "centennial_silencer_poison", "centennial_silencer_subsonic"],
+        defaultAmmo: "centennial_silencer_medium",
         chamber: {
           loaded: "5+1",
           extra: 9,
@@ -6651,6 +7700,9 @@ const ITEMS = [
         weaponClass: "rifle",
         price: 159,
         slotSize: 5,
+        // 소음기 무기 전용 낙하곡선(maynard_silencer_medium) 적용을 위해 탄약 배열 명시
+        ammoTypes: ["maynard_silencer_medium", "maynard_silencer_dumdum", "maynard_silencer_high_velocity", "maynard_silencer_subsonic"],
+        defaultAmmo: "maynard_silencer_medium",
         stats: {
           damage: 136,
           dropRange: 150,
@@ -6885,6 +7937,9 @@ const ITEMS = [
         description: "",
         weaponClass: "rifle",
         price: 80,
+        // 소음기 무기 전용 낙하곡선(carbine1865_silencer_medium) 적용을 위해 탄약 배열 명시
+        ammoTypes: ["carbine1865_silencer_medium", "carbine1865_silencer_fmj", "carbine1865_silencer_subsonic"],
+        defaultAmmo: "carbine1865_silencer_medium",
         stats: {
           damage: 137,
           dropRange: 105,
@@ -7016,6 +8071,9 @@ const ITEMS = [
         description: "",
         weaponClass: "rifle",
         price: 150,
+        // 소음기 무기 전용 낙하곡선(vetterli71_silencer_medium) 적용을 위해 탄약 배열 명시
+        ammoTypes: ["vetterli71_silencer_medium", "vetterli71_silencer_fmj", "vetterli71_silencer_high_velocity", "vetterli71_silencer_incendiary", "vetterli71_silencer_subsonic"],
+        defaultAmmo: "vetterli71_silencer_medium",
         stats: {
           damage: 123,
           dropRange: 115,
@@ -7496,6 +8554,10 @@ const ITEMS = [
         image: "images/weapons/variants/sparks_silencer.png",
         description: "",
         price: 149,
+        // 소음기 무기 전용 낙하곡선(sparks_silencer_long) 적용을 위해 탄약 배열 명시
+        // — 기본탄(Long)만 전용 탄약으로 바꾸고 나머지는 본체와 동일
+        ammoTypes: ["sparks_silencer_long", "sparks_silencer_fmj", "sparks_silencer_incendiary", "sparks_silencer_poison", "sparks_silencer_subsonic"],
+        defaultAmmo: "sparks_silencer_long",
         stats: {
           damage: 133,
           dropRange: 110,
@@ -7520,8 +8582,8 @@ const ITEMS = [
         ammoTypes: [
           "sparkspistolsilencer_long",
           "sparkspistolsilencer_fmj",
-          "sparks_incendiary",
-          "sparks_poison",
+          "sparkspistolsilencer_incendiary",
+          "sparkspistolsilencer_poison",
           "sparkspistolsilencer_subsonic",
         ],
         defaultAmmo: "sparkspistolsilencer_long",
@@ -7556,8 +8618,8 @@ const ITEMS = [
         ammoTypes: [
           "sparkspistol_long",
           "sparkspistol_fmj",
-          "sparks_incendiary",
-          "sparks_poison",
+          "sparkspistol_incendiary",
+          "sparkspistol_poison",
           "sparkspistol_subsonic",
         ],
         defaultAmmo: "sparkspistol_long",
@@ -7899,12 +8961,12 @@ const ITEMS = [
         description: "",
         price: 517,
         ammoTypes: [
-          "krag_special_long",
+          "krag_silencer_special_long",
           "krag_silencer_fmj",
-          "krag_incendiary",
+          "krag_silencer_incendiary",
           "krag_silencer_subsonic",
         ],
-        defaultAmmo: "krag_special_long",
+        defaultAmmo: "krag_silencer_special_long",
         stats: {
           damage: 113,
           dropRange: 130,
