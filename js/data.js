@@ -12681,7 +12681,7 @@ const ITEMS = [
     id: "trait_siphon",
     category: "trait",
     name: "Siphon",
-    nameKo: "사이펀",
+    nameKo: "흡수",
     image: "images/traits/trait_siphon.png",
     detailImage: "images/traits/trait_siphon_detail.png",
     traitClass: "support",
