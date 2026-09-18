@@ -4321,8 +4321,9 @@ const AMMO_TYPES = {
     cost: 130,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 179, spread: 95, ammoExtra: 5 },
-    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
-    ohkRange: { guaranteed: 15 },
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨
+    // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 정정: 15 → 15.8)
+    ohkRange: { guaranteed: 15.8 },
   },
 
   // ⚠ Auto-4 Shorty 전용 탄약 (Auto-5의 파생형, 위키 실측치 기준)
@@ -4571,8 +4572,9 @@ const AMMO_TYPES = {
     cost: 130,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 165, spread: 95, ammoExtra: 8 },
-    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
-    ohkRange: { guaranteed: 13 },
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨
+    // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 정정: 13 → 13.7)
+    ohkRange: { guaranteed: 13.7 },
   },
 
   // ⚠ Rival 78 Mace 전용 특수탄 4종 (위키 실측치, 사용자 확인) - 본체와 데미지/탄속 기준점이 달라 별도 필요
@@ -4742,8 +4744,9 @@ const AMMO_TYPES = {
     cost: 40, // 2.9 패치로 슬러그 가격 65 → 40으로 인하
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 179, spread: 65, ammoExtra: 4 },
-    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
-    ohkRange: { guaranteed: 15 },
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨
+    // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 정정: 15 → 15.8)
+    ohkRange: { guaranteed: 15.8 },
   },
 
   romero77_starshell: {
@@ -4795,7 +4798,8 @@ const AMMO_TYPES = {
     cost: 130,
     statOverrides: { damage: 179, spread: 65, ammoExtra: 8 },
     // 근접무기(알라모) 부착 파생형이라 총열은 본체와 동일 — 본체(Romero 77)와 같은 한방컷 거리 적용(사용자 확인)
-    ohkRange: { guaranteed: 15 },
+    // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 정정: 15 → 15.8)
+    ohkRange: { guaranteed: 15.8 },
   },
 
   romero77alamo_starshell: {
@@ -4908,8 +4912,9 @@ const AMMO_TYPES = {
     cost: 130,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 165, spread: 80, ammoExtra: 8 },
-    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
-    ohkRange: { guaranteed: 13 },
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨
+    // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 정정: 13 → 13.7)
+    ohkRange: { guaranteed: 13.7 },
   },
 
   specter1882_shells: {
@@ -4976,8 +4981,9 @@ const AMMO_TYPES = {
     cost: 130,
     // 샷건은 펠릿 분산 방식이라 거리별 감쇠 곡선(falloff) 데이터가 없음 — 그래프 미표시
     statOverrides: { damage: 179, spread: 75, ammoExtra: 8 },
-    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
-    ohkRange: { guaranteed: 14 },
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨
+    // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 정정: 14 → 15.8)
+    ohkRange: { guaranteed: 15.8 },
   },
 
   // ⚠ Specter 1882 Bayonet 전용 탄약 (위키 실측치 기준, 사용자 확인) - 본체와 데미지 기준점이 달라 별도 탄약 필요
@@ -5027,8 +5033,10 @@ const AMMO_TYPES = {
     description: "슬러그 - 단일 탄자. 사거리·관통력 증가, 예비탄 감소.",
     cost: 130,
     statOverrides: { damage: 165, spread: 90, ammoExtra: 8 },
-    // 근접무기(총검) 부착 파생형이라 총열은 본체와 동일 — 본체(Specter 1882)와 같은 한방컷 거리 적용(사용자 확인)
-    ohkRange: { guaranteed: 14 },
+    // 2.9 패치 데미지표(사용자 제공 스프레드시트) 기준 정정: 총검 부착형은 본체(Specter 1882)와 같은
+    // 그룹이 아니라 Terminus/Burgess와 같은 그룹으로 측정되어 있어 14 → 13.7로 변경
+    // (기존 "본체와 동일" 가정은 폐기 — 총검 부착이 총열 등급을 바꾸는 것으로 보임)
+    ohkRange: { guaranteed: 13.7 },
   },
 
   // ⚠ Specter 1882 Shorty 전용 탄약 (위키 실측치 기준)
@@ -5264,8 +5272,9 @@ const AMMO_TYPES = {
     cost: 40, // 2.9 패치로 슬러그 가격 65 → 40으로 인하
     // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
     statOverrides: { damage: 179, spread: 65, ammoExtra: 3 },
-    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측, 드릴링 본체 기준)
-    ohkRange: { guaranteed: 14 },
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨
+    // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 정정: 14 → 15.8)
+    ohkRange: { guaranteed: 15.8 },
   },
 
   // 드릴링 쇼티/해칫 전용 — 총열 길이가 달라 슬러그 한방컷 거리가 본체와 다를 수 있으나
@@ -5333,8 +5342,9 @@ const AMMO_TYPES = {
     // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
     // 탄창(1/1)은 2.9 패치 기준(패치 전 1/2에서 감소)
     statOverrides: { damage: 157, spread: 115, ammoLoaded: 1, ammoExtra: 1 },
-    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
-    ohkRange: { guaranteed: 10 },
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨
+    // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 정정: 10 → 11)
+    ohkRange: { guaranteed: 11 },
   },
 
   // 르맷 카빈 전용 — 르맷(권총)과 총열 길이가 달라 슬러그 자체 스탯·한방컷 보장거리가 다름(위키 확인)
@@ -5352,7 +5362,8 @@ const AMMO_TYPES = {
       damage: 165, spread: 95, ammoExtra: 4, ammoLoaded: 1,
       dropRange: 25, rateOfFire: 10, cycleTime: 6.3, verticalRecoil: 15, reloadSpeed: 5, muzzleVelocity: 425,
     },
-    ohkRange: { guaranteed: 13 },
+    // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 정정: 13 → 13.7)
+    ohkRange: { guaranteed: 13.7 },
   },
 
   // 르맷 카빈 전용 — 르맷(권총)과 총열 길이가 달라 기본 샷건쉘 한방컷도 다름(사용자 실측),
@@ -5430,8 +5441,9 @@ const AMMO_TYPES = {
     cost: 40, // 2.9 패치로 슬러그 가격 65 → 40으로 인하
     // 샷건류(하부 총열) 특수탄 — 위키에 명시된 오버라이드 값 기준, 기본 벅샷 자체 데미지는 추정치라 falloff 없음
     statOverrides: { damage: 159, spread: 115, ammoExtra: 2 },
-    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨 (사용자 실측)
-    ohkRange: { guaranteed: 10 },
+    // 슬러그는 단일 탄자라 불안정 구간 없이 보장거리에서 바로 불가로 전환됨
+    // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 정정: 10 → 11)
+    ohkRange: { guaranteed: 11 },
   },
 
   haymaker_starshell: {

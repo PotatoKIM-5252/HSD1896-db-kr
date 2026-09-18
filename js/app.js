@@ -424,6 +424,7 @@ async function publishMapCustomLayers(layers, idToken) {
 // 기능을 만드는 과정에서 있었던 세부 수정/조정은 각각 올리지 말고, 오류 수정·정보
 // 수정·기능 추가만 한 줄로 간단히 요약해서 올린다.
 const CHANGELOG = [
+  { date: "9.18", text: "샷건 슬러그 한방컷(OHK) 거리를 2.9 총기 데이터 시트 기준으로 정정(Specter 1882 Bayonet 총열 등급 재확인 포함)" },
   { date: "9.15", text: "2.9 총기 데이터 시트 제작자(Schobii564) 자료 기준으로 탄약 낙하곡선 최신화(사일런서 무기 및 특수탄)" },
   { date: "9.14", text: "르맷 카빈 하부 총열 예비탄 및 장탄수 표시 오류 정정" },
   { date: "9.14", text: "2.9 패치: 사냥용 활 한방컷(OHK) 거리를 공식 발표치로 정정" },
