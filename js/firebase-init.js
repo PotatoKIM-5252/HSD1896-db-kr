@@ -21,8 +21,8 @@ import {
   setPersistence, browserLocalPersistence,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
-  getFirestore, collection, collectionGroup, addDoc, getDocs, getDoc, query, orderBy, where, limit, serverTimestamp,
-  doc, updateDoc, deleteDoc, arrayUnion, arrayRemove, setDoc, onSnapshot, increment, writeBatch, runTransaction,
+  getFirestore, collection, collectionGroup, addDoc, getDocs, query, orderBy, where, limit, serverTimestamp,
+  doc, updateDoc, deleteDoc, arrayUnion, arrayRemove, onSnapshot, increment, writeBatch, runTransaction,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -203,64 +203,8 @@ async function getCurrentUid() {
   return getUid();
 }
 
-// 무기 평가 — 문서 id가 곧 작성자 uid라서 무기당(파생형 포함) 1개만 존재.
-// liked(하트)와 text(한줄평)는 완전히 독립적으로 켜고 끔(하트 눌러도 한줄평 안 지워지고,
-// 한줄평 남겨도 하트가 자동으로 켜지지 않음 — 사용자 확인). 반대(싫어요) 개념은 없이
-// liked만 집계 — 뉴비가 부정적 숫자만 보고 반사적으로 거르는 걸 막기 위함.
-// agreedBy는 "이 한줄평에 공감(👍)"한 사람 목록 — 무기 하트와는 별개의 반응.
-const WEAPON_REVIEWS_COLLECTION = "weaponReviews";
-const MAX_WEAPON_REVIEW_LEN = 300;
-
-async function getWeaponReviews(weaponId) {
-  const uid = await getUid();
-  const q = query(collection(db, WEAPON_REVIEWS_COLLECTION, weaponId, "reviews"), orderBy("createdAt", "desc"));
-  const snap = await getDocs(q);
-  const reviews = snap.docs.map((d) => {
-    const data = d.data();
-    const agreedBy = Array.isArray(data.agreedBy) ? data.agreedBy : [];
-    return { id: d.id, ...data, agreedBy, agreeCount: agreedBy.length, iAgreed: agreedBy.includes(uid) };
-  });
-  return {
-    reviews,
-    likeCount: reviews.filter((r) => r.liked).length,
-    myReview: reviews.find((r) => r.id === uid) || null,
-  };
-}
-
-async function setWeaponHeart(weaponId, liked) {
-  const uid = await getUid();
-  const ref = doc(db, WEAPON_REVIEWS_COLLECTION, weaponId, "reviews", uid);
-  const snap = await getDoc(ref);
-  if (snap.exists()) {
-    await updateDoc(ref, { liked: !!liked, createdAt: serverTimestamp() });
-  } else {
-    await setDoc(ref, { liked: !!liked, text: "", agreedBy: [], createdAt: serverTimestamp(), ownerId: uid });
-  }
-}
-
-async function saveWeaponComment(weaponId, text) {
-  const trimmed = (text || "").trim().slice(0, MAX_WEAPON_REVIEW_LEN);
-  const uid = await getUid();
-  const ref = doc(db, WEAPON_REVIEWS_COLLECTION, weaponId, "reviews", uid);
-  const snap = await getDoc(ref);
-  if (snap.exists()) {
-    await updateDoc(ref, { text: trimmed, createdAt: serverTimestamp() });
-  } else {
-    await setDoc(ref, { liked: false, text: trimmed, agreedBy: [], createdAt: serverTimestamp(), ownerId: uid });
-  }
-}
-
-// 한줄평 공감(👍) 토글 — 무기 하트와 별개로, 댓글 작성자 본인이 아니어도 아무나 자기 uid만 추가/제거
-async function toggleWeaponCommentAgree(weaponId, reviewOwnerUid, currentlyAgreed) {
-  const uid = await getUid();
-  await updateDoc(doc(db, WEAPON_REVIEWS_COLLECTION, weaponId, "reviews", reviewOwnerUid), {
-    agreedBy: currentlyAgreed ? arrayRemove(uid) : arrayUnion(uid),
-  });
-}
-
 window.LoadoutCloud = {
   saveLoadout, listLoadouts, toggleLike, deleteLoadout,
   submitReport, reportNeedsCaptcha, listReports,
   listComments, addComment, getCurrentUid, OPERATOR_UID,
-  getWeaponReviews, setWeaponHeart, saveWeaponComment, toggleWeaponCommentAgree,
 };

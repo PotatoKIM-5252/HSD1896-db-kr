@@ -424,6 +424,7 @@ async function publishMapCustomLayers(layers, idToken) {
 // 기능을 만드는 과정에서 있었던 세부 수정/조정은 각각 올리지 말고, 오류 수정·정보
 // 수정·기능 추가만 한 줄로 간단히 요약해서 올린다.
 const CHANGELOG = [
+  { date: "9.20", text: "무기 평가 기능(하트/한줄평) 제거 — 사용률이 낮아 정리" },
   { date: "9.18", text: "샷건 슬러그 한방컷(OHK) 거리를 2.9 총기 데이터 시트 기준으로 정정(Specter 1882 Bayonet 총열 등급 재확인 포함)" },
   { date: "9.15", text: "2.9 총기 데이터 시트 제작자(Schobii564) 자료 기준으로 탄약 낙하곡선 최신화(사일런서 무기 및 특수탄)" },
   { date: "9.14", text: "르맷 카빈 하부 총열 예비탄 및 장탄수 표시 오류 정정" },
@@ -1616,7 +1617,6 @@ function renderItemDetail(item) {
     bindAmmoTabs(item);
     bindCompareButton(item, selectedAmmoId);
     bindLoadoutQuickAddButton(item, selectedAmmoId);
-    bindWeaponReviewSection(item, { root: panel });
     drawWeaponChart(item, selectedAmmoId);
   } else if (item.category === "tool") {
     panel.innerHTML = renderToolDetailHTML(item);
@@ -1882,7 +1882,6 @@ function openBodyPartView(parentItem, ammoId) {
       </div>
     </div>
 
-    ${renderWeaponReviewSectionHTML()}
   `;
 
   overlay.hidden = false;
@@ -1935,8 +1934,6 @@ function openBodyPartView(parentItem, ammoId) {
 
   if (stats.muzzleVelocity) bindLeadshotCalc(stats.muzzleVelocity);
 
-  bindWeaponReviewSection(currentItem, { full: true, root: content });
-
   // 거리별 데미지 그래프 그리기
   drawBodyPartChart(currentItem, activeAmmoId, refRange, parentItem);
 }
@@ -1982,7 +1979,6 @@ function renderMeleeBodyPartView(item, overlay, content) {
       </div>
     </div>
 
-    ${renderWeaponReviewSectionHTML()}
   `;
 
   overlay.hidden = false;
@@ -2001,8 +1997,6 @@ function renderMeleeBodyPartView(item, overlay, content) {
     }
     renderMeleeBodyPartView(item, overlay, content);
   });
-
-  bindWeaponReviewSection(item, { full: true, root: content });
 
   document.getElementById("bp-add-loadout-btn")?.addEventListener("click", (e) => {
     const btn = e.currentTarget;
@@ -2351,7 +2345,6 @@ function renderWeaponDetailHTML(item, selectedAmmoId) {
       <button id="detail-add-loadout-btn" type="button" class="compare-btn">+ 로드아웃에 추가</button>
     </div>
 
-    ${renderWeaponReviewSectionHTML()}
   `;
 }
 
@@ -2504,181 +2497,7 @@ function renderMeleeDetailHTML(item) {
       <button id="detail-add-loadout-btn" type="button" class="compare-btn">+ 로드아웃에 추가</button>
     </div>
 
-    ${renderWeaponReviewSectionHTML()}
   `;
-}
-
-// -------------------------------------------------------------------------
-// 무기 평가 — 오른쪽 간략히보기 패널(compact: 대표 한줄평 1개 + 더보기)과
-// 자세히 보기 오버레이(full: 전체 한줄평 목록 + 각 한줄평 공감(👍)) 양쪽에서 공용으로 씀.
-// 하트(무기 자체에 대한 좋아요)와 한줄평은 서로 완전히 독립 — 하나를 끄거나 지워도
-// 다른 하나는 그대로 남음(사용자 확인). 반대(싫어요) 개념 없이 하트만 집계.
-// 무기당(파생형 포함) 1인 1개.
-// -------------------------------------------------------------------------
-function renderWeaponReviewSectionHTML() {
-  return `
-    <div id="weapon-review-section">
-      <h4>무기 평가</h4>
-      <div id="weapon-review-heart-row">
-        <button id="weapon-review-heart-btn" type="button" disabled>♥ -</button>
-      </div>
-      <div id="weapon-review-comment-row">
-        <input type="text" id="weapon-review-comment-input" maxlength="300" placeholder="한줄평 남기기 (선택)" disabled>
-        <button id="weapon-review-comment-submit-btn" type="button" disabled>저장</button>
-      </div>
-      <div id="weapon-review-list">불러오는 중...</div>
-    </div>
-  `;
-}
-
-// root: 이 안에서만 id를 찾음 — 오른쪽 간략히보기 패널과 자세히 보기 오버레이가
-// 동시에 DOM에 떠 있을 때(오버레이는 패널 위에 겹쳐 뜸) 같은 id(#weapon-review-*)가
-// 문서에 두 벌 존재하게 되어, document.getElementById만 쓰면 항상 먼저 나오는 쪽(패널)만
-// 잡혀서 오버레이 쪽 하트/한줄평/공감이 반영 안 되는 버그가 있었음 — 컨테이너로 범위를 좁혀서 해결.
-function bindWeaponReviewSection(item, options = {}) {
-  const full = !!options.full;
-  const root = options.root || document;
-  const heartBtn = root.querySelector("#weapon-review-heart-btn");
-  const input = root.querySelector("#weapon-review-comment-input");
-  const submitBtn = root.querySelector("#weapon-review-comment-submit-btn");
-  const listEl = root.querySelector("#weapon-review-list");
-  if (!heartBtn) return;
-
-  // 파생형마다 스탯이 실제로 다른 별개 무기 취급이라(예: 르맷 vs 르맷 카빈), 평가도
-  // 파생형별로 따로 집계한다(item.id 자체가 이미 파생형까지 구분된 값).
-  const weaponId = item.id;
-
-  const sortByAgreeThenRecent = (a, b) =>
-    b.agreeCount - a.agreeCount || (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0);
-
-  let myUid = null;
-
-  const renderCommentRow = (r, showAgree) => {
-    const row = document.createElement("div");
-    row.className = "weapon-review-item";
-    const textEl = document.createElement("span");
-    textEl.className = "weapon-review-item-text";
-    // 남이 남긴 자유 텍스트라 반드시 textContent로만 그린다(XSS 방지)
-    textEl.textContent = r.text;
-    row.appendChild(textEl);
-
-    const actions = document.createElement("div");
-    actions.className = "weapon-review-item-actions";
-
-    if (showAgree) {
-      const agreeBtn = document.createElement("button");
-      agreeBtn.type = "button";
-      agreeBtn.className = `weapon-review-agree-btn${r.iAgreed ? " agreed" : ""}`;
-      agreeBtn.textContent = `👍 ${r.agreeCount}`;
-      agreeBtn.addEventListener("click", async () => {
-        if (!window.LoadoutCloud) return;
-        agreeBtn.disabled = true;
-        try {
-          await window.LoadoutCloud.toggleWeaponCommentAgree(weaponId, r.id, r.iAgreed);
-          await refresh();
-        } catch {
-          showToast("처리에 실패했습니다.");
-        } finally {
-          agreeBtn.disabled = false;
-        }
-      });
-      actions.appendChild(agreeBtn);
-    }
-
-    // 본인이 남긴 한줄평에만 삭제 버튼 표시(하트는 그대로 두고 한줄평 텍스트만 지움)
-    if (myUid && r.id === myUid) {
-      const delBtn = document.createElement("button");
-      delBtn.type = "button";
-      delBtn.className = "weapon-review-delete-btn";
-      delBtn.textContent = "삭제";
-      delBtn.addEventListener("click", async () => {
-        if (!window.LoadoutCloud) return;
-        delBtn.disabled = true;
-        try {
-          await window.LoadoutCloud.saveWeaponComment(weaponId, "");
-          await refresh();
-        } catch {
-          showToast("삭제에 실패했습니다.");
-          delBtn.disabled = false;
-        }
-      });
-      actions.appendChild(delBtn);
-    }
-
-    row.appendChild(actions);
-    return row;
-  };
-
-  const renderList = (reviews) => {
-    const withText = reviews.filter((r) => r.text);
-    listEl.innerHTML = "";
-    if (withText.length === 0) {
-      listEl.textContent = "아직 한줄평이 없습니다.";
-      return;
-    }
-    const sorted = [...withText].sort(sortByAgreeThenRecent);
-    if (full) {
-      sorted.forEach((r) => listEl.appendChild(renderCommentRow(r, true)));
-      return;
-    }
-    // 간략히보기: 공감 많이 받은 대표 한줄평 1개만 + 자세히 보기로 이동하는 링크
-    listEl.appendChild(renderCommentRow(sorted[0], false));
-    const moreBtn = document.createElement("button");
-    moreBtn.type = "button";
-    moreBtn.id = "weapon-review-more-btn";
-    moreBtn.textContent = `한줄평 ${withText.length}개 전체 보기 →`;
-    moreBtn.addEventListener("click", () => {
-      const parent = ITEMS.find((i) => i.id === (item._trueParentId || item.id)) || item;
-      state.selectedVariantIdx[parent.id] = item._variantIndex || 0;
-      openBodyPartView(parent, item.defaultAmmo || (item.ammoTypes && item.ammoTypes[0]));
-    });
-    listEl.appendChild(moreBtn);
-  };
-
-  const refresh = async () => {
-    if (!window.LoadoutCloud) return;
-    try {
-      if (myUid == null) myUid = await window.LoadoutCloud.getCurrentUid().catch(() => null);
-      const { reviews, likeCount, myReview } = await window.LoadoutCloud.getWeaponReviews(weaponId);
-      heartBtn.textContent = `♥ ${likeCount}`;
-      heartBtn.classList.toggle("liked", !!myReview?.liked);
-      heartBtn.disabled = false;
-      input.disabled = false;
-      submitBtn.disabled = false;
-      input.value = myReview?.text || "";
-      renderList(reviews);
-    } catch {
-      listEl.textContent = "평가를 불러오지 못했습니다.";
-    }
-  };
-
-  heartBtn.addEventListener("click", async () => {
-    if (!window.LoadoutCloud) return;
-    heartBtn.disabled = true;
-    try {
-      const currentlyLiked = heartBtn.classList.contains("liked");
-      await window.LoadoutCloud.setWeaponHeart(weaponId, !currentlyLiked);
-      await refresh();
-    } catch {
-      showToast("처리에 실패했습니다.");
-      heartBtn.disabled = false;
-    }
-  });
-
-  submitBtn.addEventListener("click", async () => {
-    if (!window.LoadoutCloud) return;
-    submitBtn.disabled = true;
-    try {
-      await window.LoadoutCloud.saveWeaponComment(weaponId, input.value);
-      await refresh();
-    } catch {
-      showToast("저장에 실패했습니다.");
-    } finally {
-      submitBtn.disabled = false;
-    }
-  });
-
-  refresh();
 }
 
 // 도구(Tool) 스탯 표시 순서/라벨 — 무기 스탯란(STAT_DEFS)과 동일한 스타일로,
