@@ -430,10 +430,10 @@ const AMMO_TYPES = {
       [60, 0.4306],
     ],
     statOverrides: {
-      damage: 104,
+      damage: 98,
       dropRange: 160,
       verticalRecoil: 8,
-      muzzleVelocity: 500,
+      muzzleVelocity: 440,
       ammoExtra: 15,
     },
   },
@@ -1016,7 +1016,7 @@ const AMMO_TYPES = {
     statOverrides: {  },
   },
 
-  // 본헤임 No.3 사일런서 전용 — 소음기 무기는 감쇠 곡선이 훨씬 가파름
+  // 본하임 No.3 사일런서 전용 — 소음기 무기는 감쇠 곡선이 훨씬 가파름
   // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 확인)
   bornheim_silencer_compact: {
     label: "Compact",
@@ -1072,7 +1072,7 @@ const AMMO_TYPES = {
     statOverrides: { damage: 70, dropRange: 85, verticalRecoil: 7.5, muzzleVelocity: 455, ammoExtra: 10 },
   },
 
-  // 본헤임 사일런서 고속탄 전용 — 소음기 달리면 고속탄도 기본탄과 같은(더 가파른) 곡선을 씀
+  // 본하임 사일런서 고속탄 전용 — 소음기 달리면 고속탄도 기본탄과 같은(더 가파른) 곡선을 씀
   // (2.9 패치 데미지표 기준, 사용자 제공 스프레드시트로 확인)
   bornheim_silencer_high_velocity: {
     label: "고속탄",
@@ -1088,7 +1088,7 @@ const AMMO_TYPES = {
       [50, 0.4697],
       [60, 0.4071],
     ],
-    statOverrides: { damage: 70, dropRange: 85, verticalRecoil: 7.5, muzzleVelocity: 455, ammoExtra: 10 },
+    statOverrides: { damage: 66, dropRange: 85, verticalRecoil: 7.5, muzzleVelocity: 398, ammoExtra: 10 },
   },
 
   // 낙하곡선 시트에 소이탄 전용 데이터는 없으나, 사용자 확인 하에 기본탄(bornheim_compact)과 동일하게 정정
@@ -1132,7 +1132,7 @@ const AMMO_TYPES = {
     effectMaxRange: 20,
   },
 
-  // ⚠ 본헤임 사일런서 소이탄 전용 — 시트에 소이탄 전용 데이터는 없으나,
+  // ⚠ 본하임 사일런서 소이탄 전용 — 시트에 소이탄 전용 데이터는 없으나,
   //    사용자 확인 하에 사일런서 기본탄(bornheim_silencer_compact)과 동일한 곡선 적용
   bornheim_silencer_incendiary: {
     label: "소이탄",
@@ -1192,7 +1192,7 @@ const AMMO_TYPES = {
     specialEffects: ["발사음 감소"],
   },
 
-  // ⚠ 본헤임 사일런서 서브소닉 전용 — 시트에 서브소닉 전용 데이터는 없으나,
+  // ⚠ 본하임 사일런서 서브소닉 전용 — 시트에 서브소닉 전용 데이터는 없으나,
   //    사용자 확인 하에 사일런서 기본탄(bornheim_silencer_compact)과 동일한 곡선 적용
   bornheim_silencer_subsonic: {
     label: "아음속탄",
@@ -1534,7 +1534,7 @@ const AMMO_TYPES = {
       [50, 0.4697],
       [60, 0.4071],
     ],
-    statOverrides: { damage: 87, dropRange: 80, verticalRecoil: 6, muzzleVelocity: 405, ammoExtra: 14 },
+    statOverrides: { damage: 81, dropRange: 80, verticalRecoil: 6, muzzleVelocity: 405, ammoExtra: 14 },
   },
 
   nagant_poison: {
@@ -1999,7 +1999,7 @@ const AMMO_TYPES = {
       [60, 0.4913],
       [80, 0.4308],
     ],
-    statOverrides: { damage: 116, dropRange: 155, verticalRecoil: 14, muzzleVelocity: 725, ammoExtra: 8 },
+    statOverrides: { damage: 107, dropRange: 155, verticalRecoil: 14, muzzleVelocity: 725, ammoExtra: 8 },
   },
 
   centennial_poison: {
@@ -2372,7 +2372,7 @@ const AMMO_TYPES = {
       [60, 0.4913],
       [80, 0.4308],
     ],
-    statOverrides: { damage: 137, dropRange: 170, verticalRecoil: 12, muzzleVelocity: 660, ammoExtra: 9 },
+    statOverrides: { damage: 128, dropRange: 170, verticalRecoil: 12, muzzleVelocity: 660, ammoExtra: 9 },
   },
 
   maynard_subsonic: {
@@ -2722,7 +2722,7 @@ const AMMO_TYPES = {
       [60, 0.4913],
       [80, 0.4308],
     ],
-    statOverrides: { damage: 123, dropRange: 140, verticalRecoil: 9, muzzleVelocity: 510, ammoExtra: 10 },
+    statOverrides: { damage: 116, dropRange: 140, verticalRecoil: 9, muzzleVelocity: 448, ammoExtra: 10 },
   },
 
   vetterli71_incendiary: {
