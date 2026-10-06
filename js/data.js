@@ -1999,7 +1999,7 @@ const AMMO_TYPES = {
       [60, 0.4913],
       [80, 0.4308],
     ],
-    statOverrides: { damage: 107, dropRange: 155, verticalRecoil: 14, muzzleVelocity: 725, ammoExtra: 8 },
+    statOverrides: { damage: 107, dropRange: 155, verticalRecoil: 14, muzzleVelocity: 559, ammoExtra: 8 },
   },
 
   centennial_poison: {
@@ -7408,7 +7408,8 @@ const ITEMS = [
           extra: 9,
         },
         stats: {
-          damage: 120,
+          // 피해 120 → 114: 2.9 데미지표(사용자 제공 스프레드시트) 기준 정정 — 시트의 가슴표/Manual Testing/사일런서 FMJ표 3곳 모두 114
+          damage: 114,
           dropRange: 100,
           rateOfFire: 24,
           spread: 42.5,
