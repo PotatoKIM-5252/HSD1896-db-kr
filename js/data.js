@@ -11118,6 +11118,24 @@ const ITEMS = [
     },
     description: "네 발을 연속 발사할 수 있는 소형 권총. 예비탄 16발을 휴대한다.",
   },
+  {
+    id: "tool_long_derringer",
+    category: "tool",
+    name: "Long Derringer",
+    nameKo: "롱 데린저",
+    image: "images/tools/long_derringer.png",
+    toolClass: "pocket_pistol",
+    toolTags: [],
+    price: null, // ❓ 위키에 "? Hunt Dollars"로 미기재 — 확인되면 채울 것
+    updateAdded: "Update 2.9.1",
+    // unlockRank: 위키에 "?"로 미기재
+    chamber: { loaded: 1 }, // Long 탄약. 예비탄(Extra)은 위키에 "?"로 미기재라 생략(화면에는 "-"로 표시)
+    stats: {
+      damage: 116, dropRange: 40, rateOfFire: 12, cycleTime: 0.6, spread: 50, sway: 113,
+      verticalRecoil: 45, reloadSpeed: 4.9, muzzleVelocity: 250, meleeLight: 13, meleeHeavy: 27,
+    },
+    description: "롱 탄 1발을 장전하는 소형 권총. 한 발의 피해량이 높다.",
+  },
 
   // ── 함정 ──
   {
