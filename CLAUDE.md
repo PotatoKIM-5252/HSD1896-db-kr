@@ -63,3 +63,23 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 ---
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
+
+---
+
+# Project-specific rules
+
+## Update log (CHANGELOG in `js/app.js`)
+
+The user-facing update log is the `CHANGELOG` array in `js/app.js`. Entries are shown in the site's update-log popup, so write them for site visitors, not for developers.
+
+- **One change per entry, one line each.** Never cram several changes into one long sentence. Entries sharing the same date are shown grouped under that date.
+  ```js
+  { date: "10.6", text: "소음기 무기 고속탄 피해량 정정(베테를리/프론티어/나강/본하임/메이너드/센테니얼 쇼티)" },
+  { date: "10.6", text: "베테를리·프론티어·본하임·센테니얼 쇼티 소음기 고속탄 탄속 정정" },
+  { date: "10.6", text: "센테니얼 쇼티 사일런서 기본 피해 정정" },
+  ```
+- **Short and plain.** State what changed (target + kind of change). No implementation notes, reasoning, or internal remarks (e.g. "비워 둠"), unless the user explicitly asks to mention something (such as the data source).
+- **Format:** `{ date: "M.D", text: "..." }`, newest first (new entries go at the top).
+- **Date:** use today's real date from the `date` command, never an assumed one.
+- **Merging into a previous entry:** when the user says to merge new work into the last entry ("저번 내역에 합치고"), edit that entry's lines instead of adding a new date.
+- Add entries only when the change is going out (deploy), and only for user-visible changes.
