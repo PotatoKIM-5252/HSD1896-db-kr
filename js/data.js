@@ -11126,10 +11126,10 @@ const ITEMS = [
     image: "images/tools/long_derringer.png",
     toolClass: "pocket_pistol",
     toolTags: [],
-    price: null, // ❓ 위키에 "? Hunt Dollars"로 미기재 — 확인되면 채울 것
+    price: 100,
     updateAdded: "Update 2.9.1",
     // unlockRank: 위키에 "?"로 미기재
-    chamber: { loaded: 1 }, // Long 탄약. 예비탄(Extra)은 위키에 "?"로 미기재라 생략(화면에는 "-"로 표시)
+    chamber: { loaded: 1, extra: 2 }, // Long 탄약
     stats: {
       damage: 116, dropRange: 40, rateOfFire: 12, cycleTime: 0.6, spread: 50, sway: 113,
       verticalRecoil: 45, reloadSpeed: 4.9, muzzleVelocity: 250, meleeLight: 13, meleeHeavy: 27,
@@ -11683,6 +11683,19 @@ const ITEMS = [
   // ✅ [확인됨] 위키 실측치 + 사용자 재확인(2026-07-15). 위키 자체 카테고리 푸터에 태그(투척/설치 등)가
   // 없어 consumableTags는 전부 빈 배열로 둠(추측 아님 — 물리적 투척/설치 아이템이 아닌 순수 효과 카드).
   {
+    id: "consumable_tarot_the_atlas",
+    category: "consumable",
+    name: "The Atlas",
+    nameKo: "지도책",
+    image: "images/consumables/tarot/the_atlas.png",
+    consumableClass: "tarot",
+    consumableTags: [],
+    scarce: true,
+    // updateAdded: 추가된 업데이트 버전 미확인
+    stats: { meleeLight: 13, meleeHeavy: 27 },
+    description: "맵에서 숨겨진 모든 위치를 드러낸다.",
+  },
+  {
     id: "consumable_tarot_the_chariot",
     category: "consumable",
     name: "The Chariot",
@@ -11837,6 +11850,19 @@ const ITEMS = [
     updateAdded: "Update 2.5",
     stats: { effectDuration: 90, meleeLight: 13, meleeHeavy: 27 },
     description: "90초 동안 강화된 재생 버프를 부여한다.",
+  },
+  {
+    id: "consumable_tarot_temperance",
+    category: "consumable",
+    name: "Temperance",
+    nameKo: "절제",
+    image: "images/consumables/tarot/temperance.png",
+    consumableClass: "tarot",
+    consumableTags: [],
+    scarce: true,
+    // updateAdded: 추가된 업데이트 버전 미확인
+    stats: { meleeLight: 13, meleeHeavy: 27 },
+    description: "이번 임무에서 헌터가 가장 최근에 잃은 특성을 회복한다.",
   },
   {
     id: "consumable_tarot_the_tower",
