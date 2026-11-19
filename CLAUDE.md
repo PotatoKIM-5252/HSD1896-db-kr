@@ -68,6 +68,14 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 # Project-specific rules
 
+## Saving work in progress
+
+The user continues work from different devices (desktop, tablet), and cloud session containers can be reset, which loses uncommitted changes.
+
+- Commit unfinished work to the development branch and push it there, so it can be picked up from any device. Do this after each meaningful step; don't leave changes only in the working tree.
+- Pushing the development branch does not deploy. Only `main` deploys (GitHub Pages), so merge into `main` and push it only when the user says "배포해" or "푸시해".
+- At the start of a session, fetch the development branch and continue from it.
+
 ## Update log (CHANGELOG in `js/app.js`)
 
 The user-facing update log is the `CHANGELOG` array in `js/app.js`. Entries are shown in the site's update-log popup, so write them for site visitors, not for developers.

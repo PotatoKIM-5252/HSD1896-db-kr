@@ -1007,6 +1007,8 @@ function switchTab(tabName) {
   });
   if (tabName === "analysis") renderAnalysis();
   if (tabName === "maps") renderMapsTab();
+  // 모바일은 탭 내용이 세로로 길어서, 탭을 바꾸면 맨 위부터 보이게 함
+  if (isMobileLayout()) window.scrollTo(0, 0);
 }
 
 // -------------------------------------------------------------------------
@@ -1462,6 +1464,8 @@ function syncSearchControlsWidth() {
   const searchBody = document.getElementById("search-body");
   const panel = document.getElementById("item-detail-panel");
   if (!grid || !controls || !searchLeft || !searchBody) return;
+  // 모바일에서는 폭 계산 없이 CSS(화면 폭 전체)에 맡김
+  if (isMobileLayout()) { controls.style.maxWidth = ""; searchLeft.style.width = ""; return; }
 
   const cardWidth = 200, gap = 14;
   const panelOpen = panel && !panel.hidden;
@@ -1500,6 +1504,11 @@ function syncSearchControlsWidth() {
   // 패널이 열려있을 땐 #search-left 자체도 실제 카드가 차지하는 폭까지만 좁혀서, 패널이
   // 카드 줄 바로 옆(카드 사이 간격과 동일한 14px)에 붙게 함(그 전엔 남는 여백만큼 떨어져 있었음)
   if (panelOpen) searchLeft.style.width = `${usedWidth}px`;
+}
+
+// 모바일 전용 배치 기준 — css/style.css의 "@media (max-width: 640px)"와 같은 값
+function isMobileLayout() {
+  return window.matchMedia("(max-width: 640px)").matches;
 }
 
 function createItemCard(item) {
@@ -1613,7 +1622,10 @@ function hideHoverPreview() {
 // -------------------------------------------------------------------------
 function renderItemDetail(item) {
   const panel = document.getElementById("item-detail-panel");
+  const wasHidden = panel.hidden;
   panel.hidden = false;
+  // 모바일에서는 상세가 전체 화면으로 열리므로, 새로 열 때 맨 위부터 보이게 함
+  if (wasHidden && isMobileLayout()) panel.scrollTop = 0;
   if (state.charts.detail) { state.charts.detail.destroy(); state.charts.detail = null; }
 
   if (item.category === "weapon") {
