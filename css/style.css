@@ -3413,6 +3413,10 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
   /* 리드샷 계산기: 이동속도 버튼 3개가 칸을 밀어내지 않게 한 줄 전체 사용 */
   .leadshot-inputs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .leadshot-speed-field { grid-column: 1 / -1; }
+  /* 리드샷 "?" 설명: 물음표 기준 가운데 정렬이면 화면 왼쪽 밖으로 잘려서, 제목 줄 왼쪽에 맞춤 */
+  h4:has(> .leadshot-hint) { position: relative; }
+  .leadshot-hint { position: static; }
+  .leadshot-hint::after { left: 0; transform: none; width: auto; max-width: 100%; }
 
   /* 업데이트 내역/오류 제보 버튼: 페이지 맨 아래(푸터 다음)에 고정 배치 */
   #site-utility-bar { position: static; flex-direction: row; justify-content: center; gap: 8px; padding: 0 12px 20px; }
@@ -3424,6 +3428,14 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
   #loadout-picker-panel:has(#picker-empty-state:not([hidden])) { display: none; }
   #loadout-picker-panel:has(#picker-content:not([hidden])) { position: fixed; inset: 0; z-index: 70; max-height: none; min-height: 0; border-radius: 0; border: none; padding: 14px 12px; }
   body:has(#tab-loadout:not([hidden]) #picker-content:not([hidden])) { overflow: hidden; }
+  /* 커뮤니티 로드아웃: 이름 입력칸이 줄지 않아 "올리기" 버튼이 화면 오른쪽 밖으로 밀리던 문제 */
+  #community-name-input { min-width: 0; }
+
+  /* 맵: 필터 접기 버튼을 누르면 실제로 접히게(지도 선택·범례 숨김) */
+  #map-legend-panel.collapsed #map-legend-header-actions,
+  #map-legend-panel.collapsed #map-select-heading,
+  #map-legend-panel.collapsed #map-select-row,
+  #map-legend-panel.collapsed #map-layer-toggles { display: none; }
 }
 
 /* 터치 기기: 마우스 올림 미리보기가 탭 뒤에 남지 않게 */
