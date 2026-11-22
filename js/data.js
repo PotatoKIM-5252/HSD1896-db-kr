@@ -3071,6 +3071,27 @@ const AMMO_TYPES = {
     effectMaxRange: 30,
   },
 
+  // ── Lancaster 전용 탄약 ──
+  // 기본탄만 등록. 낙하 곡선은 다른 Medium 권총(팍스·스코필드)과 같은 Medium 권총 곡선.
+  // 고속탄/중독탄은 게임 내 수치(피해·탄속·가격) 확인 후 추가.
+  lancaster_medium: {
+    label: "Medium",
+    category: "medium",
+    isBase: true,
+    image: "images/ui/ammo_effects/ammo_medium_regular_tight.png",
+    icon: "🟫",
+    description: "Medium - 30m부터 피해 감소 시작.",
+    cost: 0,
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.5535],
+      [80, 0.4709],
+      [100, 0.4709],
+    ],
+    statOverrides: {  },
+  },
+
 
   // ── Mako 1895 / Martini-Henry / Sparks / Haymaker / Uppercut / Krag / Lebel 1886 / Mosin-Nagant / Berthier 1892 / Mosin Obrez 전용 탄약 ──
   mako1895_long: {
@@ -8312,6 +8333,53 @@ const ITEMS = [
         },
       },
     ],
+  },
+
+  {
+    id: "weapon_lancaster",
+    category: "weapon",
+    name: "Lancaster",
+    nameKo: "랭커스터",
+    image: "images/weapons/lancaster.png", // 이미지 파일은 아직 없음(올리면 자동 표시)
+
+    // 검색 필터용
+    slotSize: 1,
+    ammoCategory: "medium",
+    weaponClass: "handgun", // handgun/rifle/shotgun
+    ammoEffects: [],
+
+    // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
+    ammoTypes: [
+      "lancaster_medium",
+    ],
+    defaultAmmo: "lancaster_medium",
+
+    // 기본 정보
+    price: 100,
+
+    // 탄창 (기본탄 기준)
+    chamber: {
+      loaded: "4",
+      extra: 12,
+    },
+
+    // 기본 스탯 (게임 내 장비 화면 기준)
+    stats: {
+      damage: 110,
+      dropRange: 65,
+      rateOfFire: 24,
+      cycleTime: 0.65,
+      spread: 35,
+      sway: 128,
+      verticalRecoil: 12,
+      reloadSpeed: 6.9,
+      muzzleVelocity: 250,
+      meleeLight: 13,
+      meleeHeavy: 31,
+      staminaConsumption: 20,
+    },
+
+    description: "랭커스터가 설계한 브레이크액션 다총열 피스톨입니다. 위력이 강하고 빠르게 발사하지만 재장전이 오래 걸립니다.",
   },
 
   {
