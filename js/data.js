@@ -3107,8 +3107,8 @@ const AMMO_TYPES = {
       [80, 0.4732],
       [100, 0.4732],
     ],
-    // 게임 화면 탄약 수 표시는 4/12 (패치노트 요약은 4/8 — 확인 필요)
-    statOverrides: { damage: 104, dropRange: 85, verticalRecoil: 15, muzzleVelocity: 325 },
+    // 게임 비교 화면은 4/12로 표기되지만 실제는 4/8(사용자 확인, 패치노트와 일치)
+    statOverrides: { damage: 104, dropRange: 85, verticalRecoil: 15, muzzleVelocity: 325, ammoExtra: 8 },
   },
 
   lancaster_poison: {
