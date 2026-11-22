@@ -3073,7 +3073,7 @@ const AMMO_TYPES = {
 
   // ── Lancaster 전용 탄약 ──
   // 낙하 곡선은 다른 Medium 권총(팍스·스코필드)과 같은 Medium 권총 곡선(기본/고속탄 각각).
-  // 고속탄 스탯은 게임 내 비교 화면 기준. 고속탄·중독탄 가격은 미확인.
+  // 고속탄 스탯은 게임 내 비교 화면 기준. 가격은 사용자 확인(고속탄 60, 중독탄 50).
   lancaster_medium: {
     label: "Medium",
     category: "medium",
@@ -3099,7 +3099,7 @@ const AMMO_TYPES = {
     image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
     icon: "🟠",
     description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
-    cost: null, // 가격 미확인
+    cost: 60,
     falloff: [
       [0, 1.00],
       [30, 1.00],
@@ -3118,7 +3118,7 @@ const AMMO_TYPES = {
     image: "images/ui/ammo_effects/ammo_medium_poison.png",
     icon: "🟢",
     description: "중독탄 - 명중 시 독 효과. 관통 불가.",
-    cost: null, // 가격 미확인
+    cost: 50,
     falloff: [
       [0, 1.00],
       [30, 1.00],
