@@ -3072,8 +3072,8 @@ const AMMO_TYPES = {
   },
 
   // ── Lancaster 전용 탄약 ──
-  // 기본탄만 등록. 낙하 곡선은 다른 Medium 권총(팍스·스코필드)과 같은 Medium 권총 곡선.
-  // 고속탄/중독탄은 게임 내 수치(피해·탄속·가격) 확인 후 추가.
+  // 낙하 곡선은 다른 Medium 권총(팍스·스코필드)과 같은 Medium 권총 곡선(기본/고속탄 각각).
+  // 고속탄 스탯은 게임 내 비교 화면 기준. 고속탄·중독탄 가격은 미확인.
   lancaster_medium: {
     label: "Medium",
     category: "medium",
@@ -3090,6 +3090,44 @@ const AMMO_TYPES = {
       [100, 0.4709],
     ],
     statOverrides: {  },
+  },
+
+  lancaster_high_velocity: {
+    label: "고속탄",
+    category: "medium",
+    effect: "high_velocity",
+    image: "images/ui/ammo_effects/ammo_medium_high_velocity.png",
+    icon: "🟠",
+    description: "고속탄 - 탄속 증가, 반동 증가, 피해 감소.",
+    cost: null, // 가격 미확인
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.5464],
+      [80, 0.4732],
+      [100, 0.4732],
+    ],
+    // 게임 화면 탄약 수 표시는 4/12 (패치노트 요약은 4/8 — 확인 필요)
+    statOverrides: { damage: 104, dropRange: 85, verticalRecoil: 15, muzzleVelocity: 325 },
+  },
+
+  lancaster_poison: {
+    label: "중독탄",
+    category: "medium",
+    effect: "poison",
+    image: "images/ui/ammo_effects/ammo_medium_poison.png",
+    icon: "🟢",
+    description: "중독탄 - 명중 시 독 효과. 관통 불가.",
+    cost: null, // 가격 미확인
+    falloff: [
+      [0, 1.00],
+      [30, 1.00],
+      [60, 0.5535],
+      [80, 0.4709],
+      [100, 0.4709],
+    ],
+    statOverrides: {  },
+    specialEffects: ["중급 중독 효과 발생"],
   },
 
 
@@ -8346,11 +8384,13 @@ const ITEMS = [
     slotSize: 1,
     ammoCategory: "medium",
     weaponClass: "handgun", // handgun/rifle/shotgun
-    ammoEffects: [],
+    ammoEffects: ["high_velocity", "poison"],
 
     // 이 무기가 쓸 수 있는 탄약 (AMMO_TYPES 의 id)
     ammoTypes: [
       "lancaster_medium",
+      "lancaster_high_velocity",
+      "lancaster_poison",
     ],
     defaultAmmo: "lancaster_medium",
 
