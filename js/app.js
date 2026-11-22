@@ -424,6 +424,7 @@ async function publishMapCustomLayers(layers, idToken) {
 // 기능을 만드는 과정에서 있었던 세부 수정/조정은 각각 올리지 말고, 오류 수정·정보
 // 수정·기능 추가만 한 줄로 간단히 요약해서 올린다.
 const CHANGELOG = [
+  { date: "11.22", text: "신규 무기 랭커스터(Lancaster) 추가" },
   { date: "11.22", text: "모바일 지도 확대·이동 지원" },
   { date: "11.22", text: "모바일 로드아웃 선택 창 스크롤·추가 알림 개선" },
   { date: "11.22", text: "모바일 전용 화면 배치 추가" },
