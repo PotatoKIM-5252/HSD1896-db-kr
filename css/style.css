@@ -3428,7 +3428,12 @@ body:has(#bodypart-overlay:not([hidden])) #site-utility-bar { display: none; }
   #loadout-equipment-panel { order: 1; width: 100%; padding: 14px; }
   #loadout-picker-panel { order: 2; }
   #loadout-picker-panel:has(#picker-empty-state:not([hidden])) { display: none; }
-  #loadout-picker-panel:has(#picker-content:not([hidden])) { position: fixed; inset: 0; z-index: 70; max-height: none; min-height: 0; border-radius: 0; border: none; padding: 14px 12px; }
+  #loadout-picker-panel:has(#picker-content:not([hidden])) { position: fixed; inset: 0; z-index: 70; max-height: none; min-height: 0; border-radius: 0; border: none; padding: 0 12px 24px; overflow-y: auto; overscroll-behavior: contain; }
+  /* 목록만 작은 칸 안에서 스크롤되면 잘려 보여서, 선택 창 전체가 한 페이지처럼 스크롤되게 함. 제목·닫기는 위에 고정 */
+  #picker-content { flex: none; }
+  #picker-item-list { overflow: visible; flex: none; }
+  #picker-header { position: sticky; top: 0; z-index: 2; background: var(--bg-panel); margin: 0 -12px 14px; padding: 14px 12px 10px; }
+  #item-detail-panel:not([hidden]) { overscroll-behavior: contain; }
   body:has(#tab-loadout:not([hidden]) #picker-content:not([hidden])) { overflow: hidden; }
   /* 커뮤니티 로드아웃: 이름 입력칸이 줄지 않아 "올리기" 버튼이 화면 오른쪽 밖으로 밀리던 문제 */
   #community-name-input { min-width: 0; }

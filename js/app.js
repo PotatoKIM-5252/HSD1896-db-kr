@@ -2954,6 +2954,8 @@ function openPicker(categoryFilter, onSelect) {
 
   document.getElementById("picker-empty-state").hidden = true;
   document.getElementById("picker-content").hidden = false;
+  // 모바일은 선택 창 전체가 한 페이지처럼 스크롤되므로, 새로 열 때 맨 위부터
+  if (isMobileLayout()) document.getElementById("loadout-picker-panel").scrollTop = 0;
 
   document.getElementById("picker-title").textContent =
     merged ? "도구 & 소모품 선택" : `${CATEGORIES[categoryFilter]?.label ?? categoryFilter} 선택`;
@@ -3270,6 +3272,11 @@ function renderPickerList(query) {
         renderPickerAmmoStep(item, { ammoIds: getPrimaryAmmoOptions(item) });
       } else if (state.picker.onSelect) {
         state.picker.onSelect(item, null);
+        // 도구·소모품·특성은 고른 뒤에도 창이 열려 있음. 모바일은 장비판이 가려져서
+        // 담겼는지 보이지 않으므로 짧게 알려줌(칸이 다 차 창이 닫힌 경우는 제외)
+        if (isMobileLayout() && !document.getElementById("picker-content").hidden) {
+          showToast(`${displayName(item)} 추가됨`, "info");
+        }
       }
     });
     list.appendChild(row);
@@ -3286,6 +3293,8 @@ function renderPickerAmmoStep(weaponItem, options = {}) {
   const onPick = options.onPick || ((ammoId) => { if (state.picker.onSelect) state.picker.onSelect(weaponItem, ammoId); });
 
   document.getElementById("picker-title").textContent = `${displayName(weaponItem)} — ${titleSuffix}`;
+  // 모바일: 무기 목록을 내려서 고른 경우에도 탄약 목록이 맨 위부터 보이게
+  if (isMobileLayout()) document.getElementById("loadout-picker-panel").scrollTop = 0;
   document.getElementById("picker-search-input").hidden = true;
 
   const list = document.getElementById("picker-item-list");
