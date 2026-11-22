@@ -5282,6 +5282,65 @@ function setupMapPanZoom() {
     viewport.classList.remove("panning");
     canvas.classList.remove("no-transition");
   });
+
+  // 터치(휴대폰/태블릿): 두 손가락으로 벌리고 오므려 확대/축소, 확대된 상태에선 한 손가락으로 끌어 이동.
+  // 기본 배율에서 한 손가락으로 끌면 페이지 스크롤이 되도록 그때는 막지 않는다.
+  // touchstart에서는 preventDefault 하지 않음 — 짧게 탭했을 때의 클릭(거리측정 지점 추가 등)이 그대로 동작하게.
+  let touchMode = null; // "pan" | "pinch" | null
+  let pinchMapX = 0, pinchMapY = 0, pinchStartDist = 0, pinchStartZoom = 1;
+
+  const touchPoint = (t) => {
+    const rect = viewport.getBoundingClientRect();
+    return { x: t.clientX - rect.left, y: t.clientY - rect.top };
+  };
+  const startTouchGesture = (touches) => {
+    if (touches.length >= 2) {
+      const a = touchPoint(touches[0]), b = touchPoint(touches[1]);
+      const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      touchMode = "pinch";
+      pinchStartDist = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+      pinchStartZoom = state.mapZoom;
+      // 두 손가락 가운데가 가리키는 지도 위 지점(배율 1 기준 좌표) — 이 지점이 계속 손가락 가운데를 따라가게 함
+      pinchMapX = (mx - state.mapPanX) / state.mapZoom;
+      pinchMapY = (my - state.mapPanY) / state.mapZoom;
+    } else if (touches.length === 1 && state.mapZoom > 1) {
+      const p = touchPoint(touches[0]);
+      touchMode = "pan";
+      startX = p.x;
+      startY = p.y;
+      startPanX = state.mapPanX;
+      startPanY = state.mapPanY;
+    } else {
+      touchMode = null;
+    }
+    canvas.classList.toggle("no-transition", touchMode !== null);
+  };
+
+  viewport.addEventListener("touchstart", (e) => startTouchGesture(e.touches), { passive: true });
+
+  viewport.addEventListener("touchmove", (e) => {
+    if (!touchMode) return;
+    e.preventDefault(); // 페이지 스크롤/페이지 전체 확대 대신 지도만 움직이게
+    if (touchMode === "pinch" && e.touches.length >= 2) {
+      const a = touchPoint(e.touches[0]), b = touchPoint(e.touches[1]);
+      const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      const dist = Math.hypot(a.x - b.x, a.y - b.y);
+      state.mapZoom = Math.min(MAP_ZOOM_MAX, Math.max(MAP_ZOOM_MIN, pinchStartZoom * dist / pinchStartDist));
+      state.mapPanX = mx - pinchMapX * state.mapZoom;
+      state.mapPanY = my - pinchMapY * state.mapZoom;
+    } else if (touchMode === "pan" && e.touches.length === 1) {
+      const p = touchPoint(e.touches[0]);
+      state.mapPanX = startPanX + (p.x - startX);
+      state.mapPanY = startPanY + (p.y - startY);
+    }
+    clampMapPan();
+    applyMapTransform();
+  }, { passive: false });
+
+  // 손가락을 하나 떼면 남은 손가락으로 이어서 이동, 모두 떼면 종료
+  const endTouchGesture = (e) => startTouchGesture(e.touches);
+  viewport.addEventListener("touchend", endTouchGesture);
+  viewport.addEventListener("touchcancel", endTouchGesture);
 }
 
 // 편집 모드에서의 지도 조작 — 빈 자리 클릭(선택된 범례 필요)이면 지점 추가,

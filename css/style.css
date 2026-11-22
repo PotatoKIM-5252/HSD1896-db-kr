@@ -2746,6 +2746,8 @@ button { font-family: var(--font-body); cursor: pointer; }
      브라우저 기본 텍스트/요소 선택(파란 하이라이트)이 뜨지 않게 함 */
   user-select: none;
   -webkit-user-select: none;
+  /* 터치: 위아래 페이지 스크롤만 브라우저에 맡기고, 두 손가락 확대·좌우 끌기는 지도(js)가 처리 */
+  touch-action: pan-y;
 }
 
 #map-viewport.panning { cursor: grabbing; }
