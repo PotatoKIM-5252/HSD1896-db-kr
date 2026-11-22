@@ -424,6 +424,8 @@ async function publishMapCustomLayers(layers, idToken) {
 // 기능을 만드는 과정에서 있었던 세부 수정/조정은 각각 올리지 말고, 오류 수정·정보
 // 수정·기능 추가만 한 줄로 간단히 요약해서 올린다.
 const CHANGELOG = [
+  { date: "11.22", text: "모바일 전용 화면 배치 추가" },
+  { date: "11.22", text: "로드아웃 선택 창에 안내 문구가 남아 있던 문제 수정" },
   { date: "10.20", text: "롱 데린저 가격(100)·예비탄(2발) 반영" },
   { date: "10.20", text: "신규 타로 카드 지도책(The Atlas), 절제(Temperance) 추가" },
   { date: "10.7", text: "2.9.1 신규 도구 롱 데린저(Long Derringer) 추가" },
